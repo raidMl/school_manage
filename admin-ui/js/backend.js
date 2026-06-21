@@ -287,8 +287,9 @@
       var name=esc([r.first_name,r.last_name].filter(Boolean).join(' '));
       var img='<img src="'+esc(avatarUrl(r.photo,[r.first_name,r.last_name].join(' '),'student'))+'" style="width:36px;height:36px;border-radius:50%;object-fit:cover" onerror="this.src=\'https://ui-avatars.com/api/?name=S&background=27ae60&color=fff&size=36\'">';
       return '<tr><td>'+img+'</td><td>'+esc(r.registration_number)+'</td><td>'+name+'</td><td>'+esc(r.email)+'</td><td>'+esc(r.parent_name||'-')+'</td><td>'+esc(r.enrollment_date||'-')+'</td>'+
-        '<td><a href="edit-student.html?id='+r.id+'" class="btn btn-xs btn-info"><i class="fa fa-pencil"></i></a> '+
-        '<button class="btn btn-xs btn-danger" data-del-student="'+r.id+'"><i class="fa fa-trash"></i></button></td></tr>';
+        '<td><a href="student-profile.html?id='+r.id+'" class="btn btn-xs btn-success" title="View Details"><i class="fa fa-eye"></i></a> '+
+        '<a href="edit-student.html?id='+r.id+'" class="btn btn-xs btn-info" title="Edit"><i class="fa fa-pencil"></i></a> '+
+        '<button class="btn btn-xs btn-danger" data-del-student="'+r.id+'" title="Delete"><i class="fa fa-trash"></i></button></td></tr>';
     }).join('');
     document.querySelector('#backend-students-table').addEventListener('click',function(e){
       var btn=e.target.closest('[data-del-student]'); if(!btn) return;
@@ -348,8 +349,9 @@
       var name=esc([r.first_name,r.last_name].filter(Boolean).join(' '));
       var img='<img src="'+esc(avatarUrl(r.photo,[r.first_name,r.last_name].join(' '),'teacher'))+'" style="width:36px;height:36px;border-radius:50%;object-fit:cover">';
       return '<tr><td>'+img+'</td><td>'+esc(r.employee_number)+'</td><td>'+name+'</td><td>'+esc(r.email)+'</td><td>'+esc(r.speciality||'-')+'</td><td>'+esc(r.hire_date||'-')+'</td>'+
-        '<td><a href="edit-professor.html?id='+r.id+'" class="btn btn-xs btn-info"><i class="fa fa-pencil"></i></a> '+
-        '<button class="btn btn-xs btn-danger" data-del-teacher="'+r.id+'"><i class="fa fa-trash"></i></button></td></tr>';
+        '<td><a href="professor-profile.html?id='+r.id+'" class="btn btn-xs btn-success" title="View Details"><i class="fa fa-eye"></i></a> '+
+        '<a href="edit-professor.html?id='+r.id+'" class="btn btn-xs btn-info" title="Edit"><i class="fa fa-pencil"></i></a> '+
+        '<button class="btn btn-xs btn-danger" data-del-teacher="'+r.id+'" title="Delete"><i class="fa fa-trash"></i></button></td></tr>';
     }).join('');
     document.querySelector('#backend-teachers-table').addEventListener('click',function(e){
       var btn=e.target.closest('[data-del-teacher]'); if(!btn) return;
@@ -407,8 +409,9 @@
     tbody.innerHTML=rows.map(function(r){
       var img='<img src="'+esc(formationImg(r.image,r.title))+'" style="width:40px;height:40px;border-radius:6px;object-fit:cover">';
       return '<tr><td>'+img+'</td><td>'+esc(r.title)+'</td><td>'+esc(r.teacher_name||'-')+'</td><td>'+esc(r.classroom_name||'-')+'</td><td>'+esc(r.start_date||'-')+'</td><td>'+esc(r.end_date||'-')+'</td><td>$'+esc(r.price)+'</td>'+
-        '<td><a href="edit-course.html?id='+r.id+'" class="btn btn-xs btn-info"><i class="fa fa-pencil"></i></a> '+
-        '<button class="btn btn-xs btn-danger" data-del-formation="'+r.id+'"><i class="fa fa-trash"></i></button></td></tr>';
+        '<td><a href="course-info.html?id='+r.id+'" class="btn btn-xs btn-success" title="View Details"><i class="fa fa-eye"></i></a> '+
+        '<a href="edit-course.html?id='+r.id+'" class="btn btn-xs btn-info" title="Edit"><i class="fa fa-pencil"></i></a> '+
+        '<button class="btn btn-xs btn-danger" data-del-formation="'+r.id+'" title="Delete"><i class="fa fa-trash"></i></button></td></tr>';
     }).join('');
     document.querySelector('#backend-formations-table').addEventListener('click',function(e){
       var btn=e.target.closest('[data-del-formation]'); if(!btn) return;
@@ -694,6 +697,72 @@
       }).catch(function(err){ showAlert('#backend-group-form-status',err.message); if(btn) btn.disabled=false; });
     });
   }
+  // ── Profiles ─────────────────────────────────────────────────────────────────
+  function loadStudentProfile() {
+    var cont = document.querySelector('#sp-container'); if(!cont) return;
+    var id = urlParam('id'); if(!id){ showAlert(cont, 'No student ID in URL'); return; }
+    request('/api/student-registrations/' + id).then(function(p){
+      var tc = p.data;
+      document.getElementById('sp-loading').style.display = 'none';
+      document.getElementById('sp-content').style.display = 'block';
+      
+      document.getElementById('sp-photo').src = avatarUrl(tc.photo, [tc.first_name, tc.last_name].join(' '), 'student');
+      document.getElementById('sp-name').textContent = [tc.first_name, tc.last_name].filter(Boolean).join(' ');
+      document.getElementById('sp-reg-num').textContent = tc.registration_number || '-';
+      document.getElementById('sp-email').textContent = tc.email || '-';
+      
+      document.getElementById('sp-gender').textContent = tc.gender || '-';
+      document.getElementById('sp-birth-date').textContent = tc.birth_date || '-';
+      document.getElementById('sp-parent-name').textContent = tc.parent_name || '-';
+      document.getElementById('sp-parent-phone').textContent = tc.parent_phone || '-';
+      document.getElementById('sp-enrollment-date').textContent = tc.enrollment_date || '-';
+      document.getElementById('sp-status').innerHTML = tc.is_active ? '<span class="label label-success">Active</span>' : '<span class="label label-danger">Inactive</span>';
+    }).catch(function(err){ showAlert(cont, err.message); });
+  }
+
+  function loadTeacherProfile() {
+    var cont = document.querySelector('#tp-container'); if(!cont) return;
+    var id = urlParam('id'); if(!id){ showAlert(cont, 'No teacher ID in URL'); return; }
+    request('/api/teacher-registrations/' + id).then(function(p){
+      var tc = p.data;
+      document.getElementById('tp-loading').style.display = 'none';
+      document.getElementById('tp-content').style.display = 'block';
+      
+      document.getElementById('tp-photo').src = avatarUrl(tc.photo, [tc.first_name, tc.last_name].join(' '), 'teacher');
+      document.getElementById('tp-name').textContent = [tc.first_name, tc.last_name].filter(Boolean).join(' ');
+      document.getElementById('tp-emp-num').textContent = tc.employee_number || '-';
+      document.getElementById('tp-email').textContent = tc.email || '-';
+      
+      document.getElementById('tp-speciality').textContent = tc.speciality || '-';
+      document.getElementById('tp-diploma').textContent = tc.diploma || '-';
+      document.getElementById('tp-hire-date').textContent = tc.hire_date || '-';
+      document.getElementById('tp-gender').textContent = tc.gender || '-';
+      document.getElementById('tp-birth-date').textContent = tc.birth_date || '-';
+      document.getElementById('tp-status').innerHTML = tc.is_active ? '<span class="label label-success">Active</span>' : '<span class="label label-danger">Inactive</span>';
+    }).catch(function(err){ showAlert(cont, err.message); });
+  }
+
+  function loadFormationProfile() {
+    var cont = document.querySelector('#cp-container'); if(!cont) return;
+    var id = urlParam('id'); if(!id){ showAlert(cont, 'No formation ID in URL'); return; }
+    request('/api/formations/' + id).then(function(p){
+      var tc = p.data;
+      document.getElementById('cp-loading').style.display = 'none';
+      document.getElementById('cp-content').style.display = 'block';
+      
+      document.getElementById('cp-image').src = formationImg(tc.image, tc.title);
+      document.getElementById('cp-title').textContent = tc.title || '-';
+      document.getElementById('cp-teacher').textContent = tc.teacher_name || 'No teacher assigned';
+      document.getElementById('cp-classroom').textContent = tc.classroom_name || 'No classroom assigned';
+      
+      document.getElementById('cp-duration').textContent = tc.duration_hours ? tc.duration_hours + ' hours' : '-';
+      document.getElementById('cp-price').textContent = tc.price ? tc.price + ' da' : 'Free';
+      document.getElementById('cp-start-date').textContent = tc.start_date || '-';
+      document.getElementById('cp-end-date').textContent = tc.end_date || '-';
+      document.getElementById('cp-created').textContent = tc.created_at ? new Date(tc.created_at).toLocaleDateString() : '-';
+      document.getElementById('cp-description').textContent = tc.description || 'No description provided.';
+    }).catch(function(err){ showAlert(cont, err.message); });
+  }
 
   // ── Init ─────────────────────────────────────────────────────────────────────
   document.addEventListener('DOMContentLoaded', function() {
@@ -705,11 +774,11 @@
     bindRegisterForm();
     bindSetupSchoolForm();
     // Students
-    loadStudents(); bindAddStudentForm(); bindEditStudentForm();
+    loadStudents(); bindAddStudentForm(); bindEditStudentForm(); loadStudentProfile();
     // Teachers
-    loadTeachers(); bindAddTeacherForm(); bindEditTeacherForm();
+    loadTeachers(); bindAddTeacherForm(); bindEditTeacherForm(); loadTeacherProfile();
     // Formations
-    loadFormations(); bindAddFormationForm(); bindEditFormationForm();
+    loadFormations(); bindAddFormationForm(); bindEditFormationForm(); loadFormationProfile();
     // Classrooms
     loadClassrooms(); bindAddClassroomForm();
     // Groups
