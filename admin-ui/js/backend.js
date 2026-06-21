@@ -13,6 +13,8 @@
     'Formations':'الدورات','All Formations':'جميع الدورات','Add Formation':'إضافة دورة',
     'Classrooms':'الفصول','Groups':'المجموعات','School Settings':'إعدادات المدرسة',
     'Notifications':'الإشعارات','Log Out':'تسجيل الخروج',
+    'Certificate':'الشهادة','Generate Certificate':'إصدار شهادة',
+    'Generate':'إصدار','Print / Download':'طباعة / تحميل',
     'No records found':'لا توجد سجلات','Loading...':'جاري التحميل...',
     'Backend connected':'الخادم متصل','Backend offline':'الخادم غير متصل',
     'Student created successfully':'تم إنشاء الطالب بنجاح',
@@ -884,6 +886,90 @@
       }
     }).catch(function(err){ showAlert(cont, err.message); });
   }
+  // ── Certificate ──────────────────────────────────────────────────────────────
+  window.loadCertificatePage = function() {
+    var formSel = document.getElementById('cert-formation-id');
+    var stuSel = document.getElementById('cert-student-id');
+    var genBtn = document.getElementById('btn-generate-cert');
+    var printBtn = document.getElementById('btn-print-cert');
+    
+    if(!formSel || !stuSel) return;
+
+    var _students = [];
+    var _formations = [];
+
+    // Fetch formations and students
+    Promise.all([
+      request('/api/formations-list').catch(function(){ return {data:[]}; }),
+      request('/api/students-list').catch(function(){ return {data:[]}; })
+    ]).then(function(res) {
+      _formations = res[0].data || [];
+      _students = res[1].data || [];
+
+      // Populate formations
+      formSel.innerHTML = '<option value="">-- Select Formation --</option>' + 
+        _formations.map(function(f){ return '<option value="'+f.id+'">'+esc(f.title)+'</option>'; }).join('');
+      
+      formSel.addEventListener('change', function() {
+        if(this.value) {
+          stuSel.disabled = false;
+          // Populate students
+          stuSel.innerHTML = '<option value="">-- Select Student --</option>' + 
+            _students.map(function(s){ return '<option value="'+s.id+'">'+esc([s.first_name, s.last_name].filter(Boolean).join(' '))+'</option>'; }).join('');
+        } else {
+          stuSel.disabled = true;
+          stuSel.innerHTML = '<option value="">Select Formation First</option>';
+          genBtn.disabled = true;
+        }
+      });
+
+      stuSel.addEventListener('change', function() {
+        genBtn.disabled = !this.value;
+      });
+
+    }).catch(function(err){ showAlert('#backend-certificate-status', err.message); });
+
+    genBtn.addEventListener('click', function() {
+      var fId = formSel.value;
+      var sId = stuSel.value;
+      if(!fId || !sId) return;
+
+      var formation = _formations.find(function(f) { return String(f.id) === String(fId); });
+      var student = _students.find(function(s) { return String(s.id) === String(sId); });
+      if(!formation || !student) return;
+
+      // Fill data
+      var studentName = [student.first_name, student.last_name].filter(Boolean).join(' ');
+      var today = new Date().toISOString().split('T')[0];
+
+      document.getElementById('cert-out-student').textContent = studentName;
+      document.getElementById('cert-out-formation').textContent = formation.title;
+      document.getElementById('cert-out-date').textContent = today;
+      
+      var schoolInfo = window._ctx && window._ctx.school ? window._ctx.school : {name: 'School Name'};
+      document.getElementById('cert-out-school').textContent = schoolInfo.name;
+      var logoEl = document.getElementById('cert-out-logo');
+      if(schoolInfo.logo) {
+        logoEl.src = schoolImg(schoolInfo.logo, schoolInfo.name);
+        logoEl.style.display = 'block';
+      } else {
+        logoEl.style.display = 'none';
+      }
+
+      printBtn.disabled = false;
+      showAlert('#backend-certificate-status', t('Certificate generated and ready to print.'), 'success');
+      
+      // Scroll to certificate preview
+      setTimeout(function() {
+        var preview = document.querySelector('.cert-preview-wrapper');
+        if(preview) preview.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    });
+
+    printBtn.addEventListener('click', function() {
+      window.print();
+    });
+  };
 
   // ── Init ─────────────────────────────────────────────────────────────────────
   document.addEventListener('DOMContentLoaded', function() {

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Certificate | School System Admin</title>
+    <link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Cairo:wght@400;600;700;800&family=Amiri:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/sidebar.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .card-panel { background: #fff; border-radius: 14px; padding: 20px; box-shadow: 0 2px 12px rgba(0,0,0,.06); margin-bottom: 20px; }
+        
+        /* Certificate Container CSS */
+        .cert-preview-wrapper {
+            background: #e9ecef;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+            border-radius: 14px;
+            overflow-x: auto;
+        }
+
+        .certificate-container {
+            width: 297mm; /* A4 Landscape width */
+            height: 210mm; /* A4 Landscape height */
+            background-color: #fff;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            padding: 20mm;
+            box-sizing: border-box;
+            font-family: 'Amiri', serif;
+            color: #2c3e50;
+            direction: rtl; /* Right to Left for Arabic */
+            text-align: center;
+            background-image: url('data:image/svg+xml;utf8,<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="10" width="calc(100% - 20px)" height="calc(100% - 20px)" fill="none" stroke="%23c5a059" stroke-width="4"/><rect x="15" y="15" width="calc(100% - 30px)" height="calc(100% - 30px)" fill="none" stroke="%23c5a059" stroke-width="1"/></svg>');
+            background-size: 100% 100%;
+        }
+
+        /* Inner Content */
+        .cert-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .cert-logo {
+            width: 100px;
+            height: 100px;
+            object-fit: contain;
+        }
+
+        .cert-school-name {
+            font-family: 'Cairo', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            color: #c5a059;
+            flex: 1;
+        }
+
+        .cert-title {
+            font-size: 60px;
+            font-weight: 700;
+            color: #c5a059;
+            margin-top: 10px;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+        }
+
+        .cert-text {
+            font-size: 28px;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        .cert-student-name {
+            font-family: 'Cairo', sans-serif;
+            font-size: 40px;
+            font-weight: 800;
+            color: #2c3e50;
+            margin: 20px 0;
+            border-bottom: 2px solid #c5a059;
+            display: inline-block;
+            padding-bottom: 5px;
+            min-width: 400px;
+        }
+
+        .cert-formation-name {
+            font-family: 'Cairo', sans-serif;
+            font-size: 32px;
+            font-weight: 700;
+            color: #e67e22;
+        }
+
+        .cert-footer {
+            position: absolute;
+            bottom: 40mm;
+            left: 30mm;
+            right: 30mm;
+            display: flex;
+            justify-content: space-between;
+            font-family: 'Cairo', sans-serif;
+            font-size: 20px;
+        }
+
+        .cert-signature-box {
+            text-align: center;
+            width: 200px;
+        }
+
+        .cert-signature-line {
+            border-top: 1px solid #2c3e50;
+            margin-top: 50px;
+            padding-top: 10px;
+        }
+
+        .cert-date {
+            font-family: 'Cairo', sans-serif;
+            font-size: 22px;
+        }
+
+        /* Print Media Query */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            @page {
+                size: A4 landscape;
+                margin: 0;
+            }
+            html, body {
+                width: 297mm;
+                height: 210mm;
+                margin: 0;
+                padding: 0;
+                background-color: white;
+            }
+            .certificate-container, .certificate-container * {
+                visibility: visible;
+            }
+            .certificate-container {
+                position: absolute;
+                left: 0;
+                top: 0;
+                margin: 0;
+                box-shadow: none; /* Remove shadow for printing */
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+<body data-page="certificate">
+    <div id="sidebar-placeholder" class="no-print"></div>
+    <div class="sb-main">
+        <div id="header-placeholder" class="no-print"></div>
+        <div class="sb-content">
+            <div class="sb-breadcrumb no-print">
+                <i class="fa fa-home"></i>
+                <a href="index.html" data-i18n="Home">Home</a>
+                <span>/</span>
+                <span data-i18n="Certificate">Certificate</span>
+            </div>
+            
+            <div class="card-panel no-print">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+                    <div>
+                        <h3 style="margin:0;font-size:16px;font-weight:700" data-i18n="Generate Certificate">Generate Certificate</h3>
+                        <p style="margin:4px 0 0;color:#888;font-size:13px">Create and print a certificate for a student.</p>
+                    </div>
+                </div>
+                <div id="backend-certificate-status" class="alert" style="display:none"></div>
+                
+                <div class="row">
+                    <div class="col-md-5">
+                        <div class="form-group">
+                            <label>Formation *</label>
+                            <select id="cert-formation-id" class="form-control" required>
+                                <option value="">Loading...</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="form-group">
+                            <label>Student *</label>
+                            <select id="cert-student-id" class="form-control" required disabled>
+                                <option value="">Select Formation First</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group" style="padding-top: 25px;">
+                            <button id="btn-generate-cert" class="btn btn-primary btn-block" disabled><i class="fa fa-cogs"></i> <span data-i18n="Generate">Generate</span></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-right" style="margin-top: 15px; margin-bottom: 20px;">
+                    <button id="btn-print-cert" class="btn btn-success" disabled><i class="fa fa-print"></i> <span data-i18n="Print / Download">Print / Download PDF</span></button>
+                </div>
+            </div>
+
+            <!-- Certificate Preview Area -->
+            <div class="cert-preview-wrapper no-print">
+                <div class="certificate-container" id="printable-certificate">
+                    <div class="cert-header">
+                        <div style="width: 100px;"></div> <!-- Spacer -->
+                        <div class="cert-school-name" id="cert-out-school">اسم المدرسة</div>
+                        <img src="" id="cert-out-logo" class="cert-logo" onerror="this.style.display='none'">
+                    </div>
+                    
+                    <div class="cert-title">شهادة إتمام دورة</div>
+                    
+                    <div class="cert-text">
+                        تشهد إدارة المركز بأن المتدرب(ة)
+                    </div>
+                    
+                    <div class="cert-student-name" id="cert-out-student">اسم الطالب</div>
+                    
+                    <div class="cert-text">
+                        قد أتم(ت) بنجاح الدورة التدريبية في
+                    </div>
+                    
+                    <div class="cert-formation-name" id="cert-out-formation">اسم الدورة</div>
+                    
+                    <div class="cert-footer">
+                        <div class="cert-date">
+                            التاريخ: <span id="cert-out-date">2026/06/21</span>
+                        </div>
+                        <div class="cert-signature-box">
+                            <div class="cert-signature-line">توقيع الإدارة</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="footer-placeholder" class="no-print"></div>
+        </div>
+    </div>
+    
+    <script src="js/vendor/jquery-1.12.4.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/components.js"></script>
+    <script src="js/backend.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof loadCertificatePage === 'function') {
+                loadCertificatePage();
+            }
+        });
+    </script>
+</body>
+</html>
