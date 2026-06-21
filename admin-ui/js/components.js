@@ -1,27 +1,108 @@
 /**
- * components.js
- * Loads shared layout partials (sidebar, header, footer) into every page.
- * Pages must have placeholder elements with the right IDs.
+ * components.js — Loads shared layout partials and initialises sidebar behaviour
  */
 (function () {
   'use strict';
 
-  var BASE = (function () {
-    // If served by backend at root, partials are at /partials/
-    // If opened as a file, use relative path
-    var loc = window.location;
-    if (loc.protocol === 'file:') return 'partials/';
-    return '/partials/';
-  })();
+  var BASE = '/partials/';
 
-  function loadPartial(id, file, callback) {
-    var el = document.getElementById(id);
+  // ── Sidebar state ────────────────────────────────────────────────────────────
+  var SB_KEY = 'sb_collapsed';
+
+  // Global toggle called by onclick in sidebar HTML
+  window.sbToggleSidebar = function () {
+    var isMobile = window.innerWidth <= 768;
+    if (isMobile) {
+      document.body.classList.toggle('sb-open');
+    } else {
+      var collapsed = document.body.classList.toggle('sb-collapsed');
+      localStorage.setItem(SB_KEY, collapsed ? '1' : '0');
+    }
+  };
+
+  // Global toggle for submenu items
+  window.sbToggle = function (linkEl) {
+    var item = linkEl.closest('.sb-item');
+    if (!item) return;
+    var wasOpen = item.classList.contains('open');
+    // Close siblings
+    var siblings = item.parentElement.querySelectorAll('.sb-item.open');
+    siblings.forEach(function (s) { s.classList.remove('open'); });
+    if (!wasOpen) item.classList.add('open');
+  };
+
+  // Close sidebar when overlay is clicked (mobile)
+  document.addEventListener('click', function (e) {
+    if (e.target.id === 'sb-overlay') {
+      document.body.classList.remove('sb-open');
+    }
+    // Close topbar dropdowns on outside click
+    if (!e.target.closest('#topbar-user-menu')) {
+      var um = document.getElementById('topbar-user-menu');
+      if (um) um.classList.remove('open');
+    }
+    if (!e.target.closest('#lang-wrap') && !e.target.closest('.lang-wrap')) {
+      document.querySelectorAll('.lang-wrap').forEach(function(w){ w.classList.remove('open'); });
+    }
+  });
+
+  // Restore collapsed state on desktop
+  function restoreSidebarState() {
+    if (window.innerWidth > 768 && localStorage.getItem(SB_KEY) === '1') {
+      document.body.classList.add('sb-collapsed');
+    }
+  }
+
+  // Mark active nav item based on current page's data-page attribute
+  function markActiveNav() {
+    var page = (document.body && document.body.getAttribute('data-page')) || '';
+    if (!page) return;
+
+    var items = document.querySelectorAll('#app-sidebar [data-menu]');
+    items.forEach(function (item) {
+      var isMatch = item.getAttribute('data-menu') === page;
+      var link = item.querySelector('.sb-link');
+      var submenuLinks = item.querySelectorAll('.sb-submenu a');
+
+      if (isMatch) {
+        if (link) link.classList.add('active');
+        item.classList.add('open');
+      }
+      // Active on submenu link
+      submenuLinks.forEach(function (a) {
+        var href = a.getAttribute('href') || '';
+        var currentFile = window.location.pathname.split('/').pop() || 'index.html';
+        if (href === currentFile) {
+          a.classList.add('active');
+          item.classList.add('open');
+          if (link) link.classList.add('active');
+        }
+      });
+    });
+
+    // Update topbar page title
+    var activeLink = document.querySelector('#app-sidebar .sb-link.active .sb-label');
+    var title = document.getElementById('sb-page-title');
+    if (title && activeLink) title.textContent = activeLink.textContent.trim();
+  }
+
+  // ── Partial loader ───────────────────────────────────────────────────────────
+  function afterLoad(name) {
+    if (window.SchoolBackend && typeof window.SchoolBackend.afterPartialLoad === 'function') {
+      window.SchoolBackend.afterPartialLoad(name);
+    }
+  }
+
+  function loadPartial(placeholderId, file, name, callback) {
+    var el = document.getElementById(placeholderId);
     if (!el) { if (callback) callback(); return; }
+
     var xhr = new XMLHttpRequest();
     xhr.open('GET', BASE + file, true);
     xhr.onload = function () {
       if (xhr.status >= 200 && xhr.status < 400) {
         el.innerHTML = xhr.responseText;
+        afterLoad(name);
       }
       if (callback) callback();
     };
@@ -29,47 +110,16 @@
     xhr.send();
   }
 
-  function markActiveMenu() {
-    var page = (document.body && document.body.getAttribute('data-page')) || '';
-    if (!page) return;
-    var items = document.querySelectorAll('[data-menu]');
-    Array.prototype.forEach.call(items, function (li) {
-      li.classList.remove('active');
-      if (li.getAttribute('data-menu') === page) {
-        li.classList.add('active');
-        // Open parent submenu if exists
-        var sub = li.querySelector('.submenu-angle');
-        if (sub) sub.setAttribute('aria-expanded', 'true');
-      }
-    });
-  }
-
-  function initMetisMenu() {
-    if (typeof jQuery !== 'undefined' && jQuery.fn.metisMenu) {
-      jQuery('#menu1').metisMenu();
-    }
-  }
-
-  function initSidebarToggle() {
-    if (typeof jQuery === 'undefined') return;
-    jQuery(document).on('click', '#sidebarCollapse', function () {
-      jQuery('#sidebar').toggleClass('active');
-    });
-  }
-
   function loadComponents() {
-    // Load sidebar first, then header, then footer (order matters for menu init)
-    loadPartial('sidebar-placeholder', 'sidebar.html', function () {
-      markActiveMenu();
-      initMetisMenu();
-      initSidebarToggle();
+    // Restore sidebar collapsed state before DOM renders
+    restoreSidebarState();
 
-      loadPartial('header-placeholder', 'header.html', function () {
-        // Re-bind logout after header is injected
-        if (window.SchoolBackend && window.SchoolBackend.bindLogout) {
-          window.SchoolBackend.bindLogout();
-        }
-        loadPartial('footer-placeholder', 'footer.html', null);
+    // Load sidebar → header → footer in sequence
+    loadPartial('sidebar-placeholder', 'sidebar.html', 'sidebar', function () {
+      markActiveNav();
+
+      loadPartial('header-placeholder', 'header.html', 'header', function () {
+        loadPartial('footer-placeholder', 'footer.html', 'footer', null);
       });
     });
   }

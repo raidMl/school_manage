@@ -1,87 +1,41 @@
-<!-- Header Area -->
-<div class="header-advance-area">
-    <div class="header-top-area">
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                    <div class="header-top-wraper">
-                        <div class="row">
-                            <div class="col-lg-1 col-md-0 col-sm-1 col-xs-12">
-                                <div class="menu-switcher-pro">
-                                    <button type="button" id="sidebarCollapse" class="btn bar-button-pro header-drl-controller-btn btn-info navbar-btn">
-                                        <i class="educate-icon educate-nav"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="col-lg-6 col-md-7 col-sm-6 col-xs-12">
-                                <div class="header-top-menu tabl-d-n">
-                                    <ul class="nav navbar-nav mai-top-nav">
-                                        <li class="nav-item"><a href="index.html" class="nav-link">Home</a></li>
-                                        <li class="nav-item"><a href="all-students.html" class="nav-link">Students</a></li>
-                                        <li class="nav-item"><a href="all-professors.html" class="nav-link">Teachers</a></li>
-                                        <li class="nav-item"><a href="all-courses.html" class="nav-link">Formations</a></li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="col-lg-5 col-md-5 col-sm-12 col-xs-12">
-                                <div class="header-right-info">
-                                    <ul class="nav navbar-nav mai-top-nav header-right-menu">
-                                        <li class="nav-item">
-                                            <a href="#" data-toggle="dropdown" role="button" aria-expanded="false" class="nav-link dropdown-toggle">
-                                                <img src="img/product/pro4.jpg" alt="" />
-                                                <span class="admin-name" id="backend-user-name">Loading...</span>
-                                                <i class="fa fa-angle-down edu-icon edu-down-arrow"></i>
-                                            </a>
-                                            <ul role="menu" class="dropdown-header-top author-log dropdown-menu animated zoomIn">
-                                                <li><a href="setup-school.html"><span class="edu-icon edu-home-admin author-log-ic"></span>My School</a></li>
-                                                <li><a href="#" data-backend-logout><span class="edu-icon edu-locked author-log-ic"></span>Log Out</a></li>
-                                            </ul>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+<!-- ══════════════ Top Bar ══════════════ -->
+<header class="sb-topbar">
+    <button class="sb-toggle-btn" id="sb-toggle" onclick="sbToggleSidebar()" aria-label="Toggle sidebar">
+        <span></span><span></span><span></span>
+    </button>
+
+    <span class="sb-topbar-title" id="sb-page-title">Dashboard</span>
+
+    <div class="sb-topbar-right">
+        <!-- Language switcher -->
+        <div class="lang-wrap" id="lang-wrap">
+            <button class="lang-btn" onclick="this.closest('.lang-wrap').classList.toggle('open')" type="button">
+                <i class="fa fa-globe"></i>
+                <span id="lang-current-label">EN</span>
+            </button>
+            <div class="lang-dropdown">
+                <a href="#" class="lang-switch-btn" data-lang="en">🇬🇧 English</a>
+                <a href="#" class="lang-switch-btn" data-lang="ar">🇩🇿 العربية</a>
+            </div>
+        </div>
+
+        <!-- Notifications -->
+        <button class="topbar-icon-btn" type="button" title="Notifications">
+            <i class="fa fa-bell"></i>
+            <span class="topbar-badge"></span>
+        </button>
+
+        <!-- User menu -->
+        <div class="topbar-user" id="topbar-user-menu" onclick="this.classList.toggle('open')">
+            <img src="https://ui-avatars.com/api/?name=Admin&background=4f6eff&color=fff&size=64"
+                 id="header-user-avatar" alt="User">
+            <span class="topbar-user-name" id="backend-user-name">Loading...</span>
+            <i class="fa fa-chevron-down" style="font-size:10px;color:#aaa;margin-left:2px"></i>
+            <div class="topbar-dropdown">
+                <a href="index.html"><i class="fa fa-home"></i> Dashboard</a>
+                <a href="setup-school.html"><i class="fa fa-cog"></i> School Settings</a>
+                <a href="#" data-backend-logout><i class="fa fa-sign-out"></i> Log Out</a>
             </div>
         </div>
     </div>
-    <!-- Mobile Menu start -->
-    <div class="mobile-menu-area">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                    <div class="mobile-menu">
-                        <nav id="dropdown">
-                            <ul class="mobile-menu-nav">
-                                <li><a href="index.html">Dashboard</a></li>
-                                <li><a data-toggle="collapse" data-target="#mobTeachers" href="#">Teachers <span class="admin-project-icon edu-icon edu-down-arrow"></span></a>
-                                    <ul id="mobTeachers" class="collapse dropdown-header-top">
-                                        <li><a href="all-professors.html">All Teachers</a></li>
-                                        <li><a href="add-professor.html">Add Teacher</a></li>
-                                    </ul>
-                                </li>
-                                <li><a data-toggle="collapse" data-target="#mobStudents" href="#">Students <span class="admin-project-icon edu-icon edu-down-arrow"></span></a>
-                                    <ul id="mobStudents" class="collapse dropdown-header-top">
-                                        <li><a href="all-students.html">All Students</a></li>
-                                        <li><a href="add-student.html">Add Student</a></li>
-                                    </ul>
-                                </li>
-                                <li><a data-toggle="collapse" data-target="#mobFormations" href="#">Formations <span class="admin-project-icon edu-icon edu-down-arrow"></span></a>
-                                    <ul id="mobFormations" class="collapse dropdown-header-top">
-                                        <li><a href="all-courses.html">All Formations</a></li>
-                                        <li><a href="add-course.html">Add Formation</a></li>
-                                    </ul>
-                                </li>
-                                <li><a href="classrooms.html">Classrooms</a></li>
-                                <li><a href="groups.html">Groups</a></li>
-                                <li><a href="setup-school.html">School Settings</a></li>
-                            </ul>
-                        </nav>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Mobile Menu end -->
-</div>
+</header>

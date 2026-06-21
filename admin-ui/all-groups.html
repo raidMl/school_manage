@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Groups | School System Admin</title>
+    <link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/sidebar.css">
+    <style>body{font-family:'Inter',sans-serif}.card-panel{background:#fff;border-radius:14px;padding:24px;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:20px;max-width:860px}</style>
+</head>
+<body data-page="groups">
+<div id="sidebar-placeholder"></div>
+<div class="sb-main">
+<div id="header-placeholder"></div>
+<div class="sb-content">
+<div class="sb-breadcrumb"><i class="fa fa-home"></i> <a href="index.html">Home</a> <span>/</span> <a href="index.html">Home</a> <span>/</span> <span>Groups</span></div>
+
+<style>
+.group-card{border-left:4px solid #4f6eff;padding:16px;border-radius:8px;background:#fff;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:14px}
+.group-card h4{margin:0 0 4px;font-size:15px;font-weight:700}.group-card .meta{color:#888;font-size:12px;margin-bottom:8px}
+.student-card{display:inline-flex;align-items:center;gap:6px;background:#f0f4ff;border-radius:20px;padding:4px 10px;margin:2px;font-size:12px;font-weight:500}
+.student-card img{width:22px;height:22px;border-radius:50%;object-fit:cover}
+.student-card .rm{cursor:pointer;color:#e74c3c;font-weight:700;margin-left:4px}
+.add-panel{display:none;margin-top:12px;padding:12px;background:#f8f9fc;border-radius:8px}
+.add-panel.open{display:block}
+.stu-list{max-height:200px;overflow-y:auto;border:1px solid #e0e3ef;border-radius:6px;padding:6px}
+.stu-list label{display:flex;align-items:center;gap:8px;padding:5px;cursor:pointer;border-radius:4px}
+.stu-list label:hover{background:#eaf2ff}
+.stu-list img{width:26px;height:26px;border-radius:50%;object-fit:cover}
+.stu-search{width:100%;margin-bottom:6px;padding:6px 10px;border:1px solid #ccc;border-radius:6px}
+</style>
+<div class="row">
+  <div class="col-lg-4 col-md-5 col-sm-12">
+    <div class="card-panel" style="max-width:none">
+      <h3 style="margin:0 0 16px;font-size:16px;font-weight:700"><i class="fa fa-users" style="color:#4f6eff"></i> Create Group</h3>
+      <div id="backend-group-form-status" class="alert" style="display:none"></div>
+      <form id="backend-add-group-form">
+        <div class="form-group"><label>Formation <span class="text-danger">*</span></label><select id="group-formation-id" name="formation_id" class="form-control" required><option value="">Loading...</option></select></div>
+        <div class="form-group"><label>Group Name <span class="text-danger">*</span></label><input type="text" name="name" class="form-control" placeholder="e.g. Group A" required></div>
+        <div class="form-group"><label>Classroom</label><select id="group-classroom-id" name="classroom_id" class="form-control"><option value="">No classroom</option></select></div>
+        <div class="row">
+          <div class="col-md-6"><div class="form-group"><label>Start Date</label><input type="date" name="start_date" class="form-control"></div></div>
+          <div class="col-md-6"><div class="form-group"><label>End Date</label><input type="date" name="end_date" class="form-control"></div></div>
+        </div>
+        <div class="form-group"><label>Max Students</label><input type="number" name="max_students" class="form-control" placeholder="Leave blank for unlimited" min="1"></div>
+        <div class="form-group">
+          <label>Add Students</label>
+          <input type="text" id="student-search-create" class="stu-search" placeholder="Search students...">
+          <div id="student-select-list-create" class="stu-list"><p class="text-muted" style="margin:8px">Loading...</p></div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block btn-lg"><i class="fa fa-save"></i> Create Group</button>
+      </form>
+    </div>
+  </div>
+  <div class="col-lg-8 col-md-7 col-sm-12">
+    <div class="card-panel" style="max-width:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <h3 style="margin:0;font-size:16px;font-weight:700">All Groups</h3>
+        <select id="filter-formation" class="form-control" style="width:auto"><option value="">All Formations</option></select>
+      </div>
+      <div id="backend-groups-status" class="alert" style="display:none"></div>
+      <div id="backend-groups-list"><p class="text-muted text-center">Loading groups...</p></div>
+    </div>
+  </div>
+</div>
+
+<div id="footer-placeholder"></div>
+</div></div>
+<script src="js/vendor/jquery-1.12.4.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/components.js"></script>
+<script src="js/backend.js"></script>
+</body></html>

@@ -1,274 +1,212 @@
 <!DOCTYPE html>
-<html class="no-js" lang="en">
+<html lang="en">
 <head>
     <meta charset="utf-8">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Dashboard | School System Admin</title>
     <meta name="description" content="School management admin dashboard">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico">
-    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,700,900" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/font-awesome.min.css">
-    <link rel="stylesheet" href="css/owl.carousel.css">
-    <link rel="stylesheet" href="css/animate.css">
-    <link rel="stylesheet" href="css/normalize.css">
-    <link rel="stylesheet" href="css/meanmenu.min.css">
-    <link rel="stylesheet" href="css/main.css">
-    <link rel="stylesheet" href="css/educate-custon-icon.css">
-    <link rel="stylesheet" href="css/morrisjs/morris.css">
-    <link rel="stylesheet" href="css/scrollbar/jquery.mCustomScrollbar.min.css">
-    <link rel="stylesheet" href="css/metisMenu/metisMenu.min.css">
-    <link rel="stylesheet" href="css/metisMenu/metisMenu-vertical.css">
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="css/responsive.css">
-    <script src="js/vendor/modernizr-2.8.3.min.js"></script>
+    <link rel="stylesheet" href="css/sidebar.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .stat-card { background:#fff; border-radius:14px; padding:20px 22px; display:flex; align-items:center; gap:16px; box-shadow:0 2px 12px rgba(0,0,0,.06); transition:transform .2s,box-shadow .2s; margin-bottom:20px; }
+        .stat-card:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,0,0,.1); }
+        .stat-icon { width:52px; height:52px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:22px; color:#fff; flex-shrink:0; }
+        .stat-info { flex:1; }
+        .stat-value { font-size:32px; font-weight:700; color:#1a1f37; line-height:1; }
+        .stat-label { font-size:11px; color:#888; font-weight:500; margin-top:4px; text-transform:uppercase; letter-spacing:.5px; }
+        .stat-link { font-size:11px; color:#4f6eff; text-decoration:none; }
+        .stat-link:hover { text-decoration:underline; }
+        .card-panel { background:#fff; border-radius:14px; padding:20px; box-shadow:0 2px 12px rgba(0,0,0,.06); margin-bottom:20px; }
+        .section-header { font-size:15px; font-weight:700; color:#1a1f37; margin:0 0 16px; display:flex; align-items:center; justify-content:space-between; }
+        .section-header a { font-size:12px; font-weight:500; color:#4f6eff; text-decoration:none; }
+        .quick-btn { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; background:#fff; border-radius:14px; padding:24px 16px; text-decoration:none; box-shadow:0 2px 12px rgba(0,0,0,.06); transition:transform .2s,box-shadow .2s; color:#333; font-weight:600; font-size:13px; margin-bottom:20px; }
+        .quick-btn:hover { transform:translateY(-3px); box-shadow:0 8px 24px rgba(0,0,0,.12); color:#333; }
+        .quick-btn .qi { width:48px; height:48px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:20px; color:#fff; }
+    </style>
 </head>
-
 <body data-page="dashboard">
 
-    <!-- Sidebar placeholder -->
+    <!-- Sidebar (fixed positioned, loads async) -->
     <div id="sidebar-placeholder"></div>
 
-    <!-- Main content -->
-    <div class="all-content-wrapper">
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="logo-pro">
-                        <a href="index.html"><img class="main-logo" src="img/logo/logo.png" alt="School System" /></a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Header placeholder -->
+    <!-- Main content wrapper -->
+    <div class="sb-main">
+        <!-- Header/topbar -->
         <div id="header-placeholder"></div>
 
-        <!-- Breadcrumb -->
-        <div class="breadcome-area">
-            <div class="container-fluid">
+        <!-- Page content -->
+        <div class="sb-content">
+            <div class="sb-breadcrumb">
+                <i class="fa fa-home"></i>
+                <a href="index.html">Home</a>
+                <span>/</span>
+                <span>Dashboard</span>
+            </div>
+
+            <!-- Status bar -->
+            <div id="backend-dashboard-shell">
+
+                <!-- School info -->
+                <div class="card-panel" style="display:flex;align-items:center;gap:16px;margin-bottom:20px">
+                    <div style="flex:1">
+                        <h2 style="margin:0;font-size:18px;font-weight:700;color:#1a1f37" id="backend-school-name">Loading...</h2>
+                        <p style="margin:4px 0 0;color:#888;font-size:13px" id="backend-school-status">Fetching dashboard data...</p>
+                        <p id="backend-dashboard-status" style="color:#e74c3c;margin:0;font-size:13px"></p>
+                    </div>
+                    <div style="text-align:right">
+                        <span id="backend-health-badge" class="label label-default">Connecting...</span><br>
+                        <small id="backend-health-detail" style="color:#aaa"></small>
+                    </div>
+                </div>
+
+                <!-- Stat cards -->
                 <div class="row">
-                    <div class="col-lg-12">
-                        <div class="breadcome-list">
-                            <div class="row">
-                                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                                    <div class="breadcome-heading">
-                                        <h2>Dashboard</h2>
-                                    </div>
-                                </div>
-                                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                                    <ul class="breadcome-menu">
-                                        <li><a href="index.html">Home</a> <span class="bread-slash">/</span></li>
-                                        <li><span class="bread-blod">Dashboard</span></li>
-                                    </ul>
-                                </div>
+                    <div class="col-lg-2 col-md-4 col-sm-6 col-xs-12">
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background:linear-gradient(135deg,#667eea,#764ba2)"><i class="fa fa-users"></i></div>
+                            <div class="stat-info">
+                                <div class="stat-value" id="backend-count-users">—</div>
+                                <div class="stat-label">Users</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-md-4 col-sm-6 col-xs-12">
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background:linear-gradient(135deg,#11998e,#38ef7d)"><i class="fa fa-user-md"></i></div>
+                            <div class="stat-info">
+                                <div class="stat-value" id="backend-count-teachers">—</div>
+                                <div class="stat-label">Teachers</div>
+                                <a href="all-professors.html" class="stat-link">View all →</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-md-4 col-sm-6 col-xs-12">
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background:linear-gradient(135deg,#f7971e,#ffd200)"><i class="fa fa-graduation-cap"></i></div>
+                            <div class="stat-info">
+                                <div class="stat-value" id="backend-count-students">—</div>
+                                <div class="stat-label">Students</div>
+                                <a href="all-students.html" class="stat-link">View all →</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-md-4 col-sm-6 col-xs-12">
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background:linear-gradient(135deg,#fc466b,#3f5efb)"><i class="fa fa-building"></i></div>
+                            <div class="stat-info">
+                                <div class="stat-value" id="backend-count-classrooms">—</div>
+                                <div class="stat-label">Classrooms</div>
+                                <a href="all-classrooms.html" class="stat-link">Manage →</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-md-4 col-sm-6 col-xs-12">
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background:linear-gradient(135deg,#4facfe,#00f2fe)"><i class="fa fa-book"></i></div>
+                            <div class="stat-info">
+                                <div class="stat-value" id="backend-count-formations">—</div>
+                                <div class="stat-label">Formations</div>
+                                <a href="all-courses.html" class="stat-link">View all →</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-md-4 col-sm-6 col-xs-12">
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background:linear-gradient(135deg,#a18cd1,#fbc2eb)"><i class="fa fa-sitemap"></i></div>
+                            <div class="stat-info">
+                                <div class="stat-value" id="backend-count-groups">—</div>
+                                <div class="stat-label">Groups</div>
+                                <a href="all-groups.html" class="stat-link">Manage →</a>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <!-- ===== LIVE BACKEND DASHBOARD SHELL ===== -->
-        <div id="backend-dashboard-shell" class="container-fluid">
-
-            <!-- School info bar -->
-            <div class="row mg-b-15">
-                <div class="col-lg-12">
-                    <div class="white-box">
-                        <div class="row">
-                            <div class="col-lg-8 col-md-8 col-sm-12 col-xs-12">
-                                <h3 class="box-title" id="backend-school-name">Loading school...</h3>
-                                <p id="backend-school-status" class="text-muted">Fetching your school dashboard...</p>
-                                <p id="backend-dashboard-status" class="text-danger"></p>
+                <!-- Recent tables -->
+                <div class="row">
+                    <div class="col-lg-7 col-md-12">
+                        <div class="card-panel">
+                            <div class="section-header">Recent Students <a href="all-students.html">View all</a></div>
+                            <div class="table-responsive">
+                                <table id="backend-recent-students" class="table table-hover" style="margin:0">
+                                    <thead style="background:#f8f9fc"><tr>
+                                        <th width="46"></th><th>Reg #</th><th>Name</th><th>Email</th><th>Enrolled</th>
+                                    </tr></thead>
+                                    <tbody><tr><td colspan="5" class="text-center text-muted">Loading...</td></tr></tbody>
+                                </table>
                             </div>
-                            <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12 text-right">
-                                <span id="backend-health-badge" class="label label-default">Connecting...</span>
-                                <span id="backend-health-detail" class="text-muted" style="margin-left:8px;font-size:12px"></span>
+                        </div>
+                    </div>
+                    <div class="col-lg-5 col-md-12">
+                        <div class="card-panel">
+                            <div class="section-header">Recent Teachers <a href="all-professors.html">View all</a></div>
+                            <div class="table-responsive">
+                                <table id="backend-recent-teachers" class="table table-hover" style="margin:0">
+                                    <thead style="background:#f8f9fc"><tr>
+                                        <th width="46"></th><th>Name</th><th>Speciality</th><th>Hired</th>
+                                    </tr></thead>
+                                    <tbody><tr><td colspan="4" class="text-center text-muted">Loading...</td></tr></tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Summary count cards -->
-            <div class="row mg-b-30">
-                <div class="col-lg-2 col-md-4 col-sm-6 col-xs-12">
-                    <div class="white-box analytics-info-cs">
-                        <h3 class="box-title">Users</h3>
-                        <ul class="list-inline two-part list-unstyled">
-                            <li><i class="fa fa-users text-info fa-2x"></i></li>
-                            <li class="text-right"><span class="counter" id="backend-count-users" style="font-size:2rem;font-weight:700">0</span></li>
-                        </ul>
+                <!-- Formations summary -->
+                <div class="card-panel">
+                    <div class="section-header">
+                        Formations Overview
+                        <a href="add-course.html">+ Add Formation</a>
+                    </div>
+                    <div id="backend-formations-summary" class="row">
+                        <p class="text-muted text-center col-lg-12">Loading formations...</p>
                     </div>
                 </div>
-                <div class="col-lg-2 col-md-4 col-sm-6 col-xs-12">
-                    <div class="white-box analytics-info-cs">
-                        <h3 class="box-title">Teachers</h3>
-                        <ul class="list-inline two-part list-unstyled">
-                            <li><i class="fa fa-user-md text-success fa-2x"></i></li>
-                            <li class="text-right"><span class="counter" id="backend-count-teachers" style="font-size:2rem;font-weight:700">0</span></li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="col-lg-2 col-md-4 col-sm-6 col-xs-12">
-                    <div class="white-box analytics-info-cs">
-                        <h3 class="box-title">Students</h3>
-                        <ul class="list-inline two-part list-unstyled">
-                            <li><i class="fa fa-graduation-cap text-warning fa-2x"></i></li>
-                            <li class="text-right"><span class="counter" id="backend-count-students" style="font-size:2rem;font-weight:700">0</span></li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="col-lg-2 col-md-4 col-sm-6 col-xs-12">
-                    <div class="white-box analytics-info-cs">
-                        <h3 class="box-title">Classrooms</h3>
-                        <ul class="list-inline two-part list-unstyled">
-                            <li><i class="fa fa-building text-danger fa-2x"></i></li>
-                            <li class="text-right"><span class="counter" id="backend-count-classrooms" style="font-size:2rem;font-weight:700">0</span></li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="col-lg-2 col-md-4 col-sm-6 col-xs-12">
-                    <div class="white-box analytics-info-cs">
-                        <h3 class="box-title">Formations</h3>
-                        <ul class="list-inline two-part list-unstyled">
-                            <li><i class="fa fa-book text-primary fa-2x"></i></li>
-                            <li class="text-right"><span class="counter" id="backend-count-formations" style="font-size:2rem;font-weight:700">0</span></li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="col-lg-2 col-md-4 col-sm-6 col-xs-12">
-                    <div class="white-box analytics-info-cs">
-                        <h3 class="box-title">Groups</h3>
-                        <ul class="list-inline two-part list-unstyled">
-                            <li><i class="fa fa-sitemap text-muted fa-2x"></i></li>
-                            <li class="text-right"><span class="counter" id="backend-count-groups" style="font-size:2rem;font-weight:700">0</span></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Formations summary + Recent students -->
-            <div class="row mg-b-30">
-                <div class="col-lg-8 col-md-12">
-                    <div class="white-box">
-                        <h3 class="box-title">Recent Students</h3>
-                        <div class="table-responsive">
-                            <table id="backend-recent-students" class="table table-striped table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Reg #</th>
-                                        <th>Name</th>
-                                        <th>Email</th>
-                                        <th>Enrolled</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr><td colspan="4" class="text-center">Loading...</td></tr>
-                                </tbody>
-                            </table>
+                <!-- Quick actions -->
+                <div class="card-panel">
+                    <div class="section-header">Quick Actions</div>
+                    <div class="row">
+                        <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
+                            <a href="add-student.html" class="quick-btn">
+                                <div class="qi" style="background:linear-gradient(135deg,#f7971e,#ffd200)"><i class="fa fa-graduation-cap"></i></div>
+                                Add Student
+                            </a>
                         </div>
-                        <a href="all-students.html" class="btn btn-sm btn-default">View All Students</a>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-12">
-                    <div class="white-box">
-                        <h3 class="box-title">Recent Teachers</h3>
-                        <div class="table-responsive">
-                            <table id="backend-recent-teachers" class="table table-striped table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Emp #</th>
-                                        <th>Name</th>
-                                        <th>Speciality</th>
-                                        <th>Hired</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr><td colspan="4" class="text-center">Loading...</td></tr>
-                                </tbody>
-                            </table>
+                        <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
+                            <a href="add-professor.html" class="quick-btn">
+                                <div class="qi" style="background:linear-gradient(135deg,#11998e,#38ef7d)"><i class="fa fa-user-md"></i></div>
+                                Add Teacher
+                            </a>
                         </div>
-                        <a href="all-professors.html" class="btn btn-sm btn-default">View All Teachers</a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Formations cards -->
-            <div class="row mg-b-30">
-                <div class="col-lg-12">
-                    <div class="white-box">
-                        <div class="row">
-                            <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
-                                <h3 class="box-title">Formations Overview</h3>
-                            </div>
-                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 text-right">
-                                <a href="add-course.html" class="btn btn-sm btn-primary">+ Add Formation</a>
-                            </div>
+                        <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
+                            <a href="add-course.html" class="quick-btn">
+                                <div class="qi" style="background:linear-gradient(135deg,#4facfe,#00f2fe)"><i class="fa fa-book"></i></div>
+                                Add Formation
+                            </a>
                         </div>
-                        <div id="backend-formations-summary" class="row" style="margin-top:15px">
-                            <p class="text-muted text-center">Loading formations...</p>
+                        <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
+                            <a href="all-groups.html" class="quick-btn">
+                                <div class="qi" style="background:linear-gradient(135deg,#a18cd1,#fbc2eb)"><i class="fa fa-users"></i></div>
+                                Manage Groups
+                            </a>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Quick actions -->
-            <div class="row mg-b-30">
-                <div class="col-lg-12">
-                    <div class="white-box">
-                        <h3 class="box-title">Quick Actions</h3>
-                        <div class="row" style="margin-top:15px">
-                            <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12" style="margin-bottom:10px">
-                                <a href="add-student.html" class="btn btn-warning btn-block btn-lg">
-                                    <i class="fa fa-graduation-cap"></i> Add Student
-                                </a>
-                            </div>
-                            <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12" style="margin-bottom:10px">
-                                <a href="add-professor.html" class="btn btn-success btn-block btn-lg">
-                                    <i class="fa fa-user-md"></i> Add Teacher
-                                </a>
-                            </div>
-                            <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12" style="margin-bottom:10px">
-                                <a href="add-course.html" class="btn btn-primary btn-block btn-lg">
-                                    <i class="fa fa-book"></i> Add Formation
-                                </a>
-                            </div>
-                            <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12" style="margin-bottom:10px">
-                                <a href="setup-school.html" class="btn btn-default btn-block btn-lg">
-                                    <i class="fa fa-cog"></i> School Settings
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            </div><!-- /#backend-dashboard-shell -->
 
-        </div><!-- /#backend-dashboard-shell -->
+            <!-- Footer -->
+            <div id="footer-placeholder"></div>
+        </div><!-- /.sb-content -->
+    </div><!-- /.sb-main -->
 
-        <!-- Footer placeholder -->
-        <div id="footer-placeholder"></div>
-    </div>
-
-    <!-- Scripts -->
     <script src="js/vendor/jquery-1.12.4.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
-    <script src="js/wow.min.js"></script>
-    <script src="js/jquery.meanmenu.js"></script>
-    <script src="js/owl.carousel.min.js"></script>
-    <script src="js/jquery.sticky.js"></script>
-    <script src="js/jquery.scrollUp.min.js"></script>
-    <script src="js/counterup/jquery.counterup.min.js"></script>
-    <script src="js/counterup/waypoints.min.js"></script>
-    <script src="js/counterup/counterup-active.js"></script>
-    <script src="js/scrollbar/jquery.mCustomScrollbar.concat.min.js"></script>
-    <script src="js/scrollbar/mCustomScrollbar-active.js"></script>
-    <script src="js/metisMenu/metisMenu.min.js"></script>
-    <script src="js/metisMenu/metisMenu-active.js"></script>
-    <script src="js/plugins.js"></script>
-    <script src="js/main.js"></script>
     <script src="js/components.js"></script>
     <script src="js/backend.js"></script>
 </body>

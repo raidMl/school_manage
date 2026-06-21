@@ -193,6 +193,7 @@ CREATE TABLE classrooms (
 
     name VARCHAR(100) NOT NULL,
     capacity INT DEFAULT 30,
+    description TEXT NULL,
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
@@ -251,8 +252,12 @@ CREATE TABLE `groups` (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 
     formation_id BIGINT UNSIGNED NOT NULL,
+    classroom_id BIGINT UNSIGNED NULL,
 
     name VARCHAR(100) NOT NULL,
+    start_date DATE NULL,
+    end_date DATE NULL,
+    max_students INT DEFAULT 30,
     capacity INT DEFAULT 30,
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -260,7 +265,12 @@ CREATE TABLE `groups` (
     CONSTRAINT fk_group_formation
         FOREIGN KEY (formation_id)
         REFERENCES formations(id)
-        ON DELETE CASCADE
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_group_classroom
+        FOREIGN KEY (classroom_id)
+        REFERENCES classrooms(id)
+        ON DELETE SET NULL
 );
 
 -- =====================================================

@@ -1,60 +1,106 @@
-<!-- Sidebar Navigation -->
-<div class="left-sidebar-pro">
-    <nav id="sidebar" class="">
-        <div class="sidebar-header">
-            <a href="index.html"><img class="main-logo" src="img/logo/logo.png" alt="" /></a>
-            <strong><a href="index.html"><img src="img/logo/logosn.png" alt="" /></a></strong>
+<!-- Mobile overlay -->
+<div id="sb-overlay"></div>
+
+<!-- ══════════════ Sidebar ══════════════ -->
+<aside id="app-sidebar">
+    <!-- Brand -->
+    <a href="index.html" class="sb-brand">
+        <div class="sb-brand-icon">
+            <img id="sb-school-logo" src="https://ui-avatars.com/api/?name=School&background=2c3e50&color=fff&size=40" alt="School Logo" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">
         </div>
-        <div class="left-custom-menu-adp-wrap comment-scrollbar">
-            <nav class="sidebar-nav left-sidebar-menu-pro">
-                <ul class="metismenu" id="menu1">
-                    <li data-menu="dashboard">
-                        <a href="index.html">
-                            <span class="educate-icon educate-home icon-wrap"></span>
-                            <span class="mini-click-non">Dashboard</span>
-                        </a>
-                    </li>
-                    <li data-menu="professors">
-                        <a class="has-arrow" href="all-professors.html" aria-expanded="false"><span class="educate-icon educate-professor icon-wrap"></span> <span class="mini-click-non">Teachers</span></a>
-                        <ul class="submenu-angle" aria-expanded="false">
-                            <li><a title="All Teachers" href="all-professors.html"><span class="mini-sub-pro">All Teachers</span></a></li>
-                            <li><a title="Add Teacher" href="add-professor.html"><span class="mini-sub-pro">Add Teacher</span></a></li>
-                        </ul>
-                    </li>
-                    <li data-menu="students">
-                        <a class="has-arrow" href="all-students.html" aria-expanded="false"><span class="educate-icon educate-student icon-wrap"></span> <span class="mini-click-non">Students</span></a>
-                        <ul class="submenu-angle" aria-expanded="false">
-                            <li><a title="All Students" href="all-students.html"><span class="mini-sub-pro">All Students</span></a></li>
-                            <li><a title="Add Student" href="add-student.html"><span class="mini-sub-pro">Add Student</span></a></li>
-                        </ul>
-                    </li>
-                    <li data-menu="courses">
-                        <a class="has-arrow" href="all-courses.html" aria-expanded="false"><span class="educate-icon educate-course icon-wrap"></span> <span class="mini-click-non">Formations</span></a>
-                        <ul class="submenu-angle" aria-expanded="false">
-                            <li><a title="All Formations" href="all-courses.html"><span class="mini-sub-pro">All Formations</span></a></li>
-                            <li><a title="Add Formation" href="add-course.html"><span class="mini-sub-pro">Add Formation</span></a></li>
-                        </ul>
-                    </li>
-                    <li data-menu="classrooms">
-                        <a href="classrooms.html">
-                            <span class="educate-icon educate-department icon-wrap"></span>
-                            <span class="mini-click-non">Classrooms</span>
-                        </a>
-                    </li>
-                    <li data-menu="groups">
-                        <a href="groups.html">
-                            <span class="educate-icon educate-library icon-wrap"></span>
-                            <span class="mini-click-non">Groups</span>
-                        </a>
-                    </li>
-                    <li data-menu="settings">
-                        <a href="setup-school.html">
-                            <span class="educate-icon educate-event icon-wrap sub-icon-mg"></span>
-                            <span class="mini-click-non">School Settings</span>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
+        <div class="sb-logo-text">
+            School Admin
+            <small id="sb-school-name">Management System</small>
+        </div>
+    </a>
+
+    <!-- Navigation -->
+    <nav class="sb-nav">
+        <div class="sb-section-label">Main</div>
+
+        <div class="sb-item" data-menu="dashboard">
+            <a href="index.html" class="sb-link">
+                <i class="fa fa-home sb-icon"></i>
+                <span class="sb-label">Dashboard</span>
+            </a>
+        </div>
+
+        <div class="sb-section-label">Management</div>
+
+        <div class="sb-item" data-menu="professors">
+            <div class="sb-link" onclick="sbToggle(this)">
+                <i class="fa fa-user-md sb-icon"></i>
+                <span class="sb-label">Teachers</span>
+                <i class="fa fa-chevron-right sb-arrow"></i>
+            </div>
+            <ul class="sb-submenu">
+                <li><a href="all-professors.html"><i class="fa fa-list"></i> All Teachers</a></li>
+                <li><a href="add-professor.html"><i class="fa fa-plus"></i> Add Teacher</a></li>
+            </ul>
+        </div>
+
+        <div class="sb-item" data-menu="students">
+            <div class="sb-link" onclick="sbToggle(this)">
+                <i class="fa fa-graduation-cap sb-icon"></i>
+                <span class="sb-label">Students</span>
+                <i class="fa fa-chevron-right sb-arrow"></i>
+            </div>
+            <ul class="sb-submenu">
+                <li><a href="all-students.html"><i class="fa fa-list"></i> All Students</a></li>
+                <li><a href="add-student.html"><i class="fa fa-plus"></i> Add Student</a></li>
+            </ul>
+        </div>
+
+        <div class="sb-item" data-menu="courses">
+            <div class="sb-link" onclick="sbToggle(this)">
+                <i class="fa fa-book sb-icon"></i>
+                <span class="sb-label">Formations</span>
+                <i class="fa fa-chevron-right sb-arrow"></i>
+            </div>
+            <ul class="sb-submenu">
+                <li><a href="all-courses.html"><i class="fa fa-list"></i> All Formations</a></li>
+                <li><a href="add-course.html"><i class="fa fa-plus"></i> Add Formation</a></li>
+            </ul>
+        </div>
+
+        <div class="sb-section-label">Organization</div>
+
+        <div class="sb-item" data-menu="classrooms">
+            <a href="all-classrooms.html" class="sb-link">
+                <i class="fa fa-building sb-icon"></i>
+                <span class="sb-label">Classrooms</span>
+            </a>
+        </div>
+
+        <div class="sb-item" data-menu="groups">
+            <a href="all-groups.html" class="sb-link">
+                <i class="fa fa-users sb-icon"></i>
+                <span class="sb-label">Groups & Classes</span>
+            </a>
+        </div>
+
+        <div class="sb-section-label">Settings</div>
+
+        <div class="sb-item" data-menu="settings">
+            <a href="setup-school.html" class="sb-link">
+                <i class="fa fa-cog sb-icon"></i>
+                <span class="sb-label">School Settings</span>
+            </a>
         </div>
     </nav>
-</div>
+
+    <!-- User footer -->
+    <div class="sb-footer">
+        <div class="sb-user">
+            <img src="https://ui-avatars.com/api/?name=Admin&background=4f6eff&color=fff&size=68"
+                 id="sb-user-avatar" class="sb-user-avatar" alt="User">
+            <div class="sb-user-info">
+                <div class="sb-user-name" id="sb-footer-user-name">Admin</div>
+                <div class="sb-user-role">Administrator</div>
+            </div>
+            <button class="sb-user-btn" data-backend-logout title="Logout">
+                <i class="fa fa-sign-out"></i>
+            </button>
+        </div>
+    </div>
+</aside>

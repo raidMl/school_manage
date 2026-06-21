@@ -1,121 +1,51 @@
-<!DOCTYPE html>
-<html class="no-js" lang="en">
+﻿<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="utf-8">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>All Teachers | School System Admin</title>
-    <meta name="description" content="Manage all teachers">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>All Teachers | School System Admin</title>
     <link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico">
-    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,700,900" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/font-awesome.min.css">
-    <link rel="stylesheet" href="css/animate.css">
-    <link rel="stylesheet" href="css/normalize.css">
-    <link rel="stylesheet" href="css/meanmenu.min.css">
-    <link rel="stylesheet" href="css/main.css">
-    <link rel="stylesheet" href="css/educate-custon-icon.css">
-    <link rel="stylesheet" href="css/scrollbar/jquery.mCustomScrollbar.min.css">
-    <link rel="stylesheet" href="css/metisMenu/metisMenu.min.css">
-    <link rel="stylesheet" href="css/metisMenu/metisMenu-vertical.css">
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="css/responsive.css">
-    <script src="js/vendor/modernizr-2.8.3.min.js"></script>
+    <link rel="stylesheet" href="css/sidebar.css">
+    <style>body{font-family:'Inter',sans-serif}.card-panel{background:#fff;border-radius:14px;padding:20px;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:20px}</style>
 </head>
-
 <body data-page="professors">
-
     <div id="sidebar-placeholder"></div>
-
-    <div class="all-content-wrapper">
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="logo-pro">
-                        <a href="index.html"><img class="main-logo" src="img/logo/logo.png" alt="" /></a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
+    <div class="sb-main">
         <div id="header-placeholder"></div>
-
-        <div class="breadcome-area">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-lg-12">
-                        <div class="breadcome-list">
-                            <div class="row">
-                                <div class="col-lg-6 col-sm-6 col-xs-12">
-                                    <h2 class="breadcome-heading">All Teachers</h2>
-                                </div>
-                                <div class="col-lg-6 col-sm-6 col-xs-12">
-                                    <ul class="breadcome-menu">
-                                        <li><a href="index.html">Home</a> <span class="bread-slash">/</span></li>
-                                        <li><span class="bread-blod">Teachers</span></li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+        <div class="sb-content">
+            <div class="sb-breadcrumb">
+                <i class="fa fa-home"></i>
+                <a href="index.html">Home</a>
+                <span>/</span>
+                <span>Teachers</span>
+            </div>
+        <div class="card-panel">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+                <div>
+                    <h3 style="margin:0;font-size:16px;font-weight:700">Teachers List</h3>
+                    <p style="margin:4px 0 0;color:#888;font-size:13px">All registered teachers from the database.</p>
                 </div>
+                <a href="add-professor.html" class="btn btn-success btn-sm"><i class="fa fa-plus"></i> Add Teacher</a>
+            </div>
+            <div id="backend-teachers-status" class="alert" style="display:none"></div>
+            <div class="table-responsive">
+                <table id="backend-teachers-table" class="table table-striped table-hover table-bordered">
+                    <thead><tr>
+                        <th width="50">Photo</th><th>Emp #</th><th>Name</th>
+                        <th>Email</th><th>Speciality</th><th>Hire Date</th><th width="80">Actions</th>
+                    </tr></thead>
+                    <tbody><tr><td colspan="7" class="text-center">Loading...</td></tr></tbody>
+                </table>
             </div>
         </div>
-
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="white-box">
-                        <div class="row" style="margin-bottom:15px">
-                            <div class="col-lg-8 col-sm-8 col-xs-12">
-                                <h3 class="box-title">Teachers List</h3>
-                                <p class="text-muted">All registered teachers from the database.</p>
-                            </div>
-                            <div class="col-lg-4 col-sm-4 col-xs-12 text-right">
-                                <a href="add-professor.html" class="btn btn-success">
-                                    <i class="fa fa-plus"></i> Add Teacher
-                                </a>
-                            </div>
-                        </div>
-
-                        <div id="backend-teachers-status" class="alert" style="display:none"></div>
-
-                        <div class="table-responsive">
-                            <table id="backend-teachers-table" class="table table-striped table-hover table-bordered">
-                                <thead>
-                                    <tr>
-                                        <th>Emp #</th>
-                                        <th>Name</th>
-                                        <th>Email</th>
-                                        <th>Speciality</th>
-                                        <th>Hire Date</th>
-                                        <th width="100">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr><td colspan="6" class="text-center">Loading teachers...</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <div id="footer-placeholder"></div>
         </div>
-
-        <div id="footer-placeholder"></div>
     </div>
-
     <script src="js/vendor/jquery-1.12.4.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
-    <script src="js/jquery.meanmenu.js"></script>
-    <script src="js/jquery.sticky.js"></script>
-    <script src="js/jquery.scrollUp.min.js"></script>
-    <script src="js/scrollbar/jquery.mCustomScrollbar.concat.min.js"></script>
-    <script src="js/scrollbar/mCustomScrollbar-active.js"></script>
-    <script src="js/metisMenu/metisMenu.min.js"></script>
-    <script src="js/metisMenu/metisMenu-active.js"></script>
-    <script src="js/plugins.js"></script>
-    <script src="js/main.js"></script>
     <script src="js/components.js"></script>
     <script src="js/backend.js"></script>
 </body>
