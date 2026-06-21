@@ -4,20 +4,14 @@
 (function () {
   'use strict';
 
-  var BASE = '/partials/';
+  var BASE = 'partials/';
 
   // ── Sidebar state ────────────────────────────────────────────────────────────
   var SB_KEY = 'sb_collapsed';
 
   // Global toggle called by onclick in sidebar HTML
   window.sbToggleSidebar = function () {
-    var isMobile = window.innerWidth <= 768;
-    if (isMobile) {
-      document.body.classList.toggle('sb-open');
-    } else {
-      var collapsed = document.body.classList.toggle('sb-collapsed');
-      localStorage.setItem(SB_KEY, collapsed ? '1' : '0');
-    }
+    document.body.classList.toggle('sb-open');
   };
 
   // Global toggle for submenu items
@@ -42,16 +36,11 @@
       if (um) um.classList.remove('open');
     }
     if (!e.target.closest('#lang-wrap') && !e.target.closest('.lang-wrap')) {
-      document.querySelectorAll('.lang-wrap').forEach(function(w){ w.classList.remove('open'); });
+      document.querySelectorAll('.lang-wrap').forEach(function (w) { w.classList.remove('open'); });
     }
   });
 
-  // Restore collapsed state on desktop
-  function restoreSidebarState() {
-    if (window.innerWidth > 768 && localStorage.getItem(SB_KEY) === '1') {
-      document.body.classList.add('sb-collapsed');
-    }
-  }
+
 
   // Mark active nav item based on current page's data-page attribute
   function markActiveNav() {
@@ -102,6 +91,15 @@
     xhr.onload = function () {
       if (xhr.status >= 200 && xhr.status < 400) {
         el.innerHTML = xhr.responseText;
+        
+        // Prevent CSS transition flashing on newly inserted elements
+        var sb = document.getElementById('app-sidebar');
+        if (name === 'sidebar' && sb) {
+          sb.style.transition = 'none';
+          void sb.offsetHeight; // force reflow
+          sb.style.transition = '';
+        }
+
         afterLoad(name);
       }
       if (callback) callback();
@@ -111,9 +109,6 @@
   }
 
   function loadComponents() {
-    // Restore sidebar collapsed state before DOM renders
-    restoreSidebarState();
-
     // Load sidebar → header → footer in sequence
     loadPartial('sidebar-placeholder', 'sidebar.html', 'sidebar', function () {
       markActiveNav();

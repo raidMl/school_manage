@@ -48,18 +48,16 @@
   }
   
   function avatarUrl(photo, name, type) {
-    if (photo && photo.trim()) return photo.trim();
-    var lock = getStrHash(name || type || 'user');
-    if (type === 'student') return 'https://loremflickr.com/150/150/student,portrait?lock=' + lock;
-    if (type === 'teacher') return 'https://loremflickr.com/150/150/teacher,portrait?lock=' + lock;
-    return 'https://loremflickr.com/150/150/portrait?lock=' + lock;
+    if (photo && photo.trim() && photo.indexOf('/img/avatar-') === -1) return photo.trim();
+    var bg = type === 'student' ? 'f7971e' : (type === 'teacher' ? '11998e' : '4f6eff');
+    var letter = type === 'student' ? 'S' : (type === 'teacher' ? 'T' : 'U');
+    return 'https://ui-avatars.com/api/?name=' + letter + '&background=' + bg + '&color=fff&size=150';
   }
   
   // For formation cards that may have an image URL
   function formationImg(img, title) {
     if (img && img.trim()) return img.trim();
-    var lock = getStrHash(title || 'formation');
-    return 'https://loremflickr.com/320/240/education,course?lock=' + lock;
+    return 'img/formation-placeholder.jpg';
   }
   
   // For school logos
