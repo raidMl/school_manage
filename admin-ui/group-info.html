@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Group Details | School System Admin</title>
+    <link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/sidebar.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #f4f6fa; }
+        .card-panel { background: #fff; border-radius: 14px; padding: 30px; box-shadow: 0 2px 12px rgba(0,0,0,.06); margin-bottom: 20px; }
+        .profile-header { display: flex; align-items: center; gap: 24px; margin-bottom: 30px; border-bottom: 1px solid #eee; padding-bottom: 24px; }
+        .profile-title h3 { margin: 0; font-size: 24px; font-weight: 700; color: #222; }
+        .profile-title p { margin: 6px 0 0; color: #666; font-size: 14px; display: flex; align-items: center; gap: 6px; }
+        .detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px; }
+        .detail-item { background: #f8f9fc; padding: 16px; border-radius: 8px; border-left: 4px solid #4f6eff; }
+        .detail-item label { display: block; margin: 0 0 4px; font-size: 12px; color: #777; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+        .detail-item .val { font-size: 15px; color: #333; font-weight: 500; }
+        .student-card { display: inline-flex; align-items: center; gap: 6px; background: #f0f4ff; border-radius: 20px; padding: 4px 10px; margin: 2px; font-size: 12px; font-weight: 500; }
+        .student-card img { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; }
+    </style>
+</head>
+<body data-page="groups">
+    <div id="sidebar-placeholder"></div>
+    <div class="sb-main">
+        <div id="header-placeholder"></div>
+        <div class="sb-content">
+            <div class="sb-breadcrumb">
+                <i class="fa fa-home"></i>
+                <a href="index.html">Home</a>
+                <span>/</span>
+                <a href="all-groups.html">Groups</a>
+                <span>/</span>
+                <span>Details</span>
+            </div>
+            
+            <div id="gp-container" class="card-panel">
+                <div id="gp-loading" class="text-center" style="padding:40px;color:#888;">
+                    <i class="fa fa-spinner fa-spin fa-2x"></i>
+                    <p style="margin-top:12px;">Loading Group...</p>
+                </div>
+                
+                <div id="gp-content" style="display:none;">
+                    <div class="profile-header">
+                        <div class="profile-title">
+                            <h3 id="gp-name">Group Name</h3>
+                            <p><i class="fa fa-book"></i> <span id="gp-formation"></span></p>
+                            <p><i class="fa fa-building"></i> <span id="gp-classroom"></span></p>
+                        </div>
+                    </div>
+                    
+                    <h4 style="margin-bottom: 20px; font-size: 18px; font-weight: 600;">Group Information</h4>
+                    <div class="detail-grid" style="margin-bottom: 30px;">
+                        <div class="detail-item">
+                            <label>Start Date</label>
+                            <div class="val" id="gp-start-date">-</div>
+                        </div>
+                        <div class="detail-item">
+                            <label>End Date</label>
+                            <div class="val" id="gp-end-date">-</div>
+                        </div>
+                        <div class="detail-item">
+                            <label>Max Students</label>
+                            <div class="val" id="gp-max-students">-</div>
+                        </div>
+                        <div class="detail-item">
+                            <label>Created On</label>
+                            <div class="val" id="gp-created">-</div>
+                        </div>
+                    </div>
+                    
+                    <h4 style="margin-bottom: 20px; font-size: 18px; font-weight: 600;">Enrolled Students</h4>
+                    <div id="gp-students">
+                        <!-- Students populated by JS -->
+                    </div>
+                </div>
+            </div>
+            <div id="footer-placeholder"></div>
+        </div>
+    </div>
+    
+    <script src="js/vendor/jquery-1.12.4.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/components.js"></script>
+    <script src="js/backend.js"></script>
+</body>
+</html>

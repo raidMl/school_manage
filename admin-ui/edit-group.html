@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Edit Group | School System Admin</title>
+    <link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/sidebar.css">
+    <style>body{font-family:'Inter',sans-serif}.card-panel{background:#fff;border-radius:14px;padding:30px;box-shadow:0 2px 12px rgba(0,0,0,.06);max-width:800px;margin:20px auto}</style>
+</head>
+<body data-page="groups">
+    <div id="sidebar-placeholder"></div>
+    <div class="sb-main">
+        <div id="header-placeholder"></div>
+        <div class="sb-content">
+            <div class="sb-breadcrumb"><i class="fa fa-home"></i> <a href="index.html">Home</a> <span>/</span> <a href="all-groups.html">Groups</a> <span>/</span> <span>Edit Group</span></div>
+            
+            <div class="card-panel">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+                    <h3 style="margin:0;font-size:20px;font-weight:700">Edit Group Details</h3>
+                </div>
+                <div id="backend-group-form-status" class="alert" style="display:none"></div>
+                
+                <form id="backend-edit-group-form" novalidate>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Formation <span class="text-danger">*</span></label>
+                                <select id="group-formation-id" name="formation_id" class="form-control" required><option value="">Loading...</option></select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Classroom</label>
+                                <select id="group-classroom-id" name="classroom_id" class="form-control"><option value="">No classroom</option></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Group Name <span class="text-danger">*</span></label>
+                        <input type="text" name="name" class="form-control" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4"><div class="form-group"><label>Start Date</label><input type="date" name="start_date" class="form-control"></div></div>
+                        <div class="col-md-4"><div class="form-group"><label>End Date</label><input type="date" name="end_date" class="form-control"></div></div>
+                        <div class="col-md-4"><div class="form-group"><label>Max Students</label><input type="number" name="max_students" class="form-control" min="1"></div></div>
+                    </div>
+                    
+                    <div class="form-group" style="margin-top:20px">
+                        <button type="submit" class="btn btn-primary btn-lg"><i class="fa fa-save"></i> Save Changes</button>
+                        <a href="all-groups.html" class="btn btn-default btn-lg" style="margin-left:10px"><i class="fa fa-arrow-left"></i> Back</a>
+                    </div>
+                </form>
+            </div>
+            
+            <div id="footer-placeholder"></div>
+        </div>
+    </div>
+    
+    <script src="js/vendor/jquery-1.12.4.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/components.js"></script>
+    <script src="js/backend.js"></script>
+</body>
+</html>

@@ -594,14 +594,16 @@
             '<div id="group-students-'+g.id+'"></div>' +
           '</div>' +
           '<div class="col-lg-4 col-sm-4 col-xs-12 text-right">' +
-            '<button class="btn btn-sm btn-success" onclick="toggleAddStudents('+g.id+')"><i class="fa fa-user-plus"></i> Add Students</button> ' +
-            '<button class="btn btn-sm btn-danger" data-del-group="'+g.id+'"><i class="fa fa-trash"></i></button>' +
+            '<a href="group-info.html?id='+g.id+'" class="btn btn-sm btn-info" title="View Details"><i class="fa fa-eye"></i></a> ' +
+            '<a href="edit-group.html?id='+g.id+'" class="btn btn-sm btn-primary" title="Edit Group"><i class="fa fa-pencil"></i></a> ' +
+            '<button class="btn btn-sm btn-success" onclick="toggleAddStudents('+g.id+')" title="Add Students"><i class="fa fa-user-plus"></i></button> ' +
+            '<button class="btn btn-sm btn-danger" data-del-group="'+g.id+'" title="Delete Group"><i class="fa fa-trash"></i></button>' +
           '</div>' +
         '</div>' +
-        '<div id="add-students-panel-'+g.id+'" class="add-students-panel">' +
+        '<div id="add-students-panel-'+g.id+'" class="add-panel">' +
           '<p><strong>Select students to add to this group:</strong></p>' +
-          '<input type="text" class="search-students" placeholder="Search..." oninput="filterGroupStudents(this,'+g.id+')">' +
-          '<div class="student-select-list" id="student-list-'+g.id+'"></div>' +
+          '<input type="text" class="stu-search" placeholder="Search..." oninput="filterGroupStudents(this,'+g.id+')">' +
+          '<div class="stu-list" id="student-list-'+g.id+'"></div>' +
           '<button class="btn btn-primary btn-sm" style="margin-top:8px" onclick="addStudentsToGroup('+g.id+')"><i class="fa fa-save"></i> Save</button> ' +
           '<button class="btn btn-default btn-sm" style="margin-top:8px" onclick="toggleAddStudents('+g.id+')">Cancel</button>' +
         '</div>' +
@@ -632,7 +634,7 @@
           return '<span class="student-card">'+
             '<img src="'+esc(img)+'" onerror="this.src=\'https://ui-avatars.com/api/?name=S&background=27ae60&color=fff&size=28\'"> '+
             esc(name)+
-            ' <span class="remove-student" onclick="removeStudentFromGroup('+groupId+','+s.id+')" title="Remove">×</span>'+
+            ' <span class="rm" onclick="removeStudentFromGroup('+groupId+','+s.id+')" title="Remove">×</span>'+
             '</span>';
         }).join('');
       }
@@ -695,6 +697,44 @@
         showAlert('#backend-group-form-status',t('Group created successfully'),'success');
         form.reset(); loadGroups(); if(btn) btn.disabled=false;
       }).catch(function(err){ showAlert('#backend-group-form-status',err.message); if(btn) btn.disabled=false; });
+    });
+  }
+
+  function bindEditGroupForm() {
+    var form=document.querySelector('#backend-edit-group-form'); if(!form) return;
+    var id=urlParam('id'); if(!id){ showAlert('#backend-group-form-status','No group ID in URL'); return; }
+    
+    Promise.all([
+      request('/api/formations'),
+      request('/api/classrooms'),
+      request('/api/groups/'+id)
+    ]).then(function(res){
+      var formations = res[0].data || [];
+      var classrooms = res[1].data || [];
+      var group = res[2].data;
+      
+      var fSel=form.querySelector('#group-formation-id');
+      if(fSel) fSel.innerHTML='<option value="">-- Select Formation *</option>'+
+        formations.map(function(f){ return '<option value="'+f.id+'" '+(f.id===group.formation_id?'selected':'')+'>'+esc(f.title)+'</option>'; }).join('');
+        
+      var cSel=form.querySelector('#group-classroom-id');
+      if(cSel) cSel.innerHTML='<option value="">No classroom</option>'+
+        classrooms.map(function(c){ return '<option value="'+c.id+'" '+(c.id===group.classroom_id?'selected':'')+'>'+esc(c.name)+'</option>'; }).join('');
+      
+      ['name','start_date','end_date','max_students'].forEach(function(f){
+        var el=form.querySelector('[name="'+f+'"]'); if(el&&group[f]!=null) el.value=group[f];
+      });
+    }).catch(function(err){ showAlert('#backend-group-form-status',err.message); });
+
+    form.addEventListener('submit',function(e){
+      e.preventDefault(); var fd=new FormData(form); var payload={};
+      ['formation_id','classroom_id','name','start_date','end_date','max_students'].forEach(function(f){
+        var v=fd.get(f); if(v!==null) payload[f]=v||null;
+      });
+      var btn=form.querySelector('[type=submit]'); if(btn) btn.disabled=true;
+      request('/api/groups/'+id,{method:'PUT',body:JSON.stringify(payload)})
+        .then(function(){ showAlert('#backend-group-form-status','Group updated successfully','success'); if(btn) btn.disabled=false; })
+        .catch(function(err){ showAlert('#backend-group-form-status',err.message); if(btn) btn.disabled=false; });
     });
   }
   // ── Profiles ─────────────────────────────────────────────────────────────────
@@ -764,6 +804,40 @@
     }).catch(function(err){ showAlert(cont, err.message); });
   }
 
+  function loadGroupProfile() {
+    var cont = document.querySelector('#gp-container'); if(!cont) return;
+    var id = urlParam('id'); if(!id){ showAlert(cont, 'No group ID in URL'); return; }
+    request('/api/groups/' + id).then(function(p){
+      var tc = p.data;
+      document.getElementById('gp-loading').style.display = 'none';
+      document.getElementById('gp-content').style.display = 'block';
+      
+      document.getElementById('gp-name').textContent = tc.name || '-';
+      document.getElementById('gp-formation').textContent = tc.formation_title || 'No formation assigned';
+      document.getElementById('gp-classroom').textContent = tc.classroom_name || 'No classroom assigned';
+      
+      document.getElementById('gp-start-date').textContent = tc.start_date || '-';
+      document.getElementById('gp-end-date').textContent = tc.end_date || '-';
+      document.getElementById('gp-max-students').textContent = tc.max_students || 'Unlimited';
+      document.getElementById('gp-created').textContent = tc.created_at ? new Date(tc.created_at).toLocaleDateString() : '-';
+      
+      // Render students
+      var stuList = document.getElementById('gp-students');
+      if (!tc.students || !tc.students.length) {
+        stuList.innerHTML = '<p class="text-muted">No students assigned to this group yet.</p>';
+      } else {
+        stuList.innerHTML = tc.students.map(function(s) {
+          var name = [s.first_name, s.last_name].filter(Boolean).join(' ');
+          var img = avatarUrl(s.photo, name, 'student');
+          return '<div class="student-card" style="margin-bottom:8px; display:inline-flex; width:auto; padding-right:16px;">' +
+                 '<img src="' + esc(img) + '"> ' +
+                 '<span>' + esc(name) + ' (' + esc(s.registration_number) + ')</span>' +
+                 '</div>';
+        }).join('');
+      }
+    }).catch(function(err){ showAlert(cont, err.message); });
+  }
+
   // ── Init ─────────────────────────────────────────────────────────────────────
   document.addEventListener('DOMContentLoaded', function() {
     ensureAuth();
@@ -782,7 +856,7 @@
     // Classrooms
     loadClassrooms(); bindAddClassroomForm();
     // Groups
-    loadGroupsPage(); bindAddGroupForm();
+    loadGroupsPage(); bindAddGroupForm(); bindEditGroupForm(); loadGroupProfile();
   });
 
 })();
