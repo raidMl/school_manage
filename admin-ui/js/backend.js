@@ -264,13 +264,60 @@
         .catch(function(err){ showAlert('#backend-auth-status',err.message); });
     });
   }
+  function loadSchoolSettings() {
+    var form=document.querySelector('#backend-setup-school-form'); if(!form) return;
+    request('/api/school-setup/settings').then(function(p){
+      if(!p.school) return; // New school setup mode
+      var s = p.school;
+      var c = p.contact_info || {};
+      var u = p.admin || {};
+      
+      form.querySelector('[name="name"]').value = s.name || '';
+      var logoEl = form.querySelector('[name="logo"]'); if(logoEl) logoEl.value = s.logo || '';
+      
+      var fbEl = form.querySelector('[name="fb"]'); if(fbEl) fbEl.value = c.fb || '';
+      var waEl = form.querySelector('[name="whatsapp"]'); if(waEl) waEl.value = c.whatsapp || '';
+      var liEl = form.querySelector('[name="linkedin"]'); if(liEl) liEl.value = c.linkedin || '';
+      
+      var fnEl = form.querySelector('[name="admin_first_name"]'); if(fnEl) fnEl.value = u.first_name || '';
+      var lnEl = form.querySelector('[name="admin_last_name"]'); if(lnEl) lnEl.value = u.last_name || '';
+      var emEl = form.querySelector('[name="admin_email"]'); if(emEl) emEl.value = u.email || '';
+    }).catch(function(err){
+      // If endpoint doesn't exist yet or fails, ignore gracefully
+      console.error(err);
+    });
+  }
+
   function bindSetupSchoolForm() {
     var form=document.querySelector('#backend-setup-school-form'); if(!form) return;
     form.addEventListener('submit',function(e){
       e.preventDefault(); var fd=new FormData(form);
-      request('/api/school-setup',{method:'POST',body:JSON.stringify({name:fd.get('name'),logo:fd.get('logo')||null})})
-        .then(function(){ redirect('index.html'); })
-        .catch(function(err){ showAlert('#backend-setup-status',err.message); });
+      var payload = {
+        name: fd.get('name'),
+        logo: fd.get('logo') || null,
+        fb: fd.get('fb') || null,
+        whatsapp: fd.get('whatsapp') || null,
+        linkedin: fd.get('linkedin') || null,
+        admin_first_name: fd.get('admin_first_name') || null,
+        admin_last_name: fd.get('admin_last_name') || null,
+        admin_email: fd.get('admin_email') || null,
+        admin_password: fd.get('admin_password') || null
+      };
+      
+      var btn=form.querySelector('[type=submit]'); if(btn) btn.disabled=true;
+      request('/api/school-setup/settings', {method:'PUT', body:JSON.stringify(payload)})
+        .then(function(res){ 
+          showAlert('#backend-setup-status', 'Settings saved successfully', 'success');
+          if(btn) btn.disabled=false;
+          // Refresh auth context
+          request('/api/auth/me').then(function(ctx){
+            window._ctx = ctx;
+            populateAuthUI();
+          }).catch(function(){});
+          
+          if(res.wasSetup) setTimeout(function(){ redirect('index.html'); }, 1000);
+        })
+        .catch(function(err){ showAlert('#backend-setup-status',err.message); if(btn) btn.disabled=false; });
     });
   }
 
@@ -846,6 +893,7 @@
     loadDashboard();
     bindLoginForm();
     bindRegisterForm();
+    loadSchoolSettings();
     bindSetupSchoolForm();
     // Students
     loadStudents(); bindAddStudentForm(); bindEditStudentForm(); loadStudentProfile();
