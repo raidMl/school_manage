@@ -161,6 +161,7 @@ CREATE TABLE students (
 
     user_id BIGINT UNSIGNED NOT NULL UNIQUE,
     school_id BIGINT UNSIGNED NULL,
+    formation_id BIGINT UNSIGNED NOT NULL,
 
     registration_number VARCHAR(50) UNIQUE NOT NULL,
 
@@ -168,6 +169,11 @@ CREATE TABLE students (
     parent_phone VARCHAR(30) NULL,
 
     enrollment_date DATE,
+    payment_status ENUM('paid', 'not_paid') DEFAULT 'not_paid',
+    subscription_plan ENUM('1_month', '3_months', '1_year') DEFAULT NULL,
+    next_payment_date DATE NULL,
+    promo_code VARCHAR(50) NULL,
+    discount_percent DECIMAL(5,2) DEFAULT 0,
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
@@ -179,6 +185,11 @@ CREATE TABLE students (
     CONSTRAINT fk_student_school
         FOREIGN KEY (school_id)
         REFERENCES schools(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_student_formation
+        FOREIGN KEY (formation_id)
+        REFERENCES formations(id)
         ON DELETE CASCADE
 );
 
@@ -221,6 +232,11 @@ CREATE TABLE formations (
 
     duration_hours INT,
     price DECIMAL(10,2) DEFAULT 0,
+    price_monthly DECIMAL(10,2) DEFAULT NULL,
+    price_3_months DECIMAL(10,2) DEFAULT NULL,
+    price_1_year DECIMAL(10,2) DEFAULT NULL,
+    type ENUM('formation', 'subscription') DEFAULT 'formation',
+    subscription_period ENUM('1_month', '3_months', '1_year') DEFAULT NULL,
 
     start_date DATE,
     end_date DATE,
@@ -252,6 +268,7 @@ CREATE TABLE `groups` (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 
     formation_id BIGINT UNSIGNED NOT NULL,
+    teacher_id BIGINT UNSIGNED NULL,
     classroom_id BIGINT UNSIGNED NULL,
 
     name VARCHAR(100) NOT NULL,
@@ -266,6 +283,11 @@ CREATE TABLE `groups` (
         FOREIGN KEY (formation_id)
         REFERENCES formations(id)
         ON DELETE CASCADE,
+
+    CONSTRAINT fk_group_teacher
+        FOREIGN KEY (teacher_id)
+        REFERENCES teachers(id)
+        ON DELETE SET NULL,
 
     CONSTRAINT fk_group_classroom
         FOREIGN KEY (classroom_id)
@@ -319,3 +341,27 @@ ON `groups`(formation_id);
 
 CREATE INDEX idx_classrooms_school
 ON classrooms(school_id);
+
+-- =====================================================
+-- PROMO CODES
+-- =====================================================
+
+CREATE TABLE promo_codes (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+
+    formation_id BIGINT UNSIGNED NOT NULL,
+
+    code VARCHAR(50) UNIQUE NOT NULL,
+    discount_percent DECIMAL(5,2) NOT NULL CHECK (discount_percent >= 1 AND discount_percent <= 100),
+    type ENUM('single_student', 'many_students') NOT NULL DEFAULT 'many_students',
+
+    is_active BOOLEAN DEFAULT TRUE,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_promo_formation
+        FOREIGN KEY (formation_id)
+        REFERENCES formations(id)
+        ON DELETE CASCADE
+);

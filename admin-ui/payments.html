@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Payments Dashboard | School System Admin</title>
+    <link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/sidebar.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .card-panel { background: #fff; border-radius: 14px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,.06); margin-bottom: 20px; }
+        .filter-row .form-group { margin-bottom: 15px; }
+        .table-responsive { margin-top: 20px; }
+    </style>
+</head>
+<body data-page="payments">
+    <div id="sidebar-placeholder"></div>
+    <div class="sb-main">
+        <div id="header-placeholder"></div>
+        <div class="sb-content">
+            <div class="sb-breadcrumb">
+                <i class="fa fa-home"></i>
+                <a href="index.html">Home</a>
+                <span>/</span>
+                <span>Payments</span>
+            </div>
+            <div class="card-panel">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+                    <div>
+                        <h3 style="margin:0;font-size:16px;font-weight:700">Payments Dashboard</h3>
+                        <p style="margin:4px 0 0;color:#888;font-size:13px">View and filter student payment status, next due dates, and subscription details.</p>
+                    </div>
+                </div>
+                <div id="backend-payments-status" class="alert" style="display:none"></div>
+                <div class="row filter-row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Formation</label>
+                            <select id="payment-filter-formation" class="form-control"></select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Group</label>
+                            <select id="payment-filter-group" class="form-control"></select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Classroom</label>
+                            <select id="payment-filter-classroom" class="form-control"></select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Subscription Plan</label>
+                            <select id="payment-filter-subscription" class="form-control">
+                                <option value="">All Plans</option>
+                                <option value="1_month">1 Month</option>
+                                <option value="3_months">3 Months</option>
+                                <option value="1_year">1 Year</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Payment Due</label>
+                            <select id="payment-filter-due" class="form-control">
+                                <option value="">All</option>
+                                <option value="week">Due This Week</option>
+                                <option value="tomorrow">Due Tomorrow</option>
+                                <option value="overdue">Overdue</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table id="backend-payments-table" class="table table-striped table-hover table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Reg #</th>
+                                <th>Name</th>
+                                <th>Formation</th>
+                                <th>Group(s)</th>
+                                <th>Classroom(s)</th>
+                                <th>Status</th>
+                                <th>Subscription</th>
+                                <th>Next Payment</th>
+                                <th>Enrolled</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody><tr><td colspan="10" class="text-center">Loading...</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+            <div id="footer-placeholder"></div>
+        </div>
+    </div>
+    <script src="js/vendor/jquery-1.12.4.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/components.js"></script>
+    <script src="js/backend.js"></script>
+</body>
+</html>

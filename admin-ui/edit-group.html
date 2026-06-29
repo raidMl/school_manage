@@ -32,10 +32,17 @@
                                 <select id="group-formation-id" name="formation_id" class="form-control" required><option value="">Loading...</option></select>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <label>Classroom</label>
                                 <select id="group-classroom-id" name="classroom_id" class="form-control"><option value="">No classroom</option></select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Teacher <span class="text-danger">*</span></label>
+                                <select id="group-teacher-id" name="teacher_id" class="form-control" required><option value="">Loading teachers...</option></select>
+                                <small id="group-teacher-note" class="text-muted">Select a teacher for this group.</small>
                             </div>
                         </div>
                     </div>

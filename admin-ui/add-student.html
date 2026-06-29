@@ -32,7 +32,42 @@
     </div>
     <div class="row">
       <div class="col-md-6"><div class="form-group"><label>Registration Number <span class="text-danger">*</span></label><input type="text" name="registration_number" class="form-control" placeholder="e.g. STU-2024-001" required></div></div>
-      <div class="col-md-6"><div class="form-group"><label>Gender</label><select name="gender" class="form-control"><option value="">Select gender</option><option value="MALE">Male</option><option value="FEMALE">Female</option></select></div></div>
+      <div class="col-md-6"><div class="form-group"><label>Formation <span class="text-danger">*</span></label><select id="student-formation-id" name="formation_id" class="form-control" required><option value="">Loading formations...</option></select></div></div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="form-group">
+          <label>Payment Status</label>
+          <select name="payment_status" class="form-control">
+            <option value="not_paid">Not Paid</option>
+            <option value="paid">Paid</option>
+          </select>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="form-group">
+          <label>Promo Code</label>
+          <select id="student-promo-code" name="promo_code" class="form-control">
+            <option value="">No promo code</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12" id="subscription-plan-group" style="display:none">
+        <div class="form-group">
+          <label>Subscription Plan <span class="text-danger">*</span></label>
+          <select name="subscription_plan" class="form-control">
+            <option value="">Select plan</option>
+            <option value="1_month">Per Month (1 Month)</option>
+            <option value="3_months">Per 3 Months</option>
+            <option value="1_year">Per Year (12 Months)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12"><div class="form-group"><label>Gender</label><select name="gender" class="form-control"><option value="">Select gender</option><option value="MALE">Male</option><option value="FEMALE">Female</option></select></div></div>
     </div>
     <div class="row">
       <div class="col-md-6"><div class="form-group"><label>Parent Name</label><input type="text" name="parent_name" class="form-control"></div></div>

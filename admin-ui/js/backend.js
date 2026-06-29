@@ -96,6 +96,26 @@
       .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
       .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
   }
+  function parseDisplayDate(value) {
+    if (!value) return null;
+    if (value instanceof Date) return isNaN(value.getTime()) ? null : value;
+    var raw = String(value).trim();
+    if (!raw) return null;
+    var normalized = raw.replace(' ', 'T');
+    if (!/[zZ]|[+-]\d{2}:\d{2}$/.test(normalized)) normalized += 'Z';
+    var date = new Date(normalized);
+    return isNaN(date.getTime()) ? null : date;
+  }
+  function formatGmtPlusOneDate(value) {
+    var date = parseDisplayDate(value);
+    if (!date) {
+      if (!value) return '-';
+      var raw = String(value).trim();
+      return raw.split('T')[0].split(' ')[0] || '-';
+    }
+    var shifted = new Date(date.getTime() + 60 * 60 * 1000);
+    return shifted.toISOString().slice(0, 10);
+  }
   function setText(sel, val) { var e=document.querySelector(sel); if(e) e.textContent=val; }
   function redirect(url) { window.location.href = url; }
   function urlParam(name) {
@@ -329,13 +349,21 @@
     request('/api/student-registrations').then(function(p){ renderStudentRows(p.data||[]); })
       .catch(function(err){ showAlert('#backend-students-status',err.message); });
   }
+  function formatPaymentStatus(status) {
+    return status === 'paid'
+      ? '<span class="label label-success">Paid</span>'
+      : '<span class="label label-danger">Unpaid</span>';
+  }
   function renderStudentRows(rows) {
     var tbody=document.querySelector('#backend-students-table tbody'); if(!tbody) return;
-    if(!rows.length){ tbody.innerHTML='<tr><td colspan="7" class="text-center">'+t('No records found')+'</td></tr>'; return; }
+    if(!rows.length){ tbody.innerHTML='<tr><td colspan="8" class="text-center">'+t('No records found')+'</td></tr>'; return; }
     tbody.innerHTML=rows.map(function(r){
       var name=esc([r.first_name,r.last_name].filter(Boolean).join(' '));
       var img='<img src="'+esc(avatarUrl(r.photo,[r.first_name,r.last_name].join(' '),'student'))+'" style="width:36px;height:36px;border-radius:50%;object-fit:cover" onerror="this.src=\'https://ui-avatars.com/api/?name=S&background=27ae60&color=fff&size=36\'">';
-      return '<tr><td>'+img+'</td><td>'+esc(r.registration_number)+'</td><td>'+name+'</td><td>'+esc(r.email)+'</td><td>'+esc(r.parent_name||'-')+'</td><td>'+esc(r.enrollment_date||'-')+'</td>'+
+      var payStatus = r.payment_status === 'paid' 
+        ? '<span class="label label-success">Paid</span>' 
+        : '<span class="label label-danger">Unpaid</span>';
+      return '<tr><td>'+img+'</td><td>'+esc(r.registration_number)+'</td><td>'+name+'</td><td>'+esc(r.email)+'</td><td>'+esc(r.parent_name||'-')+'</td><td>'+esc(formatGmtPlusOneDate(r.enrollment_date))+'</td><td>'+payStatus+'</td>'+ 
         '<td><a href="student-profile.html?id='+r.id+'" class="btn btn-xs btn-success" title="View Details"><i class="fa fa-eye"></i></a> '+
         '<a href="edit-student.html?id='+r.id+'" class="btn btn-xs btn-info" title="Edit"><i class="fa fa-pencil"></i></a> '+
         '<button class="btn btn-xs btn-danger" data-del-student="'+r.id+'" title="Delete"><i class="fa fa-trash"></i></button></td></tr>';
@@ -347,17 +375,162 @@
         .then(loadStudents).catch(function(err){ showAlert('#backend-students-status',err.message); });
     });
   }
+
+  function formatSubscriptionPlan(plan) {
+    if (plan === '1_month') return '1 Month';
+    if (plan === '3_months') return '3 Months';
+    if (plan === '1_year') return '1 Year';
+    return plan ? plan.replace(/_/g, ' ') : '-';
+  }
+
+  function loadPaymentsPage() {
+    var tbl = document.querySelector('#backend-payments-table'); if(!tbl) return;
+    var filters = {
+      formation_id: document.getElementById('payment-filter-formation') ? document.getElementById('payment-filter-formation').value : null,
+      group_id: document.getElementById('payment-filter-group') ? document.getElementById('payment-filter-group').value : null,
+      classroom_id: document.getElementById('payment-filter-classroom') ? document.getElementById('payment-filter-classroom').value : null,
+      subscription_plan: document.getElementById('payment-filter-subscription') ? document.getElementById('payment-filter-subscription').value : null,
+      payment_due: document.getElementById('payment-filter-due') ? document.getElementById('payment-filter-due').value : null,
+    };
+    var params = new URLSearchParams();
+    Object.keys(filters).forEach(function(key){ if(filters[key]) params.append(key, filters[key]); });
+    request('/api/student-registrations/payments?' + params.toString())
+      .then(function(p){ renderPaymentRows(p.data || []); })
+      .catch(function(err){ showAlert('#backend-payments-status', err.message); });
+  }
+
+  function renderPaymentRows(rows) {
+    var tbody=document.querySelector('#backend-payments-table tbody'); if(!tbody) return;
+    if(!rows.length){ tbody.innerHTML='<tr><td colspan="10" class="text-center">'+t('No records found')+'</td></tr>'; return; }
+    var today = formatGmtPlusOneDate(new Date());
+    tbody.innerHTML=rows.map(function(r){
+      var name=esc([r.first_name,r.last_name].filter(Boolean).join(' '));
+      var nextPaymentDate = formatGmtPlusOneDate(r.next_payment_date);
+      var enrollmentDate = formatGmtPlusOneDate(r.enrollment_date);
+      var overdue = nextPaymentDate !== '-' && nextPaymentDate < today && r.payment_status !== 'paid';
+      var trClass = overdue ? ' class="table-danger"' : '';
+      return '<tr'+trClass+'>' +
+        '<td>'+esc(r.registration_number)+'</td>' +
+        '<td>'+name+'</td>' +
+        '<td>'+esc(r.formation_title||'-')+'</td>' +
+        '<td>'+esc(r.group_names||'-')+'</td>' +
+        '<td>'+esc(r.classroom_names||'-')+'</td>' +
+        '<td>'+formatPaymentStatus(r.payment_status)+'</td>' +
+        '<td>'+esc(formatSubscriptionPlan(r.subscription_plan))+'</td>' +
+        '<td>'+esc(nextPaymentDate)+'</td>' +
+        '<td>'+esc(enrollmentDate)+'</td>' +
+        '<td><a href="student-profile.html?id='+r.id+'" class="btn btn-xs btn-success" title="View"><i class="fa fa-eye"></i></a></td>' +
+      '</tr>';
+    }).join('');
+  }
+
+  function populatePaymentFilters() {
+    var formationSel = document.getElementById('payment-filter-formation');
+    var groupSel = document.getElementById('payment-filter-group');
+    var classroomSel = document.getElementById('payment-filter-classroom');
+    if (!formationSel && !groupSel && !classroomSel) return;
+
+    Promise.all([
+      request('/api/formations-list'),
+      request('/api/groups'),
+      request('/api/classrooms')
+    ]).then(function(res){
+      var formations = res[0].data || [];
+      var groups = res[1].data || [];
+      var classrooms = res[2].data || [];
+      if (formationSel) {
+        formationSel.innerHTML = '<option value="">All Formations</option>' + formations.map(function(f){ return '<option value="'+f.id+'">'+esc(f.title)+'</option>'; }).join('');
+      }
+      if (groupSel) {
+        groupSel.innerHTML = '<option value="">All Groups</option>' + groups.map(function(g){ return '<option value="'+g.id+'">'+esc(g.name)+'</option>'; }).join('');
+      }
+      if (classroomSel) {
+        classroomSel.innerHTML = '<option value="">All Classrooms</option>' + classrooms.map(function(c){ return '<option value="'+c.id+'">'+esc(c.name)+'</option>'; }).join('');
+      }
+    }).catch(function(){ });
+  }
+
+  function bindPaymentFilters() {
+    ['payment-filter-formation','payment-filter-group','payment-filter-classroom','payment-filter-subscription','payment-filter-due'].forEach(function(id){
+      var sel = document.getElementById(id);
+      if (sel) sel.addEventListener('change', loadPaymentsPage);
+    });
+  }
+
+  function populateFormationSelect(sel) {
+    if(!sel) return;
+    request('/api/formations-list').then(function(p){
+      var list = p.data || [];
+      sel.innerHTML='<option value="">-- Select Formation *</option>'+
+        list.map(function(f){ return '<option value="'+f.id+'" data-type="'+esc(f.type)+'">'+esc(f.title)+'</option>'; }).join('');
+    }).catch(function(){});
+  }
+
+  function setupSubscriptionPlanToggle(form) {
+    var formationSelect = form.querySelector('#student-formation-id');
+    var subPlanGroup = form.querySelector('#subscription-plan-group');
+    var subPlanSelect = form.querySelector('[name="subscription_plan"]');
+    if (formationSelect && subPlanGroup) {
+      formationSelect.addEventListener('change', function() {
+        var opt = formationSelect.options[formationSelect.selectedIndex];
+        var type = opt ? opt.getAttribute('data-type') : '';
+        if (type === 'subscription') {
+          subPlanGroup.style.display = 'block';
+          if (subPlanSelect) subPlanSelect.required = true;
+        } else {
+          subPlanGroup.style.display = 'none';
+          if (subPlanSelect) {
+            subPlanSelect.required = false;
+            subPlanSelect.value = '';
+          }
+        }
+      });
+    }
+  }
+
+  function populatePromoCodeSelect(sel, formationId) {
+    if(!sel) return;
+    if(!formationId) {
+      sel.innerHTML='<option value="">No promo code</option>';
+      return;
+    }
+    request('/api/promo-codes?formation_id='+encodeURIComponent(formationId)).then(function(p){
+      var list = p.data || [];
+      sel.innerHTML='<option value="">No promo code</option>' +
+        list.filter(function(pc){ return pc.is_active !== false; }).map(function(pc){
+          return '<option value="'+esc(pc.code)+'">'+esc(pc.code)+' ('+esc(pc.discount_percent)+'%)</option>';
+        }).join('');
+    }).catch(function(){ sel.innerHTML='<option value="">No promo code</option>'; });
+  }
+
+  function setupPromoCodeSelect(form) {
+    var formationSelect = form.querySelector('#student-formation-id');
+    var promoSelect = form.querySelector('#student-promo-code');
+    if (!formationSelect || !promoSelect) return;
+    formationSelect.addEventListener('change', function() {
+      populatePromoCodeSelect(promoSelect, this.value);
+    });
+    populatePromoCodeSelect(promoSelect, formationSelect.value);
+  }
+
   function bindAddStudentForm() {
     var form=document.querySelector('#backend-add-student-form'); if(!form) return;
+    populateFormationSelect(form.querySelector('#student-formation-id'));
+    setupSubscriptionPlanToggle(form);
+    setupPromoCodeSelect(form);
     form.addEventListener('submit',function(e){
       e.preventDefault(); var fd=new FormData(form);
       var btn=form.querySelector('[type=submit]'); if(btn) btn.disabled=true;
       request('/api/student-registrations',{method:'POST',body:JSON.stringify({
         first_name:fd.get('first_name'),last_name:fd.get('last_name'),email:fd.get('email'),password:fd.get('password'),
         gender:fd.get('gender')||null,birth_date:fd.get('birth_date')||null,photo:fd.get('photo')||null,
+        formation_id:fd.get('formation_id'),
         registration_number:fd.get('registration_number'),
         parent_name:fd.get('parent_name')||null,parent_phone:fd.get('parent_phone')||null,
         enrollment_date:fd.get('enrollment_date')||null,
+        payment_status:fd.get('payment_status')||'not_paid',
+        subscription_plan:fd.get('subscription_plan')||null,
+        promo_code:fd.get('promo_code')||null,
       })}).then(function(){ showAlert('#backend-form-status',t('Student created successfully'),'success'); form.reset(); if(btn) btn.disabled=false; })
         .catch(function(err){ showAlert('#backend-form-status',err.message); if(btn) btn.disabled=false; });
     });
@@ -365,17 +538,32 @@
   function bindEditStudentForm() {
     var form=document.querySelector('#backend-edit-student-form'); if(!form) return;
     var id=urlParam('id'); if(!id){ showAlert('#backend-form-status','No student ID in URL'); return; }
+    var sel=form.querySelector('#student-formation-id');
+    populateFormationSelect(sel);
+    setupSubscriptionPlanToggle(form);
+    setupPromoCodeSelect(form);
     request('/api/student-registrations/'+id).then(function(p){
       var s=p.data;
-      ['first_name','last_name','email','gender','birth_date','photo','registration_number','parent_name','parent_phone','enrollment_date'].forEach(function(f){
+      ['first_name','last_name','email','gender','birth_date','photo','formation_id','registration_number','parent_name','parent_phone','enrollment_date','payment_status','subscription_plan'].forEach(function(f){
         var el=form.querySelector('[name="'+f+'"]'); if(el&&s[f]!=null) el.value=s[f];
       });
+      if(s.formation_id&&sel) setTimeout(function(){ 
+        sel.value=s.formation_id; 
+        sel.dispatchEvent(new Event('change'));
+        // Re-apply subscription plan value after toggle
+        setTimeout(function(){
+          var planEl = form.querySelector('[name="subscription_plan"]');
+          if (planEl && s.subscription_plan) planEl.value = s.subscription_plan;
+          var promoEl = form.querySelector('#student-promo-code');
+          if (promoEl && s.promo_code) promoEl.value = s.promo_code;
+        }, 100);
+      }, 600);
       var preview=document.getElementById('student-photo-preview');
       if(preview) preview.src=avatarUrl(s.photo,[s.first_name,s.last_name].join(' '),'student');
     }).catch(function(err){ showAlert('#backend-form-status',err.message); });
     form.addEventListener('submit',function(e){
       e.preventDefault(); var fd=new FormData(form); var payload={};
-      ['first_name','last_name','email','gender','birth_date','photo','registration_number','parent_name','parent_phone','enrollment_date'].forEach(function(f){
+      ['first_name','last_name','email','gender','birth_date','photo','formation_id','registration_number','parent_name','parent_phone','enrollment_date','payment_status','subscription_plan','promo_code'].forEach(function(f){
         var v=fd.get(f); if(v!==null) payload[f]=v||null;
       });
       var btn=form.querySelector('[type=submit]'); if(btn) btn.disabled=true;
@@ -454,10 +642,17 @@
   }
   function renderFormationRows(rows) {
     var tbody=document.querySelector('#backend-formations-table tbody'); if(!tbody) return;
-    if(!rows.length){ tbody.innerHTML='<tr><td colspan="8" class="text-center">'+t('No records found')+'</td></tr>'; return; }
+    if(!rows.length){ tbody.innerHTML='<tr><td colspan="10" class="text-center">'+t('No records found')+'</td></tr>'; return; }
     tbody.innerHTML=rows.map(function(r){
       var img='<img src="'+esc(formationImg(r.image,r.title))+'" style="width:40px;height:40px;border-radius:6px;object-fit:cover">';
-      return '<tr><td>'+img+'</td><td>'+esc(r.title)+'</td><td>'+esc(r.teacher_name||'-')+'</td><td>'+esc(r.classroom_name||'-')+'</td><td>'+esc(r.start_date||'-')+'</td><td>'+esc(r.end_date||'-')+'</td><td>$'+esc(r.price)+'</td>'+
+      var typeLabel = r.type === 'subscription' ? 'Subscription' : 'Formation';
+      var periodLabel = r.subscription_period === '1_month' ? 'Monthly' : (r.subscription_period === '3_months' ? '3 months' : (r.subscription_period === '1_year' ? 'Yearly' : '-'));
+      var priceValue = r.type === 'subscription' ? (
+        r.subscription_period === '1_month' ? r.price_monthly :
+        (r.subscription_period === '3_months' ? r.price_3_months :
+        (r.subscription_period === '1_year' ? r.price_1_year : r.price))
+      ) : r.price;
+      return '<tr><td>'+img+'</td><td>'+esc(r.title)+'</td><td>'+esc(typeLabel)+'</td><td>'+esc(periodLabel)+'</td><td>'+esc(r.teacher_name||'-')+'</td><td>'+esc(r.classroom_name||'-')+'</td><td>'+esc(r.start_date||'-')+'</td><td>'+esc(r.end_date||'-')+'</td><td>$'+esc(priceValue || 0)+'</td>'+
         '<td><a href="course-info.html?id='+r.id+'" class="btn btn-xs btn-success" title="View Details"><i class="fa fa-eye"></i></a> '+
         '<a href="edit-course.html?id='+r.id+'" class="btn btn-xs btn-info" title="Edit"><i class="fa fa-pencil"></i></a> '+
         '<button class="btn btn-xs btn-danger" data-del-formation="'+r.id+'" title="Delete"><i class="fa fa-trash"></i></button></td></tr>';
@@ -470,17 +665,34 @@
     });
   }
   function populateTeacherSelect(sel) {
-    if(!sel) return;
-    request('/api/teacher-registrations').then(function(p){
+    if(!sel) return Promise.resolve();
+    return request('/api/teacher-registrations').then(function(p){
       sel.innerHTML='<option value="">-- Select Teacher (optional) --</option>'+
         (p.data||[]).map(function(tc){
           return '<option value="'+tc.id+'">'+esc([tc.first_name,tc.last_name].filter(Boolean).join(' '))+'</option>';
         }).join('');
     });
   }
+  function setupFormationTypeToggle(form) {
+    var typeSelect = form.querySelector('select[name="type"]');
+    var priceGroup = form.querySelector('#formation-price-group');
+    var subscriptionPricesGroup = form.querySelector('#subscription-prices-group');
+    if (!typeSelect) return;
+
+    function updatePeriodVisibility() {
+      var isSubscription = typeSelect.value === 'subscription';
+      if (priceGroup) priceGroup.style.display = isSubscription ? 'none' : 'block';
+      if (subscriptionPricesGroup) subscriptionPricesGroup.style.display = isSubscription ? 'block' : 'none';
+    }
+
+    typeSelect.addEventListener('change', updatePeriodVisibility);
+    updatePeriodVisibility();
+  }
+
   function bindAddFormationForm() {
     var form=document.querySelector('#backend-add-formation-form'); if(!form) return;
     populateTeacherSelect(form.querySelector('#formation-teacher-id'));
+    setupFormationTypeToggle(form);
     form.addEventListener('submit',function(e){
       e.preventDefault();
       var schoolId=window._schoolId; if(!schoolId){ showAlert('#backend-form-status','School not loaded. Refresh.'); return; }
@@ -489,6 +701,8 @@
         school_id:schoolId,teacher_id:fd.get('teacher_id')||null,title:fd.get('title'),
         description:fd.get('description')||null,image:fd.get('image')||null,
         duration_hours:fd.get('duration_hours')||null,price:fd.get('price')||0,
+        price_monthly:fd.get('price_monthly')||null,price_3_months:fd.get('price_3_months')||null,price_1_year:fd.get('price_1_year')||null,
+        type:fd.get('type')||'formation',subscription_period:fd.get('subscription_period')||null,
         start_date:fd.get('start_date')||null,end_date:fd.get('end_date')||null,
       })}).then(function(){ showAlert('#backend-form-status',t('Formation created successfully'),'success'); form.reset(); if(btn) btn.disabled=false; })
         .catch(function(err){ showAlert('#backend-form-status',err.message); if(btn) btn.disabled=false; });
@@ -498,21 +712,35 @@
     var form=document.querySelector('#backend-edit-formation-form'); if(!form) return;
     var id=urlParam('id'); if(!id){ showAlert('#backend-form-status','No formation ID in URL'); return; }
     var sel=form.querySelector('#formation-teacher-id');
+    setupFormationTypeToggle(form);
     populateTeacherSelect(sel);
     request('/api/formations/'+id).then(function(p){
       var f=p.data;
-      ['title','description','duration_hours','price','start_date','end_date','image'].forEach(function(field){
+      ['title','description','duration_hours','price','type','start_date','end_date','image'].forEach(function(field){
+        var el=form.querySelector('[name="'+field+'"]'); if(el&&f[field]!=null) el.value=f[field];
+      });
+      ['price_monthly','price_3_months','price_1_year'].forEach(function(field){
         var el=form.querySelector('[name="'+field+'"]'); if(el&&f[field]!=null) el.value=f[field];
       });
       if(f.image){ var pv=document.getElementById('formation-image-preview'); if(pv) pv.src=formationImg(f.image,f.title); }
       if(f.teacher_id&&sel) setTimeout(function(){ sel.value=f.teacher_id; }, 600);
+      setTimeout(function(){
+        var typeSelect = form.querySelector('select[name="type"]');
+        if (typeSelect && f.type) {
+          typeSelect.value = f.type;
+          typeSelect.dispatchEvent(new Event('change'));
+          var periodSelect = form.querySelector('select[name="subscription_period"]');
+          if (periodSelect && f.subscription_period) periodSelect.value = f.subscription_period;
+        }
+      }, 200);
     }).catch(function(err){ showAlert('#backend-form-status',err.message); });
     form.addEventListener('submit',function(e){
       e.preventDefault(); var fd=new FormData(form); var btn=form.querySelector('[type=submit]'); if(btn) btn.disabled=true;
       request('/api/formations/'+id,{method:'PUT',body:JSON.stringify({
         teacher_id:fd.get('teacher_id')||null,title:fd.get('title'),description:fd.get('description')||null,
         image:fd.get('image')||null,duration_hours:fd.get('duration_hours')||null,
-        price:fd.get('price')||0,start_date:fd.get('start_date')||null,end_date:fd.get('end_date')||null,
+        price:fd.get('price')||0,price_monthly:fd.get('price_monthly')||null,price_3_months:fd.get('price_3_months')||null,price_1_year:fd.get('price_1_year')||null,
+        type:fd.get('type')||'formation',subscription_period:fd.get('subscription_period')||null,start_date:fd.get('start_date')||null,end_date:fd.get('end_date')||null,
       })}).then(function(){ showAlert('#backend-form-status','Formation updated successfully','success'); if(btn) btn.disabled=false; })
         .catch(function(err){ showAlert('#backend-form-status',err.message); if(btn) btn.disabled=false; });
     });
@@ -553,6 +781,7 @@
   // ── Groups ───────────────────────────────────────────────────────────────────
   var _allStudents = [];
   var _allGroups   = [];
+  var _allFormations = [];
 
   function loadGroupsPage() {
     if(!document.querySelector('#backend-groups-list')) return;
@@ -565,13 +794,24 @@
       var formations = results[0].data||[];
       var classrooms = results[1].data||[];
       _allStudents   = results[2].data||[];
+      _allFormations = formations;
 
       // Populate formation selects
       var fSel=document.querySelector('#group-formation-id');
-      if(fSel) fSel.innerHTML='<option value="">-- Select Formation *</option>'+
-        formations.map(function(f){ return '<option value="'+f.id+'">'+esc(f.title)+'</option>'; }).join('');
-
-      // Populate filter formation
+      if(fSel) {
+        fSel.innerHTML='<option value="">-- Select Formation *</option>'+ 
+          formations.map(function(f){ return '<option value="'+f.id+'">'+esc(f.title)+'</option>'; }).join('');
+        fSel.addEventListener('change', function() { updateGroupTeacherSelection(this.form || document.querySelector('#backend-add-group-form')); });
+      }
+      var groupTeacherSel = document.querySelector('#group-teacher-id');
+      if(groupTeacherSel) {
+        populateTeacherSelect(groupTeacherSel).then(function(){
+          if(groupTeacherSel.form && groupTeacherSel.form.id === 'backend-add-group-form') {
+            groupTeacherSel.form.querySelector('#group-teacher-note').textContent = 'Select a teacher for this group. If the formation already has a teacher, it will be auto-selected.';
+            updateGroupTeacherSelection(groupTeacherSel.form);
+          }
+        });
+      }
       var fFilter=document.querySelector('#filter-formation');
       if(fFilter){ fFilter.innerHTML='<option value="">All Formations</option>'+
         formations.map(function(f){ return '<option value="'+f.id+'">'+esc(f.title)+'</option>'; }).join(''); }
@@ -637,6 +877,7 @@
             '<h4>'+esc(g.name)+'</h4>' +
             '<p class="meta">' +
               '<i class="fa fa-book"></i> '+esc(g.formation_title||'-')+' &nbsp;|&nbsp; '+
+              '<i class="fa fa-user"></i> '+esc(g.teacher_name||'No teacher')+' &nbsp;|&nbsp; '+
               '<i class="fa fa-building"></i> '+esc(g.classroom_name||'No room')+' &nbsp;|&nbsp; '+
               '<i class="fa fa-users"></i> <span id="group-count-'+g.id+'">'+g.student_count+'</span> students' +
             '</p>' +
@@ -732,6 +973,24 @@
       .catch(function(err){ showAlert('#backend-groups-status',err.message); });
   };
 
+  function updateGroupTeacherSelection(form) {
+    if(!form) return;
+    var fSel = form.querySelector('#group-formation-id');
+    var tSel = form.querySelector('#group-teacher-id');
+    var note = form.querySelector('#group-teacher-note');
+    if(!fSel || !tSel) return;
+    var formations = form._formations || _allFormations;
+    var formation = (formations || []).find(function(f){ return String(f.id) === String(fSel.value); });
+    if (formation && formation.teacher_id && !tSel.value) {
+      tSel.value = formation.teacher_id;
+      if (note) note.textContent = 'Teacher auto-selected from formation. You can override it if needed.';
+    } else if (formation && formation.teacher_id) {
+      if (note) note.textContent = 'Formation already has a teacher. You can override the selected teacher.';
+    } else {
+      if (note) note.textContent = 'Select a teacher for this group. If the formation already has a teacher, it will be auto-selected.';
+    }
+  }
+
   function bindAddGroupForm() {
     var form=document.querySelector('#backend-add-group-form'); if(!form) return;
     form.addEventListener('submit',function(e){
@@ -740,6 +999,7 @@
       var btn=form.querySelector('[type=submit]'); if(btn) btn.disabled=true;
       request('/api/groups',{method:'POST',body:JSON.stringify({
         formation_id:fd.get('formation_id'),classroom_id:fd.get('classroom_id')||null,
+        teacher_id:fd.get('teacher_id')||null,
         name:fd.get('name'),start_date:fd.get('start_date')||null,end_date:fd.get('end_date')||null,
         max_students:fd.get('max_students')||null,student_ids:studentIds,
       })}).then(function(){
@@ -763,13 +1023,23 @@
       var group = res[2].data;
       
       var fSel=form.querySelector('#group-formation-id');
-      if(fSel) fSel.innerHTML='<option value="">-- Select Formation *</option>'+
-        formations.map(function(f){ return '<option value="'+f.id+'" '+(f.id===group.formation_id?'selected':'')+'>'+esc(f.title)+'</option>'; }).join('');
-        
+      if(fSel) {
+        fSel.innerHTML='<option value="">-- Select Formation *</option>'+ 
+          formations.map(function(f){ return '<option value="'+f.id+'" '+(f.id===group.formation_id?'selected':'')+'>'+esc(f.title)+'</option>'; }).join('');
+        form._formations = formations;
+        fSel.addEventListener('change', function() { updateGroupTeacherSelection(form); });
+      }
       var cSel=form.querySelector('#group-classroom-id');
       if(cSel) cSel.innerHTML='<option value="">No classroom</option>'+
         classrooms.map(function(c){ return '<option value="'+c.id+'" '+(c.id===group.classroom_id?'selected':'')+'>'+esc(c.name)+'</option>'; }).join('');
       
+      var tSel = form.querySelector('#group-teacher-id');
+      if (tSel) {
+        populateTeacherSelect(tSel).then(function(){
+          if (group.teacher_id) tSel.value = group.teacher_id;
+          updateGroupTeacherSelection(form);
+        });
+      }
       ['name','start_date','end_date','max_students'].forEach(function(f){
         var el=form.querySelector('[name="'+f+'"]'); if(el&&group[f]!=null) el.value=group[f];
       });
@@ -777,7 +1047,7 @@
 
     form.addEventListener('submit',function(e){
       e.preventDefault(); var fd=new FormData(form); var payload={};
-      ['formation_id','classroom_id','name','start_date','end_date','max_students'].forEach(function(f){
+      ['formation_id','classroom_id','teacher_id','name','start_date','end_date','max_students'].forEach(function(f){
         var v=fd.get(f); if(v!==null) payload[f]=v||null;
       });
       var btn=form.querySelector('[type=submit]'); if(btn) btn.disabled=true;
@@ -805,6 +1075,10 @@
       document.getElementById('sp-parent-name').textContent = tc.parent_name || '-';
       document.getElementById('sp-parent-phone').textContent = tc.parent_phone || '-';
       document.getElementById('sp-enrollment-date').textContent = tc.enrollment_date || '-';
+      document.getElementById('sp-formation').textContent = tc.formation_title || '-';
+      document.getElementById('sp-subscription-plan').textContent = formatSubscriptionPlan(tc.subscription_plan);
+      document.getElementById('sp-next-payment-date').textContent = tc.next_payment_date || '-';
+      document.getElementById('sp-payment-status').innerHTML = formatPaymentStatus(tc.payment_status);
       document.getElementById('sp-status').innerHTML = tc.is_active ? '<span class="label label-success">Active</span>' : '<span class="label label-danger">Inactive</span>';
     }).catch(function(err){ showAlert(cont, err.message); });
   }
@@ -982,7 +1256,7 @@
     loadSchoolSettings();
     bindSetupSchoolForm();
     // Students
-    loadStudents(); bindAddStudentForm(); bindEditStudentForm(); loadStudentProfile();
+    loadStudents(); bindAddStudentForm(); bindEditStudentForm(); loadStudentProfile(); loadPaymentsPage(); bindPaymentFilters(); populatePaymentFilters();
     // Teachers
     loadTeachers(); bindAddTeacherForm(); bindEditTeacherForm(); loadTeacherProfile();
     // Formations
@@ -991,6 +1265,94 @@
     loadClassrooms(); bindAddClassroomForm();
     // Groups
     loadGroupsPage(); bindAddGroupForm(); bindEditGroupForm(); loadGroupProfile();
+    // Promo Codes
+    loadPromoCodesPage();
   });
+
+  // ── Promo Codes ────────────────────────────────────────────────────────────
+  function loadPromoCodesPage() {
+    if(!document.getElementById('backend-promos-table')) return;
+    var sel = document.getElementById('promo-formation-id');
+    if(sel) {
+      request('/api/formations-list').then(function(p){
+        sel.innerHTML='<option value="">-- Select Formation *</option>'+
+          (p.data||[]).map(function(f){ return '<option value="'+f.id+'">'+esc(f.title)+'</option>'; }).join('');
+      }).catch(function(){});
+    }
+
+    loadPromoCodes();
+
+    var form = document.getElementById('backend-add-promo-form');
+    if(form) {
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        var fd = new FormData(form);
+        var btn = form.querySelector('[type=submit]'); if(btn) btn.disabled = true;
+        
+        request('/api/promo-codes', {
+          method: 'POST',
+          body: JSON.stringify({
+            formation_id: fd.get('formation_id'),
+            code: fd.get('code'),
+            discount_percent: parseInt(fd.get('discount_percent')),
+            type: fd.get('type')
+          })
+        }).then(function() {
+          form.reset();
+          if(btn) btn.disabled = false;
+          loadPromoCodes();
+          showAlert('#backend-promos-status', 'Promo code generated successfully', 'success');
+        }).catch(function(err) {
+          if(btn) btn.disabled = false;
+          showAlert('#backend-promos-status', err.message);
+        });
+      });
+    }
+
+    document.getElementById('backend-promos-table').addEventListener('click', function(e) {
+      var delBtn = e.target.closest('[data-del-promo]');
+      if (delBtn) {
+        if(!confirm('Delete this promo code?')) return;
+        request('/api/promo-codes/'+delBtn.getAttribute('data-del-promo'), {method:'DELETE'})
+          .then(loadPromoCodes).catch(function(err){ showAlert('#backend-promos-status',err.message); });
+      }
+      var tglBtn = e.target.closest('[data-tgl-promo]');
+      if (tglBtn) {
+        var id = tglBtn.getAttribute('data-tgl-promo');
+        var st = tglBtn.getAttribute('data-status') === '1' ? false : true;
+        request('/api/promo-codes/'+id, {method:'PUT', body:JSON.stringify({is_active: st})})
+          .then(loadPromoCodes).catch(function(err){ showAlert('#backend-promos-status',err.message); });
+      }
+    });
+  }
+
+  function loadPromoCodes() {
+    var tbl = document.getElementById('backend-promos-table'); if(!tbl) return;
+    request('/api/promo-codes').then(function(p) {
+      var rows = p.data || [];
+      var tbody = tbl.querySelector('tbody');
+      if(!rows.length) { tbody.innerHTML='<tr><td colspan="6" class="text-center">No records found</td></tr>'; return; }
+      
+      tbody.innerHTML = rows.map(function(r) {
+        var statusHtml = r.is_active ? '<span class="promo-badge active">Active</span>' : '<span class="promo-badge inactive">Inactive</span>';
+        var tglIcon = r.is_active ? 'fa-ban' : 'fa-check';
+        var tglClass = r.is_active ? 'btn-warning' : 'btn-success';
+        var tglTitle = r.is_active ? 'Disable' : 'Enable';
+        var formationLabel = esc(r.formation_title || ('#' + r.formation_id));
+        var typeLabel = esc(r.type === 'single_student' ? 'Single Student' : 'Many Students');
+        
+        return '<tr>' +
+          '<td><strong>'+esc(r.code)+'</strong></td>' +
+          '<td><div style="font-weight:600">'+formationLabel+'</div><small class="text-muted">#'+esc(r.formation_id)+'</small></td>' +
+          '<td><span class="promo-pill">'+esc(r.discount_percent)+'%</span></td>' +
+          '<td>'+typeLabel+'</td>' +
+          '<td>'+statusHtml+'</td>' +
+          '<td>' +
+            '<button class="btn btn-xs '+tglClass+'" data-tgl-promo="'+r.id+'" data-status="'+(r.is_active?1:0)+'" title="'+tglTitle+'"><i class="fa '+tglIcon+'"></i></button> ' +
+            '<button class="btn btn-xs btn-danger" data-del-promo="'+r.id+'" title="Delete"><i class="fa fa-trash"></i></button>' +
+          '</td></tr>';
+      }).join('');
+    }).catch(function(err){ showAlert('#backend-promos-status',err.message); });
+  }
 
 })();
