@@ -294,6 +294,14 @@
       var c = p.contact_info || {};
       var u = p.admin || {};
       
+      // Check if logged in user is the primary admin (creator of the school)
+      var isSuperAdmin = (window._ctx && window._ctx.user && window._ctx.user.id === s.admin_id);
+      if (!isSuperAdmin) {
+        // Hide Manage Admins for secondary admins
+        var navAdmins = document.querySelector('a[href="#tab-admins"]');
+        if (navAdmins && navAdmins.parentElement) navAdmins.parentElement.style.display = 'none';
+      }
+
       form.querySelector('[name="name"]').value = s.name || '';
       var logoEl = form.querySelector('[name="logo"]'); if(logoEl) logoEl.value = s.logo || '';
       
@@ -304,10 +312,124 @@
       var fnEl = form.querySelector('[name="admin_first_name"]'); if(fnEl) fnEl.value = u.first_name || '';
       var lnEl = form.querySelector('[name="admin_last_name"]'); if(lnEl) lnEl.value = u.last_name || '';
       var emEl = form.querySelector('[name="admin_email"]'); if(emEl) emEl.value = u.email || '';
+      renderExistingAdmins(p.additional_admins || []);
     }).catch(function(err){
       // If endpoint doesn't exist yet or fails, ignore gracefully
       console.error(err);
     });
+  }
+
+  function renderExistingAdmins(admins) {
+    var container = document.getElementById('existing-admins-list');
+    if (!container) return;
+    if (!admins.length) {
+      container.innerHTML = '<div class="text-muted" style="margin-bottom:16px"><i class="fa fa-info-circle"></i> No additional admins configured yet.</div>';
+      return;
+    }
+    container.innerHTML = admins.map(function(admin){
+      return '<div class="additional-admin-card" data-admin-id="'+admin.id+'">' +
+        '<div class="row">' +
+          '<div class="col-md-3"><div class="form-group"><label>First Name</label><input type="text" class="form-control admin-first-name" value="'+esc(admin.first_name||'')+'"></div></div>' +
+          '<div class="col-md-3"><div class="form-group"><label>Last Name</label><input type="text" class="form-control admin-last-name" value="'+esc(admin.last_name||'')+'"></div></div>' +
+          '<div class="col-md-4"><div class="form-group"><label>Email</label><input type="email" class="form-control admin-email" value="'+esc(admin.email||'')+'"></div></div>' +
+          '<div class="col-md-2"><div class="form-group"><label>Status</label><select class="form-control admin-is-active"><option value="1"'+(admin.is_active ? ' selected' : '')+'>Active</option><option value="0"'+(!admin.is_active ? ' selected' : '')+'>Inactive</option></select></div></div>' +
+        '</div>' +
+        '<div class="row">' +
+          '<div class="col-md-6"><div class="form-group"><label>New Password</label><input type="password" class="form-control admin-password" placeholder="Leave blank to keep current"></div></div>' +
+          '<div class="col-md-6 admin-card-actions">' +
+            '<button type="button" class="btn admin-save-button" data-admin-id="'+admin.id+'"><i class="fa fa-save"></i> Save</button>' +
+            '<button type="button" class="btn admin-delete-button" data-admin-id="'+admin.id+'"><i class="fa fa-trash"></i> Remove</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  function addAdditionalAdminRow() {
+    var container = document.getElementById('additional-admins-list'); if (!container) return;
+    var row = document.createElement('div');
+    row.className = 'additional-admin-row';
+    row.setAttribute('data-new-admin', '1');
+    row.innerHTML =
+      '<div class="row">' +
+        '<div class="col-md-3"><div class="form-group"><label>First Name</label><input type="text" name="additional_admin_first_name[]" class="form-control" required></div></div>' +
+        '<div class="col-md-3"><div class="form-group"><label>Last Name</label><input type="text" name="additional_admin_last_name[]" class="form-control" required></div></div>' +
+        '<div class="col-md-4"><div class="form-group"><label>Email</label><input type="email" name="additional_admin_email[]" class="form-control" required></div></div>' +
+        '<div class="col-md-2"><div class="form-group"><label>Status</label><select name="additional_admin_is_active[]" class="form-control"><option value="1">Active</option><option value="0">Inactive</option></select></div></div>' +
+      '</div>' +
+      '<div class="row">' +
+        '<div class="col-md-6"><div class="form-group"><label>Password</label><input type="password" name="additional_admin_password[]" class="form-control" required></div></div>' +
+        '<div class="col-md-6 admin-card-actions">' +
+          '<button type="button" class="btn remove-additional-admin"><i class="fa fa-times"></i> Remove</button>' +
+        '</div>' +
+      '</div>';
+    container.appendChild(row);
+  }
+
+  function bindAdditionalAdminControls() {
+    var addBtn = document.getElementById('add-additional-admin');
+    if (addBtn) {
+      addBtn.addEventListener('click', function() { addAdditionalAdminRow(); });
+    }
+    var container = document.getElementById('additional-admins-list');
+    if (container) {
+      container.addEventListener('click', function(e){
+        if (!e.target.closest('.remove-additional-admin')) return;
+        var row = e.target.closest('.additional-admin-row'); if (row) row.remove();
+      });
+    }
+
+    var existingContainer = document.getElementById('existing-admins-list');
+    if (existingContainer) {
+      existingContainer.addEventListener('click', function(e){
+        var saveBtn = e.target.closest('.admin-save-button');
+        if (saveBtn) {
+          var card = saveBtn.closest('.additional-admin-card');
+          if (card) saveExistingAdmin(card);
+          return;
+        }
+        var deleteBtn = e.target.closest('.admin-delete-button');
+        if (deleteBtn) {
+          var card = deleteBtn.closest('.additional-admin-card');
+          if (card) deleteExistingAdmin(card);
+          return;
+        }
+      });
+    }
+  }
+
+  function saveExistingAdmin(card) {
+    var adminId = card.getAttribute('data-admin-id');
+    if (!adminId) return;
+    var payload = {
+      first_name: card.querySelector('.admin-first-name') ? card.querySelector('.admin-first-name').value.trim() : null,
+      last_name: card.querySelector('.admin-last-name') ? card.querySelector('.admin-last-name').value.trim() : null,
+      email: card.querySelector('.admin-email') ? card.querySelector('.admin-email').value.trim() : null,
+      is_active: card.querySelector('.admin-is-active') ? (card.querySelector('.admin-is-active').value === '1' ? 1 : 0) : 1,
+      password: card.querySelector('.admin-password') ? card.querySelector('.admin-password').value : null,
+    };
+    if (!payload.first_name || !payload.last_name || !payload.email) {
+      showAlert('#backend-setup-status', 'First name, last name and email are required for admin updates.');
+      return;
+    }
+    request('/api/school-setup/settings/admin/' + encodeURIComponent(adminId), { method: 'PUT', body: JSON.stringify(payload) })
+      .then(function(){
+        showAlert('#backend-setup-status', 'Admin updated successfully', 'success');
+        loadSchoolSettings();
+      })
+      .catch(function(err){ showAlert('#backend-setup-status', err.message); });
+  }
+
+  function deleteExistingAdmin(card) {
+    var adminId = card.getAttribute('data-admin-id');
+    if (!adminId) return;
+    if (!confirm('Remove this admin from the school?')) return;
+    request('/api/school-setup/settings/admin/' + encodeURIComponent(adminId), { method: 'DELETE' })
+      .then(function(){
+        showAlert('#backend-setup-status', 'Admin removed successfully', 'success');
+        loadSchoolSettings();
+      })
+      .catch(function(err){ showAlert('#backend-setup-status', err.message); });
   }
 
   function bindSetupSchoolForm() {
@@ -327,6 +449,20 @@
       };
       
       var btn=form.querySelector('[type=submit]'); if(btn) btn.disabled=true;
+      var adminRows = form.querySelectorAll('.additional-admin-row[data-new-admin]');
+      if (adminRows.length) {
+        payload.additional_admins = Array.prototype.slice.call(adminRows).map(function(row){
+          return {
+            first_name: row.querySelector('[name="additional_admin_first_name[]"]')?.value || null,
+            last_name: row.querySelector('[name="additional_admin_last_name[]"]')?.value || null,
+            email: row.querySelector('[name="additional_admin_email[]"]')?.value || null,
+            password: row.querySelector('[name="additional_admin_password[]"]')?.value || null,
+            is_active: row.querySelector('[name="additional_admin_is_active[]"]')?.value === '1' ? 1 : 0,
+          };
+        }).filter(function(admin){
+          return admin.first_name && admin.last_name && admin.email && admin.password;
+        });
+      }
       request('/api/school-setup/settings', {method:'PUT', body:JSON.stringify(payload)})
         .then(function(res){ 
           showAlert('#backend-setup-status', 'Settings saved successfully', 'success');
@@ -363,7 +499,7 @@
       var payStatus = r.payment_status === 'paid' 
         ? '<span class="label label-success">Paid</span>' 
         : '<span class="label label-danger">Unpaid</span>';
-      return '<tr><td>'+img+'</td><td>'+esc(r.registration_number)+'</td><td>'+name+'</td><td>'+esc(r.email)+'</td><td>'+esc(r.parent_name||'-')+'</td><td>'+esc(formatGmtPlusOneDate(r.enrollment_date))+'</td><td>'+payStatus+'</td>'+ 
+      return '<tr><td>'+img+'</td><td>'+esc(r.registration_number)+'</td><td>'+name+'</td><td>'+esc(r.email)+'</td><td>'+ (r.is_active ? '<span class="label label-success">Active</span>' : '<span class="label label-danger">Inactive</span>') +'</td><td>'+esc(r.parent_name||'-')+'</td><td>'+esc(formatGmtPlusOneDate(r.enrollment_date))+'</td><td>'+payStatus+'</td>'+ 
         '<td><a href="student-profile.html?id='+r.id+'" class="btn btn-xs btn-success" title="View Details"><i class="fa fa-eye"></i></a> '+
         '<a href="edit-student.html?id='+r.id+'" class="btn btn-xs btn-info" title="Edit"><i class="fa fa-pencil"></i></a> '+
         '<button class="btn btn-xs btn-danger" data-del-student="'+r.id+'" title="Delete"><i class="fa fa-trash"></i></button></td></tr>';
@@ -383,20 +519,36 @@
     return plan ? plan.replace(/_/g, ' ') : '-';
   }
 
+  var paymentsPageLoading = false;
+  var paymentsPageInitialized = false;
+
   function loadPaymentsPage() {
     var tbl = document.querySelector('#backend-payments-table'); if(!tbl) return;
+    if (paymentsPageLoading) return;
+
     var filters = {
       formation_id: document.getElementById('payment-filter-formation') ? document.getElementById('payment-filter-formation').value : null,
       group_id: document.getElementById('payment-filter-group') ? document.getElementById('payment-filter-group').value : null,
       classroom_id: document.getElementById('payment-filter-classroom') ? document.getElementById('payment-filter-classroom').value : null,
+      teacher_id: document.getElementById('payment-filter-teacher') ? document.getElementById('payment-filter-teacher').value : null,
       subscription_plan: document.getElementById('payment-filter-subscription') ? document.getElementById('payment-filter-subscription').value : null,
-      payment_due: document.getElementById('payment-filter-due') ? document.getElementById('payment-filter-due').value : null,
+      payment_date_start: document.getElementById('payment-filter-date-start') ? document.getElementById('payment-filter-date-start').value : null,
+      payment_date_end: document.getElementById('payment-filter-date-end') ? document.getElementById('payment-filter-date-end').value : null,
     };
+    if (filters.payment_date_start && filters.payment_date_end && filters.payment_date_end < filters.payment_date_start) {
+      var tmp = filters.payment_date_start;
+      filters.payment_date_start = filters.payment_date_end;
+      filters.payment_date_end = tmp;
+    }
     var params = new URLSearchParams();
     Object.keys(filters).forEach(function(key){ if(filters[key]) params.append(key, filters[key]); });
-    request('/api/student-registrations/payments?' + params.toString())
-      .then(function(p){ renderPaymentRows(p.data || []); })
-      .catch(function(err){ showAlert('#backend-payments-status', err.message); });
+    var url = '/api/student-registrations/payments' + (params.toString() ? '?' + params.toString() : '');
+
+    paymentsPageLoading = true;
+    request(url)
+      .then(function(p){ renderPaymentRows(p.data || []); renderPaymentSummary(p.summary || {}); })
+      .catch(function(err){ showAlert('#backend-payments-status', err.message); })
+      .finally(function(){ paymentsPageLoading = false; });
   }
 
   function renderPaymentRows(rows) {
@@ -424,20 +576,49 @@
     }).join('');
   }
 
+  function renderPaymentSummary(summary) {
+    var summaryRow = document.getElementById('payments-summary-row');
+    if (!summaryRow) return;
+    var amountEl = document.getElementById('payments-summary-amount');
+    var studentsEl = document.getElementById('payments-summary-students');
+    var filterEl = document.getElementById('payments-summary-filter');
+    if (!amountEl || !studentsEl || !filterEl) return;
+
+    amountEl.textContent = Number(summary.total_revenue || 0).toFixed(2);
+    studentsEl.textContent = Number(summary.student_count || 0);
+    var teacherSelect = document.getElementById('payment-filter-teacher');
+    var teacherLabel = 'All Teachers';
+    if (teacherSelect && teacherSelect.value) {
+      teacherLabel = teacherSelect.options[teacherSelect.selectedIndex] ? teacherSelect.options[teacherSelect.selectedIndex].textContent : teacherLabel;
+    }
+    var startDate = document.getElementById('payment-filter-date-start') ? document.getElementById('payment-filter-date-start').value : null;
+    var endDate = document.getElementById('payment-filter-date-end') ? document.getElementById('payment-filter-date-end').value : null;
+    var dateRangeLabel = '';
+    if (startDate && endDate) dateRangeLabel = startDate + ' → ' + endDate;
+    else if (startDate) dateRangeLabel = 'From ' + startDate;
+    else if (endDate) dateRangeLabel = 'Until ' + endDate;
+
+    filterEl.textContent = teacherLabel + (dateRangeLabel ? ' / ' + dateRangeLabel : '');
+    summaryRow.style.display = 'flex';
+  }
+
   function populatePaymentFilters() {
     var formationSel = document.getElementById('payment-filter-formation');
     var groupSel = document.getElementById('payment-filter-group');
     var classroomSel = document.getElementById('payment-filter-classroom');
-    if (!formationSel && !groupSel && !classroomSel) return;
+    var teacherSel = document.getElementById('payment-filter-teacher');
+    if (!formationSel && !groupSel && !classroomSel && !teacherSel) return Promise.resolve();
 
-    Promise.all([
+    return Promise.all([
       request('/api/formations-list'),
       request('/api/groups'),
-      request('/api/classrooms')
+      request('/api/classrooms'),
+      request('/api/teachers')
     ]).then(function(res){
       var formations = res[0].data || [];
       var groups = res[1].data || [];
       var classrooms = res[2].data || [];
+      var teachers = res[3].data || [];
       if (formationSel) {
         formationSel.innerHTML = '<option value="">All Formations</option>' + formations.map(function(f){ return '<option value="'+f.id+'">'+esc(f.title)+'</option>'; }).join('');
       }
@@ -447,11 +628,16 @@
       if (classroomSel) {
         classroomSel.innerHTML = '<option value="">All Classrooms</option>' + classrooms.map(function(c){ return '<option value="'+c.id+'">'+esc(c.name)+'</option>'; }).join('');
       }
+      if (teacherSel) {
+        teacherSel.innerHTML = '<option value="">All Teachers</option>' + teachers.map(function(t){ return '<option value="'+t.id+'">'+esc([t.first_name,t.last_name].filter(Boolean).join(' '))+'</option>'; }).join('');
+      }
     }).catch(function(){ });
   }
 
   function bindPaymentFilters() {
-    ['payment-filter-formation','payment-filter-group','payment-filter-classroom','payment-filter-subscription','payment-filter-due'].forEach(function(id){
+    if (bindPaymentFilters.bound) return;
+    bindPaymentFilters.bound = true;
+    ['payment-filter-formation','payment-filter-group','payment-filter-classroom','payment-filter-teacher','payment-filter-subscription','payment-filter-date-start','payment-filter-date-end'].forEach(function(id){
       var sel = document.getElementById(id);
       if (sel) sel.addEventListener('change', loadPaymentsPage);
     });
@@ -545,8 +731,10 @@
     request('/api/student-registrations/'+id).then(function(p){
       var s=p.data;
       ['first_name','last_name','email','gender','birth_date','photo','formation_id','registration_number','parent_name','parent_phone','enrollment_date','payment_status','subscription_plan'].forEach(function(f){
-        var el=form.querySelector('[name="'+f+'"]'); if(el&&s[f]!=null) el.value=s[f];
+        var el=form.querySelector('[name="'+f+'"]'); if(el&&s[f]!=null) el.value = s[f];
       });
+      var statusEl = form.querySelector('[name="is_active"]');
+      if (statusEl) statusEl.value = s.is_active ? '1' : '0';
       if(s.formation_id&&sel) setTimeout(function(){ 
         sel.value=s.formation_id; 
         sel.dispatchEvent(new Event('change'));
@@ -566,6 +754,8 @@
       ['first_name','last_name','email','gender','birth_date','photo','formation_id','registration_number','parent_name','parent_phone','enrollment_date','payment_status','subscription_plan','promo_code'].forEach(function(f){
         var v=fd.get(f); if(v!==null) payload[f]=v||null;
       });
+      var isActive = fd.get('is_active');
+      if (isActive !== null) payload.is_active = isActive === '1' ? 1 : 0;
       var btn=form.querySelector('[type=submit]'); if(btn) btn.disabled=true;
       request('/api/student-registrations/'+id,{method:'PUT',body:JSON.stringify(payload)})
         .then(function(){ showAlert('#backend-form-status','Student updated successfully','success'); if(btn) btn.disabled=false; })
@@ -619,6 +809,8 @@
       ['first_name','last_name','email','gender','birth_date','photo','employee_number','speciality','diploma','hire_date'].forEach(function(f){
         var el=form.querySelector('[name="'+f+'"]'); if(el&&tc[f]!=null) el.value=tc[f];
       });
+      var statusEl = form.querySelector('[name="is_active"]');
+      if (statusEl) statusEl.value = tc.is_active ? '1' : '0';
       var preview=document.getElementById('teacher-photo-preview');
       if(preview) preview.src=avatarUrl(tc.photo,[tc.first_name,tc.last_name].join(' '),'teacher');
     }).catch(function(err){ showAlert('#backend-form-status',err.message); });
@@ -627,6 +819,8 @@
       ['first_name','last_name','email','gender','birth_date','photo','employee_number','speciality','diploma','hire_date'].forEach(function(f){
         var v=fd.get(f); if(v!==null) payload[f]=v||null;
       });
+      var isActive = fd.get('is_active');
+      if (isActive !== null) payload.is_active = isActive === '1' ? 1 : 0;
       var btn=form.querySelector('[type=submit]'); if(btn) btn.disabled=true;
       request('/api/teacher-registrations/'+id,{method:'PUT',body:JSON.stringify(payload)})
         .then(function(){ showAlert('#backend-form-status','Teacher updated successfully','success'); if(btn) btn.disabled=false; })
@@ -702,7 +896,7 @@
         description:fd.get('description')||null,image:fd.get('image')||null,
         duration_hours:fd.get('duration_hours')||null,price:fd.get('price')||0,
         price_monthly:fd.get('price_monthly')||null,price_3_months:fd.get('price_3_months')||null,price_1_year:fd.get('price_1_year')||null,
-        type:fd.get('type')||'formation',subscription_period:fd.get('subscription_period')||null,
+        type:fd.get('type')||'formation',subscription_period:fd.get('subscription_period')||null,status:fd.get('status')||'open',
         start_date:fd.get('start_date')||null,end_date:fd.get('end_date')||null,
       })}).then(function(){ showAlert('#backend-form-status',t('Formation created successfully'),'success'); form.reset(); if(btn) btn.disabled=false; })
         .catch(function(err){ showAlert('#backend-form-status',err.message); if(btn) btn.disabled=false; });
@@ -716,7 +910,7 @@
     populateTeacherSelect(sel);
     request('/api/formations/'+id).then(function(p){
       var f=p.data;
-      ['title','description','duration_hours','price','type','start_date','end_date','image'].forEach(function(field){
+      ['title','description','duration_hours','price','type','status','start_date','end_date','image'].forEach(function(field){
         var el=form.querySelector('[name="'+field+'"]'); if(el&&f[field]!=null) el.value=f[field];
       });
       ['price_monthly','price_3_months','price_1_year'].forEach(function(field){
@@ -740,7 +934,7 @@
         teacher_id:fd.get('teacher_id')||null,title:fd.get('title'),description:fd.get('description')||null,
         image:fd.get('image')||null,duration_hours:fd.get('duration_hours')||null,
         price:fd.get('price')||0,price_monthly:fd.get('price_monthly')||null,price_3_months:fd.get('price_3_months')||null,price_1_year:fd.get('price_1_year')||null,
-        type:fd.get('type')||'formation',subscription_period:fd.get('subscription_period')||null,start_date:fd.get('start_date')||null,end_date:fd.get('end_date')||null,
+        type:fd.get('type')||'formation',subscription_period:fd.get('subscription_period')||null,status:fd.get('status')||'open',start_date:fd.get('start_date')||null,end_date:fd.get('end_date')||null,
       })}).then(function(){ showAlert('#backend-form-status','Formation updated successfully','success'); if(btn) btn.disabled=false; })
         .catch(function(err){ showAlert('#backend-form-status',err.message); if(btn) btn.disabled=false; });
     });
@@ -1255,8 +1449,10 @@
     bindRegisterForm();
     loadSchoolSettings();
     bindSetupSchoolForm();
+    bindAdditionalAdminControls();
     // Students
-    loadStudents(); bindAddStudentForm(); bindEditStudentForm(); loadStudentProfile(); loadPaymentsPage(); bindPaymentFilters(); populatePaymentFilters();
+    loadStudents(); bindAddStudentForm(); bindEditStudentForm(); loadStudentProfile();
+    populatePaymentFilters().then(function(){ bindPaymentFilters(); loadPaymentsPage(); });
     // Teachers
     loadTeachers(); bindAddTeacherForm(); bindEditTeacherForm(); loadTeacherProfile();
     // Formations

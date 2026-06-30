@@ -237,6 +237,7 @@ CREATE TABLE formations (
     price_1_year DECIMAL(10,2) DEFAULT NULL,
     type ENUM('formation', 'subscription') DEFAULT 'formation',
     subscription_period ENUM('1_month', '3_months', '1_year') DEFAULT NULL,
+    status ENUM('open','closed') DEFAULT 'open',
 
     start_date DATE,
     end_date DATE,

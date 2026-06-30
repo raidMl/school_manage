@@ -56,6 +56,12 @@
                     </div>
                     <div class="col-md-4">
                         <div class="form-group">
+                            <label>Teacher</label>
+                            <select id="payment-filter-teacher" class="form-control"></select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
                             <label>Subscription Plan</label>
                             <select id="payment-filter-subscription" class="form-control">
                                 <option value="">All Plans</option>
@@ -67,13 +73,34 @@
                     </div>
                     <div class="col-md-4">
                         <div class="form-group">
-                            <label>Payment Due</label>
-                            <select id="payment-filter-due" class="form-control">
-                                <option value="">All</option>
-                                <option value="week">Due This Week</option>
-                                <option value="tomorrow">Due Tomorrow</option>
-                                <option value="overdue">Overdue</option>
-                            </select>
+                            <label>Start Date</label>
+                            <input id="payment-filter-date-start" type="date" class="form-control" placeholder="Start date">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>End Date</label>
+                            <input id="payment-filter-date-end" type="date" class="form-control" placeholder="End date">
+                        </div>
+                    </div>
+                </div>
+                <div class="row" id="payments-summary-row" style="margin-bottom:20px;display:none">
+                    <div class="col-md-4">
+                        <div class="card-panel">
+                            <h4 id="payments-summary-amount" style="margin:0;font-size:24px">0.00</h4>
+                            <p style="margin:4px 0 0;color:#666;font-size:13px">Expected revenue</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card-panel">
+                            <h4 id="payments-summary-students" style="margin:0;font-size:24px">0</h4>
+                            <p style="margin:4px 0 0;color:#666;font-size:13px">Matching students</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card-panel">
+                            <h4 id="payments-summary-filter" style="margin:0;font-size:24px">All Teachers</h4>
+                            <p style="margin:4px 0 0;color:#666;font-size:13px">Current teacher filter</p>
                         </div>
                     </div>
                 </div>

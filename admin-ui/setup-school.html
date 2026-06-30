@@ -1,109 +1,430 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>School Settings | School System Admin</title>
-    <link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <link rel="stylesheet" href="css/font-awesome.min.css">
-    <link rel="stylesheet" href="css/sidebar.css">
-    <style>body{font-family:'Inter',sans-serif}.card-panel{background:#fff;border-radius:14px;padding:24px;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:20px;max-width:860px}</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>School Settings | School System Admin</title>
+  <link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/font-awesome.min.css">
+  <link rel="stylesheet" href="css/sidebar.css">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f4f7f6;
+    }
+
+    .card-panel {
+      background: #fff;
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, .04);
+      margin-bottom: 20px;
+      max-width: 1050px;
+    }
+
+    /* Settings Sidebar Layout */
+    .settings-container {
+      display: flex;
+      gap: 40px;
+      margin-top: 25px;
+      align-items: flex-start;
+    }
+
+    .settings-sidebar {
+      width: 260px;
+      flex-shrink: 0;
+      background: #fff;
+      border-right: 1px solid #f0f0f0;
+      padding-right: 20px;
+    }
+
+    .settings-content {
+      flex-grow: 1;
+      min-width: 0;
+    }
+
+    /* Custom Nav Pills */
+    .nav-pills-custom {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .nav-pills-custom>li {
+      margin-bottom: 8px;
+    }
+
+    .nav-pills-custom>li>a {
+      display: flex;
+      align-items: center;
+      padding: 14px 20px;
+      border-radius: 12px;
+      color: #64748b;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all 0.25s ease;
+      font-size: 15px;
+    }
+
+    .nav-pills-custom>li>a i {
+      margin-right: 14px;
+      font-size: 18px;
+      color: #94a3b8;
+      width: 22px;
+      text-align: center;
+      transition: color 0.25s ease;
+    }
+
+    /* Active & Hover States */
+    .nav-pills-custom>li.active>a {
+      background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(79, 70, 229, 0.35);
+    }
+
+    .nav-pills-custom>li.active>a i {
+      color: #fff;
+    }
+
+    .nav-pills-custom>li>a:hover:not(.active) {
+      background: #f8fafc;
+      color: #334155;
+    }
+
+    .nav-pills-custom>li>a:hover:not(.active) i {
+      color: #64748b;
+    }
+
+    /* Tab Content Animation */
+    .tab-content>.tab-pane {
+      display: none;
+      animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .tab-content>.active {
+      display: block;
+    }
+
+    @keyframes slideUpFade {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Section Titles */
+    .tab-title {
+      margin-top: 0;
+      margin-bottom: 24px;
+      font-size: 20px;
+      font-weight: 600;
+      color: #1e293b;
+      border-bottom: 2px solid #f1f5f9;
+      padding-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Input Styling */
+    .form-control {
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      padding: 10px 14px;
+      height: auto;
+      box-shadow: none;
+      font-size: 14px;
+      transition: border-color 0.2s;
+    }
+
+    .form-control:focus {
+      border-color: #a18cd1;
+      box-shadow: 0 0 0 3px rgba(161, 140, 209, 0.15);
+    }
+
+    label {
+      font-weight: 500;
+      color: #475569;
+      margin-bottom: 6px;
+    }
+
+    /* Save Button */
+    .btn-save-settings {
+      background: #1e293b;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 24px;
+      font-weight: 500;
+      transition: all 0.2s;
+      margin-top: 15px;
+    }
+
+    .btn-save-settings:hover {
+      background: #0f172a;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Admin Cards */
+    .additional-admin-card,
+    .additional-admin-row {
+      background: #fafafa;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      position: relative;
+      transition: box-shadow 0.2s;
+    }
+
+    .additional-admin-card:hover,
+    .additional-admin-row:hover {
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+      background: #fff;
+      border-color: #cbd5e1;
+    }
+
+    .admin-card-actions {
+      display: flex;
+      align-items: flex-end;
+      justify-content: flex-end;
+      gap: 10px;
+      height: 100%;
+      padding-top: 25px;
+    }
+
+    .admin-save-button {
+      background: #10b981;
+      border: none;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-weight: 500;
+    }
+
+    .admin-save-button:hover {
+      background: #059669;
+    }
+
+    .admin-delete-button {
+      background: #ef4444;
+      border: none;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-weight: 500;
+    }
+
+    .admin-delete-button:hover {
+      background: #dc2626;
+    }
+
+    .remove-additional-admin {
+      color: #ef4444;
+      border: 1px solid #fecaca;
+      background: #fef2f2;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .remove-additional-admin:hover {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .settings-container {
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .settings-sidebar {
+        width: 100%;
+        border-right: none;
+        padding-right: 0;
+        border-bottom: 1px solid #f0f0f0;
+        padding-bottom: 20px;
+      }
+    }
+  </style>
 </head>
+
 <body data-page="settings">
-<div id="sidebar-placeholder"></div>
-<div class="sb-main">
-<div id="header-placeholder"></div>
-<div class="sb-content">
-<div class="sb-breadcrumb"><i class="fa fa-home"></i> <a href="index.html">Home</a> <span>/</span> <span>Settings</span> <span>/</span> <span>General Settings</span></div>
+  <div id="sidebar-placeholder"></div>
+  <div class="sb-main">
+    <div id="header-placeholder"></div>
+    <div class="sb-content">
+      <div class="sb-breadcrumb"><i class="fa fa-home"></i> <a href="index.html">Home</a> <span>/</span>
+        <span>Settings</span> <span>/</span> <span>School Configuration</span></div>
 
-<div class="card-panel">
-  <h3 style="margin:0 0 4px;font-size:17px;font-weight:700"><i class="fa fa-cog" style="color:#a18cd1"></i> General Settings</h3>
-  <p style="color:#888;font-size:13px;margin:0 0 20px">Update your school profile and configuration.</p>
-  
-  <form id="backend-setup-school-form" novalidate>
-    <!-- School Information -->
-    <h4 style="margin-bottom: 15px; font-size: 16px; font-weight: 600; border-bottom: 1px solid #eee; padding-bottom: 10px;">School Information</h4>
-    <div class="row">
-        <div class="col-md-6">
-            <div class="form-group">
-              <label>School Name <span class="text-danger">*</span></label>
-              <input type="text" name="name" id="name" class="form-control" placeholder="Example Academy" required>
-            </div>
+      <div class="card-panel">
+        <div style="margin-bottom: 20px;">
+          <h3 style="margin:0 0 6px;font-size:22px;font-weight:700;color:#0f172a;">School Configuration</h3>
+          <p style="color:#64748b;font-size:14px;margin:0">Manage your academy's profile, admins, and preferences.</p>
         </div>
-        <div class="col-md-6">
-            <div class="form-group">
-              <label>Logo URL</label>
-              <input type="url" name="logo" id="logo" class="form-control" placeholder="https://...">
-            </div>
-        </div>
-    </div>
 
-    <!-- Social Media Links -->
-    <h4 style="margin-top: 20px; margin-bottom: 15px; font-size: 16px; font-weight: 600; border-bottom: 1px solid #eee; padding-bottom: 10px;">Social Media Links</h4>
-    <div class="row">
-        <div class="col-md-4">
-            <div class="form-group">
-              <label><i class="fa fa-facebook-square" style="color: #3b5998;"></i> Facebook URL</label>
-              <input type="url" name="fb" id="fb" class="form-control" placeholder="https://facebook.com/...">
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="form-group">
-              <label><i class="fa fa-whatsapp" style="color: #25d366;"></i> WhatsApp Number</label>
-              <input type="text" name="whatsapp" id="whatsapp" class="form-control" placeholder="+123456789">
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="form-group">
-              <label><i class="fa fa-linkedin-square" style="color: #0077b5;"></i> LinkedIn URL</label>
-              <input type="url" name="linkedin" id="linkedin" class="form-control" placeholder="https://linkedin.com/...">
-            </div>
-        </div>
-    </div>
+        <form id="backend-setup-school-form" novalidate>
+          <div class="settings-container">
 
-    <!-- Admin Profile -->
-    <h4 style="margin-top: 20px; margin-bottom: 15px; font-size: 16px; font-weight: 600; border-bottom: 1px solid #eee; padding-bottom: 10px;">Admin Profile</h4>
-    <div class="row">
-        <div class="col-md-6">
-            <div class="form-group">
-              <label>First Name</label>
-              <input type="text" name="admin_first_name" id="admin_first_name" class="form-control" placeholder="John">
+            <!-- Sidebar Navigation -->
+            <div class="settings-sidebar">
+              <ul class="nav nav-pills-custom" id="settingsTabs" role="tablist">
+                <li class="active"><a href="#tab-general" role="tab" data-toggle="tab"><i class="fa fa-university"></i>
+                    General Info</a></li>
+                <li><a href="#tab-social" role="tab" data-toggle="tab"><i class="fa fa-share-alt"></i> Social Media</a>
+                </li>
+                <li><a href="#tab-profile" role="tab" data-toggle="tab"><i class="fa fa-user-circle"></i> My Profile</a>
+                </li>
+                <li><a href="#tab-admins" role="tab" data-toggle="tab"><i class="fa fa-users"></i> Manage Admins</a>
+                </li>
+              </ul>
             </div>
-        </div>
-        <div class="col-md-6">
-            <div class="form-group">
-              <label>Last Name</label>
-              <input type="text" name="admin_last_name" id="admin_last_name" class="form-control" placeholder="Doe">
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-6">
-            <div class="form-group">
-              <label>Admin Email</label>
-              <input type="email" name="admin_email" id="admin_email" class="form-control" placeholder="admin@example.com">
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="form-group">
-              <label>New Password <small class="text-muted">(leave blank to keep current)</small></label>
-              <input type="password" name="admin_password" id="admin_password" class="form-control" placeholder="••••••••">
-            </div>
-        </div>
-    </div>
 
-    <div id="backend-setup-status" class="help-block small" style="color:#e74c3c; margin-top:10px;"></div>
-    <div class="form-group" style="margin-top:20px">
-      <button type="submit" class="btn btn-primary btn-lg"><i class="fa fa-save"></i> Save Settings</button>
-    </div>
-  </form>
-</div>
+            <!-- Tab Content Area -->
+            <div class="settings-content">
+              <div class="tab-content">
 
-<div id="footer-placeholder"></div>
-</div></div>
-<script src="js/vendor/jquery-1.12.4.min.js"></script>
-<script src="js/bootstrap.min.js"></script>
-<script src="js/components.js"></script>
-<script src="js/backend.js"></script>
-</body></html>
+                <!-- TAB: General Information -->
+                <div role="tabpanel" class="tab-pane active" id="tab-general">
+                  <h4 class="tab-title"><i class="fa fa-university text-muted"></i> School Information</h4>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label>School Name <span class="text-danger">*</span></label>
+                        <input type="text" name="name" id="name" class="form-control" placeholder="Example Academy"
+                          required>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label>Logo URL</label>
+                        <input type="url" name="logo" id="logo" class="form-control" placeholder="https://...">
+                      </div>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <button type="submit" class="btn btn-save-settings"><i class="fa fa-save"></i> Save Changes</button>
+                  </div>
+                </div>
+
+                <!-- TAB: Social Media -->
+                <div role="tabpanel" class="tab-pane" id="tab-social">
+                  <h4 class="tab-title"><i class="fa fa-share-alt text-muted"></i> Social Media Links</h4>
+                  <div class="row">
+                    <div class="col-md-12">
+                      <div class="form-group">
+                        <label><i class="fa fa-facebook-square" style="color: #3b5998;"></i> Facebook URL</label>
+                        <input type="url" name="fb" id="fb" class="form-control" placeholder="https://facebook.com/...">
+                      </div>
+                    </div>
+                    <div class="col-md-12">
+                      <div class="form-group">
+                        <label><i class="fa fa-whatsapp" style="color: #25d366;"></i> WhatsApp Number</label>
+                        <input type="text" name="whatsapp" id="whatsapp" class="form-control" placeholder="+123456789">
+                      </div>
+                    </div>
+                    <div class="col-md-12">
+                      <div class="form-group">
+                        <label><i class="fa fa-linkedin-square" style="color: #0077b5;"></i> LinkedIn URL</label>
+                        <input type="url" name="linkedin" id="linkedin" class="form-control"
+                          placeholder="https://linkedin.com/...">
+                      </div>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <button type="submit" class="btn btn-save-settings"><i class="fa fa-save"></i> Save Changes</button>
+                  </div>
+                </div>
+
+                <!-- TAB: My Profile -->
+                <div role="tabpanel" class="tab-pane" id="tab-profile">
+                  <h4 class="tab-title"><i class="fa fa-user-circle text-muted"></i> Admin Profile</h4>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label>First Name</label>
+                        <input type="text" name="admin_first_name" id="admin_first_name" class="form-control"
+                          placeholder="John">
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label>Last Name</label>
+                        <input type="text" name="admin_last_name" id="admin_last_name" class="form-control"
+                          placeholder="Doe">
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label>Admin Email</label>
+                        <input type="email" name="admin_email" id="admin_email" class="form-control"
+                          placeholder="admin@example.com">
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label>New Password <small class="text-muted">(leave blank to keep current)</small></label>
+                        <input type="password" name="admin_password" id="admin_password" class="form-control"
+                          placeholder="••••••••">
+                      </div>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <button type="submit" class="btn btn-save-settings"><i class="fa fa-save"></i> Save Profile</button>
+                  </div>
+                </div>
+
+                <!-- TAB: Manage Admins -->
+                <div role="tabpanel" class="tab-pane" id="tab-admins">
+                  <h4 class="tab-title"><i class="fa fa-users text-muted"></i> Manage Administrators</h4>
+                  <p class="text-muted" style="margin-bottom:20px;font-size:13px">As the primary creator, you can
+                    create, update, and remove extra admin users for this school.</p>
+
+                  <div id="existing-admins-list"></div>
+
+                  <div id="additional-admins-list"></div>
+
+                  <div style="margin-top: 20px; padding-top: 15px; border-top: 1px dashed #e2e8f0;">
+                    <button id="add-additional-admin" type="button" class="btn btn-default btn-sm"
+                      style="margin-bottom:15px; border-radius: 8px;"><i class="fa fa-plus"></i> Add New Admin</button>
+                  </div>
+
+                  <div class="text-right">
+                    <button type="submit" class="btn btn-save-settings"><i class="fa fa-save"></i> Save Admins</button>
+                  </div>
+                </div>
+
+              </div>
+
+              <div id="backend-setup-status" class="help-block small"
+                style="color:#e74c3c; margin-top:15px; text-align: right;"></div>
+            </div>
+
+          </div>
+        </form>
+      </div>
+
+      <div id="footer-placeholder"></div>
+    </div>
+  </div>
+  <script src="js/vendor/jquery-1.12.4.min.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="js/components.js"></script>
+  <script src="js/backend.js"></script>
+</body>
+
+</html>
