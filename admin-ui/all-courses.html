@@ -9,7 +9,41 @@
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/font-awesome.min.css">
     <link rel="stylesheet" href="css/sidebar.css">
-    <style>body{font-family:'Inter',sans-serif}.card-panel{background:#fff;border-radius:14px;padding:20px;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:20px}</style>
+    <style>
+      body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+      .card-panel { background: #ffffff; border-radius: 16px; padding: 24px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); margin-bottom: 24px; border: 1px solid #e2e8f0; }
+      
+      /* Header & Title */
+      .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+      .page-title { margin: 0; font-size: 20px; font-weight: 700; color: #1e293b; }
+      .page-desc { margin: 4px 0 0; color: #64748b; font-size: 14px; }
+      .btn-add-new { background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%); border: none; color: white; padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 14px; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2); }
+      .btn-add-new:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(79, 70, 229, 0.3); color: white; }
+
+      /* Table Styles */
+      .table-custom { width: 100%; border-collapse: separate; border-spacing: 0; }
+      .table-custom th { background-color: #f1f5f9; color: #475569; font-weight: 600; text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; padding: 14px 16px; border-bottom: 2px solid #e2e8f0; text-align: left; white-space: nowrap; }
+      .table-custom th:first-child { border-top-left-radius: 8px; border-bottom-left-radius: 8px; }
+      .table-custom th:last-child { border-top-right-radius: 8px; border-bottom-right-radius: 8px; text-align: center; }
+      
+      .table-custom td { padding: 16px; vertical-align: middle; color: #334155; font-size: 14px; border-bottom: 1px solid #f1f5f9; transition: background-color 0.2s ease; }
+      .table-custom tbody tr:hover td { background-color: #f8fafc; }
+      .table-custom tbody tr:last-child td { border-bottom: none; }
+      
+      /* Image Thumbnail */
+      .table-custom img { width: 48px !important; height: 48px !important; border-radius: 10px !important; object-fit: cover; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+      
+      /* Action Buttons in Table */
+      .table-custom .btn-xs { padding: 6px 10px; border-radius: 6px; margin: 0 2px; font-size: 13px; border: none; transition: all 0.2s ease; }
+      .table-custom .btn-success { background-color: #d1fae5; color: #059669; }
+      .table-custom .btn-success:hover { background-color: #10b981; color: white; }
+      .table-custom .btn-info { background-color: #e0f2fe; color: #0284c7; }
+      .table-custom .btn-info:hover { background-color: #0ea5e9; color: white; }
+      .table-custom .btn-danger { background-color: #fee2e2; color: #dc2626; }
+      .table-custom .btn-danger:hover { background-color: #ef4444; color: white; }
+      
+      .table-custom td:last-child { text-align: center; white-space: nowrap; }
+    </style>
 </head>
 <body data-page="courses">
     <div id="sidebar-placeholder"></div>
@@ -23,21 +57,31 @@
                 <span>Formations</span>
             </div>
         <div class="card-panel">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+            <div class="page-header">
                 <div>
-                    <h3 style="margin:0;font-size:16px;font-weight:700">Formations List</h3>
-                    <p style="margin:4px 0 0;color:#888;font-size:13px">All formations and courses.</p>
+                    <h3 class="page-title">Formations List</h3>
+                    <p class="page-desc">Manage all formations and course subscriptions.</p>
                 </div>
-                <a href="add-course.html" class="btn btn-primary btn-sm"><i class="fa fa-plus"></i> Add Formation / Subscription</a>
+                <a href="add-course.html" class="btn btn-add-new"><i class="fa fa-plus"></i> Add Formation / Subscription</a>
             </div>
             <div id="backend-formations-status" class="alert" style="display:none"></div>
-            <div class="table-responsive">
-                <table id="backend-formations-table" class="table table-striped table-hover table-bordered">
+            <div class="table-responsive" style="overflow-x: auto;">
+                <table id="backend-formations-table" class="table-custom">
                     <thead><tr>
-                        <th width="55">Image</th><th>Title</th><th>Type</th><th>Status</th><th>Period</th><th>Teacher</th>
-                        <th>Classroom</th><th>Start Date</th><th>End Date</th><th>Price</th><th width="110">Actions</th>
+                        <th width="40"><input type="checkbox" class="select-all"></th>
+                        <th width="70">Image</th>
+                        <th>Title</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Period</th>
+                        <th>Teacher</th>
+                        <th>Classroom</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Price</th>
+                        <th width="130">Actions</th>
                     </tr></thead>
-                    <tbody><tr><td colspan="10" class="text-center">Loading...</td></tr></tbody>
+                    <tbody><tr><td colspan="12" class="text-center" style="padding: 40px; color:#94a3b8;"><i class="fa fa-spinner fa-spin fa-2x"></i><br><br>Loading formations...</td></tr></tbody>
                 </table>
             </div>
         </div>

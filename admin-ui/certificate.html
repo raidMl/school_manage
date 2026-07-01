@@ -24,8 +24,8 @@
         }
 
         .certificate-container {
-            width: 297mm; /* A4 Landscape width */
-            height: 210mm; /* A4 Landscape height */
+            width: 1122px; /* A4 Landscape width at 96dpi */
+            height: 793px; /* A4 Landscape height at 96dpi */
             background-color: #fff;
             position: relative;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
@@ -35,8 +35,30 @@
             color: #2c3e50;
             direction: rtl; /* Right to Left for Arabic */
             text-align: center;
-            background-image: url('data:image/svg+xml;utf8,<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="10" width="calc(100% - 20px)" height="calc(100% - 20px)" fill="none" stroke="%23c5a059" stroke-width="4"/><rect x="15" y="15" width="calc(100% - 30px)" height="calc(100% - 30px)" fill="none" stroke="%23c5a059" stroke-width="1"/></svg>');
-            background-size: 100% 100%;
+        }
+
+        .certificate-container::before {
+            content: "";
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            bottom: 10px;
+            border: 4px solid #c5a059;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .certificate-container::after {
+            content: "";
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            right: 15px;
+            bottom: 15px;
+            border: 1px solid #c5a059;
+            pointer-events: none;
+            z-index: 1;
         }
 
         /* Inner Content */
@@ -132,8 +154,8 @@
                 margin: 0;
             }
             html, body {
-                width: 297mm;
-                height: 210mm;
+                width: 1122px;
+                height: 793px;
                 margin: 0;
                 padding: 0;
                 background-color: white;
@@ -174,7 +196,7 @@
                 <div id="backend-certificate-status" class="alert" style="display:none"></div>
                 
                 <div class="row">
-                    <div class="col-md-5">
+                    <div class="col-md-3">
                         <div class="form-group">
                             <label>Formation *</label>
                             <select id="cert-formation-id" class="form-control" required>
@@ -182,23 +204,32 @@
                             </select>
                         </div>
                     </div>
-                    <div class="col-md-5">
+                    <div class="col-md-3">
                         <div class="form-group">
-                            <label>Student *</label>
-                            <select id="cert-student-id" class="form-control" required disabled>
+                            <label>Group</label>
+                            <select id="cert-group-id" class="form-control" disabled>
                                 <option value="">Select Formation First</option>
                             </select>
                         </div>
                     </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Student(s) * <small class="text-muted">(Hold Ctrl for multiple)</small></label>
+                            <select id="cert-student-id" class="form-control" multiple required disabled style="height: 100px;">
+                                <option value="">Select Formation First</option>
+                            </select>
+                            <button type="button" id="cert-select-all-btn" class="btn btn-xs btn-default mt-1" style="margin-top:4px;" disabled>Select All</button>
+                        </div>
+                    </div>
                     <div class="col-md-2">
                         <div class="form-group" style="padding-top: 25px;">
-                            <button id="btn-generate-cert" class="btn btn-primary btn-block" disabled><i class="fa fa-cogs"></i> <span data-i18n="Generate">Generate</span></button>
+                            <button id="btn-generate-cert" class="btn btn-primary btn-block" disabled><i class="fa fa-eye"></i> <span data-i18n="Preview">Preview</span></button>
                         </div>
                     </div>
                 </div>
 
                 <div class="text-right" style="margin-top: 15px; margin-bottom: 20px;">
-                    <button id="btn-print-cert" class="btn btn-success" disabled><i class="fa fa-print"></i> <span data-i18n="Print / Download">Print / Download PDF</span></button>
+                    <button id="btn-print-cert" class="btn btn-success" disabled><i class="fa fa-download"></i> <span data-i18n="Print / Download">Download PDF / ZIP</span></button>
                 </div>
             </div>
 
@@ -242,6 +273,10 @@
     
     <script src="js/vendor/jquery-1.12.4.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <script src="js/components.js"></script>
     <script src="js/backend.js"></script>
     <script>

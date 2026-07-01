@@ -494,12 +494,13 @@
     var tbody=document.querySelector('#backend-students-table tbody'); if(!tbody) return;
     if(!rows.length){ tbody.innerHTML='<tr><td colspan="8" class="text-center">'+t('No records found')+'</td></tr>'; return; }
     tbody.innerHTML=rows.map(function(r){
+      var chk='<input type="checkbox" class="row-checkbox" value="'+r.id+'" data-type="student">';
       var name=esc([r.first_name,r.last_name].filter(Boolean).join(' '));
       var img='<img src="'+esc(avatarUrl(r.photo,[r.first_name,r.last_name].join(' '),'student'))+'" style="width:36px;height:36px;border-radius:50%;object-fit:cover" onerror="this.src=\'https://ui-avatars.com/api/?name=S&background=27ae60&color=fff&size=36\'">';
       var payStatus = r.payment_status === 'paid' 
         ? '<span class="label label-success">Paid</span>' 
         : '<span class="label label-danger">Unpaid</span>';
-      return '<tr><td>'+img+'</td><td>'+esc(r.registration_number)+'</td><td>'+name+'</td><td>'+esc(r.email)+'</td><td>'+ (r.is_active ? '<span class="label label-success">Active</span>' : '<span class="label label-danger">Inactive</span>') +'</td><td>'+esc(r.parent_name||'-')+'</td><td>'+esc(formatGmtPlusOneDate(r.enrollment_date))+'</td><td>'+payStatus+'</td>'+ 
+      return '<tr><td>'+chk+'</td><td>'+img+'</td><td>'+esc(r.registration_number)+'</td><td>'+name+'</td><td>'+esc(r.email)+'</td><td>'+ (r.is_active ? '<span class="label label-success">Active</span>' : '<span class="label label-danger">Inactive</span>') +'</td><td>'+esc(r.parent_name||'-')+'</td><td>'+esc(formatGmtPlusOneDate(r.enrollment_date))+'</td><td>'+payStatus+'</td>'+ 
         '<td><a href="student-profile.html?id='+r.id+'" class="btn btn-xs btn-success" title="View Details"><i class="fa fa-eye"></i></a> '+
         '<a href="edit-student.html?id='+r.id+'" class="btn btn-xs btn-info" title="Edit"><i class="fa fa-pencil"></i></a> '+
         '<button class="btn btn-xs btn-danger" data-del-student="'+r.id+'" title="Delete"><i class="fa fa-trash"></i></button></td></tr>';
@@ -647,6 +648,7 @@
     if(!sel) return;
     request('/api/formations-list').then(function(p){
       var list = p.data || [];
+      list = list.filter(function(f){ return f.status === 'open'; });
       sel.innerHTML='<option value="">-- Select Formation *</option>'+
         list.map(function(f){ return '<option value="'+f.id+'" data-type="'+esc(f.type)+'">'+esc(f.title)+'</option>'; }).join('');
     }).catch(function(){});
@@ -773,9 +775,10 @@
     var tbody=document.querySelector('#backend-teachers-table tbody'); if(!tbody) return;
     if(!rows.length){ tbody.innerHTML='<tr><td colspan="7" class="text-center">'+t('No records found')+'</td></tr>'; return; }
     tbody.innerHTML=rows.map(function(r){
+      var chk='<input type="checkbox" class="row-checkbox" value="'+r.id+'" data-type="teacher">';
       var name=esc([r.first_name,r.last_name].filter(Boolean).join(' '));
       var img='<img src="'+esc(avatarUrl(r.photo,[r.first_name,r.last_name].join(' '),'teacher'))+'" style="width:36px;height:36px;border-radius:50%;object-fit:cover">';
-      return '<tr><td>'+img+'</td><td>'+esc(r.employee_number)+'</td><td>'+name+'</td><td>'+esc(r.email)+'</td><td>'+esc(r.speciality||'-')+'</td><td>'+esc(r.hire_date||'-')+'</td>'+
+      return '<tr><td>'+chk+'</td><td>'+img+'</td><td>'+esc(r.employee_number)+'</td><td>'+name+'</td><td>'+esc(r.email)+'</td><td>'+esc(r.speciality||'-')+'</td><td>'+esc(r.hire_date||'-')+'</td>'+
         '<td><a href="professor-profile.html?id='+r.id+'" class="btn btn-xs btn-success" title="View Details"><i class="fa fa-eye"></i></a> '+
         '<a href="edit-professor.html?id='+r.id+'" class="btn btn-xs btn-info" title="Edit"><i class="fa fa-pencil"></i></a> '+
         '<button class="btn btn-xs btn-danger" data-del-teacher="'+r.id+'" title="Delete"><i class="fa fa-trash"></i></button></td></tr>';
@@ -836,8 +839,9 @@
   }
   function renderFormationRows(rows) {
     var tbody=document.querySelector('#backend-formations-table tbody'); if(!tbody) return;
-    if(!rows.length){ tbody.innerHTML='<tr><td colspan="10" class="text-center">'+t('No records found')+'</td></tr>'; return; }
+    if(!rows.length){ tbody.innerHTML='<tr><td colspan="11" class="text-center">'+t('No records found')+'</td></tr>'; return; }
     tbody.innerHTML=rows.map(function(r){
+      var chk='<input type="checkbox" class="row-checkbox" value="'+r.id+'" data-type="formation">';
       var img='<img src="'+esc(formationImg(r.image,r.title))+'" style="width:40px;height:40px;border-radius:6px;object-fit:cover">';
       var typeLabel = r.type === 'subscription' ? 'Subscription' : 'Formation';
       var periodLabel = r.subscription_period === '1_month' ? 'Monthly' : (r.subscription_period === '3_months' ? '3 months' : (r.subscription_period === '1_year' ? 'Yearly' : '-'));
@@ -846,23 +850,40 @@
         (r.subscription_period === '3_months' ? r.price_3_months :
         (r.subscription_period === '1_year' ? r.price_1_year : r.price))
       ) : r.price;
-      return '<tr><td>'+img+'</td><td>'+esc(r.title)+'</td><td>'+esc(typeLabel)+'</td><td>'+esc(periodLabel)+'</td><td>'+esc(r.teacher_name||'-')+'</td><td>'+esc(r.classroom_name||'-')+'</td><td>'+esc(r.start_date||'-')+'</td><td>'+esc(r.end_date||'-')+'</td><td>$'+esc(priceValue || 0)+'</td>'+
+      var statusColor = (r.status === 'open') ? '#10b981' : '#ef4444';
+      var statusSelect = '<select class="form-control input-sm quick-status-change" data-id="'+r.id+'" style="padding:2px 8px; height:26px; font-size:12px; min-width:90px; color:#fff; font-weight:600; background-color:'+statusColor+'; border:none; border-radius:4px;">' +
+        '<option value="open" '+(r.status==='open'?'selected':'')+' style="background:#fff; color:#333;">Open</option>' +
+        '<option value="closed" '+(r.status==='closed'?'selected':'')+' style="background:#fff; color:#333;">Closed</option>' +
+        '</select>';
+      return '<tr><td>'+chk+'</td><td>'+img+'</td><td>'+esc(r.title)+'</td><td>'+esc(typeLabel)+'</td><td>'+statusSelect+'</td><td>'+esc(periodLabel)+'</td><td>'+esc(r.teacher_name||'-')+'</td><td>'+esc(r.classroom_name||'-')+'</td><td>'+esc(r.start_date||'-')+'</td><td>'+esc(r.end_date||'-')+'</td><td>$'+esc(priceValue || 0)+'</td>'+
         '<td><a href="course-info.html?id='+r.id+'" class="btn btn-xs btn-success" title="View Details"><i class="fa fa-eye"></i></a> '+
         '<a href="edit-course.html?id='+r.id+'" class="btn btn-xs btn-info" title="Edit"><i class="fa fa-pencil"></i></a> '+
         '<button class="btn btn-xs btn-danger" data-del-formation="'+r.id+'" title="Delete"><i class="fa fa-trash"></i></button></td></tr>';
     }).join('');
-    document.querySelector('#backend-formations-table').addEventListener('click',function(e){
+    var table = document.querySelector('#backend-formations-table');
+    table.onclick = function(e){
       var btn=e.target.closest('[data-del-formation]'); if(!btn) return;
       if(!confirm('Delete this formation?')) return;
       request('/api/formations/'+btn.getAttribute('data-del-formation'),{method:'DELETE'})
         .then(loadFormations).catch(function(err){ showAlert('#backend-formations-status',err.message); });
-    });
+    };
+    table.onchange = function(e){
+      if(e.target.classList.contains('quick-status-change')){
+        var id=e.target.getAttribute('data-id');
+        var newStatus=e.target.value;
+        e.target.style.backgroundColor = (newStatus === 'open') ? '#10b981' : '#ef4444';
+        e.target.disabled = true;
+        request('/api/formations/'+id,{method:'PUT',body:JSON.stringify({status:newStatus})})
+          .then(function(){ e.target.disabled = false; })
+          .catch(function(err){ showAlert('#backend-formations-status',err.message); e.target.disabled = false; loadFormations(); });
+      }
+    };
   }
   function populateTeacherSelect(sel) {
     if(!sel) return Promise.resolve();
     return request('/api/teacher-registrations').then(function(p){
       sel.innerHTML='<option value="">-- Select Teacher (optional) --</option>'+
-        (p.data||[]).map(function(tc){
+        (p.data||[]).filter(function(tc){ return tc.is_active !== 0 && tc.is_active !== false; }).map(function(tc){
           return '<option value="'+tc.id+'">'+esc([tc.first_name,tc.last_name].filter(Boolean).join(' '))+'</option>';
         }).join('');
     });
@@ -985,9 +1006,9 @@
       request('/api/classrooms'),
       request('/api/students-list'),
     ]).then(function(results){
-      var formations = results[0].data||[];
+      var formations = (results[0].data||[]).filter(function(f){ return f.status === 'open'; });
       var classrooms = results[1].data||[];
-      _allStudents   = results[2].data||[];
+      _allStudents   = (results[2].data||[]).filter(function(s){ return s.is_active !== 0 && s.is_active !== false; });
       _allFormations = formations;
 
       // Populate formation selects
@@ -1065,10 +1086,11 @@
     });
     if(!filtered.length){ c.innerHTML='<p class="text-muted text-center">No groups found. Create one using the form.</p>'; return; }
     c.innerHTML=filtered.map(function(g){
+      var chk='<input type="checkbox" class="row-checkbox group-row-checkbox" value="'+g.id+'" data-type="group" style="transform:scale(1.3); cursor:pointer; margin:0;">';
       return '<div class="group-card" id="group-card-'+g.id+'">' +
         '<div class="row">' +
           '<div class="col-lg-8 col-sm-8 col-xs-12">' +
-            '<h4>'+esc(g.name)+'</h4>' +
+            '<h4 style="display:flex; align-items:center; gap:10px;">'+chk+'<span>'+esc(g.name)+'</span></h4>' +
             '<p class="meta">' +
               '<i class="fa fa-book"></i> '+esc(g.formation_title||'-')+' &nbsp;|&nbsp; '+
               '<i class="fa fa-user"></i> '+esc(g.teacher_name||'No teacher')+' &nbsp;|&nbsp; '+
@@ -1212,7 +1234,7 @@
       request('/api/classrooms'),
       request('/api/groups/'+id)
     ]).then(function(res){
-      var formations = res[0].data || [];
+      var formations = (res[0].data || []).filter(function(f){ return f.status === 'open'; });
       var classrooms = res[1].data || [];
       var group = res[2].data;
       
@@ -1357,56 +1379,181 @@
   // ── Certificate ──────────────────────────────────────────────────────────────
   window.loadCertificatePage = function() {
     var formSel = document.getElementById('cert-formation-id');
+    var groupSel = document.getElementById('cert-group-id');
     var stuSel = document.getElementById('cert-student-id');
     var genBtn = document.getElementById('btn-generate-cert');
     var printBtn = document.getElementById('btn-print-cert');
+    var selectAllBtn = document.getElementById('cert-select-all-btn');
     
     if(!formSel || !stuSel) return;
 
     var _students = [];
     var _formations = [];
+    var _groups = [];
+    var _groupStudents = []; // Map of student IDs in groups
 
-    // Fetch formations and students
+    // Fetch formations, students, and groups
     Promise.all([
       request('/api/formations-list').catch(function(){ return {data:[]}; }),
-      request('/api/students-list').catch(function(){ return {data:[]}; })
+      request('/api/student-registrations').catch(function(){ return {data:[]}; }),
+      request('/api/groups').catch(function(){ return {data:[]}; })
     ]).then(function(res) {
       _formations = res[0].data || [];
       _students = res[1].data || [];
+      _groups = res[2].data || [];
 
-      // Populate formations
-      formSel.innerHTML = '<option value="">-- Select Formation --</option>' + 
-        _formations.map(function(f){ return '<option value="'+f.id+'">'+esc(f.title)+'</option>'; }).join('');
-      
-      formSel.addEventListener('change', function() {
-        if(this.value) {
+      // Fetch all group mappings
+      var groupPromises = _groups.map(function(g) {
+        return request('/api/groups/'+g.id+'/students').then(function(p) {
+          return { groupId: g.id, students: p.data || [] };
+        }).catch(function(){ return { groupId: g.id, students: [] }; });
+      });
+
+      return Promise.all(groupPromises).then(function(groupRes) {
+        _groupStudents = groupRes;
+        
+        // Populate formations
+        formSel.innerHTML = '<option value="">-- Select Formation --</option>' + 
+          _formations.map(function(f){ return '<option value="'+f.id+'">'+esc(f.title)+'</option>'; }).join('');
+        
+        formSel.addEventListener('change', function() {
+          var fId = this.value;
+          if(fId) {
+            groupSel.disabled = false;
+            var fGroups = _groups.filter(function(g){ return String(g.formation_id) === String(fId); });
+            groupSel.innerHTML = '<option value="">All Groups</option>' + 
+              fGroups.map(function(g){ return '<option value="'+g.id+'">'+esc(g.name)+'</option>'; }).join('');
+            
+            updateStudentsList();
+          } else {
+            groupSel.disabled = true;
+            groupSel.innerHTML = '<option value="">Select Formation First</option>';
+            stuSel.disabled = true;
+            selectAllBtn.disabled = true;
+            stuSel.innerHTML = '<option value="">Select Formation First</option>';
+            genBtn.disabled = true;
+            printBtn.disabled = true;
+          }
+        });
+
+        groupSel.addEventListener('change', updateStudentsList);
+
+        function updateStudentsList() {
+          var fId = formSel.value;
+          var gId = groupSel.value;
+          if(!fId) return;
+
+          var filteredStudents = [];
+          if (gId) {
+            // Filter by specific group
+            var gMapping = _groupStudents.find(function(gm){ return String(gm.groupId) === String(gId); });
+            if (gMapping) {
+              filteredStudents = gMapping.students;
+            }
+          } else {
+            // Filter by formation
+            var validGroupIds = _groups.filter(function(g){ return String(g.formation_id) === String(fId); }).map(function(g){ return String(g.id); });
+            var studentsInGroups = [];
+            _groupStudents.forEach(function(gm) {
+              if (validGroupIds.includes(String(gm.groupId))) {
+                studentsInGroups = studentsInGroups.concat(gm.students);
+              }
+            });
+            var fStudents = _students.filter(function(s) { return String(s.formation_id) === String(fId); });
+            
+            // Merge and deduplicate by id
+            var allS = fStudents.concat(studentsInGroups);
+            var seen = {};
+            allS.forEach(function(s) {
+              if (!seen[s.id]) {
+                seen[s.id] = true;
+                filteredStudents.push(s);
+              }
+            });
+          }
+
+          // Also ensure we map full student details if they exist in _students, or fallback to the group's snapshot
+          filteredStudents = filteredStudents.map(function(s) {
+            var fullS = _students.find(function(x) { return String(x.id) === String(s.id); });
+            return fullS || s;
+          });
+
           stuSel.disabled = false;
-          // Populate students
-          stuSel.innerHTML = '<option value="">-- Select Student --</option>' + 
-            _students.map(function(s){ return '<option value="'+s.id+'">'+esc([s.first_name, s.last_name].filter(Boolean).join(' '))+'</option>'; }).join('');
-        } else {
-          stuSel.disabled = true;
-          stuSel.innerHTML = '<option value="">Select Formation First</option>';
-          genBtn.disabled = true;
+          selectAllBtn.disabled = false;
+          if (filteredStudents.length > 0) {
+            stuSel.innerHTML = filteredStudents.map(function(s){ 
+              return '<option value="'+s.id+'">'+esc([s.first_name, s.last_name].filter(Boolean).join(' '))+'</option>'; 
+            }).join('');
+          } else {
+            stuSel.innerHTML = '<option value="" disabled>No students found</option>';
+          }
+          checkBtnStates();
+        }
+
+        stuSel.addEventListener('change', checkBtnStates);
+
+        selectAllBtn.addEventListener('click', function() {
+          var options = stuSel.options;
+          for (var i = 0; i < options.length; i++) {
+            if (!options[i].disabled) options[i].selected = true;
+          }
+          checkBtnStates();
+        });
+
+        function checkBtnStates() {
+          var selected = getSelectedStudents();
+          genBtn.disabled = selected.length === 0;
+          printBtn.disabled = selected.length === 0;
+          
+          if (selected.length > 1) {
+            genBtn.innerHTML = '<i class="fa fa-eye"></i> Preview (First)';
+          } else {
+            genBtn.innerHTML = '<i class="fa fa-eye"></i> Preview';
+          }
         }
       });
-
-      stuSel.addEventListener('change', function() {
-        genBtn.disabled = !this.value;
-      });
-
     }).catch(function(err){ showAlert('#backend-certificate-status', err.message); });
+
+    function getSelectedStudents() {
+      if(!stuSel || !stuSel.options) return [];
+      var selected = [];
+      for (var i = 0; i < stuSel.options.length; i++) {
+        if (stuSel.options[i].selected && stuSel.options[i].value) {
+          selected.push(stuSel.options[i].value);
+        }
+      }
+      return selected;
+    }
+
+    function getStudentById(sId) {
+      var s = _students.find(function(x) { return String(x.id) === String(sId); });
+      if (s) return s;
+      for (var i=0; i<_groupStudents.length; i++) {
+        s = _groupStudents[i].students.find(function(x) { return String(x.id) === String(sId); });
+        if (s) return s;
+      }
+      return null;
+    }
 
     genBtn.addEventListener('click', function() {
       var fId = formSel.value;
-      var sId = stuSel.value;
-      if(!fId || !sId) return;
+      var selectedIds = getSelectedStudents();
+      if(!fId || selectedIds.length === 0) return;
 
       var formation = _formations.find(function(f) { return String(f.id) === String(fId); });
-      var student = _students.find(function(s) { return String(s.id) === String(sId); });
+      var student = getStudentById(selectedIds[0]);
       if(!formation || !student) return;
 
-      // Fill data
+      fillCertificate(student, formation);
+      
+      // Scroll to certificate preview
+      setTimeout(function() {
+        var preview = document.querySelector('.cert-preview-wrapper');
+        if(preview) preview.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    });
+
+    function fillCertificate(student, formation) {
       var studentName = [student.first_name, student.last_name].filter(Boolean).join(' ');
       var today = new Date().toISOString().split('T')[0];
 
@@ -1423,19 +1570,144 @@
       } else {
         logoEl.style.display = 'none';
       }
-
-      printBtn.disabled = false;
-      showAlert('#backend-certificate-status', t('Certificate generated and ready to print.'), 'success');
-      
-      // Scroll to certificate preview
-      setTimeout(function() {
-        var preview = document.querySelector('.cert-preview-wrapper');
-        if(preview) preview.scrollIntoView({ behavior: 'smooth' });
-      }, 100);
-    });
+    }
 
     printBtn.addEventListener('click', function() {
-      window.print();
+      var fId = formSel.value;
+      var selectedIds = getSelectedStudents();
+      if(!fId || selectedIds.length === 0) return;
+
+      var formation = _formations.find(function(f) { return String(f.id) === String(fId); });
+      if(!formation) return;
+
+      var certContainer = document.getElementById('printable-certificate');
+      // Use html2canvas + jsPDF directly for reliable capture
+      function captureCert(filename) {
+        return new Promise(function(resolve, reject) {
+          if (typeof html2canvas === 'undefined' || typeof jspdf === 'undefined') {
+            return reject(new Error('PDF libraries not loaded yet. Please wait a moment and try again.'));
+          }
+
+          var origShadow = certContainer.style.boxShadow;
+          certContainer.style.boxShadow = 'none';
+
+          // Scroll element into view so html2canvas can see it
+          certContainer.scrollIntoView({ block: 'start' });
+
+          setTimeout(function() {
+            html2canvas(certContainer, {
+              scale: 2,
+              useCORS: true,
+              allowTaint: true,
+              logging: false,
+              backgroundColor: '#ffffff'
+            }).then(function(canvas) {
+              certContainer.style.boxShadow = origShadow;
+              try {
+                var imgData = canvas.toDataURL('image/jpeg', 1.0);
+                var pdf = new jspdf.jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+                // Place image to fill full A4 landscape page (297mm x 210mm)
+                pdf.addImage(imgData, 'JPEG', 0, 0, 297, 210);
+                var buf = pdf.output('arraybuffer');
+                resolve(buf);
+              } catch(e) {
+                reject(e);
+              }
+            }).catch(function(err) {
+              certContainer.style.boxShadow = origShadow;
+              reject(err);
+            });
+          }, 200);
+        });
+      }
+
+
+      if (selectedIds.length === 1) {
+        // Direct download as PDF
+        if (typeof html2canvas === 'undefined' || typeof jspdf === 'undefined') {
+          return showAlert('#backend-certificate-status', 'Libraries not loaded yet. Please wait.', 'danger');
+        }
+        var student = getStudentById(selectedIds[0]);
+        if(!student) return;
+
+        fillCertificate(student, formation);
+        var studentName = [student.first_name, student.last_name].filter(Boolean).join(' ').trim() || 'Student';
+        var fileName = studentName.replace(/[^a-z0-9]/gi, '_') + '_certificate.pdf';
+
+        printBtn.disabled = true;
+        genBtn.disabled = true;
+        printBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating PDF...';
+
+        captureCert(fileName).then(function(buf) {
+          saveAs(new Blob([buf], {type: 'application/pdf'}), fileName);
+          printBtn.disabled = false;
+          genBtn.disabled = false;
+          printBtn.innerHTML = '<i class="fa fa-download"></i> Download PDF / ZIP';
+          showAlert('#backend-certificate-status', 'Certificate downloaded successfully!', 'success');
+        }).catch(function() {
+          printBtn.disabled = false;
+          genBtn.disabled = false;
+          printBtn.innerHTML = '<i class="fa fa-download"></i> Download PDF / ZIP';
+        });
+      } else {
+        // Bulk generate ZIP
+        if (typeof JSZip === 'undefined' || typeof html2canvas === 'undefined' || typeof jspdf === 'undefined') {
+          return showAlert('#backend-certificate-status', 'Libraries not loaded yet. Please wait.', 'danger');
+        }
+
+        printBtn.disabled = true;
+        genBtn.disabled = true;
+        printBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating PDF ZIP...';
+        showAlert('#backend-certificate-status', 'Generating '+selectedIds.length+' certificates. Please wait, this may take a moment...', 'info');
+
+        var zip = new JSZip();
+        var currentIdx = 0;
+
+        function processNext() {
+          if (currentIdx >= selectedIds.length) {
+            // Done generating, now create ZIP
+            printBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Zipping...';
+            zip.generateAsync({type:"blob"}).then(function(content) {
+              saveAs(content, "certificates_" + formation.title.replace(/[^a-z0-9]/gi, '_') + ".zip");
+              printBtn.disabled = false;
+              genBtn.disabled = false;
+              printBtn.innerHTML = '<i class="fa fa-download"></i> Download PDF / ZIP';
+              showAlert('#backend-certificate-status', 'ZIP file created successfully!', 'success');
+            }).catch(function(err) {
+              printBtn.disabled = false;
+              genBtn.disabled = false;
+              printBtn.innerHTML = '<i class="fa fa-download"></i> Download PDF / ZIP';
+              showAlert('#backend-certificate-status', 'Error creating ZIP: ' + err.message, 'danger');
+            });
+            return;
+          }
+
+          var sId = selectedIds[currentIdx];
+          var student = getStudentById(sId);
+          if (!student) {
+            currentIdx++;
+            processNext();
+            return;
+          }
+
+          fillCertificate(student, formation);
+          var studentName = [student.first_name, student.last_name].filter(Boolean).join(' ').trim() || 'Student';
+          var fileName = studentName.replace(/[^a-z0-9]/gi, '_') + '_certificate.pdf';
+
+          captureCert(fileName).then(function(pdfBuffer) {
+            zip.file(fileName, pdfBuffer);
+            currentIdx++;
+            processNext();
+          }).catch(function(err) {
+            console.error('Error generating PDF for', studentName, err);
+            currentIdx++;
+            processNext();
+          });
+        }
+
+        // Start processing
+        processNext();
+      }
     });
   };
 
@@ -1521,6 +1793,126 @@
       }
     });
   }
+
+  function initQuickActions() {
+    if (document.getElementById('quick-action-bar')) return;
+    var bar = document.createElement('div');
+    bar.id = 'quick-action-bar';
+    bar.style.cssText = 'position:fixed; bottom:-80px; left:50%; transform:translateX(-50%); background:#2c3e50; color:white; padding:12px 24px; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.15); display:flex; align-items:center; gap:16px; transition:bottom 0.3s; z-index:9999;';
+    bar.innerHTML = '<span id="qa-count" style="font-weight:600;">0 selected</span>' +
+      '<button id="qa-active" class="btn btn-success btn-sm"><i class="fa fa-check"></i> Active</button>' +
+      '<button id="qa-inactive" class="btn btn-warning btn-sm"><i class="fa fa-times"></i> Inactive</button>' +
+      '<button id="qa-delete" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> Delete</button>';
+    document.body.appendChild(bar);
+
+    function updateQA() {
+      var checked = document.querySelectorAll('.row-checkbox:checked');
+      var type = checked.length ? checked[0].getAttribute('data-type') : null;
+      if (checked.length > 0) {
+        bar.style.bottom = '24px';
+        document.getElementById('qa-count').textContent = checked.length + ' selected';
+        if (type === 'group') {
+          document.getElementById('qa-active').style.display = 'none';
+          document.getElementById('qa-inactive').style.display = 'none';
+        } else {
+          document.getElementById('qa-active').style.display = 'inline-block';
+          document.getElementById('qa-inactive').style.display = 'inline-block';
+          if (type === 'formation') {
+            document.getElementById('qa-active').innerHTML = '<i class="fa fa-check"></i> Open';
+            document.getElementById('qa-inactive').innerHTML = '<i class="fa fa-times"></i> Closed';
+          } else {
+            document.getElementById('qa-active').innerHTML = '<i class="fa fa-check"></i> Active';
+            document.getElementById('qa-inactive').innerHTML = '<i class="fa fa-times"></i> Inactive';
+          }
+        }
+      } else {
+        bar.style.bottom = '-80px';
+      }
+    }
+
+    document.addEventListener('change', function(e) {
+      if (e.target.classList.contains('select-all')) {
+        var isChecked = e.target.checked;
+        document.querySelectorAll('.row-checkbox').forEach(function(cb) {
+          cb.checked = isChecked;
+        });
+        updateQA();
+      } else if (e.target.classList.contains('row-checkbox')) {
+        updateQA();
+        var all = document.querySelectorAll('.row-checkbox');
+        var checked = document.querySelectorAll('.row-checkbox:checked');
+        var selectAll = document.querySelector('.select-all');
+        if (selectAll) {
+          selectAll.checked = (all.length > 0 && all.length === checked.length);
+        }
+      }
+    });
+
+    function getIds() {
+      return Array.from(document.querySelectorAll('.row-checkbox:checked')).map(function(cb) { return cb.value; });
+    }
+    
+    function getType() {
+      var checked = document.querySelector('.row-checkbox:checked');
+      return checked ? checked.getAttribute('data-type') : null;
+    }
+
+    function doBulkAction(actionStr, value) {
+      var ids = getIds();
+      var type = getType();
+      if(!ids.length) return;
+      if(actionStr === 'delete') {
+        if(!confirm('Are you sure you want to delete '+ids.length+' items?')) return;
+      }
+      
+      var promises = ids.map(function(id) {
+        var endpoint = '';
+        if(type==='student') endpoint = '/api/student-registrations/'+id;
+        else if(type==='teacher') endpoint = '/api/teacher-registrations/'+id;
+        else if(type==='formation') endpoint = '/api/formations/'+id;
+        else if(type==='group') endpoint = '/api/groups/'+id;
+        
+        if (actionStr === 'delete') {
+          return request(endpoint, {method: 'DELETE'});
+        } else {
+          var payload = {};
+          if (type === 'formation') {
+            payload.status = value;
+          } else {
+            payload.is_active = value;
+          }
+          return request(endpoint, {method: 'PUT', body: JSON.stringify(payload)});
+        }
+      });
+      
+      Promise.all(promises).then(function() {
+        document.querySelectorAll('.select-all').forEach(function(cb){ cb.checked = false; });
+        updateQA();
+        if(type==='student') loadStudents();
+        else if(type==='teacher') loadTeachers();
+        else if(type==='formation') loadFormations();
+        else if(type==='group') loadGroups();
+      }).catch(function(err){
+        alert('Action partially failed: ' + err.message);
+        if(type==='student') loadStudents();
+        else if(type==='teacher') loadTeachers();
+        else if(type==='formation') loadFormations();
+        else if(type==='group') loadGroups();
+      });
+    }
+
+    document.getElementById('qa-active').addEventListener('click', function() {
+      doBulkAction('update', getType() === 'formation' ? 'open' : 1);
+    });
+    document.getElementById('qa-inactive').addEventListener('click', function() {
+      doBulkAction('update', getType() === 'formation' ? 'closed' : 0);
+    });
+    document.getElementById('qa-delete').addEventListener('click', function() {
+      doBulkAction('delete');
+    });
+  }
+  
+  document.addEventListener('DOMContentLoaded', initQuickActions);
 
   function loadPromoCodes() {
     var tbl = document.getElementById('backend-promos-table'); if(!tbl) return;
