@@ -1378,19 +1378,24 @@
   }
   // ── Certificate ──────────────────────────────────────────────────────────────
   window.loadCertificatePage = function() {
-    var formSel = document.getElementById('cert-formation-id');
-    var groupSel = document.getElementById('cert-group-id');
-    var stuSel = document.getElementById('cert-student-id');
-    var genBtn = document.getElementById('btn-generate-cert');
-    var printBtn = document.getElementById('btn-print-cert');
-    var selectAllBtn = document.getElementById('cert-select-all-btn');
-    
+    var formSel    = document.getElementById('cert-formation-id');
+    var groupSel   = document.getElementById('cert-group-id');
+    var stuSel     = document.getElementById('cert-student-id'); // hidden native select
+    var stuPanel   = document.getElementById('cert-student-panel');
+    var stuList    = document.getElementById('cert-student-list');
+    var countBadge = document.getElementById('cert-selected-count');
+    var genBtn     = document.getElementById('btn-generate-cert');
+    var printBtn   = document.getElementById('btn-print-cert');
+    var selectAllBtn    = document.getElementById('cert-select-all-btn');
+    var deselectAllBtn  = document.getElementById('cert-deselect-all-btn');
+
     if(!formSel || !stuSel) return;
 
     var _students = [];
     var _formations = [];
     var _groups = [];
-    var _groupStudents = []; // Map of student IDs in groups
+    var _groupStudents = [];
+    var _selectedIds = new Set();
 
     // Fetch formations, students, and groups
     Promise.all([
@@ -1399,10 +1404,9 @@
       request('/api/groups').catch(function(){ return {data:[]}; })
     ]).then(function(res) {
       _formations = res[0].data || [];
-      _students = res[1].data || [];
-      _groups = res[2].data || [];
+      _students   = res[1].data || [];
+      _groups     = res[2].data || [];
 
-      // Fetch all group mappings
       var groupPromises = _groups.map(function(g) {
         return request('/api/groups/'+g.id+'/students').then(function(p) {
           return { groupId: g.id, students: p.data || [] };
@@ -1411,32 +1415,32 @@
 
       return Promise.all(groupPromises).then(function(groupRes) {
         _groupStudents = groupRes;
-        
-        // Populate formations
-        formSel.innerHTML = '<option value="">-- Select Formation --</option>' + 
+
+        formSel.innerHTML = '<option value="">-- Select Formation --</option>' +
           _formations.map(function(f){ return '<option value="'+f.id+'">'+esc(f.title)+'</option>'; }).join('');
-        
+
         formSel.addEventListener('change', function() {
           var fId = this.value;
+          _selectedIds.clear();
           if(fId) {
             groupSel.disabled = false;
             var fGroups = _groups.filter(function(g){ return String(g.formation_id) === String(fId); });
-            groupSel.innerHTML = '<option value="">All Groups</option>' + 
+            groupSel.innerHTML = '<option value="">All Groups</option>' +
               fGroups.map(function(g){ return '<option value="'+g.id+'">'+esc(g.name)+'</option>'; }).join('');
-            
             updateStudentsList();
           } else {
             groupSel.disabled = true;
             groupSel.innerHTML = '<option value="">Select Formation First</option>';
-            stuSel.disabled = true;
-            selectAllBtn.disabled = true;
-            stuSel.innerHTML = '<option value="">Select Formation First</option>';
+            if(stuPanel) stuPanel.style.display = 'none';
             genBtn.disabled = true;
             printBtn.disabled = true;
           }
         });
 
-        groupSel.addEventListener('change', updateStudentsList);
+        groupSel.addEventListener('change', function() {
+          _selectedIds.clear();
+          updateStudentsList();
+        });
 
         function updateStudentsList() {
           var fId = formSel.value;
@@ -1445,84 +1449,136 @@
 
           var filteredStudents = [];
           if (gId) {
-            // Filter by specific group
             var gMapping = _groupStudents.find(function(gm){ return String(gm.groupId) === String(gId); });
-            if (gMapping) {
-              filteredStudents = gMapping.students;
-            }
+            if (gMapping) filteredStudents = gMapping.students;
           } else {
-            // Filter by formation
             var validGroupIds = _groups.filter(function(g){ return String(g.formation_id) === String(fId); }).map(function(g){ return String(g.id); });
             var studentsInGroups = [];
             _groupStudents.forEach(function(gm) {
-              if (validGroupIds.includes(String(gm.groupId))) {
-                studentsInGroups = studentsInGroups.concat(gm.students);
-              }
+              if (validGroupIds.includes(String(gm.groupId))) studentsInGroups = studentsInGroups.concat(gm.students);
             });
             var fStudents = _students.filter(function(s) { return String(s.formation_id) === String(fId); });
-            
-            // Merge and deduplicate by id
             var allS = fStudents.concat(studentsInGroups);
             var seen = {};
-            allS.forEach(function(s) {
-              if (!seen[s.id]) {
-                seen[s.id] = true;
-                filteredStudents.push(s);
-              }
-            });
+            allS.forEach(function(s) { if (!seen[s.id]) { seen[s.id] = true; filteredStudents.push(s); } });
           }
-
-          // Also ensure we map full student details if they exist in _students, or fallback to the group's snapshot
           filteredStudents = filteredStudents.map(function(s) {
-            var fullS = _students.find(function(x) { return String(x.id) === String(s.id); });
-            return fullS || s;
+            return _students.find(function(x){ return String(x.id) === String(s.id); }) || s;
           });
 
-          stuSel.disabled = false;
-          selectAllBtn.disabled = false;
-          if (filteredStudents.length > 0) {
-            stuSel.innerHTML = filteredStudents.map(function(s){ 
-              return '<option value="'+s.id+'">'+esc([s.first_name, s.last_name].filter(Boolean).join(' '))+'</option>'; 
-            }).join('');
-          } else {
-            stuSel.innerHTML = '<option value="" disabled>No students found</option>';
+          // Show/hide student panel
+          if(stuPanel) stuPanel.style.display = filteredStudents.length > 0 ? 'block' : 'none';
+          if(selectAllBtn) selectAllBtn.disabled = filteredStudents.length === 0;
+
+          // Render checkbox list
+          if (stuList) {
+            if (filteredStudents.length === 0) {
+              stuList.innerHTML = '<p style="color:#aaa;text-align:center;padding:20px;font-size:13px;margin:0;">No students found</p>';
+            } else {
+              stuList.innerHTML = filteredStudents.map(function(s) {
+                var name = [s.first_name, s.last_name].filter(Boolean).join(' ') || 'Unknown';
+                var initials = name.split(' ').map(function(w){ return w[0]; }).join('').substring(0,2).toUpperCase();
+                return '<div class="student-item" data-id="'+s.id+'">' +
+                  '<div class="student-avatar">'+initials+'</div>' +
+                  '<span class="student-name">'+esc(name)+'</span>' +
+                  '<div class="student-check"><i class="fa fa-check" style="font-size:10px;display:none;"></i></div>' +
+                '</div>';
+              }).join('');
+
+              // Bind click events
+              stuList.querySelectorAll('.student-item').forEach(function(item) {
+                item.addEventListener('click', function() {
+                  var sid = this.getAttribute('data-id');
+                  if (_selectedIds.has(sid)) {
+                    _selectedIds.delete(sid);
+                    this.classList.remove('selected');
+                    this.querySelector('.student-check .fa').style.display = 'none';
+                  } else {
+                    _selectedIds.add(sid);
+                    this.classList.add('selected');
+                    this.querySelector('.student-check .fa').style.display = 'block';
+                  }
+                  syncNativeSelect(filteredStudents);
+                  checkBtnStates();
+                });
+              });
+            }
           }
+
+          syncNativeSelect(filteredStudents);
           checkBtnStates();
         }
 
-        stuSel.addEventListener('change', checkBtnStates);
+        function syncNativeSelect(filteredStudents) {
+          if (!stuSel) return;
+          stuSel.innerHTML = filteredStudents.map(function(s) {
+            var selected = _selectedIds.has(String(s.id)) ? ' selected' : '';
+            var name = [s.first_name, s.last_name].filter(Boolean).join(' ');
+            return '<option value="'+s.id+'"'+selected+'>'+esc(name)+'</option>';
+          }).join('');
+        }
 
-        selectAllBtn.addEventListener('click', function() {
-          var options = stuSel.options;
-          for (var i = 0; i < options.length; i++) {
-            if (!options[i].disabled) options[i].selected = true;
-          }
-          checkBtnStates();
-        });
+        if (selectAllBtn) {
+          selectAllBtn.addEventListener('click', function() {
+            if (stuList) {
+              stuList.querySelectorAll('.student-item').forEach(function(item) {
+                var sid = item.getAttribute('data-id');
+                _selectedIds.add(sid);
+                item.classList.add('selected');
+                var icon = item.querySelector('.student-check .fa');
+                if(icon) icon.style.display = 'block';
+              });
+            }
+            var fId = formSel.value;
+            var gId = groupSel.value;
+            var allS = gId ?
+              (_groupStudents.find(function(gm){ return String(gm.groupId)===String(gId); }) || {students:[]}).students :
+              _students.filter(function(s){ return String(s.formation_id)===String(fId); });
+            allS = allS.map(function(s){ return _students.find(function(x){ return String(x.id)===String(s.id); }) || s; });
+            syncNativeSelect(allS);
+            checkBtnStates();
+          });
+        }
+
+        if (deselectAllBtn) {
+          deselectAllBtn.addEventListener('click', function() {
+            _selectedIds.clear();
+            if (stuList) {
+              stuList.querySelectorAll('.student-item').forEach(function(item) {
+                item.classList.remove('selected');
+                var icon = item.querySelector('.student-check .fa');
+                if(icon) icon.style.display = 'none';
+              });
+            }
+            if (stuSel) stuSel.innerHTML = '';
+            checkBtnStates();
+          });
+        }
 
         function checkBtnStates() {
-          var selected = getSelectedStudents();
-          genBtn.disabled = selected.length === 0;
-          printBtn.disabled = selected.length === 0;
-          
-          if (selected.length > 1) {
-            genBtn.innerHTML = '<i class="fa fa-eye"></i> Preview (First)';
-          } else {
-            genBtn.innerHTML = '<i class="fa fa-eye"></i> Preview';
+          var count = _selectedIds.size;
+          genBtn.disabled   = count === 0;
+          printBtn.disabled = count === 0;
+
+          if (countBadge) {
+            if (count > 0) {
+              countBadge.style.display = 'inline-block';
+              countBadge.textContent = count + ' selected';
+            } else {
+              countBadge.style.display = 'none';
+            }
           }
+          if (deselectAllBtn) deselectAllBtn.style.display = count > 0 ? 'inline-block' : 'none';
+
+          genBtn.innerHTML = count > 1
+            ? '<i class="fa fa-eye"></i> Preview (First)'
+            : '<i class="fa fa-eye"></i> Preview';
         }
       });
     }).catch(function(err){ showAlert('#backend-certificate-status', err.message); });
 
     function getSelectedStudents() {
-      if(!stuSel || !stuSel.options) return [];
-      var selected = [];
-      for (var i = 0; i < stuSel.options.length; i++) {
-        if (stuSel.options[i].selected && stuSel.options[i].value) {
-          selected.push(stuSel.options[i].value);
-        }
-      }
-      return selected;
+      return Array.from(_selectedIds);
     }
 
     function getStudentById(sId) {
