@@ -1999,4 +1999,584 @@
     }).catch(function(err){ showAlert('#backend-promos-status',err.message); });
   }
 
+  // ══════════════════════════════════════════════════════════════════════════
+  // WEEKLY PROGRAM PLANNING
+  // ══════════════════════════════════════════════════════════════════════════
+
+  var WP = {
+    programs: [],           // list of all programs
+    current: null,          // full detail of selected program
+    groups: [],             // available groups for the school
+    classrooms: [],         // available classrooms
+    editMode: false,        // is entry modal in edit mode?
+    DAYS: ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
+    COLORS: [
+      '#4f6eff','#11998e','#f7971e','#fc466b','#a18cd1',
+      '#38ef7d','#4facfe','#fa709a','#667eea','#f093fb',
+      '#43e97b','#fda085','#30cfd0','#a8edea','#9f7aea'
+    ]
+  };
+
+  // ── Entry point ────────────────────────────────────────────────────────────
+  function initWeeklyProgram() {
+    if (document.body.getAttribute('data-page') !== 'weekly-program') return;
+
+    // Load programs + groups + classrooms in parallel
+    Promise.all([
+      request('/api/weekly-programs').then(function(p){ WP.programs = p.data || []; }),
+      request('/api/groups').then(function(p){ WP.groups = p.data || []; }),
+      request('/api/classrooms').then(function(p){ WP.classrooms = p.data || []; })
+    ]).then(function(){
+      renderProgList();
+      populateGroupDropdown();
+      populateClassroomDropdown();
+    }).catch(function(err){
+      showAlert('#wp-global-alert', err.message, 'danger');
+    });
+
+    bindWpButtons();
+    buildColorSwatches();
+    bindWpForms();
+    autoActivateSlotLabel();
+  }
+
+  // ── Render program list ────────────────────────────────────────────────────
+  function renderProgList() {
+    var el = document.getElementById('wp-prog-list');
+    if (!el) return;
+    if (!WP.programs.length) {
+      el.innerHTML = '<p class="text-muted text-center" style="padding:20px 0">No programs yet.<br>Click <strong>Create Program</strong> to start.</p>';
+      return;
+    }
+    el.innerHTML = WP.programs.map(function(p){
+      var badge = p.status === 'active'
+        ? '<span class="badge-active">Active</span>'
+        : '<span class="badge-disabled">Disabled</span>';
+      var sel = (WP.current && WP.current.id === p.id) ? ' selected' : '';
+      return '<div class="prog-item'+sel+'" data-prog-id="'+p.id+'">' +
+        '<div class="prog-item-name">'+esc(p.name)+' '+badge+'</div>' +
+        '<div class="prog-item-meta">Created: '+esc(String(p.created_at||'').split('T')[0])+'</div>' +
+        '</div>';
+    }).join('');
+
+    el.querySelectorAll('.prog-item').forEach(function(item){
+      item.addEventListener('click', function(){
+        var id = this.getAttribute('data-prog-id');
+        loadProgramDetail(id);
+      });
+    });
+  }
+
+  // ── Load full program detail ───────────────────────────────────────────────
+  function loadProgramDetail(id) {
+    request('/api/weekly-programs/'+id).then(function(p){
+      WP.current = p.data;
+      document.getElementById('wp-no-selection').style.display = 'none';
+      document.getElementById('wp-detail').style.display = 'block';
+      renderProgDetail();
+      renderTimetableGrid();
+      // highlight selected item
+      document.querySelectorAll('.prog-item').forEach(function(it){
+        it.classList.toggle('selected', it.getAttribute('data-prog-id') == id);
+      });
+    }).catch(function(err){
+      showAlert('#wp-global-alert', 'Could not load program: '+err.message, 'danger');
+    });
+  }
+
+  // ── Render program header/toolbar ──────────────────────────────────────────
+  function renderProgDetail() {
+    var p = WP.current;
+    document.getElementById('wp-detail-name').textContent = p.name;
+    document.getElementById('wp-prog-desc').textContent = p.description || '';
+    var badge = document.getElementById('wp-detail-badge');
+    badge.innerHTML = p.status === 'active'
+      ? '<span class="badge-active"><i class="fa fa-circle"></i> Active</span>'
+      : '<span class="badge-disabled">Disabled</span>';
+    // Toggle activate button visibility
+    var activateBtn = document.getElementById('wp-btn-activate');
+    activateBtn.style.display = p.status === 'active' ? 'none' : '';
+  }
+
+  // ── Render the timetable grid ──────────────────────────────────────────────
+  function renderTimetableGrid() {
+    var wrap = document.getElementById('wp-grid-wrap');
+    var p = WP.current;
+    var slots = p.slots || [];
+    var entries = p.entries || [];
+
+    if (!slots.length) {
+      wrap.innerHTML =
+        '<div class="wp-empty"><i class="fa fa-clock-o"></i>' +
+        '<h4>No time slots yet</h4>' +
+        '<p>Click <strong>Add Time Slot</strong> to build the timetable rows.</p></div>';
+      return;
+    }
+
+    // Index entries by slotId_day
+    var eMap = {};
+    entries.forEach(function(e){
+      var k = e.slot_id+'_'+e.day_of_week;
+      if (!eMap[k]) eMap[k] = [];
+      eMap[k].push(e);
+    });
+
+    var colW = Math.floor(88 / WP.DAYS.length) + '%';
+    var html = '<div class="tt-wrap"><table class="tt-table"><thead><tr>' +
+      '<th class="tt-th-time">Time</th>' +
+      WP.DAYS.map(function(d){ return '<th>'+d+'</th>'; }).join('') +
+      '<th class="no-print" style="width:64px">Actions</th>' +
+      '</tr></thead><tbody>';
+
+    slots.forEach(function(slot){
+      html += '<tr><td class="tt-slot-label">' +
+        '<div style="font-weight:700;font-size:12px">'+esc(slot.label)+'</div>' +
+        '<div style="font-size:10px;color:#aab">'+esc(slot.start_time)+' – '+esc(slot.end_time)+'</div>' +
+        '</td>';
+
+      WP.DAYS.forEach(function(_, di){
+        var day = di + 1;
+        var k = slot.id+'_'+day;
+        var chips = (eMap[k] || []).map(function(e){
+          var bg = e.color || '#4f6eff';
+          var details = [];
+          if (e.classroom_name) details.push('<i class="fa fa-map-marker"></i> ' + esc(e.classroom_name));
+          if (e.teacher_name) details.push('<i class="fa fa-user"></i> ' + esc(e.teacher_name));
+          var detailsHtml = details.length ? '<span class="entry-chip-group" style="font-size:9.5px; opacity: 0.9; margin-top:2px;">'+details.join(' | ')+'</span>' : '';
+
+          return '<div class="entry-chip" style="background:'+bg+'" data-entry-id="'+e.id+'">' +
+            '<div class="entry-chip-body">' +
+              '<span class="entry-chip-subject">'+esc(e.subject_name)+'</span>' +
+              '<span class="entry-chip-group">'+esc(e.group_name)+'</span>' +
+              detailsHtml +
+            '</div>' +
+            '<button class="entry-chip-del no-print" data-del-entry="'+e.id+'" title="Remove"><i class="fa fa-times"></i></button>' +
+            '</div>';
+        }).join('');
+
+        html += '<td class="tt-cell"><div class="tt-cell-inner" data-slot="'+slot.id+'" data-day="'+day+'">' +
+          chips +
+          '<div class="add-hint no-print"><i class="fa fa-plus"></i></div>' +
+          '</div></td>';
+      });
+
+      // Slot actions (edit/delete)
+      html += '<td class="no-print" style="vertical-align:middle;padding:4px">' +
+        '<div class="slot-actions">' +
+          '<button data-edit-slot="'+slot.id+'" title="Edit slot"><i class="fa fa-pencil"></i></button>' +
+          '<button class="del" data-del-slot="'+slot.id+'" title="Delete slot"><i class="fa fa-trash"></i></button>' +
+        '</div></td>';
+      html += '</tr>';
+    });
+
+    html += '</tbody></table></div>';
+    wrap.innerHTML = html;
+
+    // Bind cell clicks (open entry modal)
+    wrap.querySelectorAll('.tt-cell-inner').forEach(function(cell){
+      cell.addEventListener('click', function(e){
+        if (e.target.closest('[data-del-entry]')) return; // handled below
+        var slotId = this.getAttribute('data-slot');
+        var day    = this.getAttribute('data-day');
+        openEntryModal(slotId, day);
+      });
+    });
+
+    // Bind delete-entry buttons
+    wrap.querySelectorAll('[data-del-entry]').forEach(function(btn){
+      btn.addEventListener('click', function(e){
+        e.stopPropagation();
+        var id = this.getAttribute('data-del-entry');
+        if (!confirm('Remove this entry?')) return;
+        request('/api/weekly-programs/'+WP.current.id+'/entries/'+id, {method:'DELETE'})
+          .then(function(){ loadProgramDetail(WP.current.id); })
+          .catch(function(err){ showAlert('#wp-global-alert', err.message, 'danger'); });
+      });
+    });
+
+    // Bind slot edit buttons
+    wrap.querySelectorAll('[data-edit-slot]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var slotId = this.getAttribute('data-edit-slot');
+        var slot = (WP.current.slots||[]).filter(function(s){ return s.id == slotId; })[0];
+        if (!slot) return;
+        openSlotModal(slot);
+      });
+    });
+
+    // Bind slot delete buttons
+    wrap.querySelectorAll('[data-del-slot]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var slotId = this.getAttribute('data-del-slot');
+        if (!confirm('Delete this time slot and ALL its entries?')) return;
+        request('/api/weekly-programs/'+WP.current.id+'/slots/'+slotId, {method:'DELETE'})
+          .then(function(){ loadProgramDetail(WP.current.id); })
+          .catch(function(err){ showAlert('#wp-global-alert', err.message, 'danger'); });
+      });
+    });
+  }
+
+  // ── Open entry modal (add or edit) ─────────────────────────────────────────
+  function openEntryModal(slotId, day) {
+    var slot = (WP.current.slots||[]).filter(function(s){ return s.id == slotId; })[0];
+    var dayName = WP.DAYS[parseInt(day)-1] || ('Day '+day);
+    document.getElementById('wp-entry-form-id').value = '';
+    document.getElementById('wp-entry-form-slot-id').value = slotId;
+    document.getElementById('wp-entry-form-day').value = day;
+    document.getElementById('wp-entry-form-subject').value = '';
+    document.getElementById('wp-entry-form-group').value = '';
+    document.getElementById('wp-entry-form-classroom').value = '';
+    setEntryColor('#4f6eff');
+    document.getElementById('wp-entry-slot-info').textContent =
+      (slot ? slot.label : '') + '  —  ' + dayName;
+    document.getElementById('modalEntryTitle').textContent = 'Add Schedule Entry';
+    document.getElementById('wp-entry-form-alert').style.display = 'none';
+    $('#modalEntry').modal('show');
+  }
+
+  // ── Open slot modal (add or edit) ──────────────────────────────────────────
+  function openSlotModal(slot) {
+    if (slot) {
+      document.getElementById('modalSlotTitle').textContent = 'Edit Time Slot';
+      document.getElementById('wp-slot-form-id').value    = slot.id;
+      document.getElementById('wp-slot-form-label').value = slot.label;
+      document.getElementById('wp-slot-form-start').value = slot.start_time;
+      document.getElementById('wp-slot-form-end').value   = slot.end_time;
+      document.getElementById('wp-slot-form-order').value = slot.sort_order;
+      document.getElementById('wp-slot-form-submit').textContent = 'Save Changes';
+    } else {
+      document.getElementById('modalSlotTitle').textContent = 'Add Time Slot';
+      document.getElementById('wp-slot-form-id').value    = '';
+      document.getElementById('wp-slot-form-label').value = '';
+      document.getElementById('wp-slot-form-start').value = '';
+      document.getElementById('wp-slot-form-end').value   = '';
+      document.getElementById('wp-slot-form-order').value = (WP.current.slots||[]).length;
+      document.getElementById('wp-slot-form-submit').textContent = 'Add Slot';
+    }
+    document.getElementById('wp-slot-form-alert').style.display = 'none';
+    $('#modalSlot').modal('show');
+  }
+
+  // ── Color swatches ─────────────────────────────────────────────────────────
+  function buildColorSwatches() {
+    var row = document.getElementById('wp-entry-color-row');
+    if (!row) return;
+    WP.COLORS.forEach(function(c){
+      var sw = document.createElement('div');
+      sw.className = 'color-swatch';
+      sw.style.background = c;
+      sw.setAttribute('data-color', c);
+      if (c === '#4f6eff') sw.classList.add('selected');
+      sw.addEventListener('click', function(){ setEntryColor(c); });
+      row.appendChild(sw);
+    });
+  }
+
+  function setEntryColor(color) {
+    document.getElementById('wp-entry-form-color').value = color;
+    document.querySelectorAll('.color-swatch').forEach(function(sw){
+      sw.classList.toggle('selected', sw.getAttribute('data-color') === color);
+    });
+  }
+
+  // ── Populate group & classroom dropdowns ───────────────────────────────────
+  function populateGroupDropdown() {
+    var sel = document.getElementById('wp-entry-form-group');
+    if (!sel) return;
+    if (!WP.groups.length) {
+      sel.innerHTML = '<option value="">No groups available</option>';
+      return;
+    }
+    sel.innerHTML = '<option value="">-- Select group --</option>' +
+      WP.groups.map(function(g){
+        var label = esc(g.name) + (g.formation_title ? ' ('+esc(g.formation_title)+')' : '');
+        return '<option value="'+g.id+'">'+label+'</option>';
+      }).join('');
+  }
+
+  function populateClassroomDropdown() {
+    var sel = document.getElementById('wp-entry-form-classroom');
+    if (!sel) return;
+    if (!WP.classrooms.length) {
+      sel.innerHTML = '<option value="">No classrooms available</option>';
+      return;
+    }
+    sel.innerHTML = '<option value="">-- No classroom --</option>' +
+      WP.classrooms.map(function(c){
+        return '<option value="'+c.id+'">'+esc(c.name)+'</option>';
+      }).join('');
+  }
+
+  // ── Auto-fill slot label from time inputs ──────────────────────────────────
+  function autoActivateSlotLabel() {
+    var startEl = document.getElementById('wp-slot-form-start');
+    var endEl   = document.getElementById('wp-slot-form-end');
+    var lblEl   = document.getElementById('wp-slot-form-label');
+    if (!startEl || !endEl || !lblEl) return;
+    function sync() {
+      if (startEl.value && endEl.value && !lblEl.value) {
+        lblEl.value = startEl.value + ' – ' + endEl.value;
+      }
+    }
+    startEl.addEventListener('change', sync);
+    endEl.addEventListener('change', function(){
+      if (startEl.value && endEl.value) {
+        lblEl.value = startEl.value + ' – ' + endEl.value;
+      }
+    });
+  }
+
+  // ── Bind toolbar buttons ───────────────────────────────────────────────────
+  function bindWpButtons() {
+    // Create program button
+    var createBtn = document.getElementById('wp-create-btn');
+    if (createBtn) createBtn.addEventListener('click', function(){
+      document.getElementById('modalProgramTitle').textContent = 'Create Program';
+      document.getElementById('wp-prog-form-id').value = '';
+      document.getElementById('wp-prog-form-name').value = '';
+      document.getElementById('wp-prog-form-desc').value = '';
+      document.getElementById('wp-prog-form-submit').textContent = 'Create';
+      document.getElementById('wp-prog-form-alert').style.display = 'none';
+      $('#modalProgram').modal('show');
+    });
+
+    // Edit program
+    var editBtn = document.getElementById('wp-btn-edit');
+    if (editBtn) editBtn.addEventListener('click', function(){
+      if (!WP.current) return;
+      document.getElementById('modalProgramTitle').textContent = 'Edit Program';
+      document.getElementById('wp-prog-form-id').value   = WP.current.id;
+      document.getElementById('wp-prog-form-name').value = WP.current.name;
+      document.getElementById('wp-prog-form-desc').value = WP.current.description || '';
+      document.getElementById('wp-prog-form-submit').textContent = 'Save Changes';
+      document.getElementById('wp-prog-form-alert').style.display = 'none';
+      $('#modalProgram').modal('show');
+    });
+
+    // Activate
+    var activateBtn = document.getElementById('wp-btn-activate');
+    if (activateBtn) activateBtn.addEventListener('click', function(){
+      if (!WP.current) return;
+      if (!confirm('Activate "'+WP.current.name+'"? All other programs will be disabled.')) return;
+      request('/api/weekly-programs/'+WP.current.id+'/activate', {method:'POST'})
+        .then(function(){
+          return Promise.all([
+            request('/api/weekly-programs').then(function(p){ WP.programs = p.data||[]; }),
+            loadProgramDetail(WP.current.id)
+          ]);
+        }).then(function(){ renderProgList(); })
+        .catch(function(err){ showAlert('#wp-global-alert', err.message, 'danger'); });
+    });
+
+    // Add time slot
+    var addSlotBtn = document.getElementById('wp-btn-add-slot');
+    if (addSlotBtn) addSlotBtn.addEventListener('click', function(){
+      if (!WP.current) return;
+      openSlotModal(null);
+    });
+
+    // Delete program
+    var delBtn = document.getElementById('wp-btn-delete');
+    if (delBtn) delBtn.addEventListener('click', function(){
+      if (!WP.current) return;
+      if (!confirm('Delete program "'+WP.current.name+'" and ALL its data?')) return;
+      request('/api/weekly-programs/'+WP.current.id, {method:'DELETE'})
+        .then(function(){
+          WP.current = null;
+          return request('/api/weekly-programs').then(function(p){ WP.programs = p.data||[]; });
+        }).then(function(){
+          renderProgList();
+          document.getElementById('wp-detail').style.display = 'none';
+          document.getElementById('wp-no-selection').style.display = 'block';
+          showAlert('#wp-global-alert','Program deleted.','success');
+        }).catch(function(err){ showAlert('#wp-global-alert', err.message, 'danger'); });
+    });
+
+    // PDF / Print
+    var pdfBtn = document.getElementById('wp-btn-pdf');
+    if (pdfBtn) pdfBtn.addEventListener('click', function(){
+      if (!WP.current) return;
+      
+      var gridWrap = document.getElementById('wp-grid-wrap');
+      if (!gridWrap) return;
+
+      if (typeof html2pdf === 'undefined') { window.print(); return; }
+
+      // Build a complete self-contained HTML string.
+      // This bypasses ALL html2canvas DOM/scroll/coordinate bugs because
+      // html2pdf renders the HTML in its own hidden iframe — not from a live DOM element.
+      var school = (window._ctx && window._ctx.school) ? window._ctx.school : { name: 'Our School' };
+      var currentYear = new Date().getFullYear();
+      var academicYear = currentYear + ' - ' + (currentYear + 1);
+
+      // Extract the existing CSS from the page's <style> blocks for the timetable
+      var existingCss = '';
+      document.querySelectorAll('style').forEach(function(s) { existingCss += s.innerHTML; });
+
+      // Get the current grid HTML, clean it up
+      var gridClone = gridWrap.cloneNode(true);
+      gridClone.querySelectorAll('.no-print, .add-hint, .entry-chip-del').forEach(function(el) { el.remove(); });
+      var gridHtml = gridClone.outerHTML;
+
+      var htmlContent = '<!DOCTYPE html><html><head><meta charset="utf-8">' +
+        '<style>' +
+          'body { margin: 0; padding: 30px; background: #fff; font-family: Inter, Arial, sans-serif; box-sizing: border-box; width: 1400px; }' +
+          '.pdf-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #1a1f37; padding-bottom: 14px; margin-bottom: 24px; }' +
+          '.pdf-school-name { margin:0; font-weight:800; font-size:22px; color:#1a1f37; }' +
+          '.pdf-school-year { margin:4px 0 0; font-size:13px; color:#555; font-weight:600; }' +
+          '.pdf-prog-name { margin:0; font-weight:800; font-size:22px; color:#4f6eff; text-align:right; }' +
+          '.pdf-gen-date { margin:4px 0 0; font-size:13px; color:#555; text-align:right; }' +
+          '.pdf-footer { margin-top: 30px; display: flex; justify-content: flex-end; padding-right: 30px; }' +
+          '.pdf-stamp { width:110px; height:110px; border-radius:50%; border:3px solid #1a1f37; display:flex; align-items:center; justify-content:center; text-align:center; opacity:.75; }' +
+          '.pdf-stamp-text { font-weight:800; font-size:13px; color:#1a1f37; line-height:1.3; }' +
+          '.pdf-stamp-school { font-size:9px; font-weight:600; display:block; margin-top:3px; }' +
+          existingCss +
+          '.tt-table { width:100% !important; min-width:100% !important; table-layout:fixed !important; border-collapse:collapse; }' +
+          '.tt-cell, .tt-header, .tt-time-cell, .tt-slot-time { word-wrap:break-word; overflow-wrap:break-word; }' +
+          '.wp-card { box-shadow:none !important; border:none !important; padding:0 !important; background:transparent !important; }' +
+          '.wp-card-title { display:none !important; }' +
+        '</style>' +
+        '</head><body>' +
+        '<div class="pdf-header">' +
+          '<div>' +
+            '<p class="pdf-school-name">' + esc(school.name) + '</p>' +
+            '<p class="pdf-school-year">Academic Year: ' + academicYear + '</p>' +
+          '</div>' +
+          '<div>' +
+            '<p class="pdf-prog-name">' + esc(WP.current.name) + '</p>' +
+            '<p class="pdf-gen-date">Generated on ' + new Date().toLocaleDateString() + '</p>' +
+          '</div>' +
+        '</div>' +
+        gridHtml +
+        '<div class="pdf-footer">' +
+          '<div class="pdf-stamp">' +
+            '<div class="pdf-stamp-text">OFFICIAL<br>STAMP<span class="pdf-stamp-school">' + esc(school.name) + '</span></div>' +
+          '</div>' +
+        '</div>' +
+        '</body></html>';
+
+      var opt = {
+        margin:       8,
+        filename:     'timetable-' + WP.current.name.replace(/\\s+/g, '-') + '.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true, windowWidth: 1400 },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'l' }
+      };
+
+      html2pdf().set(opt).from(htmlContent, 'string').save();
+    });
+  }
+
+  // ── Bind form submissions ──────────────────────────────────────────────────
+  function bindWpForms() {
+    // Auto-select classroom when group changes
+    var grpSelect = document.getElementById('wp-entry-form-group');
+    var clsSelect = document.getElementById('wp-entry-form-classroom');
+    if (grpSelect && clsSelect) {
+      grpSelect.addEventListener('change', function() {
+        var gid = this.value;
+        if (!gid) return;
+        var group = WP.groups.filter(function(g) { return String(g.id) === String(gid); })[0];
+        if (group && group.classroom_id) {
+          clsSelect.value = group.classroom_id;
+        } else {
+          clsSelect.value = ''; // Reset if group has no default classroom
+        }
+      });
+    }
+
+    // Program form
+    var progForm = document.getElementById('wp-prog-form');
+    if (progForm) progForm.addEventListener('submit', function(e){
+      e.preventDefault();
+      var id   = document.getElementById('wp-prog-form-id').value;
+      var name = document.getElementById('wp-prog-form-name').value.trim();
+      var desc = document.getElementById('wp-prog-form-desc').value.trim();
+      if (!name) { showAlert('#wp-prog-form-alert','Program name is required','danger'); return; }
+
+      var isEdit = !!id;
+      var method = isEdit ? 'PUT' : 'POST';
+      var url    = isEdit ? '/api/weekly-programs/'+id : '/api/weekly-programs';
+      var btn    = document.getElementById('wp-prog-form-submit');
+      btn.disabled = true;
+
+      request(url, {method: method, body: JSON.stringify({name: name, description: desc || null})})
+        .then(function(){
+          return request('/api/weekly-programs').then(function(p){ WP.programs = p.data||[]; });
+        }).then(function(){
+          btn.disabled = false;
+          $('#modalProgram').modal('hide');
+          renderProgList();
+          if (isEdit && WP.current && WP.current.id == id) loadProgramDetail(id);
+        }).catch(function(err){
+          btn.disabled = false;
+          showAlert('#wp-prog-form-alert', err.message, 'danger');
+        });
+    });
+
+    // Slot form
+    var slotForm = document.getElementById('wp-slot-form');
+    if (slotForm) slotForm.addEventListener('submit', function(e){
+      e.preventDefault();
+      if (!WP.current) return;
+      var id    = document.getElementById('wp-slot-form-id').value;
+      var label = document.getElementById('wp-slot-form-label').value.trim();
+      var start = document.getElementById('wp-slot-form-start').value;
+      var end   = document.getElementById('wp-slot-form-end').value;
+      var order = parseInt(document.getElementById('wp-slot-form-order').value) || 0;
+      if (!label || !start || !end) { showAlert('#wp-slot-form-alert','All time fields are required','danger'); return; }
+
+      var isEdit = !!id;
+      var method = isEdit ? 'PUT' : 'POST';
+      var url    = isEdit
+        ? '/api/weekly-programs/'+WP.current.id+'/slots/'+id
+        : '/api/weekly-programs/'+WP.current.id+'/slots';
+      var btn = document.getElementById('wp-slot-form-submit');
+      btn.disabled = true;
+
+      request(url, {method: method, body: JSON.stringify({label:label, start_time:start, end_time:end, sort_order:order})})
+        .then(function(){
+          btn.disabled = false;
+          $('#modalSlot').modal('hide');
+          loadProgramDetail(WP.current.id);
+        }).catch(function(err){
+          btn.disabled = false;
+          showAlert('#wp-slot-form-alert', err.message, 'danger');
+        });
+    });
+
+    // Entry form
+    var entryForm = document.getElementById('wp-entry-form');
+    if (entryForm) entryForm.addEventListener('submit', function(e){
+      e.preventDefault();
+      if (!WP.current) return;
+      var id       = document.getElementById('wp-entry-form-id').value;
+      var slotId   = document.getElementById('wp-entry-form-slot-id').value;
+      var day      = document.getElementById('wp-entry-form-day').value;
+      var groupId  = document.getElementById('wp-entry-form-group').value;
+      var classId  = document.getElementById('wp-entry-form-classroom').value;
+      var subject  = document.getElementById('wp-entry-form-subject').value.trim();
+      var color    = document.getElementById('wp-entry-form-color').value || '#4f6eff';
+
+      if (!groupId || !subject) { showAlert('#wp-entry-form-alert','Group and subject are required','danger'); return; }
+
+      var isEdit = !!id;
+      var method = isEdit ? 'PUT' : 'POST';
+      var url    = isEdit
+        ? '/api/weekly-programs/'+WP.current.id+'/entries/'+id
+        : '/api/weekly-programs/'+WP.current.id+'/entries';
+
+      request(url, {method: method, body: JSON.stringify({
+        slot_id: parseInt(slotId), day_of_week: parseInt(day),
+        group_id: parseInt(groupId), subject_name: subject, color: color,
+        classroom_id: classId ? parseInt(classId) : null
+      })}).then(function(){
+        $('#modalEntry').modal('hide');
+        loadProgramDetail(WP.current.id);
+      }).catch(function(err){ showAlert('#wp-entry-form-alert', err.message, 'danger'); });
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', initWeeklyProgram);
+
 })();
