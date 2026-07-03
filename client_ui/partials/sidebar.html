@@ -1,0 +1,61 @@
+<!-- Mobile overlay -->
+<div id="sb-overlay"></div>
+
+<!-- ══════════════ Sidebar ══════════════ -->
+<aside id="app-sidebar">
+    <!-- Brand -->
+    <a href="#" class="sb-brand" id="sb-brand-link">
+        <div class="sb-brand-icon">
+            <img id="sb-school-logo" src="https://ui-avatars.com/api/?name=School&background=2c3e50&color=fff&size=40" alt="School Logo" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">
+        </div>
+        <div class="sb-logo-text">
+            My Portal
+            <small id="sb-school-name">Student & Teacher</small>
+        </div>
+    </a>
+
+    <!-- Navigation -->
+    <nav class="sb-nav">
+        <!-- Student only -->
+        <div class="sb-section-label" data-role="student">Student</div>
+
+        <div class="sb-item" data-menu="student-space" data-role="student">
+            <a href="student-space.html" class="sb-link">
+                <i class="fa fa-graduation-cap sb-icon"></i>
+                <span class="sb-label">My Dashboard</span>
+            </a>
+        </div>
+
+        <!-- Teacher only -->
+        <div class="sb-section-label" data-role="teacher">Teacher</div>
+
+        <div class="sb-item" data-menu="teacher-space" data-role="teacher">
+            <a href="teacher-space.html" class="sb-link">
+                <i class="fa fa-briefcase sb-icon"></i>
+                <span class="sb-label">My Dashboard</span>
+            </a>
+        </div>
+
+        <div class="sb-item" data-menu="attendance" data-role="teacher">
+            <a href="attendance.html" class="sb-link">
+                <i class="fa fa-check-square-o sb-icon"></i>
+                <span class="sb-label">Attendance & Scanning</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- User footer -->
+    <div class="sb-footer">
+        <div class="sb-user">
+            <img src="https://ui-avatars.com/api/?name=User&background=4f6eff&color=fff&size=68"
+                 id="sb-user-avatar" class="sb-user-avatar" alt="User">
+            <div class="sb-user-info">
+                <div class="sb-user-name" id="sb-footer-user-name">User</div>
+                <div class="sb-user-role">Loading...</div>
+            </div>
+            <button class="sb-user-btn" data-backend-logout title="Logout">
+                <i class="fa fa-sign-out"></i>
+            </button>
+        </div>
+    </div>
+</aside>

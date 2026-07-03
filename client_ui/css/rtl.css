@@ -1,0 +1,157 @@
+/* Custom RTL stylesheet overrides for Kiaalap template */
+
+html[dir="rtl"] body {
+    text-align: right !important;
+    direction: rtl !important;
+}
+
+/* Float Helpers */
+html[dir="rtl"] .floatleft {
+    float: right !important;
+}
+html[dir="rtl"] .floatright {
+    float: left !important;
+}
+
+/* Sidebar position overrides */
+html[dir="rtl"] #sidebar {
+    right: 0 !important;
+    left: auto !important;
+}
+html[dir="rtl"] .left-sidebar-pro {
+    right: 0 !important;
+    left: auto !important;
+    float: right !important;
+}
+html[dir="rtl"] .all-content-wrapper {
+    margin-right: 200px !important;
+    margin-left: 0 !important;
+}
+html[dir="rtl"] .mini-navbar .all-content-wrapper {
+    margin-right: 80px !important;
+    margin-left: 0 !important;
+}
+
+/* Mobile Meanmenu */
+html[dir="rtl"] .mean-container .mean-nav {
+    text-align: right !important;
+}
+html[dir="rtl"] .mean-container .mean-bar {
+    direction: rtl !important;
+}
+
+/* Grid overrides for Bootstrap 3 RTL */
+html[dir="rtl"] .col-xs-1, html[dir="rtl"] .col-xs-2, html[dir="rtl"] .col-xs-3, html[dir="rtl"] .col-xs-4, html[dir="rtl"] .col-xs-5, html[dir="rtl"] .col-xs-6, html[dir="rtl"] .col-xs-7, html[dir="rtl"] .col-xs-8, html[dir="rtl"] .col-xs-9, html[dir="rtl"] .col-xs-10, html[dir="rtl"] .col-xs-11, html[dir="rtl"] .col-xs-12,
+html[dir="rtl"] .col-sm-1, html[dir="rtl"] .col-sm-2, html[dir="rtl"] .col-sm-3, html[dir="rtl"] .col-sm-4, html[dir="rtl"] .col-sm-5, html[dir="rtl"] .col-sm-6, html[dir="rtl"] .col-sm-7, html[dir="rtl"] .col-sm-8, html[dir="rtl"] .col-sm-9, html[dir="rtl"] .col-sm-10, html[dir="rtl"] .col-sm-11, html[dir="rtl"] .col-sm-12,
+html[dir="rtl"] .col-md-1, html[dir="rtl"] .col-md-2, html[dir="rtl"] .col-md-3, html[dir="rtl"] .col-md-4, html[dir="rtl"] .col-md-5, html[dir="rtl"] .col-md-6, html[dir="rtl"] .col-md-7, html[dir="rtl"] .col-md-8, html[dir="rtl"] .col-md-9, html[dir="rtl"] .col-md-10, html[dir="rtl"] .col-md-11, html[dir="rtl"] .col-md-12,
+html[dir="rtl"] .col-lg-1, html[dir="rtl"] .col-lg-2, html[dir="rtl"] .col-lg-3, html[dir="rtl"] .col-lg-4, html[dir="rtl"] .col-lg-5, html[dir="rtl"] .col-lg-6, html[dir="rtl"] .col-lg-7, html[dir="rtl"] .col-lg-8, html[dir="rtl"] .col-lg-9, html[dir="rtl"] .col-lg-10, html[dir="rtl"] .col-lg-11, html[dir="rtl"] .col-lg-12 {
+    float: right !important;
+}
+
+/* Typography & Text Alignments */
+html[dir="rtl"] .text-right {
+    text-align: left !important;
+}
+html[dir="rtl"] .text-left {
+    text-align: right !important;
+}
+html[dir="rtl"] th, html[dir="rtl"] td {
+    text-align: right !important;
+}
+
+/* Forms & inputs */
+html[dir="rtl"] label {
+    float: right !important;
+    text-align: right !important;
+}
+html[dir="rtl"] .form-control {
+    text-align: right !important;
+    direction: rtl !important;
+}
+html[dir="rtl"] .help-block {
+    text-align: right !important;
+    direction: rtl !important;
+}
+
+/* Header alignments */
+html[dir="rtl"] .header-top-menu {
+    float: right !important;
+}
+html[dir="rtl"] .header-right-info {
+    float: left !important;
+}
+html[dir="rtl"] .logo-pro {
+    float: right !important;
+    text-align: right !important;
+}
+html[dir="rtl"] .navbar-nav {
+    float: right !important;
+    margin: 0 !important;
+}
+html[dir="rtl"] .navbar-nav > li {
+    float: right !important;
+}
+
+/* Dropdown alignment */
+html[dir="rtl"] .dropdown-menu {
+    left: 0 !important;
+    right: auto !important;
+    text-align: right !important;
+}
+
+/* Breadcrumb alignments */
+html[dir="rtl"] .breadcome-heading {
+    float: right !important;
+}
+html[dir="rtl"] .breadcome-menu {
+    float: left !important;
+}
+html[dir="rtl"] .breadcome-heading .sr-input-func a {
+    left: 10px !important;
+    right: auto !important;
+}
+html[dir="rtl"] .breadcome-heading .sr-input-func input {
+    padding-left: 30px !important;
+    padding-right: 15px !important;
+}
+
+/* Sidebar elements */
+html[dir="rtl"] #sidebar ul li a .sidebar-right-icon {
+    float: left !important;
+}
+html[dir="rtl"] .left-custom-menu-adp-wrap ul.left-sidebar-menu-pro li .indicator-right-menu {
+    float: left !important;
+}
+html[dir="rtl"] .sidebar-nav .metismenu a .educate-icon {
+    margin-left: 10px !important;
+    margin-right: 0 !important;
+}
+
+/* Sparkline & box margins */
+html[dir="rtl"] .analytics-info-cs ul li.text-right {
+    text-align: left !important;
+}
+html[dir="rtl"] .analytics-info-cs ul li {
+    display: inline-block !important;
+}
+
+/* Profile / author dropdown logs */
+html[dir="rtl"] .dropdown-header-top.author-log {
+    left: 0 !important;
+    right: auto !important;
+}
+html[dir="rtl"] .dropdown-header-top.author-log li a .author-log-ic {
+    margin-left: 10px !important;
+    margin-right: 0 !important;
+    float: right !important;
+}
+
+/* Auth views specific adjustments */
+html[dir="rtl"] .login-checkbox label {
+    padding-right: 20px !important;
+    padding-left: 0 !important;
+}
+html[dir="rtl"] .login-checkbox input[type="checkbox"] {
+    right: 0 !important;
+    left: auto !important;
+}

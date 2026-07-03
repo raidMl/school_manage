@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Attendance & Scanning | School System Admin</title>
+    <link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/sidebar.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .card-panel {
+            background: #fff;
+            border-radius: 14px;
+            padding: 20px;
+            box-shadow: 0 2px 12px rgba(0,0,0,.06);
+            margin-bottom: 20px;
+        }
+        
+        .scanner-section {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f8f9fa;
+            border: 2px dashed #4f6eff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+        .scanner-input-wrapper {
+            position: relative;
+            flex-grow: 1;
+            margin-right: 20px;
+        }
+        .scanner-input {
+            width: 100%;
+            padding: 15px 20px;
+            font-size: 18px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            outline: none;
+        }
+        .scanner-input:focus {
+            border-color: #4f6eff;
+            box-shadow: 0 0 0 3px rgba(79,110,255,.2);
+        }
+        .scanner-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #888;
+            font-size: 24px;
+        }
+        
+        .attendance-filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .filter-group { flex: 1; min-width: 200px; }
+        .filter-group select, .filter-group input { width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid #ddd; }
+        
+        .status-toggle {
+            cursor: pointer;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            border: none;
+            transition: all 0.2s;
+        }
+        .status-present { background: #e8f5e9; color: #2e7d32; }
+        .status-absent { background: #ffebee; color: #c62828; }
+        .status-present:hover { background: #c8e6c9; }
+        .status-absent:hover { background: #ffcdd2; }
+
+        #reader {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            display: none;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body data-page="attendance">
+    <div id="sidebar-placeholder"></div>
+    <div class="sb-main">
+        <div id="header-placeholder"></div>
+        <div class="sb-content">
+            <div class="sb-breadcrumb">
+                <i class="fa fa-home"></i>
+                <a href="index.html">Home</a>
+                <span>/</span>
+                <span>Attendance & Scanning</span>
+            </div>
+            
+            <div class="card-panel">
+                <div class="scanner-section">
+                    <div class="scanner-input-wrapper">
+                        <input type="text" id="attendance-scanner-input" class="scanner-input" placeholder="Scan RFID/QR Code or type ID here..." autocomplete="off">
+                        <i class="fa fa-barcode scanner-icon"></i>
+                    </div>
+                    <div>
+                        <button id="btn-toggle-webcam" class="btn btn-primary" style="padding: 14px 24px;">
+                            <i class="fa fa-camera"></i> Use Webcam QR
+                        </button>
+                    </div>
+                </div>
+                <div id="reader"></div>
+                <div id="scan-result-alert" class="alert" style="display:none; text-align:center; font-size: 16px; font-weight: 600;"></div>
+            </div>
+
+            <div class="card-panel">
+                <h3 style="margin:0 0 16px;font-size:16px;font-weight:700">Manual Attendance Check</h3>
+                
+                <div class="attendance-filters">
+                    <div class="filter-group">
+                        <label>Date</label>
+                        <input type="date" id="attendance-filter-date">
+                    </div>
+                    <div class="filter-group">
+                        <label>Target Audience</label>
+                        <select id="attendance-filter-type">
+                            <option value="student">Students</option>
+                            <option value="teacher">Teachers</option>
+                        </select>
+                    </div>
+                    <div class="filter-group" id="attendance-group-container">
+                        <label>Group / Class</label>
+                        <select id="attendance-filter-group">
+                            <option value="">-- All Groups --</option>
+                        </select>
+                    </div>
+                    <div class="filter-group" style="display: flex; align-items: flex-end;">
+                        <button id="btn-validate-attendance" class="btn btn-success" style="display: none; height: 38px;">
+                            <i class="fa fa-lock"></i> Validate Attendance
+                        </button>
+                    </div>
+                </div>
+
+                <div id="attendance-status" class="alert" style="display:none"></div>
+
+                <div class="attendance-bulk-actions" style="margin-bottom: 15px; display: none;" id="attendance-bulk-actions">
+                    <button id="btn-bulk-present" class="btn btn-success btn-sm"><i class="fa fa-check"></i> Mark Selected Present</button>
+                    <button id="btn-bulk-absent" class="btn btn-danger btn-sm"><i class="fa fa-times"></i> Mark Selected Absent</button>
+                    <span id="bulk-selection-count" style="margin-left: 10px; font-weight: 600; color: #555;"></span>
+                </div>
+
+                <div class="table-responsive">
+                    <table id="backend-attendance-table" class="table table-striped table-hover table-bordered">
+                        <thead>
+                            <tr>
+                                <th width="40"><input type="checkbox" id="attendance-select-all" title="Select All"></th>
+                                <th width="50">Photo</th>
+                                <th>ID Number</th>
+                                <th>Name</th>
+                                <th>RFID Tag</th>
+                                <th>Scan Time</th>
+                                <th width="150">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td colspan="7" class="text-center">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="footer-placeholder"></div>
+        </div>
+    </div>
+    
+    <script src="js/vendor/jquery-1.12.4.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <!-- Include html5-qrcode for webcam scanning -->
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <script src="js/components.js"></script>
+    <script src="js/backend.js"></script>
+</body>
+</html>

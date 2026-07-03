@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Teacher Space | School System</title>
+    <link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/sidebar.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #f4f6fa; }
+        .card-panel { background:#fff; border-radius:14px; padding:20px; box-shadow:0 2px 12px rgba(0,0,0,.06); margin-bottom:20px; }
+        .section-header { font-size:16px; font-weight:700; color:#1a1f37; margin:0 0 16px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .profile-img { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; }
+        .planning-table th { background-color: #f8f9fc; }
+        .status-badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+        .status-present { background: #d4edda; color: #155724; }
+        .status-absent { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body data-page="teacher-space">
+    <div id="sidebar-placeholder"></div>
+
+    <div class="sb-main">
+        <div id="header-placeholder"></div>
+
+        <div class="sb-content">
+            <div class="sb-breadcrumb">
+                <i class="fa fa-briefcase"></i>
+                <span>Teacher Space</span>
+            </div>
+
+            <!-- Profile & Formations -->
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card-panel text-center">
+                        <img id="teacher-photo" alt="Teacher" class="profile-img mb-3" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; margin-bottom: 15px;">
+                        <h4 id="teacher-name" style="font-weight: 700;">Loading...</h4>
+                        <p class="text-muted" id="teacher-emp"></p>
+                        
+                        <hr>
+                        <h5 class="text-left" style="font-weight: 600;">Update Profile</h5>
+                        <form id="teacher-profile-form" style="text-align: left;">
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input type="email" id="teacher-email" class="form-control" placeholder="Email">
+                            </div>
+                            <div class="form-group">
+                                <label>New Password</label>
+                                <input type="password" id="teacher-password" class="form-control" placeholder="Leave blank to keep current">
+                            </div>
+                            <div class="form-group">
+                                <label>Photo URL</label>
+                                <input type="text" id="teacher-photo-url" class="form-control" placeholder="Photo URL">
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-block">Save Changes</button>
+                            <div id="teacher-profile-msg" style="margin-top: 10px; display: none;"></div>
+                        </form>
+                    </div>
+
+                    <div class="card-panel">
+                        <h3 class="section-header">Quick Actions</h3>
+                        <a href="attendance.html" class="btn btn-success btn-block mb-2" style="margin-bottom:10px;"><i class="fa fa-check-square-o"></i> Mark Student Attendance</a>
+                    </div>
+                </div>
+
+                <div class="col-md-8">
+                    <div class="card-panel">
+                        <h3 class="section-header">My Formations & Groups</h3>
+                        <div id="teacher-formations-container">
+                            <p>Loading...</p>
+                        </div>
+                    </div>
+
+                    <div class="card-panel">
+                        <h3 class="section-header">My Weekly Planning</h3>
+                        <div class="table-responsive">
+                            <table class="table table-bordered planning-table" id="teacher-planning-table">
+                                <thead>
+                                    <tr>
+                                        <th>Day</th>
+                                        <th>Time Slot</th>
+                                        <th>Subject</th>
+                                        <th>Room</th>
+                                        <th>Group</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td colspan="5" class="text-center">Loading...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="card-panel">
+                        <h3 class="section-header">My Attendance</h3>
+                        <div class="table-responsive">
+                            <table class="table table-striped" id="teacher-attendance-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Time</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td colspan="3" class="text-center">Loading...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div id="footer-placeholder"></div>
+    </div>
+
+    <script src="js/vendor/jquery-1.12.4.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/components.js"></script>
+    <script src="js/backend.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+        window.onAuthReady = function() {
+                if (!window._ctx || window._ctx.user.role !== 'teacher') return;
+
+                // Load Profile & Formations
+                SchoolBackend.request('/api/teacher-space/me').then(function(res) {
+                    var p = res.profile;
+                    var fullName = p.first_name + ' ' + p.last_name;
+                    document.getElementById('teacher-name').textContent = fullName;
+                    document.getElementById('teacher-emp').textContent = p.employee_number + ' | ' + (p.speciality || '-');
+                    document.getElementById('teacher-photo').src = SchoolBackend.avatarUrl(p.photo, fullName, 'teacher');
+                    
+                    document.getElementById('teacher-email').value = p.email || '';
+                    document.getElementById('teacher-photo-url').value = p.photo || '';
+
+                    var fContainer = document.getElementById('teacher-formations-container');
+                    
+                    var fHtml = res.formations.map(function(f) {
+                        return '<span class="label label-primary" style="margin-right:5px; margin-bottom:5px; display:inline-block">' + f.title + '</span>';
+                    }).join('');
+                    
+                    var gHtml = res.groups.map(function(g) {
+                        return '<span class="label label-info" style="margin-right:5px; margin-bottom:5px; display:inline-block">' + g.name + ' (' + g.formation_title + ')</span>';
+                    }).join('');
+
+                    fContainer.innerHTML = `
+                        <div style="margin-bottom: 15px;">
+                            <strong>Formations:</strong><br> ${fHtml || 'None'}
+                        </div>
+                        <div>
+                            <strong>Groups:</strong><br> ${gHtml || 'None'}
+                        </div>
+                    `;
+                }).catch(function(e) { console.error(e); });
+
+                // Load Planning
+                SchoolBackend.request('/api/teacher-space/planning').then(function(res) {
+                    var tb = document.querySelector('#teacher-planning-table tbody');
+                    if (!res.planning || !res.planning.length) {
+                        tb.innerHTML = '<tr><td colspan="5" class="text-center">No planning available</td></tr>';
+                        return;
+                    }
+                    var days = ['', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+                    tb.innerHTML = res.planning.map(function(p) {
+                        return '<tr>' +
+                            '<td>' + days[p.day_of_week] + '</td>' +
+                            '<td>' + p.time_slot + '</td>' +
+                            '<td>' + p.subject_name + '</td>' +
+                            '<td>' + (p.room_name || '-') + '</td>' +
+                            '<td>' + (p.group_name || '-') + '</td>' +
+                        '</tr>';
+                    }).join('');
+                });
+
+                // Load Attendance
+                SchoolBackend.request('/api/teacher-space/attendance').then(function(res) {
+                    var tb = document.querySelector('#teacher-attendance-table tbody');
+                    if (!res.data || !res.data.length) {
+                        tb.innerHTML = '<tr><td colspan="3" class="text-center">No attendance records found</td></tr>';
+                        return;
+                    }
+                    tb.innerHTML = res.data.map(function(a) {
+                        var statusCls = a.status === 'present' ? 'status-present' : 'status-absent';
+                        var d = new Date(a.date).toLocaleDateString();
+                        return '<tr>' +
+                            '<td>' + d + '</td>' +
+                            '<td>' + (a.scan_time || '-') + '</td>' +
+                            '<td><span class="status-badge ' + statusCls + '">' + a.status.toUpperCase() + '</span></td>' +
+                        '</tr>';
+                    }).join('');
+                });
+
+                // Profile form submit
+                var form = document.getElementById('teacher-profile-form');
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    var msg = document.getElementById('teacher-profile-msg');
+                    msg.style.display = 'none';
+
+                    SchoolBackend.request('/api/teacher-space/update-profile', {
+                        method: 'PUT',
+                        body: JSON.stringify({
+                            email: document.getElementById('teacher-email').value,
+                            password: document.getElementById('teacher-password').value,
+                            photo: document.getElementById('teacher-photo-url').value
+                        })
+                    }).then(function(res) {
+                        msg.className = 'alert alert-success';
+                        msg.textContent = 'Profile updated successfully!';
+                        msg.style.display = 'block';
+                        document.getElementById('teacher-password').value = '';
+                        setTimeout(function(){ msg.style.display='none'; }, 3000);
+                    }).catch(function(err) {
+                        msg.className = 'alert alert-danger';
+                        msg.textContent = err.message;
+                        msg.style.display = 'block';
+                    });
+                });
+        };
+        });
+    </script>
+</body>
+</html>

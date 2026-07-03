@@ -148,6 +148,9 @@
   function ensureAuth() {
     if (isAuthPage()) {
       if (getToken()) request('/api/auth/me').then(function (ctx) {
+        if (ctx.user.role === 'student' || ctx.user.role === 'teacher') {
+            clearToken(); return;
+        }
         if (ctx.needsSchoolSetup && getPage() !== 'setup-school') redirect('setup-school.html');
         else if (!ctx.needsSchoolSetup) redirect('index.html');
       }).catch(function () { clearToken(); });
@@ -155,7 +158,11 @@
     }
     if (!getToken()) { redirect('login.html'); return; }
     request('/api/auth/me').then(function (ctx) {
+      if (ctx.user.role === 'student' || ctx.user.role === 'teacher') {
+          clearToken(); redirect('login.html'); return;
+      }
       if (ctx.needsSchoolSetup) { redirect('setup-school.html'); return; }
+
       window._ctx = ctx;
       populateAuthUI();
     }).catch(function () { clearToken(); redirect('login.html'); });
@@ -272,7 +279,13 @@
     form.addEventListener('submit', function (e) {
       e.preventDefault(); var fd = new FormData(form);
       request('/api/auth/login', { method: 'POST', body: JSON.stringify({ email: fd.get('email'), password: fd.get('password') }) })
-        .then(function (r) { setToken(r.token); redirect(r.needsSchoolSetup ? 'setup-school.html' : 'index.html'); })
+        .then(function (r) {
+          if (r.user.role === 'student' || r.user.role === 'teacher') {
+            showAlert('#backend-auth-status', 'Students and teachers must use the student/teacher portal.');
+            return;
+          }
+          setToken(r.token); redirect(r.needsSchoolSetup ? 'setup-school.html' : 'index.html');
+        })
         .catch(function (err) { showAlert('#backend-auth-status', err.message); });
     });
   }
@@ -2593,6 +2606,374 @@
     });
   }
 
+  // ══════════════════════════════════════════════════════════════════════════
+  // ATTENDANCE & SCANNING
+  // ══════════════════════════════════════════════════════════════════════════
+
+  function initAttendance() {
+    if (document.body.getAttribute('data-page') !== 'attendance') return;
+
+    // Set default date to today
+    var dateInput = document.getElementById('attendance-filter-date');
+    var todayStr = new Date().toISOString().split('T')[0];
+    if (dateInput) {
+        dateInput.value = todayStr;
+    }
+
+    // Validate button logic
+    var btnValidate = document.getElementById('btn-validate-attendance');
+    if (btnValidate) {
+        btnValidate.addEventListener('click', function() {
+            var gId = document.getElementById('attendance-filter-group').value;
+            var dVal = document.getElementById('attendance-filter-date').value;
+            if (!gId) {
+                alert('Please select a specific group to validate.');
+                return;
+            }
+            if (!confirm('Are you sure you want to validate attendance for this group? This will lock it from further changes.')) return;
+            
+            btnValidate.disabled = true;
+            request('/api/attendance/validate', {
+                method: 'POST',
+                body: JSON.stringify({ group_id: gId, date: dVal, admin_id: window._ctx.user.id })
+            }).then(function() {
+                alert('Attendance validated and locked successfully!');
+                loadAttendanceData();
+            }).catch(function(err) {
+                alert('Error validating: ' + err.message);
+                btnValidate.disabled = false;
+            });
+        });
+    }
+
+    populateAttendanceGroups();
+    bindAttendanceFilters();
+
+    // Specific UI logic for Teacher Role
+    setTimeout(function() {
+        if (window._ctx && window._ctx.user && window._ctx.user.role === 'teacher') {
+            var typeFilter = document.getElementById('attendance-filter-type');
+            if (typeFilter) {
+                typeFilter.value = 'student';
+                typeFilter.parentElement.style.display = 'none'; // hide the selector
+            }
+        }
+        loadAttendanceData(); // Initial load
+    }, 500);
+
+    // Bulk selection logic
+    var selectAllCb = document.getElementById('attendance-select-all');
+    if (selectAllCb) {
+        selectAllCb.addEventListener('change', function() {
+            var isChecked = this.checked;
+            document.querySelectorAll('.attendance-row-checkbox:not(:disabled)').forEach(function(cb) {
+                cb.checked = isChecked;
+            });
+            updateBulkActionVisibility();
+        });
+    }
+
+    var btnBulkPresent = document.getElementById('btn-bulk-present');
+    var btnBulkAbsent = document.getElementById('btn-bulk-absent');
+    if (btnBulkPresent) btnBulkPresent.addEventListener('click', function() { performBulkAction('present'); });
+    if (btnBulkAbsent) btnBulkAbsent.addEventListener('click', function() { performBulkAction('absent'); });
+
+    // Scanner logic
+    var scannerInput = document.getElementById('attendance-scanner-input');
+    if (scannerInput) {
+        scannerInput.focus();
+        // Always keep focus unless user is explicitly clicking elsewhere
+        document.addEventListener('click', function(e) {
+            if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'SELECT' && e.target.tagName !== 'BUTTON') {
+                scannerInput.focus();
+            }
+        });
+
+        scannerInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                var code = scannerInput.value.trim();
+                scannerInput.value = '';
+                if (code) processScan(code);
+            }
+        });
+    }
+
+    // Webcam toggle logic
+    var webcamBtn = document.getElementById('btn-toggle-webcam');
+    var html5QrcodeScanner = null;
+    if (webcamBtn) {
+        webcamBtn.addEventListener('click', function() {
+            var readerDiv = document.getElementById('reader');
+            if (readerDiv.style.display === 'block') {
+                // Turn off
+                if (html5QrcodeScanner) {
+                    html5QrcodeScanner.clear();
+                    html5QrcodeScanner = null;
+                }
+                readerDiv.style.display = 'none';
+                webcamBtn.innerHTML = '<i class="fa fa-camera"></i> Use Webcam QR';
+            } else {
+                // Turn on
+                readerDiv.style.display = 'block';
+                webcamBtn.innerHTML = '<i class="fa fa-stop"></i> Stop Webcam';
+                html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: {width: 250, height: 250} }, false);
+                html5QrcodeScanner.render(function(decodedText) {
+                    // On success scan
+                    processScan(decodedText);
+                    // Prevent rapid re-scanning
+                    html5QrcodeScanner.pause(true);
+                    setTimeout(function() { html5QrcodeScanner.resume(); }, 3000);
+                }, function(error) {
+                    // ignore errors during scanning stream
+                });
+            }
+        });
+    }
+  }
+
+  function processScan(tag) {
+    var dateVal = document.getElementById('attendance-filter-date').value;
+    var groupVal = document.getElementById('attendance-filter-group').value;
+    var alertEl = document.getElementById('scan-result-alert');
+
+    if (!dateVal) {
+        alertEl.className = 'alert alert-danger';
+        alertEl.innerHTML = 'Please select a date first.';
+        alertEl.style.display = 'block';
+        return;
+    }
+
+    request('/api/attendance/scan', {
+        method: 'POST',
+        body: JSON.stringify({ tag: tag, date: dateVal, group_id: groupVal || null })
+    }).then(function(res) {
+        alertEl.className = 'alert alert-success';
+        var name = esc(res.user.first_name + ' ' + res.user.last_name);
+        alertEl.innerHTML = '<i class="fa fa-check-circle" style="font-size:24px; vertical-align:middle; margin-right:8px;"></i> ' + 
+                            name + ' marked as PRESENT.';
+        alertEl.style.display = 'block';
+        
+        // Refresh table if the user matches current filters
+        loadAttendanceData();
+
+        setTimeout(function() { alertEl.style.display = 'none'; }, 4000);
+    }).catch(function(err) {
+        alertEl.className = 'alert alert-danger';
+        alertEl.innerHTML = '<i class="fa fa-exclamation-triangle" style="font-size:24px; vertical-align:middle; margin-right:8px;"></i> ' + err.message;
+        alertEl.style.display = 'block';
+        setTimeout(function() { alertEl.style.display = 'none'; }, 4000);
+    });
+  }
+
+  function populateAttendanceGroups() {
+    var groupSel = document.getElementById('attendance-filter-group');
+    if (!groupSel) return;
+    request('/api/groups').then(function(res) {
+        var groups = res.data || [];
+        var html = '<option value="">-- All Groups --</option>';
+        html += groups.map(function(g) { return '<option value="' + g.id + '">' + esc(g.name) + '</option>'; }).join('');
+        groupSel.innerHTML = html;
+    }).catch(function(){});
+  }
+
+  function bindAttendanceFilters() {
+      ['attendance-filter-date', 'attendance-filter-type', 'attendance-filter-group'].forEach(function(id) {
+          var el = document.getElementById(id);
+          if (el) el.addEventListener('change', function() {
+              if (id === 'attendance-filter-type') {
+                  var groupContainer = document.getElementById('attendance-group-container');
+                  if (el.value === 'teacher') {
+                      groupContainer.style.display = 'none';
+                      document.getElementById('attendance-filter-group').value = '';
+                  } else {
+                      groupContainer.style.display = 'block';
+                  }
+              }
+              loadAttendanceData();
+          });
+      });
+  }
+
+  function loadAttendanceData() {
+      var tbody = document.querySelector('#backend-attendance-table tbody');
+      if (!tbody) return;
+
+      var date = document.getElementById('attendance-filter-date').value;
+      var type = document.getElementById('attendance-filter-type').value;
+      var groupId = document.getElementById('attendance-filter-group').value;
+
+      if (!date) return;
+
+      tbody.innerHTML = '<tr><td colspan="6" class="text-center">Loading...</td></tr>';
+
+      var params = new URLSearchParams({ date: date, type: type });
+      if (groupId) params.append('group_id', groupId);
+
+      request('/api/attendance?' + params.toString()).then(function(res) {
+          var items = type === 'student' ? res.students : res.teachers;
+          if (!items || !items.length) {
+              tbody.innerHTML = '<tr><td colspan="7" class="text-center">No records found</td></tr>';
+              updateBulkActionVisibility();
+              return;
+          }
+
+          var todayStr = new Date().toISOString().split('T')[0];
+          var isLocked = res.is_validated || date !== todayStr;
+          
+          var btnValidate = document.getElementById('btn-validate-attendance');
+          if (btnValidate) {
+              var isAdmin = window._ctx && window._ctx.user && (window._ctx.user.role === 'admin' || window._ctx.user.role === 'super_admin');
+              if (isAdmin && type === 'student' && groupId && !res.is_validated) {
+                  btnValidate.style.display = 'block';
+                  btnValidate.disabled = false;
+              } else {
+                  btnValidate.style.display = 'none';
+              }
+          }
+
+          var statusAlert = document.getElementById('attendance-status');
+          if (res.is_validated) {
+              statusAlert.className = 'alert alert-info';
+              statusAlert.innerHTML = '<i class="fa fa-lock"></i> This attendance record has been validated by an admin and cannot be changed.';
+              statusAlert.style.display = 'block';
+          } else if (date !== todayStr) {
+              statusAlert.className = 'alert alert-warning';
+              statusAlert.innerHTML = '<i class="fa fa-info-circle"></i> You are viewing a past record. Edits are disabled.';
+              statusAlert.style.display = 'block';
+          } else {
+              statusAlert.style.display = 'none';
+          }
+
+          tbody.innerHTML = items.map(function(r) {
+              var name = esc([r.first_name, r.last_name].filter(Boolean).join(' '));
+              var idNumber = esc(type === 'student' ? r.registration_number : r.employee_number);
+              var tag = esc(r.rfid_tag || '-');
+              var scanTime = esc(r.scan_time || '-');
+              var img = '<img src="' + esc(avatarUrl(r.photo, name, type)) + '" style="width:36px;height:36px;border-radius:50%;object-fit:cover">';
+              
+              var isPresent = r.status === 'present';
+              var isPending = r.status === 'pending' || r.status === null;
+              
+              var btnClass = isPresent ? 'status-present' : (isPending ? 'btn-default' : 'status-absent');
+              var btnText = isPresent ? '<i class="fa fa-check"></i> Present' : (isPending ? '<i class="fa fa-clock-o"></i> Pending' : '<i class="fa fa-times"></i> Absent');
+              
+              var disabledAttr = isLocked ? ' disabled style="opacity:0.6;cursor:not-allowed;"' : '';
+              var cbDisabled = isLocked ? ' disabled' : '';
+
+              return '<tr>' +
+                  '<td><input type="checkbox" class="attendance-row-checkbox" value="' + r.id + '"' + cbDisabled + '></td>' +
+                  '<td>' + img + '</td>' +
+                  '<td>' + idNumber + '</td>' +
+                  '<td>' + name + '</td>' +
+                  '<td>' + tag + '</td>' +
+                  '<td>' + scanTime + '</td>' +
+                  '<td><button class="status-toggle ' + btnClass + '" data-user-type="' + type + '" data-user-id="' + r.id + '" data-current-status="' + r.status + '"' + disabledAttr + '>' + btnText + '</button></td>' +
+              '</tr>';
+          }).join('');
+
+          // Reset select all
+          var selectAllCb = document.getElementById('attendance-select-all');
+          if (selectAllCb) {
+              selectAllCb.checked = false;
+              selectAllCb.disabled = isLocked;
+          }
+
+          // Bind toggle clicks
+          if (!isLocked) {
+              tbody.querySelectorAll('.status-toggle').forEach(function(btn) {
+                  btn.addEventListener('click', function() {
+                      toggleAttendanceStatus(this, date, groupId);
+                  });
+              });
+              
+              tbody.querySelectorAll('.attendance-row-checkbox').forEach(function(cb) {
+                  cb.addEventListener('change', updateBulkActionVisibility);
+              });
+          }
+          
+          updateBulkActionVisibility();
+
+      }).catch(function(err) {
+          tbody.innerHTML = '<tr><td colspan="7" class="text-center text-danger">Error: ' + esc(err.message) + '</td></tr>';
+      });
+  }
+
+  function toggleAttendanceStatus(btn, date, groupId) {
+      var userType = btn.getAttribute('data-user-type');
+      var userId = btn.getAttribute('data-user-id');
+      var currentStatus = btn.getAttribute('data-current-status');
+      var newStatus = currentStatus === 'present' ? 'absent' : 'present';
+
+      btn.disabled = true;
+
+      request('/api/attendance/manual', {
+          method: 'POST',
+          body: JSON.stringify({
+              user_type: userType,
+              user_id: userId,
+              group_id: groupId || null,
+              date: date,
+              status: newStatus
+          })
+      }).then(function() {
+          btn.disabled = false;
+          btn.setAttribute('data-current-status', newStatus);
+          if (newStatus === 'present') {
+              btn.className = 'status-toggle status-present';
+              btn.innerHTML = '<i class="fa fa-check"></i> Present';
+          } else {
+              btn.className = 'status-toggle status-absent';
+              btn.innerHTML = '<i class="fa fa-times"></i> Absent';
+          }
+      }).catch(function(err) {
+          btn.disabled = false;
+          alert('Failed to update attendance: ' + err.message);
+      });
+  }
+
+  function updateBulkActionVisibility() {
+      var container = document.getElementById('attendance-bulk-actions');
+      var counter = document.getElementById('bulk-selection-count');
+      if (!container) return;
+
+      var checked = document.querySelectorAll('.attendance-row-checkbox:checked').length;
+      if (checked > 0) {
+          container.style.display = 'block';
+          counter.textContent = checked + ' selected';
+      } else {
+          container.style.display = 'none';
+      }
+  }
+
+  function performBulkAction(status) {
+      var dateVal = document.getElementById('attendance-filter-date').value;
+      var groupVal = document.getElementById('attendance-filter-group').value;
+      var typeVal = document.getElementById('attendance-filter-type').value;
+      
+      var checkedBoxes = document.querySelectorAll('.attendance-row-checkbox:checked');
+      var userIds = Array.from(checkedBoxes).map(function(cb) { return cb.value; });
+
+      if (userIds.length === 0) return;
+      if (!confirm('Mark ' + userIds.length + ' users as ' + status.toUpperCase() + '?')) return;
+
+      request('/api/attendance/bulk', {
+          method: 'POST',
+          body: JSON.stringify({
+              user_type: typeVal,
+              user_ids: userIds,
+              group_id: groupVal || null,
+              date: dateVal,
+              status: status
+          })
+      }).then(function() {
+          loadAttendanceData();
+      }).catch(function(err) {
+          alert('Bulk update failed: ' + err.message);
+      });
+  }
+
   document.addEventListener('DOMContentLoaded', initWeeklyProgram);
+  document.addEventListener('DOMContentLoaded', initAttendance);
 
 })();

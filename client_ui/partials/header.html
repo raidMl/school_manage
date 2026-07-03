@@ -1,0 +1,41 @@
+<!-- ══════════════ Top Bar ══════════════ -->
+<header class="sb-topbar">
+    <button class="sb-toggle-btn" id="sb-toggle" onclick="sbToggleSidebar()" aria-label="Toggle sidebar">
+        <span></span><span></span><span></span>
+    </button>
+
+    <span class="sb-topbar-title" id="sb-page-title">Dashboard</span>
+
+    <div class="sb-topbar-right">
+        <!-- Language switcher -->
+        <div class="lang-wrap" id="lang-wrap">
+            <button class="lang-btn" onclick="this.closest('.lang-wrap').classList.toggle('open')" type="button">
+                <i class="fa fa-globe"></i>
+                <span id="lang-current-label">EN</span>
+            </button>
+            <div class="lang-dropdown">
+                <a href="#" class="lang-switch-btn" data-lang="en">🇬🇧 English</a>
+                <a href="#" class="lang-switch-btn" data-lang="ar">🇩🇿 العربية</a>
+            </div>
+        </div>
+
+        <!-- Notifications -->
+        <button class="topbar-icon-btn" type="button" title="Notifications">
+            <i class="fa fa-bell"></i>
+            <span class="topbar-badge"></span>
+        </button>
+
+        <!-- User menu -->
+        <div class="topbar-user" id="topbar-user-menu" onclick="this.classList.toggle('open')">
+            <img src="https://ui-avatars.com/api/?name=Admin&background=4f6eff&color=fff&size=64"
+                 id="header-user-avatar" alt="User">
+            <span class="topbar-user-name" id="backend-user-name">Loading...</span>
+            <i class="fa fa-chevron-down" style="font-size:10px;color:#aaa;margin-left:2px"></i>
+            <div class="topbar-dropdown">
+                <a href="index.html"><i class="fa fa-home"></i> Dashboard</a>
+                <a href="setup-school.html"><i class="fa fa-cog"></i> School Settings</a>
+                <a href="#" data-backend-logout><i class="fa fa-sign-out"></i> Log Out</a>
+            </div>
+        </div>
+    </div>
+</header>

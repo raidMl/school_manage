@@ -365,4 +365,37 @@ CREATE TABLE promo_codes (
         FOREIGN KEY (formation_id)
         REFERENCES formations(id)
         ON DELETE CASCADE
-);
+);- -   = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =  
+ - -   A T T E N D A N C E   S Y S T E M  
+ - -   = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =  
+  
+ - -   A d d   R F I D   c o l u m n s   t o   t e a c h e r s   a n d   s t u d e n t s  
+ A L T E R   T A B L E   s t u d e n t s   A D D   C O L U M N   r f i d _ t a g   V A R C H A R ( 1 0 0 )   U N I Q U E   N U L L ;  
+ A L T E R   T A B L E   t e a c h e r s   A D D   C O L U M N   r f i d _ t a g   V A R C H A R ( 1 0 0 )   U N I Q U E   N U L L ;  
+  
+ - -   C r e a t e   a t t e n d a n c e   t a b l e  
+ C R E A T E   T A B L E   I F   N O T   E X I S T S   a t t e n d a n c e   (  
+         i d   B I G I N T   U N S I G N E D   A U T O _ I N C R E M E N T   P R I M A R Y   K E Y ,  
+          
+         u s e r _ t y p e   E N U M ( ' s t u d e n t ' ,   ' t e a c h e r ' )   N O T   N U L L ,  
+         u s e r _ i d   B I G I N T   U N S I G N E D   N O T   N U L L ,  
+          
+         - -   N u l l a b l e   f o r   t e a c h e r s   i f   t h e y   a r e   j u s t   l o g g i n g   i n t o   t h e   s c h o o l   w i t h o u t   a   s p e c i f i c   g r o u p  
+         g r o u p _ i d   B I G I N T   U N S I G N E D   N U L L ,  
+          
+         d a t e   D A T E   N O T   N U L L ,  
+         s t a t u s   E N U M ( ' p r e s e n t ' ,   ' a b s e n t ' )   D E F A U L T   ' p r e s e n t ' ,  
+         s c a n _ t i m e   T I M E   N U L L ,  
+         n o t e s   T E X T ,  
+          
+         c r e a t e d _ a t   T I M E S T A M P   D E F A U L T   C U R R E N T _ T I M E S T A M P ,  
+         u p d a t e d _ a t   T I M E S T A M P   D E F A U L T   C U R R E N T _ T I M E S T A M P   O N   U P D A T E   C U R R E N T _ T I M E S T A M P ,  
+          
+         U N I Q U E ( u s e r _ t y p e ,   u s e r _ i d ,   g r o u p _ i d ,   d a t e ) ,  
+          
+         C O N S T R A I N T   f k _ a t t e n d a n c e _ g r o u p  
+                 F O R E I G N   K E Y   ( g r o u p _ i d )  
+                 R E F E R E N C E S   ` g r o u p s ` ( i d )  
+                 O N   D E L E T E   C A S C A D E  
+ ) ;  
+ 
