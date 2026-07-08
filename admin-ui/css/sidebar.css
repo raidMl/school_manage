@@ -365,6 +365,11 @@ body.sb-collapsed #app-sidebar .sb-brand {
 }
 
 /* ── Top header bar ──────────────────────────────────────── */
+#header-placeholder {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
 .sb-topbar {
   height: var(--header-h);
   background: #fff;

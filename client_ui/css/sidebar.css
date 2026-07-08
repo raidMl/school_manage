@@ -528,7 +528,8 @@ body.sb-collapsed #app-sidebar .sb-brand {
   padding: 6px;
 }
 
-.topbar-user.open .topbar-dropdown {
+.topbar-user.open .topbar-dropdown,
+.topbar-notif-menu.open .topbar-dropdown {
   display: block;
 }
 

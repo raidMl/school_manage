@@ -30,7 +30,7 @@
   function avatarUrl(photo, name, type) {
     if (photo && photo.trim() && photo.indexOf('/img/avatar-') === -1) return photo.trim();
     var bg = type === 'student' ? 'f7971e' : (type === 'teacher' ? '11998e' : '4f6eff');
-    var letter = type === 'student' ? 'S' : (type === 'teacher' ? 'T' : 'U');
+    var letter = (name && name.trim()) ? name.trim().charAt(0).toUpperCase() : (type === 'student' ? 'S' : (type === 'teacher' ? 'T' : 'U'));
     return 'https://ui-avatars.com/api/?name=' + letter + '&background=' + bg + '&color=fff&size=150';
   }
 
@@ -130,6 +130,55 @@
     if (ctx.school) window._schoolId = ctx.school.id;
     bindLogout();
     filterSidebarByRole();
+    fetchNotifications();
+  }
+
+  function fetchNotifications() {
+    var badge = document.getElementById('notif-badge');
+    var list = document.getElementById('notif-list');
+    var readAllBtn = document.getElementById('notif-read-all');
+    if (!badge || !list) return;
+
+    request('/api/notifications').then(function(res) {
+      var notifs = res.notifications || [];
+      if (notifs.length > 0) {
+        badge.textContent = notifs.length;
+        badge.style.display = 'inline-block';
+        list.innerHTML = notifs.map(function(n) {
+          return '<div class="notif-item" data-id="' + n.id + '" style="padding: 10px; border-bottom: 1px solid #eee; cursor:pointer;">' +
+                 '<div style="font-size:13px;">' + n.message + '</div>' +
+                 '<div style="font-size:11px; color:#888; margin-top:4px;">' + new Date(n.created_at).toLocaleString() + '</div>' +
+                 '</div>';
+        }).join('');
+
+        // Bind clicks to mark as read
+        list.querySelectorAll('.notif-item').forEach(function(el) {
+          el.addEventListener('click', function(e) {
+            e.stopPropagation();
+            var id = this.getAttribute('data-id');
+            request('/api/notifications/' + id + '/read', { method: 'PUT' }).then(function() {
+              fetchNotifications();
+            });
+          });
+        });
+      } else {
+        badge.style.display = 'none';
+        list.innerHTML = '<div style="padding: 10px; text-align: center; color: #888;">No new notifications</div>';
+      }
+    }).catch(function(err) {
+      console.error('Failed to fetch notifications', err);
+    });
+
+    if (readAllBtn && !readAllBtn._bound) {
+      readAllBtn._bound = true;
+      readAllBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        request('/api/notifications/read-all', { method: 'PUT' }).then(function() {
+          fetchNotifications();
+        });
+      });
+    }
   }
 
   function filterSidebarByRole() {

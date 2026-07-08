@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>سِجِلّ — استخراج بيانات التلاميذ من PDF وWord وExcel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1e2a3a;
+    --ink-soft:#3d4a5c;
+    --paper:#eee7d6;
+    --paper-line:#d8cba9;
+    --brass:#a97a2f;
+    --brass-dark:#7d5a1f;
+    --stamp-red:#8a2f2f;
+    --good:#2f6b4f;
+    --card-bg:#fbf8f0;
+    --radius:2px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      linear-gradient(180deg, var(--ink) 0%, var(--ink) 220px, var(--paper) 220px, var(--paper) 100%);
+    font-family:'Tajawal',sans-serif;
+    color:var(--ink);
+    min-height:100vh;
+  }
+  .mono{font-family:'IBM Plex Mono',monospace;}
+
+  header.top{
+    max-width:980px;
+    margin:0 auto;
+    padding:48px 24px 32px;
+    color:#f3ead2;
+  }
+  header.top .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    letter-spacing:.12em;
+    color:#c9a45c;
+    text-transform:uppercase;
+    margin-bottom:10px;
+  }
+  header.top h1{
+    font-size:34px;
+    font-weight:900;
+    margin:0 0 10px;
+    line-height:1.25;
+  }
+  header.top p{
+    font-size:15px;
+    color:#cfd8e3;
+    max-width:640px;
+    line-height:1.7;
+    margin:0;
+  }
+
+  main{
+    max-width:980px;
+    margin:-60px auto 80px;
+    padding:0 24px;
+  }
+
+  .panel{
+    background:var(--card-bg);
+    border:1px solid var(--paper-line);
+    border-radius:var(--radius);
+    box-shadow:0 18px 40px -20px rgba(30,42,58,.35);
+  }
+
+  /* ---- Upload zone ---- */
+  #dropzone{
+    padding:40px 24px;
+    text-align:center;
+    cursor:pointer;
+    position:relative;
+    border:2px dashed var(--paper-line);
+    margin:20px;
+    border-radius:var(--radius);
+    transition:border-color .15s ease, background .15s ease;
+  }
+  #dropzone.drag{
+    border-color:var(--brass);
+    background:#f7f0dd;
+  }
+  #dropzone .icon{
+    width:46px;height:58px;margin:0 auto 14px;
+    border:2px solid var(--ink-soft);
+    border-radius:3px;
+    position:relative;
+  }
+  #dropzone .icon:before{
+    content:"";
+    position:absolute; top:8px; left:8px; right:8px;
+    height:2px; background:var(--ink-soft); box-shadow:0 7px 0 var(--ink-soft), 0 14px 0 var(--ink-soft);
+  }
+  #dropzone .icon:after{
+    content:"FILE";
+    position:absolute; bottom:-9px; left:50%; transform:translateX(-50%);
+    background:var(--stamp-red); color:#fff; font-size:9px; font-weight:700;
+    padding:1px 5px; border-radius:2px; font-family:'IBM Plex Mono',monospace;
+  }
+  #dropzone h3{margin:6px 0 4px; font-size:17px;}
+  #dropzone p{margin:0; font-size:13px; color:var(--ink-soft);}
+  #fileInput{display:none;}
+  .format-chips{
+    display:flex; justify-content:center; gap:8px; margin-top:14px;
+  }
+  .format-chips span{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px; font-weight:600; letter-spacing:.04em;
+    padding:3px 9px; border-radius:20px;
+    border:1px solid var(--paper-line); color:var(--ink-soft);
+    background:#fff;
+  }
+
+  #status{
+    display:none;
+    margin:0 20px 20px;
+    padding:14px 16px;
+    border-radius:var(--radius);
+    font-size:13.5px;
+    font-family:'IBM Plex Mono',monospace;
+  }
+  #status.show{display:block;}
+  #status.loading{background:#eef2e0; color:var(--ink-soft); border:1px solid var(--paper-line);}
+  #status.ok{background:#e7f1ea; color:var(--good); border:1px solid #bcd8c6;}
+  #status.err{background:#f5e6e3; color:var(--stamp-red); border:1px solid #e0bcb6;}
+
+  /* ---- Results ---- */
+  #results{margin-top:28px;}
+  .results-head{
+    display:flex; align-items:baseline; justify-content:space-between;
+    padding:0 4px 14px; flex-wrap:wrap; gap:10px;
+  }
+  .results-head h2{font-size:20px; margin:0;}
+  .results-head .count{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px; color:var(--ink-soft);
+  }
+
+  .toolbar{
+    display:flex; gap:10px; flex-wrap:wrap; margin:0 4px 20px;
+  }
+  button.action{
+    font-family:'Tajawal',sans-serif;
+    font-weight:700;
+    font-size:13.5px;
+    padding:10px 18px;
+    border-radius:var(--radius);
+    border:1px solid var(--ink);
+    background:var(--ink);
+    color:#f3ead2;
+    cursor:pointer;
+    transition:transform .1s ease, background .15s ease;
+  }
+  button.action:hover{background:var(--ink-soft);}
+  button.action:active{transform:translateY(1px);}
+  button.action.ghost{
+    background:transparent; color:var(--ink); border-color:var(--paper-line);
+  }
+  button.action.ghost:hover{background:#f1e9d4;}
+  button.action.brass{background:var(--brass); border-color:var(--brass-dark); color:#2a1c05;}
+  button.action.brass:hover{background:var(--brass-dark); color:#fff;}
+  button.action:disabled{opacity:.4; cursor:not-allowed;}
+
+  .cards{display:flex; flex-direction:column; gap:18px;}
+
+  .card{
+    position:relative;
+    background:var(--card-bg);
+    border:1px solid var(--paper-line);
+    border-radius:var(--radius);
+    padding:22px 22px 18px;
+  }
+  .stamp{
+    position:absolute;
+    top:-10px; left:18px;
+    background:var(--stamp-red);
+    color:#f8ece7;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    font-weight:600;
+    padding:4px 10px;
+    border-radius:2px;
+    transform:rotate(-3deg);
+    box-shadow:0 3px 8px rgba(0,0,0,.25);
+    letter-spacing:.03em;
+  }
+  .card .remove-card{
+    position:absolute; top:14px; left:16px;
+    background:none; border:none; color:var(--ink-soft);
+    font-size:13px; cursor:pointer; font-family:'IBM Plex Mono',monospace;
+  }
+  .card .remove-card:hover{color:var(--stamp-red);}
+
+  .field-grid{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:14px 18px;
+    margin-top:10px;
+  }
+  @media (max-width:720px){ .field-grid{grid-template-columns:repeat(2,1fr);} }
+  @media (max-width:480px){ .field-grid{grid-template-columns:1fr;} }
+
+  .field label{
+    display:block;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    letter-spacing:.05em;
+    color:var(--brass-dark);
+    text-transform:uppercase;
+    margin-bottom:5px;
+  }
+  .field input{
+    width:100%;
+    font-family:'Tajawal',sans-serif;
+    font-size:14px;
+    padding:8px 10px;
+    border:1px solid var(--paper-line);
+    border-radius:2px;
+    background:#fff;
+    color:var(--ink);
+  }
+  .field input:focus{outline:2px solid var(--brass); outline-offset:1px;}
+  .field input.empty-flag{
+    background:#fdf3e6;
+    border-color:#e3c184;
+  }
+
+  .empty-state{
+    text-align:center; padding:60px 20px; color:var(--ink-soft);
+  }
+  .empty-state .mark{
+    font-size:38px; margin-bottom:10px;
+  }
+
+  footer.note{
+    max-width:980px; margin:0 auto 60px; padding:0 24px;
+    font-size:12.5px; color:#8b8f78; line-height:1.8;
+  }
+  footer.note strong{color:var(--ink-soft);}
+
+  /* ---- Off-screen sheet rendered to canvas for real PDF download ---- */
+  #printSheet{
+    position:fixed;
+    top:0; left:-10000px;
+    width:780px;
+    background:#fff;
+    color:#111;
+    padding:28px;
+    font-family:'Tajawal',sans-serif;
+    direction:rtl;
+  }
+  #printSheet .p-title{font-size:21px; font-weight:900; margin-bottom:4px;}
+  #printSheet .p-sub{font-family:'IBM Plex Mono',monospace; font-size:11px; color:#555; margin-bottom:18px;}
+  #printSheet table.p-table{width:100%; border-collapse:collapse; font-size:12px; font-family:'Tajawal',sans-serif;}
+  #printSheet table.p-table th, #printSheet table.p-table td{
+    border:1px solid #999; padding:7px 8px; text-align:right; vertical-align:top;
+  }
+  #printSheet table.p-table th{background:#eee7d6; font-family:'IBM Plex Mono',monospace; font-size:10px;}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="eyebrow">أداة استخراج — سِجلّ التلاميذ</div>
+  <h1>حوّل أي PDF أو Word أو Excel غير منظم إلى سِجلّ بيانات منظّم</h1>
+  <p>ارفع ملف PDF أو Word (.docx) أو Excel (.xlsx/.xls) يحتوي بيانات التلاميذ بأي ترتيب — الأداة تبحث في المحتوى عن الحقول المعروفة (الاسم، اللقب، تاريخ الميلاد، الجنس، العنوان، اسم الأب، رقم الهاتف، الزمرة الدموية، البريد الإلكتروني) وتنظّمها في سجلات قابلة للتعديل، ثم تصدّرها كملف PDF جديد.</p>
+</header>
+
+<main>
+  <div class="panel">
+    <div id="dropzone">
+      <div class="icon"></div>
+      <h3>اسحب الملف هنا أو اضغط للاختيار</h3>
+      <p>يعمل بالكامل داخل المتصفح — لا يُرفع أي ملف إلى الخارج</p>
+      <div class="format-chips"><span>PDF</span><span>DOCX</span><span>XLSX / XLS</span></div>
+      <input type="file" id="fileInput" accept=".pdf,.docx,.xlsx,.xls,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel">
+    </div>
+    <div id="status"></div>
+  </div>
+
+  <div id="results"></div>
+
+  <footer class="note">
+    <strong>كيف تعمل الأداة:</strong> كل نوع ملف يُحوَّل أولاً إلى قائمة أسطر نصية بنفس الطريقة الداخلية: PDF عبر pdf.js مع الحفاظ على ترتيب الأسطر حسب الإحداثيات، Excel عبر قراءة كل صف من كل ورقة مباشرة (يُعامل الملف كجدول جاهز)، وWord عبر تحويل المستند إلى HTML واستخراج كل من جداوله وفقراته. بعدها تُطبَّق نفس المنطقة: أولاً يُفحص المحتوى بحثاً عن جدول (سطر عناوين يحتوي عدة حقول معروفة)؛ إن وُجد، تُقرأ الأسطر التالية كصفوف بيانات. إن لم يُوجد جدول، تُفحص الأسطر سطراً سطراً بحثاً عن نمط «تسمية: قيمة»، وإذا تكررت نفس التسمية يُعتبر ذلك بداية سجلّ جديد. النتائج قابلة للتعديل يدوياً قبل التنزيل لتصحيح أي خطأ في القراءة الآلية.
+  </footer>
+</main>
+
+<div id="printSheet">
+  <div class="p-title">سِجلّ التلاميذ</div>
+  <div class="p-sub" id="printMeta"></div>
+  <table class="p-table" id="printTable"></table>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+/* ---------------------------------------------------------
+   FIELD DEFINITIONS
+   Order matters: more specific / longer labels must be
+   checked before shorter ones that are substrings of them
+   (e.g. "اللقب والاسم" must be tried before "الاسم" alone).
+--------------------------------------------------------- */
+const FIELDS = [
+  { key:'fullname', title:'الاسم الكامل (سيُقسّم)', labels:['اللقب والاسم','الاسم واللقب','الاسم الكامل'], hidden:true },
+  { key:'fname',  title:'الاسم',            labels:['الاسم'] },
+  { key:'lname',  title:'اللقب',            labels:['اللقب'] },
+  { key:'birthdate', title:'تاريخ الميلاد', labels:['تاريخ الميلاد','تاريخ الازدياد','تاريخ ميلاد'] },
+  { key:'gender', title:'الجنس',            labels:['الجنس','النوع'] },
+  { key:'address', title:'العنوان',         labels:['العنوان','السكن','مكان الإقامة'] },
+  { key:'father', title:'اسم الأب',          labels:['اسم الأب','اسم الاب'] },
+  { key:'phone',  title:'رقم الهاتف',        labels:['رقم الهاتف','الهاتف','الجوال','رقم الجوال'] },
+  { key:'blood',  title:'الزمرة الدموية',    labels:['الزمرة الدموية','فصيلة الدم','زمرة الدم'] },
+  { key:'email',  title:'البريد الإلكتروني', labels:['البريد الإلكتروني','البريد الالكتروني','الإيميل','الايميل'] },
+];
+const VISIBLE_FIELDS = FIELDS.filter(f=>!f.hidden);
+const ALL_LABELS = FIELDS.flatMap(f=>f.labels.map(l=>({label:l, key:f.key})))
+                         .sort((a,b)=>b.label.length-a.label.length);
+
+let records = []; // array of {fname,lname,birthdate,gender,address,father,phone,blood,email}
+
+/* ---------------------------------------------------------
+   TEXT NORMALIZATION (matching only — original text kept
+   separately so extracted values preserve original spelling)
+--------------------------------------------------------- */
+function normalize(str){
+  return str
+    .replace(/[أإآ]/g,'ا')
+    .replace(/ى/g,'ي')
+    .replace(/ـ/g,'')
+    .replace(/[\u064B-\u0652]/g,''); // harakat
+}
+
+/* ---------------------------------------------------------
+   PDF -> LINES
+   Groups text items into lines using their y-position.
+--------------------------------------------------------- */
+async function pdfToLines(file){
+  const buf = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({data:buf}).promise;
+  const lines = [];
+  for(let p=1; p<=pdf.numPages; p++){
+    const page = await pdf.getPage(p);
+    const content = await page.getTextContent();
+    const rows = {};
+    content.items.forEach(it=>{
+      const y = Math.round(it.transform[5]);
+      if(!rows[y]) rows[y] = [];
+      rows[y].push({x:it.transform[4], str:it.str});
+    });
+    const ys = Object.keys(rows).map(Number).sort((a,b)=>b-a);
+    ys.forEach(y=>{
+      const line = rows[y].sort((a,b)=>a.x-b.x).map(o=>o.str).join(' ').replace(/\s+/g,' ').trim();
+      if(line) lines.push(line);
+    });
+    lines.push('§PAGEBREAK§');
+  }
+  return lines;
+}
+
+/* ---------------------------------------------------------
+   EXCEL -> LINES
+   Each sheet is already tabular, so every row is joined with
+   tabs (matching the delimiter the table strategy splits on).
+   A pagebreak marker separates sheets.
+--------------------------------------------------------- */
+async function excelToLines(file){
+  const buf = await file.arrayBuffer();
+  const wb = XLSX.read(buf, {type:'array'});
+  const lines = [];
+  wb.SheetNames.forEach(name=>{
+    const ws = wb.Sheets[name];
+    const rows = XLSX.utils.sheet_to_json(ws, {header:1, defval:'', raw:false});
+    rows.forEach(row=>{
+      const line = row.map(c=>String(c).trim()).join('\t');
+      if(line.replace(/\t/g,'').trim()) lines.push(line);
+    });
+    lines.push('§PAGEBREAK§');
+  });
+  return lines;
+}
+
+/* ---------------------------------------------------------
+   WORD (.docx) -> LINES
+   Converted to HTML so tables keep their row/column shape
+   (each <tr> becomes one tab-separated line, same delimiter
+   as the table strategy expects); paragraphs outside tables
+   are kept as plain lines for the label/value fallback.
+--------------------------------------------------------- */
+async function docxToLines(file){
+  const buf = await file.arrayBuffer();
+  const { value: html } = await mammoth.convertToHtml({arrayBuffer: buf});
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  const lines = [];
+
+  doc.querySelectorAll('table').forEach(table=>{
+    table.querySelectorAll('tr').forEach(tr=>{
+      const cells = [...tr.querySelectorAll('td,th')].map(c=>c.textContent.trim());
+      const line = cells.join('\t');
+      if(line.replace(/\t/g,'').trim()) lines.push(line);
+    });
+    lines.push('§PAGEBREAK§');
+  });
+
+  const tableTexts = new Set([...doc.querySelectorAll('table')].map(t=>t.textContent));
+  doc.querySelectorAll('p,li,h1,h2,h3,h4,h5,h6').forEach(el=>{
+    if(el.closest('table')) return;
+    const t = el.textContent.trim();
+    if(t) lines.push(t);
+  });
+  return lines;
+}
+
+function detectFileKind(file){
+  const name = file.name.toLowerCase();
+  if(name.endsWith('.pdf')) return 'pdf';
+  if(name.endsWith('.docx')) return 'docx';
+  if(name.endsWith('.xlsx') || name.endsWith('.xls')) return 'excel';
+  if(file.type === 'application/pdf') return 'pdf';
+  if(file.type.includes('wordprocessingml')) return 'docx';
+  if(file.type.includes('spreadsheetml') || file.type.includes('ms-excel')) return 'excel';
+  return null;
+}
+
+/* ---------------------------------------------------------
+   STRATEGY 1: TABLE DETECTION
+   Looks for a header line containing 3+ recognised labels.
+   Splits header + following rows on runs of 2+ spaces / tabs.
+--------------------------------------------------------- */
+function tryTableStrategy(lines){
+  for(let i=0;i<lines.length;i++){
+    const norm = normalize(lines[i]);
+    const hits = ALL_LABELS.filter(l=>norm.includes(normalize(l.label)));
+    const uniqueKeys = [...new Set(hits.map(h=>h.key))];
+    if(uniqueKeys.length >= 3){
+      const headerCells = lines[i].split(/\t|\s{2,}/).map(s=>s.trim()).filter(Boolean);
+      const colKeys = headerCells.map(cell=>{
+        const nCell = normalize(cell);
+        const found = ALL_LABELS.find(l=>nCell.includes(normalize(l.label)));
+        return found ? found.key : null;
+      });
+      if(colKeys.filter(Boolean).length < 3) continue;
+
+      const rows = [];
+      for(let j=i+1;j<lines.length;j++){
+        const l = lines[j];
+        if(l==='§PAGEBREAK§') continue;
+        const cells = l.split(/\t|\s{2,}/).map(s=>s.trim()).filter(Boolean);
+        if(cells.length < 2) continue;
+        const rec = {};
+        colKeys.forEach((k,idx)=>{ if(k && cells[idx]!==undefined) rec[k]=cells[idx]; });
+        if(Object.keys(rec).length) rows.push(rec);
+      }
+      if(rows.length) return rows;
+    }
+  }
+  return null;
+}
+
+/* ---------------------------------------------------------
+   STRATEGY 2: LABEL/VALUE SCANNING (fallback)
+   Walks line by line. A recognised label starts or continues
+   a record; if the same key already has a value, a new
+   record begins. A label with no inline value borrows the
+   next non-matching line as its value.
+--------------------------------------------------------- */
+function tryLabelScanStrategy(lines){
+  const out = [];
+  let current = {};
+  let lastKey = null;
+
+  function pushCurrent(){
+    if(Object.keys(current).length) out.push(current);
+    current = {}; lastKey = null;
+  }
+
+  lines.forEach(raw=>{
+    if(raw==='§PAGEBREAK§'){ return; }
+    const norm = normalize(raw);
+    const match = ALL_LABELS.find(l=>norm.includes(normalize(l.label)));
+    if(match){
+      const idx = norm.indexOf(normalize(match.label));
+      let value = raw.slice(idx + match.label.length).replace(/^[\s:\-–—]+/,'').trim();
+      if(!value){
+        current[match.key] = current[match.key] || '';
+        lastKey = match.key;
+        return;
+      }
+      if(current[match.key]){ pushCurrent(); }
+      current[match.key] = value;
+      lastKey = match.key;
+    } else if(lastKey && !current[lastKey]){
+      current[lastKey] = raw.trim();
+      lastKey = null;
+    }
+  });
+  pushCurrent();
+  return out;
+}
+
+/* ---------------------------------------------------------
+   POST-PROCESS: split fullname -> fname/lname, and generic
+   record cleanup.
+--------------------------------------------------------- */
+function finalizeRecord(rec){
+  const r = {fname:'',lname:'',birthdate:'',gender:'',address:'',father:'',phone:'',blood:'',email:''};
+  Object.assign(r, rec);
+  if(rec.fullname && !r.fname && !r.lname){
+    const parts = rec.fullname.trim().split(/\s+/);
+    r.lname = parts[0] || '';
+    r.fname = parts.slice(1).join(' ') || '';
+  }
+  delete r.fullname;
+  return r;
+}
+
+/* ---------------------------------------------------------
+   MAIN PIPELINE
+--------------------------------------------------------- */
+async function processFile(file){
+  const kind = detectFileKind(file);
+  if(!kind){
+    showStatus('err', 'صيغة غير مدعومة. الرجاء رفع ملف PDF أو DOCX أو XLSX/XLS.');
+    return;
+  }
+  showStatus('loading', 'جارٍ قراءة الملف واستخراج المحتوى...');
+  try{
+    let lines;
+    if(kind === 'pdf') lines = await pdfToLines(file);
+    else if(kind === 'excel') lines = await excelToLines(file);
+    else lines = await docxToLines(file);
+
+    let raw = tryTableStrategy(lines);
+    let mode = 'جدول';
+    if(!raw || !raw.length){
+      raw = tryLabelScanStrategy(lines);
+      mode = 'تسمية/قيمة';
+    }
+    records = raw.map(finalizeRecord).filter(r=>Object.values(r).some(v=>v));
+    if(!records.length){
+      showStatus('err', 'لم يتم العثور على أي حقول معروفة في هذا الملف. جرّب ملفاً آخر أو تحقق من أن النص قابل للتحديد (وليس صورة ممسوحة).');
+      renderResults();
+      return;
+    }
+    showStatus('ok', `تم استخراج ${records.length} سجلّ بطريقة «${mode}». راجع الحقول وعدّل ما يلزم قبل التنزيل.`);
+    renderResults();
+  }catch(err){
+    console.error(err);
+    showStatus('err', 'تعذّرت قراءة الملف. تأكد أنه بصيغة سليمة وغير محمي بكلمة مرور.');
+  }
+}
+
+function showStatus(kind, msg){
+  const el = document.getElementById('status');
+  el.className = 'show ' + kind;
+  el.textContent = msg;
+}
+
+/* ---------------------------------------------------------
+   RANDOM GENERATORS (for fields left blank by scraping)
+--------------------------------------------------------- */
+function randomEmail(){
+  const letters='abcdefghijklmnopqrstuvwxyz';
+  let local=''; for(let i=0;i<8;i++) local+=letters[Math.floor(Math.random()*letters.length)];
+  const domains=['gmail.com','yahoo.com','outlook.com','hotmail.com'];
+  return `${local}${Math.floor(Math.random()*900+10)}@${domains[Math.floor(Math.random()*domains.length)]}`;
+}
+function randomPhone(){
+  const prefix = ['05','06','07'][Math.floor(Math.random()*3)];
+  let rest=''; for(let i=0;i<8;i++) rest+=Math.floor(Math.random()*10);
+  return prefix+rest;
+}
+
+/* ---------------------------------------------------------
+   RENDERING
+--------------------------------------------------------- */
+function renderResults(){
+  const el = document.getElementById('results');
+  if(!records.length){
+    el.innerHTML = `<div class="panel empty-state"><div class="mark">◌</div>لا توجد سجلات بعد — ارفع ملف PDF لبدء الاستخراج.</div>`;
+    return;
+  }
+  const cards = records.map((rec, i)=>{
+    const fields = VISIBLE_FIELDS.map(f=>{
+      const val = rec[f.key] || '';
+      const flag = val ? '' : ' empty-flag';
+      return `<div class="field">
+        <label>${f.title}</label>
+        <input type="text" data-i="${i}" data-k="${f.key}" value="${escapeAttr(val)}" class="${flag.trim()}">
+      </div>`;
+    }).join('');
+    return `<div class="card">
+      <div class="stamp">ملف رقم ${String(i+1).padStart(3,'0')}</div>
+      <button class="remove-card" data-remove="${i}">حذف السجلّ ✕</button>
+      <div class="field-grid">${fields}</div>
+    </div>`;
+  }).join('');
+
+  el.innerHTML = `
+    <div class="results-head">
+      <h2>السجلات المستخرجة</h2>
+      <span class="count mono">${records.length} سجلّ</span>
+    </div>
+    <div class="toolbar">
+      <button class="action brass" id="fillEmails">توليد بريد إلكتروني للحقول الفارغة</button>
+      <button class="action brass" id="fillPhones">توليد رقم هاتف للحقول الفارغة</button>
+      <button class="action ghost" id="addRecord">+ إضافة سجلّ يدوياً</button>
+      <button class="action" id="downloadExcel">تنزيل Excel</button>
+      <button class="action" id="downloadPdf">تنزيل PDF</button>
+    </div>
+    <div class="panel" style="padding:20px;">
+      <div class="cards">${cards}</div>
+    </div>`;
+
+  el.querySelectorAll('input[data-k]').forEach(inp=>{
+    inp.addEventListener('input', e=>{
+      const {i,k} = e.target.dataset;
+      records[i][k] = e.target.value;
+      e.target.classList.toggle('empty-flag', !e.target.value);
+    });
+  });
+  el.querySelectorAll('[data-remove]').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+      records.splice(Number(e.target.dataset.remove),1);
+      renderResults();
+    });
+  });
+  document.getElementById('fillEmails').onclick = ()=>{
+    records.forEach(r=>{ if(!r.email) r.email = randomEmail(); });
+    renderResults();
+  };
+  document.getElementById('fillPhones').onclick = ()=>{
+    records.forEach(r=>{ if(!r.phone) r.phone = randomPhone(); });
+    renderResults();
+  };
+  document.getElementById('addRecord').onclick = ()=>{
+    records.push({fname:'',lname:'',birthdate:'',gender:'',address:'',father:'',phone:'',blood:'',email:''});
+    renderResults();
+  };
+  document.getElementById('downloadExcel').onclick = exportExcel;
+  document.getElementById('downloadPdf').onclick = exportPdf;
+}
+
+function escapeAttr(s){
+  return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+}
+
+/* ---------------------------------------------------------
+   EXPORT: build a real .xlsx workbook (via SheetJS) from the
+   current records and trigger a download. Column headers use
+   the same Arabic labels shown in the cards.
+--------------------------------------------------------- */
+function exportExcel(){
+  const btn = document.getElementById('downloadExcel');
+  btn.disabled = true;
+  showStatus('loading', 'جارٍ إنشاء ملف Excel...');
+  try{
+    const header = VISIBLE_FIELDS.map(f=>f.title);
+    const rows = records.map(r=> VISIBLE_FIELDS.map(f=> r[f.key] || ''));
+    const aoa = [header, ...rows];
+
+    const ws = XLSX.utils.aoa_to_sheet(aoa);
+    ws['!cols'] = VISIBLE_FIELDS.map(()=>({wch:18}));
+    // RTL sheet view so Arabic columns read right-to-left like the on-screen cards
+    ws['!views'] = [{ rightToLeft: true }];
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'التلاميذ');
+
+    XLSX.writeFile(wb, 'سجل_التلاميذ.xlsx');
+    showStatus('ok', `تم تنزيل ملف Excel يحتوي ${records.length} سجلّ.`);
+  }catch(err){
+    console.error(err);
+    showStatus('err', 'تعذّر إنشاء ملف Excel. حاول مرة أخرى.');
+  }finally{
+    btn.disabled = false;
+  }
+}
+
+/* ---------------------------------------------------------
+   EXPORT: render the results into an off-screen sheet, capture
+   it with html2canvas (so Arabic text is rasterised exactly as
+   the browser draws it — no font-shaping issues), then slice
+   that image across as many A4 pages as needed with jsPDF and
+   trigger a real .pdf file download.
+--------------------------------------------------------- */
+async function exportPdf(){
+  const btn = document.getElementById('downloadPdf');
+  btn.disabled = true;
+  showStatus('loading', 'جارٍ إنشاء ملف PDF...');
+  try{
+    const table = document.getElementById('printTable');
+    const meta = document.getElementById('printMeta');
+    meta.textContent = `عدد السجلات: ${records.length} — تاريخ التصدير: ${new Date().toLocaleDateString('ar-DZ')}`;
+    const headRow = '<tr>' + VISIBLE_FIELDS.map(f=>`<th>${f.title}</th>`).join('') + '</tr>';
+    const bodyRows = records.map(r=>
+      '<tr>' + VISIBLE_FIELDS.map(f=>`<td>${escapeAttr(r[f.key]||'')}</td>`).join('') + '</tr>'
+    ).join('');
+    table.innerHTML = headRow + bodyRows;
+
+    await new Promise(r=>setTimeout(r, 50)); // let layout settle before capture
+
+    const sheetEl = document.getElementById('printSheet');
+    const canvas = await html2canvas(sheetEl, {scale:2, backgroundColor:'#ffffff'});
+
+    const pageWidth = 595.28;   // A4 in pt
+    const pageHeight = 841.89;
+    const imgWidth = pageWidth;
+    const imgHeight = canvas.height * imgWidth / canvas.width;
+
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({unit:'pt', format:'a4'});
+    const imgData = canvas.toDataURL('image/png');
+
+    let heightLeft = imgHeight;
+    let position = 0;
+    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+    heightLeft -= pageHeight;
+    while(heightLeft > 0){
+      position = heightLeft - imgHeight;
+      pdf.addPage();
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+    }
+
+    pdf.save('سجل_التلاميذ.pdf');
+    showStatus('ok', `تم تنزيل ملف PDF يحتوي ${records.length} سجلّ.`);
+  }catch(err){
+    console.error(err);
+    showStatus('err', 'تعذّر إنشاء ملف PDF. حاول مرة أخرى.');
+  }finally{
+    btn.disabled = false;
+  }
+}
+
+/* ---------------------------------------------------------
+   UPLOAD WIRING
+--------------------------------------------------------- */
+const dropzone = document.getElementById('dropzone');
+const fileInput = document.getElementById('fileInput');
+dropzone.addEventListener('click', ()=>fileInput.click());
+fileInput.addEventListener('change', e=>{ if(e.target.files[0]) processFile(e.target.files[0]); });
+['dragover','dragenter'].forEach(ev=>dropzone.addEventListener(ev, e=>{ e.preventDefault(); dropzone.classList.add('drag'); }));
+['dragleave','drop'].forEach(ev=>dropzone.addEventListener(ev, e=>{ e.preventDefault(); dropzone.classList.remove('drag'); }));
+dropzone.addEventListener('drop', e=>{
+  const f = e.dataTransfer.files[0];
+  if(f && detectFileKind(f)) processFile(f);
+  else showStatus('err','الرجاء إسقاط ملف PDF أو DOCX أو XLSX/XLS فقط.');
+});
+
+renderResults();
+</script>
+</body>
+</html>

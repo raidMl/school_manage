@@ -82,6 +82,7 @@
                                     <tr>
                                         <th>Day</th>
                                         <th>Time Slot</th>
+                                        <th>Formation</th>
                                         <th>Subject</th>
                                         <th>Room</th>
                                         <th>Group</th>
@@ -164,7 +165,7 @@
                 SchoolBackend.request('/api/teacher-space/planning').then(function(res) {
                     var tb = document.querySelector('#teacher-planning-table tbody');
                     if (!res.planning || !res.planning.length) {
-                        tb.innerHTML = '<tr><td colspan="5" class="text-center">No planning available</td></tr>';
+                        tb.innerHTML = '<tr><td colspan="6" class="text-center">No planning available</td></tr>';
                         return;
                     }
                     var days = ['', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
@@ -172,11 +173,15 @@
                         return '<tr>' +
                             '<td>' + days[p.day_of_week] + '</td>' +
                             '<td>' + p.time_slot + '</td>' +
+                            '<td>' + (p.formation_name || '-') + '</td>' +
                             '<td>' + p.subject_name + '</td>' +
                             '<td>' + (p.room_name || '-') + '</td>' +
                             '<td>' + (p.group_name || '-') + '</td>' +
                         '</tr>';
                     }).join('');
+                }).catch(function(err) {
+                    var tb = document.querySelector('#teacher-planning-table tbody');
+                    if (tb) tb.innerHTML = '<tr><td colspan="6" class="text-center text-danger">Error: ' + err.message + '</td></tr>';
                 });
 
                 // Load Attendance
@@ -195,6 +200,9 @@
                             '<td><span class="status-badge ' + statusCls + '">' + a.status.toUpperCase() + '</span></td>' +
                         '</tr>';
                     }).join('');
+                }).catch(function(err) {
+                    var tb = document.querySelector('#teacher-attendance-table tbody');
+                    if (tb) tb.innerHTML = '<tr><td colspan="3" class="text-center text-danger">Error: ' + err.message + '</td></tr>';
                 });
 
                 // Profile form submit
