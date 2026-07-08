@@ -161,7 +161,7 @@
       if (ctx.user.role === 'student' || ctx.user.role === 'teacher') {
           clearToken(); redirect('login.html'); return;
       }
-      if (ctx.needsSchoolSetup) { redirect('setup-school.html'); return; }
+      if (ctx.needsSchoolSetup && window.location.pathname.indexOf('setup-school.html') === -1) { redirect('setup-school.html'); return; }
 
       window._ctx = ctx;
       populateAuthUI();
