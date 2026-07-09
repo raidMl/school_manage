@@ -1,6 +1,10 @@
 /**
  * components.js — Loads shared layout partials and initialises sidebar behaviour
  */
+
+// Inject translation script synchronously with cache buster
+document.write('<script src="js/i18n.js?v=' + new Date().getTime() + '"></script>');
+
 (function () {
   'use strict';
 
@@ -76,7 +80,11 @@
   }
 
   // ── Partial loader ───────────────────────────────────────────────────────────
-  function afterLoad(name) {
+  function afterLoad(name, el) {
+    // Translate the newly-injected partial element only
+    if (window.AppI18n && el) {
+      window.AppI18n.translateAll(el);
+    }
     if (window.SchoolBackend && typeof window.SchoolBackend.afterPartialLoad === 'function') {
       window.SchoolBackend.afterPartialLoad(name);
     }
@@ -100,7 +108,7 @@
           sb.style.transition = '';
         }
 
-        afterLoad(name);
+        afterLoad(name, el);
       }
       if (callback) callback();
     };
@@ -114,7 +122,12 @@
       markActiveNav();
 
       loadPartial('header-placeholder', 'header.html', 'header', function () {
-        loadPartial('footer-placeholder', 'footer.html', 'footer', null);
+        loadPartial('footer-placeholder', 'footer.html', 'footer', function () {
+          // Final pass: translate the static page content (non-partial elements)
+          if (window.AppI18n) {
+            window.AppI18n.translateAll(document.body);
+          }
+        });
       });
     });
   }
