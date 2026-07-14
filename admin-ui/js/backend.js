@@ -2821,6 +2821,7 @@
         btnValidate.addEventListener('click', function() {
             var gId = document.getElementById('attendance-filter-group').value;
             var dVal = document.getElementById('attendance-filter-date').value;
+            var subjectVal = document.getElementById('attendance-filter-subject') ? document.getElementById('attendance-filter-subject').value : '';
             if (!gId) {
                 alert('Please select a specific group to validate.');
                 return;
@@ -2830,7 +2831,7 @@
             btnValidate.disabled = true;
             request('/api/attendance/validate', {
                 method: 'POST',
-                body: JSON.stringify({ group_id: gId, date: dVal, admin_id: window._ctx.user.id })
+                body: JSON.stringify({ group_id: gId, date: dVal, admin_id: window._ctx.user.id, subject_name: subjectVal })
             }).then(function() {
                 alert('Attendance validated and locked successfully!');
                 loadAttendanceData();
@@ -2930,6 +2931,7 @@
   function processScan(tag) {
     var dateVal = document.getElementById('attendance-filter-date').value;
     var groupVal = document.getElementById('attendance-filter-group').value;
+    var subjectVal = document.getElementById('attendance-filter-subject') ? document.getElementById('attendance-filter-subject').value : '';
     var alertEl = document.getElementById('scan-result-alert');
 
     if (!dateVal) {
@@ -2941,7 +2943,7 @@
 
     request('/api/attendance/scan', {
         method: 'POST',
-        body: JSON.stringify({ tag: tag, date: dateVal, group_id: groupVal || null })
+        body: JSON.stringify({ tag: tag, date: dateVal, group_id: groupVal || null, subject_name: subjectVal })
     }).then(function(res) {
         alertEl.className = 'alert alert-success';
         var name = esc(res.user.first_name + ' ' + res.user.last_name);
@@ -2972,8 +2974,44 @@
     }).catch(function(){});
   }
 
+  function fetchAttendanceSubjects() {
+    var groupSel = document.getElementById('attendance-filter-group');
+    var dateInput = document.getElementById('attendance-filter-date');
+    var typeFilter = document.getElementById('attendance-filter-type');
+    var subjectContainer = document.getElementById('attendance-subject-container');
+    var subjectSel = document.getElementById('attendance-filter-subject');
+    if (!groupSel || !dateInput || !subjectContainer || !subjectSel || !typeFilter) return;
+
+    var gId = groupSel.value;
+    var dateVal = dateInput.value;
+    var type = typeFilter.value;
+
+    if (!dateVal || (!gId && type === 'student')) {
+        subjectContainer.style.display = 'none';
+        subjectSel.innerHTML = '<option value="">-- Optional / Generic --</option>';
+        loadAttendanceData();
+        return;
+    }
+
+    var qs = '?date=' + dateVal;
+    if (gId) qs += '&group_id=' + gId;
+
+    request('/api/attendance/subjects' + qs).then(function(res) {
+        var subjects = res.subjects || [];
+        var html = '<option value="">-- Optional / Generic --</option>';
+        html += subjects.map(function(s) { return '<option value="' + esc(s) + '">' + esc(s) + '</option>'; }).join('');
+        subjectSel.innerHTML = html;
+        subjectContainer.style.display = 'block';
+        loadAttendanceData();
+    }).catch(function() {
+        subjectContainer.style.display = 'none';
+        subjectSel.innerHTML = '<option value="">-- Optional / Generic --</option>';
+        loadAttendanceData();
+    });
+  }
+
   function bindAttendanceFilters() {
-      ['attendance-filter-date', 'attendance-filter-type', 'attendance-filter-group'].forEach(function(id) {
+      ['attendance-filter-date', 'attendance-filter-type', 'attendance-filter-group', 'attendance-filter-subject'].forEach(function(id) {
           var el = document.getElementById(id);
           if (el) el.addEventListener('change', function() {
               if (id === 'attendance-filter-type') {
@@ -2985,7 +3023,12 @@
                       groupContainer.style.display = 'block';
                   }
               }
-              loadAttendanceData();
+              
+              if (id === 'attendance-filter-date' || id === 'attendance-filter-group' || id === 'attendance-filter-type') {
+                  fetchAttendanceSubjects();
+              } else {
+                  loadAttendanceData();
+              }
           });
       });
   }
@@ -2997,6 +3040,7 @@
       var date = document.getElementById('attendance-filter-date').value;
       var type = document.getElementById('attendance-filter-type').value;
       var groupId = document.getElementById('attendance-filter-group').value;
+      var subject = document.getElementById('attendance-filter-subject') ? document.getElementById('attendance-filter-subject').value : '';
 
       if (!date) return;
 
@@ -3004,6 +3048,7 @@
 
       var params = new URLSearchParams({ date: date, type: type });
       if (groupId) params.append('group_id', groupId);
+      if (subject) params.append('subject_name', subject);
 
       request('/api/attendance?' + params.toString()).then(function(res) {
           var items = type === 'student' ? res.students : res.teachers;
@@ -3099,6 +3144,7 @@
       var userId = btn.getAttribute('data-user-id');
       var currentStatus = btn.getAttribute('data-current-status');
       var newStatus = currentStatus === 'present' ? 'absent' : 'present';
+      var subject = document.getElementById('attendance-filter-subject') ? document.getElementById('attendance-filter-subject').value : '';
 
       btn.disabled = true;
 
@@ -3109,7 +3155,8 @@
               user_id: userId,
               group_id: groupId || null,
               date: date,
-              status: newStatus
+              status: newStatus,
+              subject_name: subject
           })
       }).then(function() {
           btn.disabled = false;
@@ -3145,6 +3192,7 @@
       var dateVal = document.getElementById('attendance-filter-date').value;
       var groupVal = document.getElementById('attendance-filter-group').value;
       var typeVal = document.getElementById('attendance-filter-type').value;
+      var subjectVal = document.getElementById('attendance-filter-subject') ? document.getElementById('attendance-filter-subject').value : '';
       
       var checkedBoxes = document.querySelectorAll('.attendance-row-checkbox:checked');
       var userIds = Array.from(checkedBoxes).map(function(cb) { return cb.value; });
@@ -3159,7 +3207,8 @@
               user_ids: userIds,
               group_id: groupVal || null,
               date: dateVal,
-              status: status
+              status: status,
+              subject_name: subjectVal
           })
       }).then(function() {
           loadAttendanceData();

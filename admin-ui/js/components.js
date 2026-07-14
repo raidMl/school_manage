@@ -12,10 +12,39 @@ document.write('<script src="js/i18n.js?v=' + new Date().getTime() + '"></script
 
   // ── Sidebar state ────────────────────────────────────────────────────────────
   var SB_KEY = 'sb_collapsed';
+  var isFixed = localStorage.getItem('app_sb_fixed') === 'true';
+
+  // Apply fixed mode BEFORE sidebar partial loads so CSS takes effect immediately
+  if (isFixed) {
+    document.body.classList.add('sb-fixed');
+    if (localStorage.getItem(SB_KEY) === 'true') {
+      document.body.classList.add('sb-collapsed');
+    }
+  }
 
   // Global toggle called by onclick in sidebar HTML
   window.sbToggleSidebar = function () {
-    document.body.classList.toggle('sb-open');
+    var isRtl = document.documentElement.dir === 'rtl';
+    if (document.body.classList.contains('sb-fixed')) {
+      // Fixed Mode: toggle collapsed (icon-only) state
+      var isNowCollapsed = document.body.classList.toggle('sb-collapsed');
+      localStorage.setItem(SB_KEY, isNowCollapsed ? 'true' : 'false');
+      // Force immediate margin update (RTL-aware)
+      var sbMain = document.querySelector('.sb-main');
+      if (sbMain) {
+        var margin = isNowCollapsed ? '68px' : 'var(--sb-width)';
+        if (isRtl) {
+          sbMain.style.marginRight = margin;
+          sbMain.style.marginLeft = '';
+        } else {
+          sbMain.style.marginLeft = margin;
+          sbMain.style.marginRight = '';
+        }
+      }
+    } else {
+      // Overlay Mode: show/hide sidebar
+      document.body.classList.toggle('sb-open');
+    }
   };
 
   // Global toggle for submenu items

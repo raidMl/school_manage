@@ -17,8 +17,8 @@ window.AppI18n = {
     "Payments": "المدفوعات",
     "Excel Scraper": "استيراد إكسيل",
     "Certificate": "الشهادات",
-    "Formations & Subscriptions": "التكوينات والاشتراكات",
-    "All Formations & Subscriptions": "جميع التكوينات",
+    "Formations & Subscriptions": "الدورات والاشتراكات",
+    "All Formations & Subscriptions": "جميع الدورات",
     "Add New": "إضافة جديد",
     "Promo Codes": "رموز الخصم",
     "Organization": "التنظيم",
@@ -41,7 +41,7 @@ window.AppI18n = {
     "Add": "إضافة",
     "Edit": "تعديل",
     "Groups": "الأفواج",
-    "Formations": "التكوينات",
+    "Formations": "الدورات",
 
     // ── Dashboard stats ──
     "Users": "المستخدمين",
@@ -55,9 +55,9 @@ window.AppI18n = {
     "Fetching dashboard data...": "جار جلب البيانات...",
     "Quick Actions": "إجراءات سريعة",
     "Manage Groups": "إدارة الأفواج",
-    "Add Formation": "إضافة تكوين",
-    "Formations & Subscriptions": "التكوينات والاشتراكات",
-    "Loading formations...": "جار تحميل التكوينات...",
+    "Add Formation": "إضافة دورة",
+    "Formations & Subscriptions": "الدورات والاشتراكات",
+    "Loading formations...": "جار تحميل الدورات...",
     "+ Add new": "+ إضافة جديد",
 
     // ── Common Table Headers ──
@@ -101,7 +101,7 @@ window.AppI18n = {
     "Required columns:": "الأعمدة المطلوبة:",
     "Optional columns:": "الأعمدة الاختيارية:",
     "Default password:": "كلمة المرور الافتراضية:",
-    "Select Formation for these students": "اختر التكوين لهؤلاء الطلاب",
+    "Select Formation for these students": "اختر الدورة لهؤلاء الطلاب",
     "Excel File (.xlsx, .xls)": "ملف إكسيل (.xlsx, .xls)",
     "Close": "إغلاق",
     "Import": "استيراد",
@@ -111,14 +111,14 @@ window.AppI18n = {
     "All registered teachers from the database.": "جميع الأساتذة المسجلين في قاعدة البيانات.",
 
     // ── All Formations page ──
-    "Formations List": "قائمة التكوينات",
-    "Manage all formations and course subscriptions.": "إدارة جميع التكوينات والاشتراكات.",
-    "Add Formation / Subscription": "إضافة تكوين / اشتراك",
+    "Formations List": "قائمة الدورات",
+    "Manage all formations and course subscriptions.": "إدارة جميع الدورات والاشتراكات.",
+    "Add Formation / Subscription": "إضافة دورة / اشتراك",
 
     // ── All Groups page ──
     "Create Group": "إنشاء فوج",
     "All Groups": "جميع الأفواج",
-    "All Formations": "جميع التكوينات",
+    "All Formations": "جميع الدورات",
     "Group Name": "اسم الفوج",
     "Max Students": "الحد الأقصى للطلاب",
     "Add Students": "إضافة طلاب",
@@ -161,7 +161,7 @@ window.AppI18n = {
     "First Name": "الاسم الأول",
     "Last Name": "الاسم العائلي",
     "Password": "كلمة المرور",
-    "Formation": "التكوين",
+    "Formation": "الدورة",
     "Payment Status": "حالة الدفع",
     "Not Paid": "غير مدفوع",
     "Paid": "مدفوع",
@@ -197,22 +197,22 @@ window.AppI18n = {
     "e.g. PhD": "مثال: دكتوراه",
 
     // ── Add Formation form ──
-    "Create a new training formation.": "إنشاء تكوين تدريبي جديد.",
+    "Create a new training formation.": "إنشاء دورة تدريبية جديدة.",
     "Assign Teacher": "تعيين أستاذ",
     "(optional)": "(اختياري)",
     "Leave empty for subscriptions and assign later when creating a group.": "اتركه فارغاً للاشتراكات وعيّنه لاحقاً عند إنشاء فوج.",
     "Image URL": "رابط الصورة",
     "Duration (hours)": "المدة (ساعات)",
     "Price ($)": "السعر (دج)",
-    "Used for formations.": "يستخدم للتكوينات.",
-    "Formation": "تكوين",
+    "Used for formations.": "يستخدم للدورات.",
+    "Formation": "دورة",
     "Subscription": "اشتراك",
     "Open": "مفتوح",
     "Closed": "مغلق",
     "Monthly Price ($)": "السعر الشهري (دج)",
     "3-Month Price ($)": "سعر 3 أشهر (دج)",
     "Yearly Price ($)": "السعر السنوي (دج)",
-    "Save Formation": "حفظ التكوين",
+    "Save Formation": "حفظ الدورة",
 
     // ── Attendance page ──
     "Attendance & Scanning": "الحضور والمسح",
@@ -224,6 +224,49 @@ window.AppI18n = {
     "Save Settings": "حفظ الإعدادات",
     "School Name": "اسم المدرسة",
     "School Logo": "شعار المدرسة",
+    "School Configuration": "إعدادات المدرسة",
+    "Manage your academy's profile, admins, and preferences.": "إدارة ملف الأكاديمية الخاص بك والمسؤولين والتفضيلات.",
+    "General Info": "معلومات عامة",
+    "Social Media": "وسائل التواصل الاجتماعي",
+    "My Profile": "ملفي الشخصي",
+    "Manage Admins": "إدارة المسؤولين",
+    "UI Preferences": "تفضيلات واجهة المستخدم",
+    "School Information": "معلومات المدرسة",
+    "Example Academy": "أكاديمية مثال",
+    "Logo URL": "رابط الشعار",
+    "Save Changes": "حفظ التغييرات",
+    "Social Media Links": "روابط وسائل التواصل الاجتماعي",
+    "Facebook URL": "رابط فيسبوك",
+    "WhatsApp Number": "رقم واتساب",
+    "LinkedIn URL": "رابط لينكد إن",
+    "Admin Profile": "ملف المسؤول",
+    "First Name": "الاسم الأول",
+    "Last Name": "اللقب",
+    "Admin Email": "بريد المسؤول",
+    "New Password": "كلمة مرور جديدة",
+    "(leave blank to keep current)": "(اتركه فارغاً للاحتفاظ بالحالية)",
+    "Save Profile": "حفظ الملف الشخصي",
+    "Manage Administrators": "إدارة المسؤولين",
+    "As the primary creator, you can create, update, and remove extra admin users for this school.": "بصفتك المنشئ الأساسي، يمكنك إنشاء وتحديث وإزالة مسؤولين إضافيين لهذه المدرسة.",
+    "Add New Admin": "إضافة مسؤول جديد",
+    "Save Admins": "حفظ المسؤولين",
+    "Customize the look and feel of your admin panel. These settings are saved on this device only.": "تخصيص مظهر لوحة الإدارة. يتم حفظ هذه الإعدادات على هذا الجهاز فقط.",
+    "Sidebar Mode": "وضع الشريط الجانبي",
+    "Overlay (Default)": "تراكب (الافتراضي)",
+    "Sidebar slides over the page. Content stays full width. Click the toggle button to show/hide it.": "ينزلق الشريط الجانبي فوق الصفحة، ويبقى المحتوى بعرض كامل. انقر للتبديل.",
+    "Fixed (Push Layout)": "ثابت (دفع المحتوى)",
+    "Sidebar is always visible and pushes the page content to the right. Toggle to collapse/expand.": "الشريط الجانبي مرئي دائماً ويدفع محتوى الصفحة. انقر للطي/التوسيع.",
+    "Save & Apply": "حفظ وتطبيق",
+    "John": "أحمد",
+    "Doe": "محمد",
+    "admin@example.com": "admin@example.com",
+    "https://facebook.com/...": "https://facebook.com/...",
+    "https://linkedin.com/...": "https://linkedin.com/...",
+    "https://...": "https://...",
+    "+123456789": "+123456789",
+    "Example Academy": "أكاديمية المثال",
+    "••••••••": "••••••••",
+    "Saved!": "تم الحفظ!",
 
     // ── Promo codes page ──
     "Promo Codes": "رموز الخصم",
@@ -336,6 +379,23 @@ window.AppI18n = {
       }
       body.sb-collapsed #app-sidebar {
         transform: translateX(100%) !important;
+      }
+
+      /* Fixed mode RTL: sidebar on right, content margin on right */
+      body.sb-fixed #app-sidebar {
+        transform: translateX(0) !important;
+        left: auto !important;
+        right: 0 !important;
+      }
+      body.sb-fixed .sb-main {
+        margin-left: 0 !important;
+        margin-right: var(--sb-width) !important;
+        height: 100vh !important;
+        overflow-y: auto !important;
+      }
+      body.sb-fixed.sb-collapsed .sb-main {
+        margin-right: 68px !important;
+        margin-left: 0 !important;
       }
 
       /* Main content: margin on right instead of left */

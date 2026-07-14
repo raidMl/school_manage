@@ -1,0 +1,518 @@
+﻿window.AppI18n = {
+
+  // â”€â”€ Translation Dictionary â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  dict: {
+    // â”€â”€ Sidebar Nav â”€â”€
+    "Dashboard": "Ù„ÙˆØ­Ø© Ø§Ù„Ù‚ÙŠØ§Ø¯Ø©",
+    "School Admin": "Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ù…Ø¯Ø±Ø³Ø©",
+    "Management System": "Ù†Ø¸Ø§Ù… Ø§Ù„Ø¥Ø¯Ø§Ø±Ø©",
+    "Main": "Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠØ©",
+    "Management": "Ø§Ù„Ø¥Ø¯Ø§Ø±Ø©",
+    "Teachers": "Ø§Ù„Ø£Ø³Ø§ØªØ°Ø©",
+    "All Teachers": "Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø£Ø³Ø§ØªØ°Ø©",
+    "Add Teacher": "Ø¥Ø¶Ø§ÙØ© Ø£Ø³ØªØ§Ø°",
+    "Students": "Ø§Ù„Ø·Ù„Ø§Ø¨",
+    "All Students": "Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø·Ù„Ø§Ø¨",
+    "Add Student": "Ø¥Ø¶Ø§ÙØ© Ø·Ø§Ù„Ø¨",
+    "Payments": "Ø§Ù„Ù…Ø¯ÙÙˆØ¹Ø§Øª",
+    "Excel Scraper": "Ø§Ø³ØªÙŠØ±Ø§Ø¯ Ø¥ÙƒØ³ÙŠÙ„",
+    "Certificate": "Ø§Ù„Ø´Ù‡Ø§Ø¯Ø§Øª",
+    "Formations & Subscriptions": "Ø§Ù„ØªÙƒÙˆÙŠÙ†Ø§Øª ÙˆØ§Ù„Ø§Ø´ØªØ±Ø§ÙƒØ§Øª",
+    "All Formations & Subscriptions": "Ø¬Ù…ÙŠØ¹ Ø§Ù„ØªÙƒÙˆÙŠÙ†Ø§Øª",
+    "Add New": "Ø¥Ø¶Ø§ÙØ© Ø¬Ø¯ÙŠØ¯",
+    "Promo Codes": "Ø±Ù…ÙˆØ² Ø§Ù„Ø®ØµÙ…",
+    "Organization": "Ø§Ù„ØªÙ†Ø¸ÙŠÙ…",
+    "Classrooms": "Ø§Ù„Ø£Ù‚Ø³Ø§Ù…",
+    "Groups & Classes": "Ø§Ù„Ø£ÙÙˆØ§Ø¬ ÙˆØ§Ù„ØµÙÙˆÙ",
+    "Weekly Program": "Ø§Ù„Ø¨Ø±Ù†Ø§Ù…Ø¬ Ø§Ù„Ø£Ø³Ø¨ÙˆØ¹ÙŠ",
+    "Attendance & Scanning": "Ø§Ù„Ø­Ø¶ÙˆØ± ÙˆØ§Ù„Ù…Ø³Ø­",
+    "Settings": "Ø§Ù„Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª",
+    "School Settings": "Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª Ø§Ù„Ù…Ø¯Ø±Ø³Ø©",
+    "Administrator": "Ù…Ø¯ÙŠØ± Ø§Ù„Ù†Ø¸Ø§Ù…",
+
+    // â”€â”€ Header/Topbar â”€â”€
+    "Notifications": "Ø§Ù„Ø¥Ø´Ø¹Ø§Ø±Ø§Øª",
+    "No notifications": "Ù„Ø§ ØªÙˆØ¬Ø¯ Ø¥Ø´Ø¹Ø§Ø±Ø§Øª",
+    "Log Out": "ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø®Ø±ÙˆØ¬",
+    "Loading...": "Ø¬Ø§Ø± Ø§Ù„ØªØ­Ù…ÙŠÙ„...",
+
+    // â”€â”€ Breadcrumb â”€â”€
+    "Home": "Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠØ©",
+    "Add": "Ø¥Ø¶Ø§ÙØ©",
+    "Edit": "ØªØ¹Ø¯ÙŠÙ„",
+    "Groups": "Ø§Ù„Ø£ÙÙˆØ§Ø¬",
+    "Formations": "Ø§Ù„ØªÙƒÙˆÙŠÙ†Ø§Øª",
+
+    // â”€â”€ Dashboard stats â”€â”€
+    "Users": "Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…ÙŠÙ†",
+    "Recent Students": "Ø§Ù„Ø·Ù„Ø§Ø¨ Ø§Ù„Ø¬Ø¯Ø¯",
+    "Recent Teachers": "Ø§Ù„Ø£Ø³Ø§ØªØ°Ø© Ø§Ù„Ø¬Ø¯Ø¯",
+    "View all": "Ø¹Ø±Ø¶ Ø§Ù„ÙƒÙ„",
+    "View all â†’": "Ø¹Ø±Ø¶ Ø§Ù„ÙƒÙ„ â†’",
+    "Manage": "Ø¥Ø¯Ø§Ø±Ø©",
+    "Manage â†’": "Ø¥Ø¯Ø§Ø±Ø© â†’",
+    "Connecting...": "Ø¬Ø§Ø± Ø§Ù„Ø§ØªØµØ§Ù„...",
+    "Fetching dashboard data...": "Ø¬Ø§Ø± Ø¬Ù„Ø¨ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª...",
+    "Quick Actions": "Ø¥Ø¬Ø±Ø§Ø¡Ø§Øª Ø³Ø±ÙŠØ¹Ø©",
+    "Manage Groups": "Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ø£ÙÙˆØ§Ø¬",
+    "Add Formation": "Ø¥Ø¶Ø§ÙØ© ØªÙƒÙˆÙŠÙ†",
+    "Formations & Subscriptions": "Ø§Ù„ØªÙƒÙˆÙŠÙ†Ø§Øª ÙˆØ§Ù„Ø§Ø´ØªØ±Ø§ÙƒØ§Øª",
+    "Loading formations...": "Ø¬Ø§Ø± ØªØ­Ù…ÙŠÙ„ Ø§Ù„ØªÙƒÙˆÙŠÙ†Ø§Øª...",
+    "+ Add new": "+ Ø¥Ø¶Ø§ÙØ© Ø¬Ø¯ÙŠØ¯",
+
+    // â”€â”€ Common Table Headers â”€â”€
+    "Reg #": "Ø±Ù‚Ù… Ø§Ù„ØªØ³Ø¬ÙŠÙ„",
+    "Emp #": "Ø±Ù‚Ù… Ø§Ù„Ù…ÙˆØ¸Ù",
+    "Photo": "Ø§Ù„ØµÙˆØ±Ø©",
+    "Name": "Ø§Ù„Ø§Ø³Ù…",
+    "Email": "Ø§Ù„Ø¨Ø±ÙŠØ¯ Ø§Ù„Ø¥Ù„ÙƒØªØ±ÙˆÙ†ÙŠ",
+    "Status": "Ø§Ù„Ø­Ø§Ù„Ø©",
+    "Enrolled": "ØªØ§Ø±ÙŠØ® Ø§Ù„ØªØ³Ø¬ÙŠÙ„",
+    "Speciality": "Ø§Ù„ØªØ®ØµØµ",
+    "Hired": "Ø§Ù„ØªÙˆØ¸ÙŠÙ",
+    "Hire Date": "ØªØ§Ø±ÙŠØ® Ø§Ù„ØªÙˆØ¸ÙŠÙ",
+    "Payment": "Ø§Ù„Ø¯ÙØ¹",
+    "Actions": "Ø§Ù„Ø¥Ø¬Ø±Ø§Ø¡Ø§Øª",
+    "Parent": "Ø§Ù„ÙˆÙ„ÙŠ",
+    "Image": "Ø§Ù„ØµÙˆØ±Ø©",
+    "Title": "Ø§Ù„Ø¹Ù†ÙˆØ§Ù†",
+    "Type": "Ø§Ù„Ù†ÙˆØ¹",
+    "Period": "Ø§Ù„Ù…Ø¯Ø©",
+    "Teacher": "Ø§Ù„Ø£Ø³ØªØ§Ø°",
+    "Classroom": "Ø§Ù„Ù‚Ø³Ù…",
+    "Start Date": "ØªØ§Ø±ÙŠØ® Ø§Ù„Ø¨Ø¯Ø§ÙŠØ©",
+    "End Date": "ØªØ§Ø±ÙŠØ® Ø§Ù„Ù†Ù‡Ø§ÙŠØ©",
+    "Price": "Ø§Ù„Ø³Ø¹Ø±",
+    "Capacity": "Ø§Ù„Ø³Ø¹Ø©",
+    "Description": "Ø§Ù„ÙˆØµÙ",
+    "Group(s)": "Ø§Ù„Ø£ÙÙˆØ§Ø¬",
+    "Classroom(s)": "Ø§Ù„Ø£Ù‚Ø³Ø§Ù…",
+    "Subscription": "Ø§Ù„Ø§Ø´ØªØ±Ø§Ùƒ",
+    "Next Payment": "Ø§Ù„Ø¯ÙØ¹ Ø§Ù„Ù‚Ø§Ø¯Ù…",
+    "Group": "Ø§Ù„ÙÙˆØ¬",
+
+    // â”€â”€ All Students page â”€â”€
+    "Students List": "Ù‚Ø§Ø¦Ù…Ø© Ø§Ù„Ø·Ù„Ø§Ø¨",
+    "All registered students from the database.": "Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø·Ù„Ø§Ø¨ Ø§Ù„Ù…Ø³Ø¬Ù„ÙŠÙ† ÙÙŠ Ù‚Ø§Ø¹Ø¯Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª.",
+    "Generate School Cards": "Ø¥Ù†Ø´Ø§Ø¡ Ø¨Ø·Ø§Ù‚Ø§Øª Ø§Ù„Ù…Ø¯Ø±Ø³Ø©",
+    "Import Excel": "Ø§Ø³ØªÙŠØ±Ø§Ø¯ Ø¥ÙƒØ³ÙŠÙ„",
+    "Add Student": "Ø¥Ø¶Ø§ÙØ© Ø·Ø§Ù„Ø¨",
+    "Import Students from Excel": "Ø§Ø³ØªÙŠØ±Ø§Ø¯ Ø§Ù„Ø·Ù„Ø§Ø¨ Ù…Ù† Ø¥ÙƒØ³ÙŠÙ„",
+    "Required columns:": "Ø§Ù„Ø£Ø¹Ù…Ø¯Ø© Ø§Ù„Ù…Ø·Ù„ÙˆØ¨Ø©:",
+    "Optional columns:": "Ø§Ù„Ø£Ø¹Ù…Ø¯Ø© Ø§Ù„Ø§Ø®ØªÙŠØ§Ø±ÙŠØ©:",
+    "Default password:": "ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± Ø§Ù„Ø§ÙØªØ±Ø§Ø¶ÙŠØ©:",
+    "Select Formation for these students": "Ø§Ø®ØªØ± Ø§Ù„ØªÙƒÙˆÙŠÙ† Ù„Ù‡Ø¤Ù„Ø§Ø¡ Ø§Ù„Ø·Ù„Ø§Ø¨",
+    "Excel File (.xlsx, .xls)": "Ù…Ù„Ù Ø¥ÙƒØ³ÙŠÙ„ (.xlsx, .xls)",
+    "Close": "Ø¥ØºÙ„Ø§Ù‚",
+    "Import": "Ø§Ø³ØªÙŠØ±Ø§Ø¯",
+
+    // â”€â”€ All Teachers page â”€â”€
+    "Teachers List": "Ù‚Ø§Ø¦Ù…Ø© Ø§Ù„Ø£Ø³Ø§ØªØ°Ø©",
+    "All registered teachers from the database.": "Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø£Ø³Ø§ØªØ°Ø© Ø§Ù„Ù…Ø³Ø¬Ù„ÙŠÙ† ÙÙŠ Ù‚Ø§Ø¹Ø¯Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª.",
+
+    // â”€â”€ All Formations page â”€â”€
+    "Formations List": "Ù‚Ø§Ø¦Ù…Ø© Ø§Ù„ØªÙƒÙˆÙŠÙ†Ø§Øª",
+    "Manage all formations and course subscriptions.": "Ø¥Ø¯Ø§Ø±Ø© Ø¬Ù…ÙŠØ¹ Ø§Ù„ØªÙƒÙˆÙŠÙ†Ø§Øª ÙˆØ§Ù„Ø§Ø´ØªØ±Ø§ÙƒØ§Øª.",
+    "Add Formation / Subscription": "Ø¥Ø¶Ø§ÙØ© ØªÙƒÙˆÙŠÙ† / Ø§Ø´ØªØ±Ø§Ùƒ",
+
+    // â”€â”€ All Groups page â”€â”€
+    "Create Group": "Ø¥Ù†Ø´Ø§Ø¡ ÙÙˆØ¬",
+    "All Groups": "Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø£ÙÙˆØ§Ø¬",
+    "All Formations": "Ø¬Ù…ÙŠØ¹ Ø§Ù„ØªÙƒÙˆÙŠÙ†Ø§Øª",
+    "Group Name": "Ø§Ø³Ù… Ø§Ù„ÙÙˆØ¬",
+    "Max Students": "Ø§Ù„Ø­Ø¯ Ø§Ù„Ø£Ù‚ØµÙ‰ Ù„Ù„Ø·Ù„Ø§Ø¨",
+    "Add Students": "Ø¥Ø¶Ø§ÙØ© Ø·Ù„Ø§Ø¨",
+    "Search students...": "Ø§Ø¨Ø­Ø« Ø¹Ù† Ø·Ø§Ù„Ø¨...",
+    "Select All": "ØªØ­Ø¯ÙŠØ¯ Ø§Ù„ÙƒÙ„",
+    "Loading groups...": "Ø¬Ø§Ø± ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø£ÙÙˆØ§Ø¬...",
+    "Loading teachers...": "Ø¬Ø§Ø± ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø£Ø³Ø§ØªØ°Ø©...",
+    "Loading...": "Ø¬Ø§Ø± Ø§Ù„ØªØ­Ù…ÙŠÙ„...",
+    "No classroom": "Ø¨Ø¯ÙˆÙ† Ù‚Ø³Ù…",
+    "Select a teacher for this group.": "Ø§Ø®ØªØ± Ø£Ø³ØªØ§Ø°Ø§Ù‹ Ù„Ù‡Ø°Ø§ Ø§Ù„ÙÙˆØ¬.",
+    "Leave blank for unlimited": "Ø§ØªØ±ÙƒÙ‡ ÙØ§Ø±ØºØ§Ù‹ Ù„Ù„Ø§ Ù…Ø­Ø¯ÙˆØ¯",
+    "Create Group": "Ø¥Ù†Ø´Ø§Ø¡ Ø§Ù„ÙÙˆØ¬",
+    "e.g. Group A": "Ù…Ø«Ø§Ù„: Ø§Ù„ÙÙˆØ¬ Ø£",
+
+    // â”€â”€ All Classrooms page â”€â”€
+    "Add Classroom": "Ø¥Ø¶Ø§ÙØ© Ù‚Ø³Ù…",
+    "All Classrooms": "Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø£Ù‚Ø³Ø§Ù…",
+    "Save Classroom": "Ø­ÙØ¸ Ø§Ù„Ù‚Ø³Ù…",
+    "e.g. Room A-101": "Ù…Ø«Ø§Ù„: Ù‚Ø³Ù… Ø£-101",
+    "e.g. 30": "Ù…Ø«Ø§Ù„: 30",
+
+    // â”€â”€ Payments page â”€â”€
+    "Payments Dashboard": "Ù„ÙˆØ­Ø© Ø§Ù„Ù…Ø¯ÙÙˆØ¹Ø§Øª",
+    "View and filter student payment status, next due dates, and subscription details.": "Ø¹Ø±Ø¶ ÙˆØªØµÙÙŠØ© Ø­Ø§Ù„Ø© Ø¯ÙØ¹ Ø§Ù„Ø·Ù„Ø§Ø¨ ÙˆØªÙˆØ§Ø±ÙŠØ® Ø§Ù„Ø§Ø³ØªØ­Ù‚Ø§Ù‚ ÙˆØªÙØ§ØµÙŠÙ„ Ø§Ù„Ø§Ø´ØªØ±Ø§Ùƒ.",
+    "Subscription Plan": "Ø®Ø·Ø© Ø§Ù„Ø§Ø´ØªØ±Ø§Ùƒ",
+    "All Plans": "Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø®Ø·Ø·",
+    "1 Month": "Ø´Ù‡Ø± ÙˆØ§Ø­Ø¯",
+    "3 Months": "3 Ø£Ø´Ù‡Ø±",
+    "1 Year": "Ø³Ù†Ø© ÙˆØ§Ø­Ø¯Ø©",
+    "Start date": "ØªØ§Ø±ÙŠØ® Ø§Ù„Ø¨Ø¯Ø§ÙŠØ©",
+    "End date": "ØªØ§Ø±ÙŠØ® Ø§Ù„Ù†Ù‡Ø§ÙŠØ©",
+    "Expected revenue": "Ø§Ù„Ø¥ÙŠØ±Ø§Ø¯ Ø§Ù„Ù…ØªÙˆÙ‚Ø¹",
+    "Matching students": "Ø§Ù„Ø·Ù„Ø§Ø¨ Ø§Ù„Ù…Ø·Ø§Ø¨Ù‚ÙˆÙ†",
+    "Current teacher filter": "ØªØµÙÙŠØ© Ø§Ù„Ø£Ø³ØªØ§Ø° Ø§Ù„Ø­Ø§Ù„ÙŠØ©",
+    "All Teachers": "Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø£Ø³Ø§ØªØ°Ø©",
+
+    // â”€â”€ Add Student form â”€â”€
+    "New Student Registration": "ØªØ³Ø¬ÙŠÙ„ Ø·Ø§Ù„Ø¨ Ø¬Ø¯ÙŠØ¯",
+    "This form is connected to the Express/MySQL server.": "Ù‡Ø°Ø§ Ø§Ù„Ù†Ù…ÙˆØ°Ø¬ Ù…ØªØµÙ„ Ø¨Ø®Ø§Ø¯Ù… Express/MySQL.",
+    "First Name": "Ø§Ù„Ø§Ø³Ù… Ø§Ù„Ø£ÙˆÙ„",
+    "Last Name": "Ø§Ù„Ø§Ø³Ù… Ø§Ù„Ø¹Ø§Ø¦Ù„ÙŠ",
+    "Password": "ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ±",
+    "Formation": "Ø§Ù„ØªÙƒÙˆÙŠÙ†",
+    "Payment Status": "Ø­Ø§Ù„Ø© Ø§Ù„Ø¯ÙØ¹",
+    "Not Paid": "ØºÙŠØ± Ù…Ø¯ÙÙˆØ¹",
+    "Paid": "Ù…Ø¯ÙÙˆØ¹",
+    "Promo Code": "Ø±Ù…Ø² Ø§Ù„Ø®ØµÙ…",
+    "No promo code": "Ø¨Ø¯ÙˆÙ† Ø±Ù…Ø² Ø®ØµÙ…",
+    "Select plan": "Ø§Ø®ØªØ± Ø®Ø·Ø©",
+    "Per Month (1 Month)": "Ø´Ù‡Ø±ÙŠØ§Ù‹ (Ø´Ù‡Ø± ÙˆØ§Ø­Ø¯)",
+    "Per 3 Months": "ÙƒÙ„ 3 Ø£Ø´Ù‡Ø±",
+    "Per Year (12 Months)": "Ø³Ù†ÙˆÙŠØ§Ù‹ (12 Ø´Ù‡Ø±Ø§Ù‹)",
+    "Gender": "Ø§Ù„Ø¬Ù†Ø³",
+    "Select gender": "Ø§Ø®ØªØ± Ø§Ù„Ø¬Ù†Ø³",
+    "Male": "Ø°ÙƒØ±",
+    "Female": "Ø£Ù†Ø«Ù‰",
+    "Blood Type": "ÙØµÙŠÙ„Ø© Ø§Ù„Ø¯Ù…",
+    "Not specified": "ØºÙŠØ± Ù…Ø­Ø¯Ø¯",
+    "Parent Name": "Ø§Ø³Ù… Ø§Ù„ÙˆÙ„ÙŠ",
+    "Parent Phone": "Ù‡Ø§ØªÙ Ø§Ù„ÙˆÙ„ÙŠ",
+    "Enrollment Date": "ØªØ§Ø±ÙŠØ® Ø§Ù„ØªØ³Ø¬ÙŠÙ„",
+    "Birth Date": "ØªØ§Ø±ÙŠØ® Ø§Ù„Ù…ÙŠÙ„Ø§Ø¯",
+    "Photo URL": "Ø±Ø§Ø¨Ø· Ø§Ù„ØµÙˆØ±Ø©",
+    "Save Student": "Ø­ÙØ¸ Ø§Ù„Ø·Ø§Ù„Ø¨",
+    "Back": "Ø±Ø¬ÙˆØ¹",
+
+    // â”€â”€ Add Teacher form â”€â”€
+    "New Teacher Registration": "ØªØ³Ø¬ÙŠÙ„ Ø£Ø³ØªØ§Ø° Ø¬Ø¯ÙŠØ¯",
+    "First name": "Ø§Ù„Ø§Ø³Ù… Ø§Ù„Ø£ÙˆÙ„",
+    "Last name": "Ø§Ù„Ø§Ø³Ù… Ø§Ù„Ø¹Ø§Ø¦Ù„ÙŠ",
+    "Temporary password": "ÙƒÙ„Ù…Ø© Ù…Ø±ÙˆØ± Ù…Ø¤Ù‚ØªØ©",
+    "Speciality": "Ø§Ù„ØªØ®ØµØµ",
+    "Diploma": "Ø§Ù„Ø´Ù‡Ø§Ø¯Ø©",
+    "Save Teacher": "Ø­ÙØ¸ Ø§Ù„Ø£Ø³ØªØ§Ø°",
+    "e.g. Mathematics": "Ù…Ø«Ø§Ù„: Ø§Ù„Ø±ÙŠØ§Ø¶ÙŠØ§Øª",
+    "e.g. PhD": "Ù…Ø«Ø§Ù„: Ø¯ÙƒØªÙˆØ±Ø§Ù‡",
+
+    // â”€â”€ Add Formation form â”€â”€
+    "Create a new training formation.": "Ø¥Ù†Ø´Ø§Ø¡ ØªÙƒÙˆÙŠÙ† ØªØ¯Ø±ÙŠØ¨ÙŠ Ø¬Ø¯ÙŠØ¯.",
+    "Assign Teacher": "ØªØ¹ÙŠÙŠÙ† Ø£Ø³ØªØ§Ø°",
+    "(optional)": "(Ø§Ø®ØªÙŠØ§Ø±ÙŠ)",
+    "Leave empty for subscriptions and assign later when creating a group.": "Ø§ØªØ±ÙƒÙ‡ ÙØ§Ø±ØºØ§Ù‹ Ù„Ù„Ø§Ø´ØªØ±Ø§ÙƒØ§Øª ÙˆØ¹ÙŠÙ‘Ù†Ù‡ Ù„Ø§Ø­Ù‚Ø§Ù‹ Ø¹Ù†Ø¯ Ø¥Ù†Ø´Ø§Ø¡ ÙÙˆØ¬.",
+    "Image URL": "Ø±Ø§Ø¨Ø· Ø§Ù„ØµÙˆØ±Ø©",
+    "Duration (hours)": "Ø§Ù„Ù…Ø¯Ø© (Ø³Ø§Ø¹Ø§Øª)",
+    "Price ($)": "Ø§Ù„Ø³Ø¹Ø± (Ø¯Ø¬)",
+    "Used for formations.": "ÙŠØ³ØªØ®Ø¯Ù… Ù„Ù„ØªÙƒÙˆÙŠÙ†Ø§Øª.",
+    "Formation": "ØªÙƒÙˆÙŠÙ†",
+    "Subscription": "Ø§Ø´ØªØ±Ø§Ùƒ",
+    "Open": "Ù…ÙØªÙˆØ­",
+    "Closed": "Ù…ØºÙ„Ù‚",
+    "Monthly Price ($)": "Ø§Ù„Ø³Ø¹Ø± Ø§Ù„Ø´Ù‡Ø±ÙŠ (Ø¯Ø¬)",
+    "3-Month Price ($)": "Ø³Ø¹Ø± 3 Ø£Ø´Ù‡Ø± (Ø¯Ø¬)",
+    "Yearly Price ($)": "Ø§Ù„Ø³Ø¹Ø± Ø§Ù„Ø³Ù†ÙˆÙŠ (Ø¯Ø¬)",
+    "Save Formation": "Ø­ÙØ¸ Ø§Ù„ØªÙƒÙˆÙŠÙ†",
+
+    // â”€â”€ Attendance page â”€â”€
+    "Attendance & Scanning": "Ø§Ù„Ø­Ø¶ÙˆØ± ÙˆØ§Ù„Ù…Ø³Ø­",
+    "Scan QR Code": "Ù…Ø³Ø­ Ø±Ù…Ø² QR",
+    "Mark Attendance": "ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø­Ø¶ÙˆØ±",
+
+    // â”€â”€ Setup school page â”€â”€
+    "School Settings": "Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª Ø§Ù„Ù…Ø¯Ø±Ø³Ø©",
+    "Save Settings": "Ø­ÙØ¸ Ø§Ù„Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª",
+    "School Name": "Ø§Ø³Ù… Ø§Ù„Ù…Ø¯Ø±Ø³Ø©",
+    "School Logo": "Ø´Ø¹Ø§Ø± Ø§Ù„Ù…Ø¯Ø±Ø³Ø©",
+
+    // â”€â”€ Promo codes page â”€â”€
+    "Promo Codes": "Ø±Ù…ÙˆØ² Ø§Ù„Ø®ØµÙ…",
+    "Add Promo Code": "Ø¥Ø¶Ø§ÙØ© Ø±Ù…Ø² Ø®ØµÙ…",
+    "Code": "Ø§Ù„Ø±Ù…Ø²",
+    "Discount": "Ø§Ù„Ø®ØµÙ…",
+    "Expiry": "Ø§Ù„Ø§Ù†ØªÙ‡Ø§Ø¡",
+    "Save": "Ø­ÙØ¸",
+
+    // â”€â”€ Common buttons â”€â”€
+    "Save": "Ø­ÙØ¸",
+    "Cancel": "Ø¥Ù„ØºØ§Ø¡",
+    "Delete": "Ø­Ø°Ù",
+    "Edit": "ØªØ¹Ø¯ÙŠÙ„",
+    "View": "Ø¹Ø±Ø¶",
+    "Search": "Ø¨Ø­Ø«",
+    "Filter": "ØªØµÙÙŠØ©",
+    "Reset": "Ø¥Ø¹Ø§Ø¯Ø© ØªØ¹ÙŠÙŠÙ†",
+    "Upload": "Ø±ÙØ¹",
+    "Download": "ØªÙ†Ø²ÙŠÙ„",
+    "Print": "Ø·Ø¨Ø§Ø¹Ø©",
+    "Generate": "Ø¥Ù†Ø´Ø§Ø¡",
+    "Loading": "Ø¬Ø§Ø± Ø§Ù„ØªØ­Ù…ÙŠÙ„",
+    "Error": "Ø®Ø·Ø£",
+    "Success": "Ù†Ø¬Ø§Ø­",
+    "Warning": "ØªØ­Ø°ÙŠØ±",
+
+    // â”€â”€ Status labels â”€â”€
+    "Active": "Ù†Ø´Ø·",
+    "Inactive": "ØºÙŠØ± Ù†Ø´Ø·",
+    "Pending": "ÙÙŠ Ø§Ù„Ø§Ù†ØªØ¸Ø§Ø±",
+    "Completed": "Ù…ÙƒØªÙ…Ù„",
+    "Cancelled": "Ù…Ù„ØºÙ‰",
+
+    // â”€â”€ Table common â”€â”€
+    "No data available": "Ù„Ø§ ØªÙˆØ¬Ø¯ Ø¨ÙŠØ§Ù†Ø§Øª",
+    "No records found": "Ù„Ø§ ØªÙˆØ¬Ø¯ Ø³Ø¬Ù„Ø§Øª",
+    "Showing": "Ø¹Ø±Ø¶",
+    "of": "Ù…Ù†",
+    "entries": "Ø³Ø¬Ù„Ø§Øª",
+    "Previous": "Ø§Ù„Ø³Ø§Ø¨Ù‚",
+    "Next": "Ø§Ù„ØªØ§Ù„ÙŠ",
+
+    // â”€â”€ User dropdown â”€â”€
+    "School Settings": "Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª Ø§Ù„Ù…Ø¯Ø±Ø³Ø©",
+
+    // â”€â”€ Weekly Program page â”€â”€
+    "Programs": "Ø§Ù„Ø¨Ø±Ø§Ù…Ø¬",
+    "Create Program": "Ø¥Ù†Ø´Ø§Ø¡ Ø¨Ø±Ù†Ø§Ù…Ø¬",
+    "Select or create a program": "Ø§Ø®ØªØ± Ø£Ùˆ Ø£Ù†Ø´Ø¦ Ø¨Ø±Ù†Ø§Ù…Ø¬Ø§Ù‹",
+    "Choose a program from the left panel to view and edit its weekly timetable.": "Ø§Ø®ØªØ± Ø¨Ø±Ù†Ø§Ù…Ø¬Ø§Ù‹ Ù…Ù† Ø§Ù„Ù„ÙˆØ­Ø© Ø§Ù„Ø¬Ø§Ù†Ø¨ÙŠØ© Ù„Ø¹Ø±Ø¶ ÙˆØªØ¹Ø¯ÙŠÙ„ Ø¬Ø¯ÙˆÙ„Ù‡ Ø§Ù„Ø£Ø³Ø¨ÙˆØ¹ÙŠ.",
+    "Timetable Grid": "Ø´Ø¨ÙƒØ© Ø§Ù„Ø¬Ø¯ÙˆÙ„ Ø§Ù„Ø²Ù…Ù†ÙŠ",
+    "No time slots yet": "Ù„Ø§ ØªÙˆØ¬Ø¯ ÙØªØ±Ø§Øª Ø²Ù…Ù†ÙŠØ© Ø¨Ø¹Ø¯",
+    "Add Time Slot": "Ø¥Ø¶Ø§ÙØ© ÙØªØ±Ø© Ø²Ù…Ù†ÙŠØ©",
+    "to build the timetable rows.": "Ù„Ø¨Ù†Ø§Ø¡ ØµÙÙˆÙ Ø§Ù„Ø¬Ø¯ÙˆÙ„ Ø§Ù„Ø²Ù…Ù†ÙŠ.",
+    "Activate": "ØªÙØ¹ÙŠÙ„",
+    "Download PDF": "ØªÙ†Ø²ÙŠÙ„ PDF",
+    "Program Name": "Ø§Ø³Ù… Ø§Ù„Ø¨Ø±Ù†Ø§Ù…Ø¬",
+    "e.g. 2025-2026 Semester 1": "Ù…Ø«Ø§Ù„: 2025-2026 Ø§Ù„ÙØµÙ„ 1",
+    "Optional notes about this program": "Ù…Ù„Ø§Ø­Ø¸Ø§Øª Ø§Ø®ØªÙŠØ§Ø±ÙŠØ© Ø­ÙˆÙ„ Ù‡Ø°Ø§ Ø§Ù„Ø¨Ø±Ù†Ø§Ù…Ø¬",
+    "Label": "Ø§Ù„ØªØ³Ù…ÙŠØ©",
+    "e.g. 08:00 - 09:00": "Ù…Ø«Ø§Ù„: 08:00 - 09:00",
+    "Start Time": "ÙˆÙ‚Øª Ø§Ù„Ø¨Ø¯Ø§ÙŠØ©",
+    "End Time": "ÙˆÙ‚Øª Ø§Ù„Ù†Ù‡Ø§ÙŠØ©",
+    "Sort Order": "ØªØ±ØªÙŠØ¨ Ø§Ù„Ø¹Ø±Ø¶",
+    "Add Schedule Entry": "Ø¥Ø¶Ø§ÙØ© ØªØ³Ø¬ÙŠÙ„ Ø¬Ø¯ÙˆÙ„ÙŠ",
+    "Subject / Science Name": "Ø§Ù„Ù…Ø§Ø¯Ø© / Ø§Ø³Ù… Ø§Ù„Ø¹Ù„Ù…",
+    "e.g. Mathematics, Physics, Arabic...": "Ù…Ø«Ø§Ù„: Ø±ÙŠØ§Ø¶ÙŠØ§Øª, ÙÙŠØ²ÙŠØ§Ø¡, Ø¹Ø±Ø¨ÙŠØ©...",
+    "Color": "Ø§Ù„Ù„ÙˆÙ†",
+    "Save Entry": "Ø­ÙØ¸ Ø§Ù„ØªØ³Ø¬ÙŠÙ„",
+    "Loading classrooms...": "Ø¬Ø§Ø± ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø£Ù‚Ø³Ø§Ù…...",
+    "Loading teachers...": "Ø¬Ø§Ø± ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø£Ø³Ø§ØªØ°Ø©...",
+    "Loading groups...": "Ø¬Ø§Ø± ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø£ÙÙˆØ§Ø¬...",
+  },
+
+  // â”€â”€ Language init â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  init: function () {
+    this.currentLang = localStorage.getItem('app_lang') || 'en';
+    if (this.currentLang === 'ar') {
+      document.documentElement.dir = 'rtl';
+      document.documentElement.lang = 'ar';
+      this.addRtlStyles();
+    } else {
+      document.documentElement.dir = 'ltr';
+      document.documentElement.lang = 'en';
+    }
+  },
+
+  // â”€â”€ RTL layout styles â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  addRtlStyles: function () {
+    if (document.getElementById('rtl-styles')) return;
+    const style = document.createElement('style');
+    style.id = 'rtl-styles';
+    style.innerHTML = `
+      @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap');
+
+      body, h1, h2, h3, h4, h5, h6, p, label, a, button, span, td, th {
+        font-family: 'Tajawal', 'Inter', sans-serif !important;
+      }
+
+      /* Sidebar: move to right side */
+      #app-sidebar {
+        left: auto !important;
+        right: 0 !important;
+        transform: translateX(100%) !important;
+        box-shadow: -4px 0 24px rgba(0,0,0,.18) !important;
+      }
+      body.sb-open #app-sidebar {
+        transform: translateX(0) !important;
+      }
+      body.sb-collapsed #app-sidebar {
+        transform: translateX(100%) !important;
+      }
+
+      /* Fixed mode RTL: sidebar on right, content margin on right */
+      body.sb-fixed #app-sidebar {
+        transform: translateX(0) !important;
+        left: auto !important;
+        right: 0 !important;
+      }
+      body.sb-fixed .sb-main {
+        margin-left: 0 !important;
+        margin-right: var(--sb-width) !important;
+        height: 100vh !important;
+        overflow-y: auto !important;
+      }
+      body.sb-fixed.sb-collapsed .sb-main {
+        margin-right: 68px !important;
+        margin-left: 0 !important;
+      }
+
+      /* Main content: margin on right instead of left */
+      .sb-main {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+      }
+
+      /* Active sidebar indicator: right side */
+      .sb-link.active::before {
+        left: auto !important;
+        right: 0 !important;
+      }
+
+      /* Topbar */
+      .sb-topbar {
+        flex-direction: row-reverse;
+      }
+
+      /* Arrow flip in sidebar */
+      .sb-arrow {
+        transform: scaleX(-1) !important;
+        margin-left: 0 !important;
+        margin-right: auto !important;
+      }
+      .sb-item.open > .sb-link .sb-arrow {
+        transform: scaleX(-1) rotate(90deg) !important;
+      }
+
+      /* Dropdowns on left for RTL */
+      .lang-dropdown, .topbar-dropdown {
+        right: auto !important;
+        left: 0 !important;
+      }
+
+      /* Form text align */
+      input:not([type=checkbox]):not([type=radio]),
+      select,
+      textarea {
+        text-align: right;
+        direction: rtl;
+      }
+
+      /* Breadcrumb icon */
+      .sb-breadcrumb {
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+      }
+
+      /* Submenu indentation flipped */
+      .sb-submenu li a {
+        padding: 0 52px 0 16px !important;
+      }
+
+      /* Table header text */
+      .table th { text-align: right !important; }
+      .table td { text-align: right !important; }
+      .table-custom th { text-align: right !important; }
+      .table-custom td { text-align: right !important; }
+
+      /* Buttons with icons */
+      .btn i { margin-right: 0 !important; margin-left: 4px !important; }
+
+      /* stat-icon margin */
+      .stat-icon { margin-right: 0 !important; margin-left: 16px !important; }
+    `;
+    document.head.appendChild(style);
+  },
+
+  // â”€â”€ Smart text node translator â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  _translateTextNode: function (node) {
+    const raw = node.nodeValue;
+    const trimmed = raw.trim();
+    if (!trimmed) return;
+
+    // Direct match on trimmed text
+    if (this.dict[trimmed]) {
+      node.nodeValue = raw.replace(trimmed, this.dict[trimmed]);
+      return;
+    }
+
+    // Partial sweep: check if any dict key appears as a whole-word substring
+    // (useful for cases like " Save Student" where there's leading whitespace)
+    for (const [en, ar] of Object.entries(this.dict)) {
+      if (trimmed === en) {
+        node.nodeValue = raw.replace(en, ar);
+        return;
+      }
+    }
+  },
+
+  // â”€â”€ Walk the DOM â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  _walk: function (node) {
+    if (!node) return;
+
+    // Skip script, style, svg
+    const skipTags = ['SCRIPT', 'STYLE', 'SVG', 'CANVAS', 'CODE', 'PRE'];
+    if (node.nodeType === Node.ELEMENT_NODE && skipTags.includes(node.tagName)) return;
+
+    if (node.nodeType === Node.TEXT_NODE) {
+      this._translateTextNode(node);
+      return;
+    }
+
+    if (node.nodeType === Node.ELEMENT_NODE) {
+      // Translate placeholder attribute
+      const ph = node.getAttribute('placeholder');
+      if (ph && this.dict[ph]) node.setAttribute('placeholder', this.dict[ph]);
+
+      // Translate title attribute
+      const ti = node.getAttribute('title');
+      if (ti && this.dict[ti]) node.setAttribute('title', this.dict[ti]);
+
+      // Input button/submit value
+      if (node.tagName === 'INPUT' && (node.type === 'button' || node.type === 'submit')) {
+        const val = (node.value || '').trim();
+        if (val && this.dict[val]) node.value = this.dict[val];
+      }
+
+      // Walk children
+      for (let child of Array.from(node.childNodes)) {
+        this._walk(child);
+      }
+    }
+  },
+
+  // â”€â”€ Public: translate a root element (or full page) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  translateAll: function (rootNode) {
+    if (this.currentLang !== 'ar') {
+      // Still update the lang label
+      const lbl = document.getElementById('lang-current-label');
+      if (lbl) lbl.textContent = 'EN';
+      return;
+    }
+
+    const root = rootNode || document.body;
+    this._walk(root);
+
+    // Update language button label
+    const lbl = document.getElementById('lang-current-label');
+    if (lbl) lbl.textContent = 'AR';
+  },
+
+  // â”€â”€ Save lang + reload â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  setLang: function (lang) {
+    localStorage.setItem('app_lang', lang);
+    window.location.reload();
+  }
+};
+
+// â”€â”€ Bootstrap â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+AppI18n.init();
+
+// Translate the static HTML after DOM is ready
+document.addEventListener('DOMContentLoaded', function () {
+  AppI18n.translateAll();
+});
+
+// Global helper called by lang switcher buttons
+window.setAppLanguage = function (lang) {
+  AppI18n.setLang(lang);
+};
+

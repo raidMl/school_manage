@@ -62,6 +62,26 @@ body.sb-collapsed #app-sidebar {
   width: 68px;
 }
 
+/* Fixed mode (pushes content) — no media query so it applies whenever class is present */
+body.sb-fixed #app-sidebar {
+  transform: translateX(0) !important; /* always visible */
+}
+body.sb-fixed .sb-main {
+  margin-left: var(--sb-width);
+  height: 100vh;       /* sb-main becomes its own scroll container */
+  overflow-y: auto;    /* sticky topbar will stick inside this container */
+}
+body.sb-fixed.sb-collapsed #app-sidebar {
+  width: 68px;
+}
+body.sb-fixed.sb-collapsed .sb-main {
+  margin-left: 68px;
+}
+/* In fixed mode the overlay should never show */
+body.sb-fixed #sb-overlay {
+  display: none !important;
+}
+
 body.sb-collapsed #app-sidebar .sb-label,
 body.sb-collapsed #app-sidebar .sb-badge,
 body.sb-collapsed #app-sidebar .sb-arrow,

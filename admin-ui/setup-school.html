@@ -289,6 +289,8 @@
                 </li>
                 <li><a href="#tab-admins" role="tab" data-toggle="tab"><i class="fa fa-users"></i> Manage Admins</a>
                 </li>
+                <li><a href="#tab-preferences" role="tab" data-toggle="tab"><i class="fa fa-cogs"></i> UI Preferences</a>
+                </li>
               </ul>
             </div>
 
@@ -406,6 +408,43 @@
                   <div class="text-right">
                     <button type="submit" class="btn btn-save-settings"><i class="fa fa-save"></i> Save Admins</button>
                   </div>
+                 </div>
+
+                <!-- TAB: UI Preferences -->
+                <div role="tabpanel" class="tab-pane" id="tab-preferences">
+                  <h4 class="tab-title"><i class="fa fa-cogs text-muted"></i> UI Preferences</h4>
+                  <p class="text-muted" style="margin-bottom:20px;font-size:13px">Customize the look and feel of your admin panel. These settings are saved on this device only.</p>
+                  <div class="row">
+                    <div class="col-md-12">
+                      <div class="form-group">
+                        <label style="font-size:15px; font-weight:600; color:#1e293b; margin-bottom:14px; display:block;">
+                          <i class="fa fa-columns" style="color:#4f6eff;"></i> Sidebar Mode
+                        </label>
+                        <div style="display:flex; gap:16px; flex-wrap:wrap;">
+
+                          <label id="pref-overlay-card" style="flex:1; min-width:200px; cursor:pointer; border-radius:12px; border:2px solid #e2e8f0; padding:18px; transition:all .2s; display:flex; gap:14px; align-items:flex-start;">
+                            <input type="radio" name="sidebar_mode" id="pref-sidebar-overlay" value="false" style="margin-top:4px; accent-color:#4f6eff;">
+                            <div>
+                              <div style="font-weight:600; color:#1e293b; margin-bottom:4px;"><i class="fa fa-window-maximize" style="color:#4f6eff;"></i> Overlay (Default)</div>
+                              <div style="font-size:13px; color:#64748b;">Sidebar slides over the page. Content stays full width. Click the toggle button to show/hide it.</div>
+                            </div>
+                          </label>
+
+                          <label id="pref-fixed-card" style="flex:1; min-width:200px; cursor:pointer; border-radius:12px; border:2px solid #e2e8f0; padding:18px; transition:all .2s; display:flex; gap:14px; align-items:flex-start;">
+                            <input type="radio" name="sidebar_mode" id="pref-sidebar-fixed" value="true" style="margin-top:4px; accent-color:#4f6eff;">
+                            <div>
+                              <div style="font-weight:600; color:#1e293b; margin-bottom:4px;"><i class="fa fa-columns" style="color:#4f6eff;"></i> Fixed (Push Layout)</div>
+                              <div style="font-size:13px; color:#64748b;">Sidebar is always visible and pushes the page content to the right. Toggle to collapse/expand.</div>
+                            </div>
+                          </label>
+
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="text-right" style="margin-top:20px;">
+                    <button type="button" id="btn-save-preferences" class="btn btn-save-settings"><i class="fa fa-save"></i> Save &amp; Apply</button>
+                  </div>
                 </div>
 
               </div>
@@ -425,6 +464,100 @@
   <script src="js/bootstrap.min.js"></script>
   <script src="js/components.js"></script>
   <script src="js/backend.js"></script>
+  <script>
+    (function() {
+      function highlightCards() {
+        var overlayCard = document.getElementById('pref-overlay-card');
+        var fixedCard = document.getElementById('pref-fixed-card');
+        var overlayRadio = document.getElementById('pref-sidebar-overlay');
+        var fixedRadio = document.getElementById('pref-sidebar-fixed');
+        if (!overlayCard || !fixedCard) return;
+
+        var isFixed = fixedRadio && fixedRadio.checked;
+        overlayCard.style.borderColor = isFixed ? '#e2e8f0' : '#4f6eff';
+        overlayCard.style.background  = isFixed ? '#fff' : '#f0f3ff';
+        fixedCard.style.borderColor   = isFixed ? '#4f6eff' : '#e2e8f0';
+        fixedCard.style.background    = isFixed ? '#f0f3ff' : '#fff';
+      }
+
+      function initPreferences() {
+        var overlayRadio = document.getElementById('pref-sidebar-overlay');
+        var fixedRadio   = document.getElementById('pref-sidebar-fixed');
+        if (!overlayRadio || !fixedRadio) return;
+
+        // Reflect current setting
+        var isFixed = localStorage.getItem('app_sb_fixed') === 'true';
+        if (isFixed) {
+          fixedRadio.checked = true;
+        } else {
+          overlayRadio.checked = true;
+        }
+        highlightCards();
+
+        // Update highlight when user picks a different option
+        overlayRadio.addEventListener('change', highlightCards);
+        fixedRadio.addEventListener('change', highlightCards);
+
+        // Save button
+        var btn = document.getElementById('btn-save-preferences');
+        if (btn) {
+          btn.addEventListener('click', function() {
+            var wantFixed = fixedRadio.checked;
+            localStorage.setItem('app_sb_fixed', wantFixed ? 'true' : 'false');
+
+            var sbMain = document.querySelector('.sb-main');
+            var sbSidebar = document.getElementById('app-sidebar');
+            var isRtl = document.documentElement.dir === 'rtl';
+
+            if (wantFixed) {
+              document.body.classList.add('sb-fixed');
+              document.body.classList.remove('sb-open');
+              if (sbMain) {
+                sbMain.style.height = '100vh';
+                sbMain.style.overflowY = 'auto';
+                if (isRtl) {
+                  sbMain.style.marginRight = 'var(--sb-width)';
+                  sbMain.style.marginLeft = '';
+                } else {
+                  sbMain.style.marginLeft = 'var(--sb-width)';
+                  sbMain.style.marginRight = '';
+                }
+              }
+              if (sbSidebar) sbSidebar.style.transform = 'translateX(0)';
+            } else {
+              document.body.classList.remove('sb-fixed');
+              document.body.classList.remove('sb-collapsed');
+              document.body.classList.remove('sb-open');
+              if (sbMain) {
+                sbMain.style.marginLeft = '';
+                sbMain.style.marginRight = '';
+                sbMain.style.height = '';
+                sbMain.style.overflowY = '';
+              }
+              if (sbSidebar) sbSidebar.style.transform = '';
+            }
+
+            btn.innerHTML = '<i class="fa fa-check"></i> Saved!';
+            btn.style.background = '#10b981';
+            btn.style.color = '#fff';
+            setTimeout(function() {
+              btn.innerHTML = '<i class="fa fa-save"></i> Save & Apply';
+              btn.style.background = '';
+              btn.style.color = '';
+            }, 2000);
+          });
+        }
+      }
+
+      // Wait for DOM - DOMContentLoaded fires after inline scripts too
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initPreferences);
+      } else {
+        // DOM already ready (script at bottom of body)
+        initPreferences();
+      }
+    })();
+  </script>
 </body>
 
 </html>
