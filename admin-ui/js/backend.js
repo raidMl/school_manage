@@ -622,9 +622,26 @@
         '<td>' + esc(formatSubscriptionPlan(r.subscription_plan)) + '</td>' +
         '<td>' + esc(nextPaymentDate) + '</td>' +
         '<td>' + esc(enrollmentDate) + '</td>' +
-        '<td><a href="student-profile.html?id=' + r.id + '" class="btn btn-xs btn-success" title="View"><i class="fa fa-eye"></i></a></td>' +
+        '<td>' +
+          '<a href="student-profile.html?id=' + r.id + '" class="btn btn-xs btn-success" title="View"><i class="fa fa-eye"></i></a> ' +
+          '<button class="btn btn-xs btn-primary btn-enter-payment" data-student-id="' + r.id + '" title="Enter Payment"><i class="fa fa-dollar"></i></button>' +
+          '</td>' +
         '</tr>';
     }).join('');
+
+    // Bind enter-payment buttons: switch to tab-enter-payment and select student
+    tbody.querySelectorAll('.btn-enter-payment').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var sid = this.getAttribute('data-student-id');
+        // Switch tab
+        var tabBtn = document.querySelector('[data-tab="tab-enter-payment"]');
+        if (tabBtn) tabBtn.click();
+        // Pre-fill search to trigger selection
+        if (window._paymentsSelectStudent) {
+          window._paymentsSelectStudent(sid);
+        }
+      });
+    });
   }
 
   function renderPaymentSummary(summary) {
@@ -2644,7 +2661,7 @@
 
       var isRtl = document.documentElement.dir === 'rtl';
       var dirAttr = isRtl ? ' dir="rtl"' : '';
-      var bodyPadding = isRtl ? '40px 35px 40px 60px' : '40px 60px 40px 35px';
+      var bodyPadding = isRtl ? '40px 35px 40px 40px' : '40px 60px 40px 15px';
 
       var htmlContent = '<!DOCTYPE html><html' + dirAttr + '><head><meta charset="utf-8">' +
         '<style>' +

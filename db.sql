@@ -401,3 +401,22 @@ CREATE TABLE promo_codes (
  
 
 CREATE TABLE IF NOT EXISTS notifications (id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, user_id BIGINT UNSIGNED NOT NULL, message TEXT, is_read BOOLEAN DEFAULT FALSE, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, CONSTRAINT fk_notification_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE);
+
+-- =====================================================
+-- PAYMENT HISTORY
+-- =====================================================
+
+CREATE TABLE IF NOT EXISTS payment_history (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    student_id BIGINT UNSIGNED NOT NULL,
+    school_id BIGINT UNSIGNED NOT NULL,
+    amount DECIMAL(10,2) NOT NULL,
+    payment_date DATE NOT NULL,
+    payment_method ENUM('cash','bank_transfer','card','other') DEFAULT 'cash',
+    notes TEXT NULL,
+    recorded_by_user_id BIGINT UNSIGNED NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_ph_student FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
+    CONSTRAINT fk_ph_school FOREIGN KEY (school_id) REFERENCES schools(id) ON DELETE CASCADE
+);
+
