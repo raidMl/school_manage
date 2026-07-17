@@ -149,7 +149,7 @@
     if (isAuthPage()) {
       if (getToken()) request('/api/auth/me').then(function (ctx) {
         if (ctx.user.role === 'student' || ctx.user.role === 'teacher') {
-            clearToken(); return;
+          clearToken(); return;
         }
         if (ctx.needsSchoolSetup && getPage() !== 'setup-school') redirect('setup-school.html');
         else if (!ctx.needsSchoolSetup) redirect('index.html');
@@ -159,7 +159,7 @@
     if (!getToken()) { redirect('login.html'); return; }
     request('/api/auth/me').then(function (ctx) {
       if (ctx.user.role === 'student' || ctx.user.role === 'teacher') {
-          clearToken(); redirect('login.html'); return;
+        clearToken(); redirect('login.html'); return;
       }
       if (ctx.needsSchoolSetup && window.location.pathname.indexOf('setup-school.html') === -1) { redirect('setup-school.html'); return; }
 
@@ -225,7 +225,7 @@
     var notifBtn = document.querySelector('#topbar-notif-menu .topbar-icon-btn');
     if (!notifBadge || !notifList) return;
 
-    request('/api/student-registrations/payments?payment_due=overdue').then(function(p) {
+    request('/api/student-registrations/payments?payment_due=overdue').then(function (p) {
       var rows = p.data || [];
       if (rows.length > 0) {
         notifBadge.style.display = 'block';
@@ -234,13 +234,13 @@
           notifCountText.textContent = rows.length;
         }
         if (notifBtn) notifBtn.style.pointerEvents = 'auto'; // enable click to open dropdown
-        notifList.innerHTML = rows.map(function(r) {
+        notifList.innerHTML = rows.map(function (r) {
           var name = esc([r.first_name, r.last_name].filter(Boolean).join(' '));
           var img = avatarUrl(r.photo, name, 'student');
           return '<a href="student-profile.html?id=' + r.id + '" style="display: flex; align-items: center; padding: 12px; border-bottom: 1px solid #eee; text-decoration: none; color: #333;">' +
-                 '<img src="' + esc(img) + '" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; margin-right: 12px; flex-shrink: 0;" onerror="this.src=\'' + avatarUrl('', name, 'student') + '\'">' +
-                 '<div><div style="font-weight: 600; font-size: 13px;">' + name + '</div>' +
-                 '<div style="font-size: 11px; color: #e74c3c;">Payment Overdue</div></div></a>';
+            '<img src="' + esc(img) + '" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; margin-right: 12px; flex-shrink: 0;" onerror="this.src=\'' + avatarUrl('', name, 'student') + '\'">' +
+            '<div><div style="font-weight: 600; font-size: 13px;">' + name + '</div>' +
+            '<div style="font-size: 11px; color: #e74c3c;">Payment Overdue</div></div></a>';
         }).join('');
       } else {
         notifBadge.style.display = 'none';
@@ -248,7 +248,7 @@
         if (notifBtn) notifBtn.style.pointerEvents = 'auto';
         notifList.innerHTML = '<div style="padding: 20px; text-align: center; color: #999; font-size: 13px;">No notifications</div>';
       }
-    }).catch(function(err) {
+    }).catch(function (err) {
       console.error('Failed to load notifications', err);
     });
   }
@@ -553,7 +553,7 @@
       return '<tr><td>' + chk + '</td><td>' + img + '</td><td>' + esc(r.registration_number) + '</td><td>' + name + '</td><td>' + esc(r.email) + '</td><td>' + (r.is_active ? '<span class="label label-success">Active</span>' : '<span class="label label-danger">Inactive</span>') + '</td><td>' + esc(r.parent_name || '-') + '</td><td>' + esc(formatGmtPlusOneDate(r.enrollment_date)) + '</td><td>' + payStatus + '</td>' +
         '<td><a href="student-profile.html?id=' + r.id + '" class="btn btn-xs btn-success" title="View Details"><i class="fa fa-eye"></i></a> ' +
         '<a href="edit-student.html?id=' + r.id + '" class="btn btn-xs btn-info" title="Edit"><i class="fa fa-pencil"></i></a> ' +
-        '<button class="btn btn-xs btn-danger" data-del-student="' + r.id + '" title="Delete"><i class="fa fa-trash"></i></button></td></tr>'; 
+        '<button class="btn btn-xs btn-danger" data-del-student="' + r.id + '" title="Delete"><i class="fa fa-trash"></i></button></td></tr>';
     }).join('');
     document.querySelector('#backend-students-table').addEventListener('click', function (e) {
       var btn = e.target.closest('[data-del-student]'); if (!btn) return;
@@ -868,17 +868,17 @@
           var studentsToImport = rows.map(function (row) {
             // Normalize keys: trim whitespace
             var r = {};
-            Object.keys(row).forEach(function(k) { r[k.trim()] = row[k]; });
+            Object.keys(row).forEach(function (k) { r[k.trim()] = row[k]; });
             return {
-              first_name:   r['الاسم']  || r['First Name'] || '',
-              last_name:    r['اللقب']  || r['Last Name']  || '',
-              email:        r['البريد الالكتروني'] || r['البريد الإلكتروني'] || r['Email'] || '',
+              first_name: r['الاسم'] || r['First Name'] || '',
+              last_name: r['اللقب'] || r['Last Name'] || '',
+              email: r['البريد الالكتروني'] || r['البريد الإلكتروني'] || r['Email'] || '',
               // optional fields
-              birth_date:   r['تاريخ الميلاد'] || r['Birth Date'] || '',
-              gender:       r['الجنس']   || r['Gender'] || '',
-              parent_name:  r['اسم الاب'] || r['Parent Name'] || '',
+              birth_date: r['تاريخ الميلاد'] || r['Birth Date'] || '',
+              gender: r['الجنس'] || r['Gender'] || '',
+              parent_name: r['اسم الاب'] || r['Parent Name'] || '',
               parent_phone: r['رقم الهاتف'] || r['Phone'] || '',
-              blood_type:   r['الزمرة الدموية'] || r['Blood Type'] || '',
+              blood_type: r['الزمرة الدموية'] || r['Blood Type'] || '',
             };
           }).filter(function (s) { return s.first_name && s.last_name && s.email; });
 
@@ -913,30 +913,30 @@
 
             var s = studentsToImport[index];
             var payload = {
-              first_name:   String(s.first_name),
-              last_name:    String(s.last_name),
-              email:        String(s.email),
-              password:     '123456789',
+              first_name: String(s.first_name),
+              last_name: String(s.last_name),
+              email: String(s.email),
+              password: '123456789',
               formation_id: formationId,
               registration_number: Math.floor(1000000000 + Math.random() * 9000000000).toString(),
               payment_status: 'not_paid',
             };
             // Optional fields — only add if present in the row
-            if (s.birth_date)   payload.birth_date   = String(s.birth_date);
-            if (s.parent_name)  payload.parent_name  = String(s.parent_name);
+            if (s.birth_date) payload.birth_date = String(s.birth_date);
+            if (s.parent_name) payload.parent_name = String(s.parent_name);
             if (s.parent_phone) payload.parent_phone = String(s.parent_phone);
             // gender: map Arabic values to expected enum
             if (s.gender) {
               var g = String(s.gender).trim();
-              if (g === 'ذكر' || g.toUpperCase() === 'MALE')   payload.gender = 'MALE';
+              if (g === 'ذكر' || g.toUpperCase() === 'MALE') payload.gender = 'MALE';
               else if (g === 'أنثى' || g === 'انثى' || g.toUpperCase() === 'FEMALE') payload.gender = 'FEMALE';
             }
             // blood_type: accept Arabic or English labels
             if (s.blood_type) {
               var bt = String(s.blood_type).trim()
-                .replace('موجب','+')
-                .replace('سالب','-');
-              var validBT = ['A+','A-','B+','B-','AB+','AB-','O+','O-'];
+                .replace('موجب', '+')
+                .replace('سالب', '-');
+              var validBT = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
               if (validBT.indexOf(bt) !== -1) payload.blood_type = bt;
             }
 
@@ -2231,7 +2231,7 @@
     groups: [],             // available groups for the school
     classrooms: [],         // available classrooms
     editMode: false,        // is entry modal in edit mode?
-    DAYS: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+    DAYS: ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
     COLORS: [
       '#4f6eff', '#11998e', '#f7971e', '#fc466b', '#a18cd1',
       '#38ef7d', '#4facfe', '#fa709a', '#667eea', '#f093fb',
@@ -2351,9 +2351,10 @@
       '</tr></thead><tbody>';
 
     slots.forEach(function (slot) {
-      html += '<tr><td class="tt-slot-label">' +
-        '<div style="font-weight:700;font-size:12px">' + esc(slot.label) + '</div>' +
-        '<div style="font-size:10px;color:#aab">' + esc(slot.start_time) + ' – ' + esc(slot.end_time) + '</div>' +
+      html += '<tr><td class="tt-slot-label" style="text-align:center; padding: 8px 4px;">' +
+        '<div style="font-weight:700;font-size:13px;color:#1a1f37;">' + esc(slot.start_time) + '</div>' +
+        '<div style="font-size:10px;color:#99a;margin:2px 0;">–</div>' +
+        '<div style="font-weight:700;font-size:13px;color:#1a1f37;">' + esc(slot.end_time) + '</div>' +
         '</td>';
 
       WP.DAYS.forEach(function (_, di) {
@@ -2393,6 +2394,7 @@
 
     html += '</tbody></table></div>';
     wrap.innerHTML = html;
+    if (window.AppI18n) window.AppI18n.translateAll(wrap);
 
     // Bind cell clicks (open entry modal)
     wrap.querySelectorAll('.tt-cell-inner').forEach(function (cell) {
@@ -2640,31 +2642,43 @@
       gridClone.querySelectorAll('.no-print, .add-hint, .entry-chip-del').forEach(function (el) { el.remove(); });
       var gridHtml = gridClone.outerHTML;
 
-      var htmlContent = '<!DOCTYPE html><html><head><meta charset="utf-8">' +
+      var isRtl = document.documentElement.dir === 'rtl';
+      var dirAttr = isRtl ? ' dir="rtl"' : '';
+      var bodyPadding = isRtl ? '40px 35px 40px 60px' : '40px 60px 40px 35px';
+
+      var htmlContent = '<!DOCTYPE html><html' + dirAttr + '><head><meta charset="utf-8">' +
         '<style>' +
-        'body { margin: 0px; margin-right:50px; padding: 30px; background: #fff; font-family: Inter, Arial, sans-serif; box-sizing: border-box; width: 1400px; }' +
-        '.pdf-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #1a1f37; padding-bottom: 14px; margin-bottom: 24px; }' +
-        '.pdf-school-name { margin:0; font-weight:800; font-size:22px; color:#1a1f37; }' +
-        '.pdf-school-year { margin:4px 0 0; font-size:13px; color:#555; font-weight:600; }' +
-        '.pdf-prog-name { margin:0; font-weight:800; font-size:22px; color:#4f6eff; text-align:right; }' +
-        '.pdf-gen-date { margin:4px 0 0; font-size:13px; color:#555; text-align:right; }' +
-        '.pdf-footer { margin-top: 30px; display: flex; justify-content: flex-end; padding-right: 30px; }' +
-        '.pdf-stamp { width:110px; height:110px; border-radius:50%; border:3px solid #1a1f37; display:flex; align-items:center; justify-content:center; text-align:center; opacity:.75; }' +
-        '.pdf-stamp-text { font-weight:800; font-size:13px; color:#1a1f37; line-height:1.3; }' +
-        '.pdf-stamp-school { font-size:9px; font-weight:600; display:block; margin-top:3px; }' +
+        'body { margin: 0px; padding: ' + bodyPadding + '; background: #fff; font-family: "Tajawal", "Inter", Arial, sans-serif; box-sizing: border-box; width: 1280px; }' +
+        '.pdf-header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 3px solid #1a1f37; padding-bottom: 14px; margin-bottom: 24px; padding-left: 10px; padding-right: 10px; }' +
+        '.pdf-school-name { margin:0; font-weight:800; font-size:24px; color:#1a1f37; text-transform:uppercase; }' +
+        '.pdf-school-year { margin:4px 0 0; font-size:14px; color:#555; font-weight:600; }' +
+        '.pdf-prog-name { margin:0; font-weight:800; font-size:24px; color:#4f6eff; text-transform:uppercase; }' +
+        '.pdf-gen-date { margin:4px 0 0; font-size:14px; color:#555; }' +
+        '.pdf-footer { margin-top: 40px; display: flex; justify-content: ' + (isRtl ? 'flex-start' : 'flex-end') + '; padding-right: 120px; padding-left: 20px; }' +
+        '.pdf-stamp { width:80px; height:80px; border-radius:50%; border:3px solid #1a1f37; display:flex; align-items:center; justify-content:center; text-align:center; opacity:.75; }' +
+        '.pdf-stamp-text { font-weight:800; font-size:11px; color:#1a1f37; line-height:1.2; }' +
+        '.pdf-stamp-school { font-size:8px; font-weight:600; display:block; margin-top:2px; text-transform:uppercase; }' +
         existingCss +
-        '.tt-table { width:100% !important; min-width:100% !important; table-layout:fixed !important; border-collapse:collapse; }' +
-        '.tt-cell, .tt-header, .tt-time-cell, .tt-slot-time { word-wrap:break-word; overflow-wrap:break-word; }' +
+        '.tt-table { width:100% !important; min-width:100% !important; table-layout:fixed !important; border-collapse:collapse; margin: 10px 20px 0 20px; }' +
+        '.tt-table th { border: 1px solid #ddd; background: #f5f7ff; padding: 12px 8px; font-size: 14px; }' +
+        '.tt-table td { border: 1px solid #ddd; vertical-align: top; }' +
+        '.tt-th-time { width: 85px !important; }' +
+        '.tt-slot-label { font-size:12px; padding:8px; text-align:center; background:#f8f9fd; }' +
+        '.tt-cell, .tt-header { word-wrap:break-word; overflow-wrap:break-word; padding:4px; }' +
+        '.tt-cell-inner { border:1px solid transparent !important; box-shadow:0 1px 4px rgba(0,0,0,0.05); min-height: 60px; margin: 2px; }' +
+        '.entry-chip { margin-bottom: 4px; padding: 6px; box-shadow: none; border-radius: 6px; }' +
+        '.entry-chip-subject { font-size:12px; font-weight:bold; white-space:normal; overflow:visible; }' +
+        '.entry-chip-group { font-size:11px; white-space:normal; overflow:visible; }' +
         '.wp-card { box-shadow:none !important; border:none !important; padding:0 !important; background:transparent !important; }' +
         '.wp-card-title { display:none !important; }' +
         '</style>' +
         '</head><body>' +
         '<div class="pdf-header">' +
-        '<div>' +
+        '<div style="text-align:' + (isRtl ? 'right' : 'left') + '; position: relative; left: -30px;">' +
         '<p class="pdf-school-name">' + esc(school.name) + '</p>' +
         '<p class="pdf-school-year">Academic Year: ' + academicYear + '</p>' +
         '</div>' +
-        '<div>' +
+        '<div style="text-align:' + (isRtl ? 'left' : 'right') + '">' +
         '<p class="pdf-prog-name">' + esc(WP.current.name) + '</p>' +
         '<p class="pdf-gen-date">Generated on ' + new Date().toLocaleDateString() + '</p>' +
         '</div>' +
@@ -2812,119 +2826,119 @@
     var dateInput = document.getElementById('attendance-filter-date');
     var todayStr = new Date().toISOString().split('T')[0];
     if (dateInput) {
-        dateInput.value = todayStr;
+      dateInput.value = todayStr;
     }
 
     // Validate button logic
     var btnValidate = document.getElementById('btn-validate-attendance');
     if (btnValidate) {
-        btnValidate.addEventListener('click', function() {
-            var gId = document.getElementById('attendance-filter-group').value;
-            var dVal = document.getElementById('attendance-filter-date').value;
-            var subjectVal = document.getElementById('attendance-filter-subject') ? document.getElementById('attendance-filter-subject').value : '';
-            if (!gId) {
-                alert('Please select a specific group to validate.');
-                return;
-            }
-            if (!confirm('Are you sure you want to validate attendance for this group? This will lock it from further changes.')) return;
-            
-            btnValidate.disabled = true;
-            request('/api/attendance/validate', {
-                method: 'POST',
-                body: JSON.stringify({ group_id: gId, date: dVal, admin_id: window._ctx.user.id, subject_name: subjectVal })
-            }).then(function() {
-                alert('Attendance validated and locked successfully!');
-                loadAttendanceData();
-            }).catch(function(err) {
-                alert('Error validating: ' + err.message);
-                btnValidate.disabled = false;
-            });
+      btnValidate.addEventListener('click', function () {
+        var gId = document.getElementById('attendance-filter-group').value;
+        var dVal = document.getElementById('attendance-filter-date').value;
+        var subjectVal = document.getElementById('attendance-filter-subject') ? document.getElementById('attendance-filter-subject').value : '';
+        if (!gId) {
+          alert('Please select a specific group to validate.');
+          return;
+        }
+        if (!confirm('Are you sure you want to validate attendance for this group? This will lock it from further changes.')) return;
+
+        btnValidate.disabled = true;
+        request('/api/attendance/validate', {
+          method: 'POST',
+          body: JSON.stringify({ group_id: gId, date: dVal, admin_id: window._ctx.user.id, subject_name: subjectVal })
+        }).then(function () {
+          alert('Attendance validated and locked successfully!');
+          loadAttendanceData();
+        }).catch(function (err) {
+          alert('Error validating: ' + err.message);
+          btnValidate.disabled = false;
         });
+      });
     }
 
     populateAttendanceGroups();
     bindAttendanceFilters();
 
     // Specific UI logic for Teacher Role
-    setTimeout(function() {
-        if (window._ctx && window._ctx.user && window._ctx.user.role === 'teacher') {
-            var typeFilter = document.getElementById('attendance-filter-type');
-            if (typeFilter) {
-                typeFilter.value = 'student';
-                typeFilter.parentElement.style.display = 'none'; // hide the selector
-            }
+    setTimeout(function () {
+      if (window._ctx && window._ctx.user && window._ctx.user.role === 'teacher') {
+        var typeFilter = document.getElementById('attendance-filter-type');
+        if (typeFilter) {
+          typeFilter.value = 'student';
+          typeFilter.parentElement.style.display = 'none'; // hide the selector
         }
-        loadAttendanceData(); // Initial load
+      }
+      loadAttendanceData(); // Initial load
     }, 500);
 
     // Bulk selection logic
     var selectAllCb = document.getElementById('attendance-select-all');
     if (selectAllCb) {
-        selectAllCb.addEventListener('change', function() {
-            var isChecked = this.checked;
-            document.querySelectorAll('.attendance-row-checkbox:not(:disabled)').forEach(function(cb) {
-                cb.checked = isChecked;
-            });
-            updateBulkActionVisibility();
+      selectAllCb.addEventListener('change', function () {
+        var isChecked = this.checked;
+        document.querySelectorAll('.attendance-row-checkbox:not(:disabled)').forEach(function (cb) {
+          cb.checked = isChecked;
         });
+        updateBulkActionVisibility();
+      });
     }
 
     var btnBulkPresent = document.getElementById('btn-bulk-present');
     var btnBulkAbsent = document.getElementById('btn-bulk-absent');
-    if (btnBulkPresent) btnBulkPresent.addEventListener('click', function() { performBulkAction('present'); });
-    if (btnBulkAbsent) btnBulkAbsent.addEventListener('click', function() { performBulkAction('absent'); });
+    if (btnBulkPresent) btnBulkPresent.addEventListener('click', function () { performBulkAction('present'); });
+    if (btnBulkAbsent) btnBulkAbsent.addEventListener('click', function () { performBulkAction('absent'); });
 
     // Scanner logic
     var scannerInput = document.getElementById('attendance-scanner-input');
     if (scannerInput) {
-        scannerInput.focus();
-        // Always keep focus unless user is explicitly clicking elsewhere
-        document.addEventListener('click', function(e) {
-            if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'SELECT' && e.target.tagName !== 'BUTTON') {
-                scannerInput.focus();
-            }
-        });
+      scannerInput.focus();
+      // Always keep focus unless user is explicitly clicking elsewhere
+      document.addEventListener('click', function (e) {
+        if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'SELECT' && e.target.tagName !== 'BUTTON') {
+          scannerInput.focus();
+        }
+      });
 
-        scannerInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                var code = scannerInput.value.trim();
-                scannerInput.value = '';
-                if (code) processScan(code);
-            }
-        });
+      scannerInput.addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          var code = scannerInput.value.trim();
+          scannerInput.value = '';
+          if (code) processScan(code);
+        }
+      });
     }
 
     // Webcam toggle logic
     var webcamBtn = document.getElementById('btn-toggle-webcam');
     var html5QrcodeScanner = null;
     if (webcamBtn) {
-        webcamBtn.addEventListener('click', function() {
-            var readerDiv = document.getElementById('reader');
-            if (readerDiv.style.display === 'block') {
-                // Turn off
-                if (html5QrcodeScanner) {
-                    html5QrcodeScanner.clear();
-                    html5QrcodeScanner = null;
-                }
-                readerDiv.style.display = 'none';
-                webcamBtn.innerHTML = '<i class="fa fa-camera"></i> Use Webcam QR';
-            } else {
-                // Turn on
-                readerDiv.style.display = 'block';
-                webcamBtn.innerHTML = '<i class="fa fa-stop"></i> Stop Webcam';
-                html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: {width: 250, height: 250} }, false);
-                html5QrcodeScanner.render(function(decodedText) {
-                    // On success scan
-                    processScan(decodedText);
-                    // Prevent rapid re-scanning
-                    html5QrcodeScanner.pause(true);
-                    setTimeout(function() { html5QrcodeScanner.resume(); }, 3000);
-                }, function(error) {
-                    // ignore errors during scanning stream
-                });
-            }
-        });
+      webcamBtn.addEventListener('click', function () {
+        var readerDiv = document.getElementById('reader');
+        if (readerDiv.style.display === 'block') {
+          // Turn off
+          if (html5QrcodeScanner) {
+            html5QrcodeScanner.clear();
+            html5QrcodeScanner = null;
+          }
+          readerDiv.style.display = 'none';
+          webcamBtn.innerHTML = '<i class="fa fa-camera"></i> Use Webcam QR';
+        } else {
+          // Turn on
+          readerDiv.style.display = 'block';
+          webcamBtn.innerHTML = '<i class="fa fa-stop"></i> Stop Webcam';
+          html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: { width: 250, height: 250 } }, false);
+          html5QrcodeScanner.render(function (decodedText) {
+            // On success scan
+            processScan(decodedText);
+            // Prevent rapid re-scanning
+            html5QrcodeScanner.pause(true);
+            setTimeout(function () { html5QrcodeScanner.resume(); }, 3000);
+          }, function (error) {
+            // ignore errors during scanning stream
+          });
+        }
+      });
     }
   }
 
@@ -2935,43 +2949,43 @@
     var alertEl = document.getElementById('scan-result-alert');
 
     if (!dateVal) {
-        alertEl.className = 'alert alert-danger';
-        alertEl.innerHTML = 'Please select a date first.';
-        alertEl.style.display = 'block';
-        return;
+      alertEl.className = 'alert alert-danger';
+      alertEl.innerHTML = 'Please select a date first.';
+      alertEl.style.display = 'block';
+      return;
     }
 
     request('/api/attendance/scan', {
-        method: 'POST',
-        body: JSON.stringify({ tag: tag, date: dateVal, group_id: groupVal || null, subject_name: subjectVal })
-    }).then(function(res) {
-        alertEl.className = 'alert alert-success';
-        var name = esc(res.user.first_name + ' ' + res.user.last_name);
-        alertEl.innerHTML = '<i class="fa fa-check-circle" style="font-size:24px; vertical-align:middle; margin-right:8px;"></i> ' + 
-                            name + ' marked as PRESENT.';
-        alertEl.style.display = 'block';
-        
-        // Refresh table if the user matches current filters
-        loadAttendanceData();
+      method: 'POST',
+      body: JSON.stringify({ tag: tag, date: dateVal, group_id: groupVal || null, subject_name: subjectVal })
+    }).then(function (res) {
+      alertEl.className = 'alert alert-success';
+      var name = esc(res.user.first_name + ' ' + res.user.last_name);
+      alertEl.innerHTML = '<i class="fa fa-check-circle" style="font-size:24px; vertical-align:middle; margin-right:8px;"></i> ' +
+        name + ' marked as PRESENT.';
+      alertEl.style.display = 'block';
 
-        setTimeout(function() { alertEl.style.display = 'none'; }, 4000);
-    }).catch(function(err) {
-        alertEl.className = 'alert alert-danger';
-        alertEl.innerHTML = '<i class="fa fa-exclamation-triangle" style="font-size:24px; vertical-align:middle; margin-right:8px;"></i> ' + err.message;
-        alertEl.style.display = 'block';
-        setTimeout(function() { alertEl.style.display = 'none'; }, 4000);
+      // Refresh table if the user matches current filters
+      loadAttendanceData();
+
+      setTimeout(function () { alertEl.style.display = 'none'; }, 4000);
+    }).catch(function (err) {
+      alertEl.className = 'alert alert-danger';
+      alertEl.innerHTML = '<i class="fa fa-exclamation-triangle" style="font-size:24px; vertical-align:middle; margin-right:8px;"></i> ' + err.message;
+      alertEl.style.display = 'block';
+      setTimeout(function () { alertEl.style.display = 'none'; }, 4000);
     });
   }
 
   function populateAttendanceGroups() {
     var groupSel = document.getElementById('attendance-filter-group');
     if (!groupSel) return;
-    request('/api/groups').then(function(res) {
-        var groups = res.data || [];
-        var html = '<option value="">-- All Groups --</option>';
-        html += groups.map(function(g) { return '<option value="' + g.id + '">' + esc(g.name) + '</option>'; }).join('');
-        groupSel.innerHTML = html;
-    }).catch(function(){});
+    request('/api/groups').then(function (res) {
+      var groups = res.data || [];
+      var html = '<option value="">-- All Groups --</option>';
+      html += groups.map(function (g) { return '<option value="' + g.id + '">' + esc(g.name) + '</option>'; }).join('');
+      groupSel.innerHTML = html;
+    }).catch(function () { });
   }
 
   function fetchAttendanceSubjects() {
@@ -2987,234 +3001,234 @@
     var type = typeFilter.value;
 
     if (!dateVal || (!gId && type === 'student')) {
-        subjectContainer.style.display = 'none';
-        subjectSel.innerHTML = '<option value="">-- Optional / Generic --</option>';
-        loadAttendanceData();
-        return;
+      subjectContainer.style.display = 'none';
+      subjectSel.innerHTML = '<option value="">-- Optional / Generic --</option>';
+      loadAttendanceData();
+      return;
     }
 
     var qs = '?date=' + dateVal;
     if (gId) qs += '&group_id=' + gId;
 
-    request('/api/attendance/subjects' + qs).then(function(res) {
-        var subjects = res.subjects || [];
-        var html = '<option value="">-- Optional / Generic --</option>';
-        html += subjects.map(function(s) { return '<option value="' + esc(s) + '">' + esc(s) + '</option>'; }).join('');
-        subjectSel.innerHTML = html;
-        subjectContainer.style.display = 'block';
-        loadAttendanceData();
-    }).catch(function() {
-        subjectContainer.style.display = 'none';
-        subjectSel.innerHTML = '<option value="">-- Optional / Generic --</option>';
-        loadAttendanceData();
+    request('/api/attendance/subjects' + qs).then(function (res) {
+      var subjects = res.subjects || [];
+      var html = '<option value="">-- Optional / Generic --</option>';
+      html += subjects.map(function (s) { return '<option value="' + esc(s) + '">' + esc(s) + '</option>'; }).join('');
+      subjectSel.innerHTML = html;
+      subjectContainer.style.display = 'block';
+      loadAttendanceData();
+    }).catch(function () {
+      subjectContainer.style.display = 'none';
+      subjectSel.innerHTML = '<option value="">-- Optional / Generic --</option>';
+      loadAttendanceData();
     });
   }
 
   function bindAttendanceFilters() {
-      ['attendance-filter-date', 'attendance-filter-type', 'attendance-filter-group', 'attendance-filter-subject'].forEach(function(id) {
-          var el = document.getElementById(id);
-          if (el) el.addEventListener('change', function() {
-              if (id === 'attendance-filter-type') {
-                  var groupContainer = document.getElementById('attendance-group-container');
-                  if (el.value === 'teacher') {
-                      groupContainer.style.display = 'none';
-                      document.getElementById('attendance-filter-group').value = '';
-                  } else {
-                      groupContainer.style.display = 'block';
-                  }
-              }
-              
-              if (id === 'attendance-filter-date' || id === 'attendance-filter-group' || id === 'attendance-filter-type') {
-                  fetchAttendanceSubjects();
-              } else {
-                  loadAttendanceData();
-              }
-          });
+    ['attendance-filter-date', 'attendance-filter-type', 'attendance-filter-group', 'attendance-filter-subject'].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) el.addEventListener('change', function () {
+        if (id === 'attendance-filter-type') {
+          var groupContainer = document.getElementById('attendance-group-container');
+          if (el.value === 'teacher') {
+            groupContainer.style.display = 'none';
+            document.getElementById('attendance-filter-group').value = '';
+          } else {
+            groupContainer.style.display = 'block';
+          }
+        }
+
+        if (id === 'attendance-filter-date' || id === 'attendance-filter-group' || id === 'attendance-filter-type') {
+          fetchAttendanceSubjects();
+        } else {
+          loadAttendanceData();
+        }
       });
+    });
   }
 
   function loadAttendanceData() {
-      var tbody = document.querySelector('#backend-attendance-table tbody');
-      if (!tbody) return;
+    var tbody = document.querySelector('#backend-attendance-table tbody');
+    if (!tbody) return;
 
-      var date = document.getElementById('attendance-filter-date').value;
-      var type = document.getElementById('attendance-filter-type').value;
-      var groupId = document.getElementById('attendance-filter-group').value;
-      var subject = document.getElementById('attendance-filter-subject') ? document.getElementById('attendance-filter-subject').value : '';
+    var date = document.getElementById('attendance-filter-date').value;
+    var type = document.getElementById('attendance-filter-type').value;
+    var groupId = document.getElementById('attendance-filter-group').value;
+    var subject = document.getElementById('attendance-filter-subject') ? document.getElementById('attendance-filter-subject').value : '';
 
-      if (!date) return;
+    if (!date) return;
 
-      tbody.innerHTML = '<tr><td colspan="6" class="text-center">Loading...</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" class="text-center">Loading...</td></tr>';
 
-      var params = new URLSearchParams({ date: date, type: type });
-      if (groupId) params.append('group_id', groupId);
-      if (subject) params.append('subject_name', subject);
+    var params = new URLSearchParams({ date: date, type: type });
+    if (groupId) params.append('group_id', groupId);
+    if (subject) params.append('subject_name', subject);
 
-      request('/api/attendance?' + params.toString()).then(function(res) {
-          var items = type === 'student' ? res.students : res.teachers;
-          if (!items || !items.length) {
-              tbody.innerHTML = '<tr><td colspan="7" class="text-center">No records found</td></tr>';
-              updateBulkActionVisibility();
-              return;
-          }
+    request('/api/attendance?' + params.toString()).then(function (res) {
+      var items = type === 'student' ? res.students : res.teachers;
+      if (!items || !items.length) {
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center">No records found</td></tr>';
+        updateBulkActionVisibility();
+        return;
+      }
 
-          var todayStr = new Date().toISOString().split('T')[0];
-          var isLocked = res.is_validated || date !== todayStr;
-          
-          var btnValidate = document.getElementById('btn-validate-attendance');
-          if (btnValidate) {
-              var isAdmin = window._ctx && window._ctx.user && (window._ctx.user.role === 'admin' || window._ctx.user.role === 'super_admin');
-              if (isAdmin && type === 'student' && groupId && !res.is_validated) {
-                  btnValidate.style.display = 'block';
-                  btnValidate.disabled = false;
-              } else {
-                  btnValidate.style.display = 'none';
-              }
-          }
+      var todayStr = new Date().toISOString().split('T')[0];
+      var isLocked = res.is_validated || date !== todayStr;
 
-          var statusAlert = document.getElementById('attendance-status');
-          if (res.is_validated) {
-              statusAlert.className = 'alert alert-info';
-              statusAlert.innerHTML = '<i class="fa fa-lock"></i> This attendance record has been validated by an admin and cannot be changed.';
-              statusAlert.style.display = 'block';
-          } else if (date !== todayStr) {
-              statusAlert.className = 'alert alert-warning';
-              statusAlert.innerHTML = '<i class="fa fa-info-circle"></i> You are viewing a past record. Edits are disabled.';
-              statusAlert.style.display = 'block';
-          } else {
-              statusAlert.style.display = 'none';
-          }
+      var btnValidate = document.getElementById('btn-validate-attendance');
+      if (btnValidate) {
+        var isAdmin = window._ctx && window._ctx.user && (window._ctx.user.role === 'admin' || window._ctx.user.role === 'super_admin');
+        if (isAdmin && type === 'student' && groupId && !res.is_validated) {
+          btnValidate.style.display = 'block';
+          btnValidate.disabled = false;
+        } else {
+          btnValidate.style.display = 'none';
+        }
+      }
 
-          tbody.innerHTML = items.map(function(r) {
-              var name = esc([r.first_name, r.last_name].filter(Boolean).join(' '));
-              var idNumber = esc(type === 'student' ? r.registration_number : r.employee_number);
-              var tag = esc(r.rfid_tag || '-');
-              var scanTime = esc(r.scan_time || '-');
-              var img = '<img src="' + esc(avatarUrl(r.photo, name, type)) + '" style="width:36px;height:36px;border-radius:50%;object-fit:cover">';
-              
-              var isPresent = r.status === 'present';
-              var isPending = r.status === 'pending' || r.status === null;
-              
-              var btnClass = isPresent ? 'status-present' : (isPending ? 'btn-default' : 'status-absent');
-              var btnText = isPresent ? '<i class="fa fa-check"></i> Present' : (isPending ? '<i class="fa fa-clock-o"></i> Pending' : '<i class="fa fa-times"></i> Absent');
-              
-              var disabledAttr = isLocked ? ' disabled style="opacity:0.6;cursor:not-allowed;"' : '';
-              var cbDisabled = isLocked ? ' disabled' : '';
+      var statusAlert = document.getElementById('attendance-status');
+      if (res.is_validated) {
+        statusAlert.className = 'alert alert-info';
+        statusAlert.innerHTML = '<i class="fa fa-lock"></i> This attendance record has been validated by an admin and cannot be changed.';
+        statusAlert.style.display = 'block';
+      } else if (date !== todayStr) {
+        statusAlert.className = 'alert alert-warning';
+        statusAlert.innerHTML = '<i class="fa fa-info-circle"></i> You are viewing a past record. Edits are disabled.';
+        statusAlert.style.display = 'block';
+      } else {
+        statusAlert.style.display = 'none';
+      }
 
-              return '<tr>' +
-                  '<td><input type="checkbox" class="attendance-row-checkbox" value="' + r.id + '"' + cbDisabled + '></td>' +
-                  '<td>' + img + '</td>' +
-                  '<td>' + idNumber + '</td>' +
-                  '<td>' + name + '</td>' +
-                  '<td>' + tag + '</td>' +
-                  '<td>' + scanTime + '</td>' +
-                  '<td><button class="status-toggle ' + btnClass + '" data-user-type="' + type + '" data-user-id="' + r.id + '" data-current-status="' + r.status + '"' + disabledAttr + '>' + btnText + '</button></td>' +
-              '</tr>';
-          }).join('');
+      tbody.innerHTML = items.map(function (r) {
+        var name = esc([r.first_name, r.last_name].filter(Boolean).join(' '));
+        var idNumber = esc(type === 'student' ? r.registration_number : r.employee_number);
+        var tag = esc(r.rfid_tag || '-');
+        var scanTime = esc(r.scan_time || '-');
+        var img = '<img src="' + esc(avatarUrl(r.photo, name, type)) + '" style="width:36px;height:36px;border-radius:50%;object-fit:cover">';
 
-          // Reset select all
-          var selectAllCb = document.getElementById('attendance-select-all');
-          if (selectAllCb) {
-              selectAllCb.checked = false;
-              selectAllCb.disabled = isLocked;
-          }
+        var isPresent = r.status === 'present';
+        var isPending = r.status === 'pending' || r.status === null;
 
-          // Bind toggle clicks
-          if (!isLocked) {
-              tbody.querySelectorAll('.status-toggle').forEach(function(btn) {
-                  btn.addEventListener('click', function() {
-                      toggleAttendanceStatus(this, date, groupId);
-                  });
-              });
-              
-              tbody.querySelectorAll('.attendance-row-checkbox').forEach(function(cb) {
-                  cb.addEventListener('change', updateBulkActionVisibility);
-              });
-          }
-          
-          updateBulkActionVisibility();
+        var btnClass = isPresent ? 'status-present' : (isPending ? 'btn-default' : 'status-absent');
+        var btnText = isPresent ? '<i class="fa fa-check"></i> Present' : (isPending ? '<i class="fa fa-clock-o"></i> Pending' : '<i class="fa fa-times"></i> Absent');
 
-      }).catch(function(err) {
-          tbody.innerHTML = '<tr><td colspan="7" class="text-center text-danger">Error: ' + esc(err.message) + '</td></tr>';
-      });
+        var disabledAttr = isLocked ? ' disabled style="opacity:0.6;cursor:not-allowed;"' : '';
+        var cbDisabled = isLocked ? ' disabled' : '';
+
+        return '<tr>' +
+          '<td><input type="checkbox" class="attendance-row-checkbox" value="' + r.id + '"' + cbDisabled + '></td>' +
+          '<td>' + img + '</td>' +
+          '<td>' + idNumber + '</td>' +
+          '<td>' + name + '</td>' +
+          '<td>' + tag + '</td>' +
+          '<td>' + scanTime + '</td>' +
+          '<td><button class="status-toggle ' + btnClass + '" data-user-type="' + type + '" data-user-id="' + r.id + '" data-current-status="' + r.status + '"' + disabledAttr + '>' + btnText + '</button></td>' +
+          '</tr>';
+      }).join('');
+
+      // Reset select all
+      var selectAllCb = document.getElementById('attendance-select-all');
+      if (selectAllCb) {
+        selectAllCb.checked = false;
+        selectAllCb.disabled = isLocked;
+      }
+
+      // Bind toggle clicks
+      if (!isLocked) {
+        tbody.querySelectorAll('.status-toggle').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            toggleAttendanceStatus(this, date, groupId);
+          });
+        });
+
+        tbody.querySelectorAll('.attendance-row-checkbox').forEach(function (cb) {
+          cb.addEventListener('change', updateBulkActionVisibility);
+        });
+      }
+
+      updateBulkActionVisibility();
+
+    }).catch(function (err) {
+      tbody.innerHTML = '<tr><td colspan="7" class="text-center text-danger">Error: ' + esc(err.message) + '</td></tr>';
+    });
   }
 
   function toggleAttendanceStatus(btn, date, groupId) {
-      var userType = btn.getAttribute('data-user-type');
-      var userId = btn.getAttribute('data-user-id');
-      var currentStatus = btn.getAttribute('data-current-status');
-      var newStatus = currentStatus === 'present' ? 'absent' : 'present';
-      var subject = document.getElementById('attendance-filter-subject') ? document.getElementById('attendance-filter-subject').value : '';
+    var userType = btn.getAttribute('data-user-type');
+    var userId = btn.getAttribute('data-user-id');
+    var currentStatus = btn.getAttribute('data-current-status');
+    var newStatus = currentStatus === 'present' ? 'absent' : 'present';
+    var subject = document.getElementById('attendance-filter-subject') ? document.getElementById('attendance-filter-subject').value : '';
 
-      btn.disabled = true;
+    btn.disabled = true;
 
-      request('/api/attendance/manual', {
-          method: 'POST',
-          body: JSON.stringify({
-              user_type: userType,
-              user_id: userId,
-              group_id: groupId || null,
-              date: date,
-              status: newStatus,
-              subject_name: subject
-          })
-      }).then(function() {
-          btn.disabled = false;
-          btn.setAttribute('data-current-status', newStatus);
-          if (newStatus === 'present') {
-              btn.className = 'status-toggle status-present';
-              btn.innerHTML = '<i class="fa fa-check"></i> Present';
-          } else {
-              btn.className = 'status-toggle status-absent';
-              btn.innerHTML = '<i class="fa fa-times"></i> Absent';
-          }
-      }).catch(function(err) {
-          btn.disabled = false;
-          alert('Failed to update attendance: ' + err.message);
-      });
+    request('/api/attendance/manual', {
+      method: 'POST',
+      body: JSON.stringify({
+        user_type: userType,
+        user_id: userId,
+        group_id: groupId || null,
+        date: date,
+        status: newStatus,
+        subject_name: subject
+      })
+    }).then(function () {
+      btn.disabled = false;
+      btn.setAttribute('data-current-status', newStatus);
+      if (newStatus === 'present') {
+        btn.className = 'status-toggle status-present';
+        btn.innerHTML = '<i class="fa fa-check"></i> Present';
+      } else {
+        btn.className = 'status-toggle status-absent';
+        btn.innerHTML = '<i class="fa fa-times"></i> Absent';
+      }
+    }).catch(function (err) {
+      btn.disabled = false;
+      alert('Failed to update attendance: ' + err.message);
+    });
   }
 
   function updateBulkActionVisibility() {
-      var container = document.getElementById('attendance-bulk-actions');
-      var counter = document.getElementById('bulk-selection-count');
-      if (!container) return;
+    var container = document.getElementById('attendance-bulk-actions');
+    var counter = document.getElementById('bulk-selection-count');
+    if (!container) return;
 
-      var checked = document.querySelectorAll('.attendance-row-checkbox:checked').length;
-      if (checked > 0) {
-          container.style.display = 'block';
-          counter.textContent = checked + ' selected';
-      } else {
-          container.style.display = 'none';
-      }
+    var checked = document.querySelectorAll('.attendance-row-checkbox:checked').length;
+    if (checked > 0) {
+      container.style.display = 'block';
+      counter.textContent = checked + ' selected';
+    } else {
+      container.style.display = 'none';
+    }
   }
 
   function performBulkAction(status) {
-      var dateVal = document.getElementById('attendance-filter-date').value;
-      var groupVal = document.getElementById('attendance-filter-group').value;
-      var typeVal = document.getElementById('attendance-filter-type').value;
-      var subjectVal = document.getElementById('attendance-filter-subject') ? document.getElementById('attendance-filter-subject').value : '';
-      
-      var checkedBoxes = document.querySelectorAll('.attendance-row-checkbox:checked');
-      var userIds = Array.from(checkedBoxes).map(function(cb) { return cb.value; });
+    var dateVal = document.getElementById('attendance-filter-date').value;
+    var groupVal = document.getElementById('attendance-filter-group').value;
+    var typeVal = document.getElementById('attendance-filter-type').value;
+    var subjectVal = document.getElementById('attendance-filter-subject') ? document.getElementById('attendance-filter-subject').value : '';
 
-      if (userIds.length === 0) return;
-      if (!confirm('Mark ' + userIds.length + ' users as ' + status.toUpperCase() + '?')) return;
+    var checkedBoxes = document.querySelectorAll('.attendance-row-checkbox:checked');
+    var userIds = Array.from(checkedBoxes).map(function (cb) { return cb.value; });
 
-      request('/api/attendance/bulk', {
-          method: 'POST',
-          body: JSON.stringify({
-              user_type: typeVal,
-              user_ids: userIds,
-              group_id: groupVal || null,
-              date: dateVal,
-              status: status,
-              subject_name: subjectVal
-          })
-      }).then(function() {
-          loadAttendanceData();
-      }).catch(function(err) {
-          alert('Bulk update failed: ' + err.message);
-      });
+    if (userIds.length === 0) return;
+    if (!confirm('Mark ' + userIds.length + ' users as ' + status.toUpperCase() + '?')) return;
+
+    request('/api/attendance/bulk', {
+      method: 'POST',
+      body: JSON.stringify({
+        user_type: typeVal,
+        user_ids: userIds,
+        group_id: groupVal || null,
+        date: dateVal,
+        status: status,
+        subject_name: subjectVal
+      })
+    }).then(function () {
+      loadAttendanceData();
+    }).catch(function (err) {
+      alert('Bulk update failed: ' + err.message);
+    });
   }
 
   function initSchoolCards() {
@@ -3234,15 +3248,15 @@
       }
     }
 
-    table.addEventListener('change', function(e) {
+    table.addEventListener('change', function (e) {
       if (e.target.classList.contains('select-all')) {
         var isChecked = e.target.checked;
-        table.querySelectorAll('.row-checkbox').forEach(function(cb) { cb.checked = isChecked; });
+        table.querySelectorAll('.row-checkbox').forEach(function (cb) { cb.checked = isChecked; });
       }
       updateBtn();
     });
 
-    btnCards.addEventListener('click', async function() {
+    btnCards.addEventListener('click', async function () {
       var checked = table.querySelectorAll('.row-checkbox:checked');
       if (checked.length === 0) return;
 
@@ -3258,7 +3272,7 @@
           await document.fonts.ready;
           // Check if Cairo is loaded; if not, force-load it
           var cairoLoaded = false;
-          document.fonts.forEach(function(f) {
+          document.fonts.forEach(function (f) {
             if (f.family.indexOf('Cairo') !== -1 && f.status === 'loaded') cairoLoaded = true;
           });
           if (!cairoLoaded) {
@@ -3267,8 +3281,8 @@
             await document.fonts.load('400 16px Cairo');
             await document.fonts.ready;
           }
-        } catch(fontErr) {
-          await new Promise(function(r) { setTimeout(r, 500); });
+        } catch (fontErr) {
+          await new Promise(function (r) { setTimeout(r, 500); });
         }
 
         // --- Fetch real school name & logo ---
@@ -3280,7 +3294,7 @@
             schoolName = schoolData.school.name || schoolName;
             schoolLogo = schoolData.school.logo || '';
           }
-        } catch(e) { /* use defaults */ }
+        } catch (e) { /* use defaults */ }
 
         var zip = new JSZip();
         var jspdfObj = window.jspdf.jsPDF;
@@ -3299,15 +3313,15 @@
         var warmupEl = document.getElementById('card-student-name');
         warmupEl.textContent = 'الاختبار';
         void template.offsetHeight; // force layout reflow
-        await new Promise(function(r) { setTimeout(r, 80); });
+        await new Promise(function (r) { setTimeout(r, 80); });
 
 
         for (var i = 0; i < checked.length; i++) {
           var cb = checked[i];
           var studentName = cb.getAttribute('data-name') || cb.closest('tr').cells[3].innerText;
-          var reg        = cb.getAttribute('data-reg')  || cb.closest('tr').cells[2].innerText;
-          var formation  = cb.getAttribute('data-formation') || '';
-          var photoSrc   = cb.getAttribute('data-photo') || '';
+          var reg = cb.getAttribute('data-reg') || cb.closest('tr').cells[2].innerText;
+          var formation = cb.getAttribute('data-formation') || '';
+          var photoSrc = cb.getAttribute('data-photo') || '';
 
           // --- Populate card ---
           document.getElementById('card-school-name').textContent = schoolName;
@@ -3341,14 +3355,14 @@
           photoEl.src = photoSrc;
 
           // Wait for images to load
-          await new Promise(function(resolve) {
+          await new Promise(function (resolve) {
             var pending = 2;
             function done() { if (--pending <= 0) resolve(); }
             if (logoEl.complete) done(); else { logoEl.onload = done; logoEl.onerror = done; }
             if (photoEl.complete) done(); else { photoEl.onload = done; photoEl.onerror = done; }
           });
 
-          await new Promise(function(r) { setTimeout(r, 300); });
+          await new Promise(function (r) { setTimeout(r, 300); });
 
           // Scale 3x for print-quality output
           var canvas = await html2canvas(template, {
@@ -3386,7 +3400,7 @@
       } finally {
         btnCards.disabled = false;
         btnCards.innerHTML = originalHtml;
-        table.querySelectorAll('.row-checkbox').forEach(function(cb) { cb.checked = false; });
+        table.querySelectorAll('.row-checkbox').forEach(function (cb) { cb.checked = false; });
         if (selectAll) selectAll.checked = false;
         updateBtn();
       }
@@ -3403,9 +3417,9 @@
         var notifBadge = document.getElementById('notif-badge');
         var notifList = document.getElementById('notif-list');
         var notifCountText = document.getElementById('notif-count-text');
-        
+
         var overdueStudents = res.students || [];
-        
+
         if (overdueStudents.length > 0) {
           if (notifBadge) {
             notifBadge.style.display = 'inline-block';
@@ -3416,12 +3430,12 @@
             notifCountText.textContent = overdueStudents.length;
           }
           if (notifList) {
-            var html = overdueStudents.map(function(s) {
+            var html = overdueStudents.map(function (s) {
               var name = [s.first_name, s.last_name].filter(Boolean).join(' ');
               return '<a href="course-payment.html" style="display:block; padding: 12px 15px; border-bottom: 1px solid #f5f5f5; text-decoration: none;">' +
-                     '<div style="font-size: 13px; color: #333; font-weight: 600;">' + esc(name) + '</div>' +
-                     '<div style="font-size: 11px; color: #e74c3c; margin-top: 4px;">Payment overdue since ' + esc(s.next_payment_date) + '</div>' +
-                     '</a>';
+                '<div style="font-size: 13px; color: #333; font-weight: 600;">' + esc(name) + '</div>' +
+                '<div style="font-size: 11px; color: #e74c3c; margin-top: 4px;">Payment overdue since ' + esc(s.next_payment_date) + '</div>' +
+                '</a>';
             }).join('');
             notifList.innerHTML = html;
           }
@@ -3437,7 +3451,7 @@
   }
 
   window.SchoolBackend = window.SchoolBackend || {};
-  window.SchoolBackend.afterPartialLoad = function(name) {
+  window.SchoolBackend.afterPartialLoad = function (name) {
     if (name === 'header') {
       populateAuthUI();
       loadNotifications();
