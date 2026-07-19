@@ -394,7 +394,70 @@ window.AppI18n = {
     "Tuesday": "الثلاثاء",
     "Wednesday": "الأربعاء",
     "Thursday": "الخميس",
-    "Friday": "الجمعة"
+    "Friday": "الجمعة",
+
+    // ── Payments Page missing items ──
+    "Enter Payment": "إدخال دفعة",
+    "Payment Archive": "أرشيف المدفوعات",
+    "Students Overview": "نظرة عامة على الطلاب",
+    "Total Collected": "إجمالي المحصل",
+    "Paid Students": "الطلاب الدافعين",
+    "Total Students": "إجمالي الطلاب",
+    "Overdue": "المتأخرات",
+    "Select a student and record a payment": "اختر طالباً وسجل دفعة",
+    "🔍  Search by name or registration number...": "🔍 ابحث بالاسم أو رقم التسجيل...",
+    "Unpaid": "غير مدفوع",
+    "Next due:": "تاريخ الاستحقاق القادم:",
+    "Payment recorded — Student marked as": "تم تسجيل الدفع — تم تعليم الطالب كـ",
+    "Amount Received": "المبلغ المستلم",
+    "Payment Date": "تاريخ الدفع",
+    "Method": "الطريقة",
+    "Cash": "نقداً",
+    "Bank Transfer": "تحويل بنكي",
+    "Card": "بطاقة",
+    "Other": "أخرى",
+    "Notes": "ملاحظات",
+    "Optional notes...": "ملاحظات اختيارية...",
+    "Save Payment & Mark as Paid": "حفظ الدفعة وتحديد كمدفوع",
+    "Clear": "مسح",
+    "Payment History —": "تاريخ المدفوعات —",
+    "Plan/Type": "الخطة/النوع",
+    "Recorded By": "سجل بواسطة",
+    "Name, registration number, formation...": "الاسم، رقم التسجيل، الدورة...",
+    "From": "من",
+    "To": "إلى",
+    "All": "الكل",
+    "Amount to pay after discount": "المبلغ الواجب دفعه بعد الخصم",
+    "(optional — reduces price)": "(اختياري — يقلل السعر)",
+    "— No promo code —": "— بدون رمز خصم —",
+    "Total:": "المجموع:",
+    "No payment records yet.": "لا توجد سجلات دفع بعد.",
+    "No payment records found.": "لم يتم العثور على سجلات دفع.",
+    "No recurring payment scheduled.": "لا توجد مدفوعات متكررة مجدولة.",
+    "Formation price": "سعر الدورة",
+    "per period": "لكل فترة",
+    "Choose a subscription plan:": "اختر خطة اشتراك:",
+    " — Subscription": " — اشتراك",
+    "Certificate": "شهادة",
+    "Certificates": "شهادات",
+    "Generate Certificate": "إصدار شهادة",
+    "Select formation, group and students to generate certificates": "اختر الدورة والمجموعة والطلاب لإصدار الشهادات",
+    "Formation": "الدورة",
+    "Group": "المجموعة",
+    "Preview": "معاينة",
+    "Preview (First)": "معاينة (الأول)",
+    "Select Student(s)": "اختر الطالب (الطلاب)",
+    "Select All": "تحديد الكل",
+    "Clear": "مسح",
+    "Select a formation to see students": "اختر دورة لرؤية الطلاب",
+    "Download PDF / ZIP": "تحميل PDF / ZIP",
+    "Loading...": "جاري التحميل...",
+    "-- Select Formation --": "-- اختر الدورة --",
+    "All Groups": "كل المجموعات",
+    "Select Formation First": "اختر الدورة أولاً",
+    "No students found": "لم يتم العثور على طلاب",
+    "No students found for this selection.": "لم يتم العثور على طلاب لهذا التحديد.",
+    "Unknown": "غير معروف"
   },
 
   // ── Language init ─────────────────────────────────────────────────────────
@@ -465,10 +528,7 @@ window.AppI18n = {
         right: 0 !important;
       }
 
-      /* Topbar */
-      .sb-topbar {
-        flex-direction: row-reverse;
-      }
+      /* Removed topbar row-reverse override so it flows naturally RTL */
 
       /* Arrow flip in sidebar */
       .sb-arrow {

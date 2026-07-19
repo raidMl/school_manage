@@ -49,6 +49,18 @@ document.write('<script src="js/i18n.js?v=' + new Date().getTime() + '"></script
 
   // Global toggle for submenu items
   window.sbToggle = function (linkEl) {
+    if (document.body.classList.contains('sb-collapsed')) {
+      // In collapsed mode, navigate to the first submenu link instead of opening
+      var submenu = linkEl.nextElementSibling;
+      if (submenu && submenu.classList.contains('sb-submenu')) {
+        var firstLink = submenu.querySelector('a');
+        if (firstLink && firstLink.href) {
+          window.location.href = firstLink.href;
+          return;
+        }
+      }
+    }
+
     var item = linkEl.closest('.sb-item');
     if (!item) return;
     var wasOpen = item.classList.contains('open');

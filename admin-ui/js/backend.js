@@ -622,7 +622,7 @@
         '<td>' + esc(formatSubscriptionPlan(r.subscription_plan)) + '</td>' +
         '<td>' + esc(nextPaymentDate) + '</td>' +
         '<td>' + esc(enrollmentDate) + '</td>' +
-        '<td>' +
+        '<td style="white-space: nowrap;">' +
           '<a href="student-profile.html?id=' + r.id + '" class="btn btn-xs btn-success" title="View"><i class="fa fa-eye"></i></a> ' +
           '<button class="btn btn-xs btn-primary btn-enter-payment" data-student-id="' + r.id + '" title="Enter Payment"><i class="fa fa-dollar"></i></button>' +
           '</td>' +
@@ -1655,7 +1655,7 @@
       return Promise.all(groupPromises).then(function (groupRes) {
         _groupStudents = groupRes;
 
-        formSel.innerHTML = '<option value="">-- Select Formation --</option>' +
+        formSel.innerHTML = '<option value="">' + t('-- Select Formation --') + '</option>' +
           _formations.map(function (f) { return '<option value="' + f.id + '">' + esc(f.title) + '</option>'; }).join('');
 
         formSel.addEventListener('change', function () {
@@ -1664,12 +1664,12 @@
           if (fId) {
             groupSel.disabled = false;
             var fGroups = _groups.filter(function (g) { return String(g.formation_id) === String(fId); });
-            groupSel.innerHTML = '<option value="">All Groups</option>' +
+            groupSel.innerHTML = '<option value="">' + t('All Groups') + '</option>' +
               fGroups.map(function (g) { return '<option value="' + g.id + '">' + esc(g.name) + '</option>'; }).join('');
             updateStudentsList();
           } else {
             groupSel.disabled = true;
-            groupSel.innerHTML = '<option value="">Select Formation First</option>';
+            groupSel.innerHTML = '<option value="">' + t('Select Formation First') + '</option>';
             if (stuPanel) stuPanel.style.display = 'none';
             genBtn.disabled = true;
             printBtn.disabled = true;
@@ -1712,10 +1712,10 @@
           // Render checkbox list
           if (stuList) {
             if (filteredStudents.length === 0) {
-              stuList.innerHTML = '<p style="color:#aaa;text-align:center;padding:20px;font-size:13px;margin:0;">No students found</p>';
+              stuList.innerHTML = '<p style="color:#aaa;text-align:center;padding:20px;font-size:13px;margin:0;">' + t('No students found') + '</p>';
             } else {
               stuList.innerHTML = filteredStudents.map(function (s) {
-                var name = [s.first_name, s.last_name].filter(Boolean).join(' ') || 'Unknown';
+                var name = [s.first_name, s.last_name].filter(Boolean).join(' ') || t('Unknown');
                 var initials = name.split(' ').map(function (w) { return w[0]; }).join('').substring(0, 2).toUpperCase();
                 return '<div class="student-item" data-id="' + s.id + '">' +
                   '<div class="student-avatar">' + initials + '</div>' +
@@ -1802,7 +1802,7 @@
           if (countBadge) {
             if (count > 0) {
               countBadge.style.display = 'inline-block';
-              countBadge.textContent = count + ' selected';
+              countBadge.textContent = count + ' ' + t('selected');
             } else {
               countBadge.style.display = 'none';
             }
@@ -1810,8 +1810,8 @@
           if (deselectAllBtn) deselectAllBtn.style.display = count > 0 ? 'inline-block' : 'none';
 
           genBtn.innerHTML = count > 1
-            ? '<i class="fa fa-eye"></i> Preview (First)'
-            : '<i class="fa fa-eye"></i> Preview';
+            ? '<i class="fa fa-eye"></i> ' + t('Preview (First)')
+            : '<i class="fa fa-eye"></i> ' + t('Preview');
         }
       });
     }).catch(function (err) { showAlert('#backend-certificate-status', err.message); });
