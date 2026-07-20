@@ -1,0 +1,13 @@
+[33m5fbf13f[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m refs/heads/main@{0}: branch: Created from refs/remotes/origin/main
+[33m5fbf13f[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m HEAD@{0}: checkout: moving from master to main
+[33m7db1a00[m[33m ([m[1;32mmaster[m[33m)[m refs/heads/master@{0}: commit: fix admin ui
+[33m7db1a00[m[33m ([m[1;32mmaster[m[33m)[m HEAD@{1}: commit: fix admin ui
+[33m5fbf13f[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m refs/remotes/origin/main@{0}: fetch: fast-forward
+[33m06d5054[m refs/remotes/origin/main@{1}: fetch: fast-forward
+[33m37974e5[m refs/remotes/origin/main@{2}: fetch: fast-forward
+[33meac32a3[m refs/remotes/origin/main@{3}: fetch: fast-forward
+[33m35cd61f[m refs/remotes/origin/main@{4}: fetch: storing head
+[33m8f9f9b5[m[33m ([m[1;31morigin/deployment[m[33m)[m refs/remotes/origin/deployment@{0}: fetch: storing head
+[33m0a95d62[m[33m ([m[1;31morigin/master[m[33m)[m refs/remotes/origin/master@{0}: update by push
+[33m0a95d62[m[33m ([m[1;31morigin/master[m[33m)[m refs/heads/master@{1}: commit (initial): first coommit
+[33m0a95d62[m[33m ([m[1;31morigin/master[m[33m)[m HEAD@{2}: commit (initial): first coommit
