@@ -1,5 +1,5 @@
-const app = require('./app');
-const bootstrapDatabase = require('./config/bootstrap');
+const app = require('./src/app');
+const bootstrapDatabase = require('./src/config/bootstrap');
 
 const port = Number(process.env.PORT || 5000);
 
