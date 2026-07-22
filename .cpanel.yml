@@ -1,0 +1,9 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/xantbfbv/public_html/
+    - /bin/cp -R admin-ui $DEPLOYPATH
+    - /bin/cp -R client_ui $DEPLOYPATH
+    # Note: If you want to deploy the backend automatically, you can add:
+    # - export BACKENDPATH=/home/xantbfbv/backend_app/
+    # - /bin/cp -R backend $BACKENDPATH
