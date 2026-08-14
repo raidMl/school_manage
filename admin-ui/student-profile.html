@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -10,18 +11,218 @@
     <link rel="stylesheet" href="css/font-awesome.min.css">
     <link rel="stylesheet" href="css/sidebar.css">
     <style>
-        body { font-family: 'Inter', sans-serif; background: #f4f6fa; }
-        .card-panel { background: #fff; border-radius: 14px; padding: 30px; box-shadow: 0 2px 12px rgba(0,0,0,.06); margin-bottom: 20px; }
-        .profile-header { display: flex; align-items: center; gap: 24px; margin-bottom: 30px; border-bottom: 1px solid #eee; padding-bottom: 24px; }
-        .profile-photo { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        .profile-title h3 { margin: 0; font-size: 24px; font-weight: 700; color: #222; }
-        .profile-title p { margin: 6px 0 0; color: #666; font-size: 14px; display: flex; align-items: center; gap: 6px; }
-        .detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px; }
-        .detail-item { background: #f8f9fc; padding: 16px; border-radius: 8px; border-left: 4px solid #27ae60; }
-        .detail-item label { display: block; margin: 0 0 4px; font-size: 12px; color: #777; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
-        .detail-item .val { font-size: 15px; color: #333; font-weight: 500; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f0f2f5;
+            color: #1f2937;
+        }
+
+        .card-panel {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 35px;
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05), 0 4px 10px -3px rgba(0, 0, 0, 0.03);
+            margin-bottom: 30px;
+            border: 1px solid rgba(229, 231, 235, 0.5);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 28px;
+            margin: -35px -35px 35px -35px;
+            padding: 35px;
+            background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%);
+            border-bottom: 1px solid #e2e8f0;
+            border-radius: 16px 16px 0 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .profile-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background: radial-gradient(circle at top right, rgba(59, 130, 246, 0.1), transparent 50%);
+            pointer-events: none;
+        }
+
+        .profile-photo {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            object-fit: cover;
+            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.15);
+            border: 4px solid #ffffff;
+            position: relative;
+            z-index: 1;
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .profile-photo:hover {
+            transform: scale(1.05) rotate(-2deg);
+        }
+
+        .profile-title {
+            position: relative;
+            z-index: 1;
+            flex: 1;
+        }
+
+        .profile-title h3 {
+            margin: 0 0 8px;
+            font-size: 28px;
+            font-weight: 700;
+            color: #0f172a;
+            letter-spacing: -0.02em;
+        }
+
+        .profile-title p {
+            margin: 6px 0;
+            color: #475569;
+            font-size: 14.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+
+        .profile-title i {
+            color: #3b82f6;
+            width: 16px;
+            text-align: center;
+        }
+
+        .section-title-h4 {
+            margin: 10px 0 20px;
+            font-size: 16px;
+            font-weight: 700;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f1f5f9;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .section-title-h4 i {
+            color: #64748b;
+            font-size: 18px;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 16px;
+        }
+
+        .detail-item {
+            padding: 16px 20px;
+            border-radius: 14px;
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .detail-item:hover {
+            transform: scale(1.02);
+            filter: brightness(0.96);
+        }
+
+        .detail-item label {
+            display: block;
+            margin: 0 0 6px;
+            font-size: 11.5px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            font-weight: 700;
+            opacity: 0.75;
+        }
+
+        .detail-item .val {
+            font-size: 15px;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        /* Pastel Themes */
+        .theme-blue .detail-item {
+            background: #eff6ff;
+            color: #1e3a8a;
+        }
+
+        .theme-blue .detail-item label {
+            color: #2563eb;
+        }
+
+        .theme-purple .detail-item {
+            background: #f5f3ff;
+            color: #4c1d95;
+        }
+
+        .theme-purple .detail-item label {
+            color: #7c3aed;
+        }
+
+        .theme-emerald .detail-item {
+            background: #ecfdf5;
+            color: #064e3b;
+        }
+
+        .theme-emerald .detail-item label {
+            color: #059669;
+        }
+
+        .theme-rose .detail-item {
+            background: #fff1f2;
+            color: #881337;
+        }
+
+        .theme-rose .detail-item label {
+            color: #e11d48;
+        }
+
+        .detail-item.full-width {
+            grid-column: 1 / -1;
+        }
+
+        /* Tags & Badges */
+        .label {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .label-success {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .label-danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .label-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        [dir="rtl"] .profile-header::before {
+            background: radial-gradient(circle at top left, rgba(59, 130, 246, 0.1), transparent 50%);
+        }
     </style>
 </head>
+
 <body data-page="students">
     <div id="sidebar-placeholder"></div>
     <div class="sb-main">
@@ -35,13 +236,13 @@
                 <span>/</span>
                 <span>Profile</span>
             </div>
-            
+
             <div id="sp-container" class="card-panel">
                 <div id="sp-loading" class="text-center" style="padding:40px;color:#888;">
                     <i class="fa fa-spinner fa-spin fa-2x"></i>
                     <p style="margin-top:12px;">Loading Profile...</p>
                 </div>
-                
+
                 <div id="sp-content" style="display:none;">
                     <div class="profile-header">
                         <img id="sp-photo" class="profile-photo" src="" alt="Student Photo">
@@ -49,50 +250,101 @@
                             <h3 id="sp-name">Student Name</h3>
                             <p><i class="fa fa-id-badge"></i> <span id="sp-reg-num"></span></p>
                             <p><i class="fa fa-envelope"></i> <span id="sp-email"></span></p>
+                            <p><span id="sp-status"></span></p>
                         </div>
                     </div>
-                    
-                    <h4 style="margin-bottom: 20px; font-size: 18px; font-weight: 600;">Personal Information</h4>
-                    <div class="detail-grid">
+
+                    <h4 class="section-title-h4">
+                        <i class="fa fa-user"></i>
+                        <span data-i18n="Personal Information">Personal Information</span>
+                    </h4>
+                    <div class="detail-grid theme-blue" style="margin-bottom: 30px;">
                         <div class="detail-item">
-                            <label>Gender</label>
+                            <label data-i18n="Gender">Gender</label>
                             <div class="val" id="sp-gender">-</div>
                         </div>
                         <div class="detail-item">
-                            <label>Birth Date</label>
+                            <label data-i18n="Birth Date">Birth Date</label>
                             <div class="val" id="sp-birth-date">-</div>
                         </div>
                         <div class="detail-item">
-                            <label>Parent Name</label>
-                            <div class="val" id="sp-parent-name">-</div>
+                            <label data-i18n="Blood Type">Blood Type</label>
+                            <div class="val" id="sp-blood-type">-</div>
                         </div>
+                    </div>
+
+                    <h4 class="section-title-h4">
+                        <i class="fa fa-graduation-cap"></i>
+                        <span data-i18n="Academic">Academic</span>
+                    </h4>
+                    <div class="detail-grid theme-purple" style="margin-bottom: 30px;">
                         <div class="detail-item">
-                            <label>Parent Phone</label>
-                            <div class="val" id="sp-parent-phone">-</div>
-                        </div>
-                        <div class="detail-item">
-                            <label>Enrollment Date</label>
+                            <label data-i18n="Enrollment Date">Enrollment Date</label>
                             <div class="val" id="sp-enrollment-date">-</div>
                         </div>
                         <div class="detail-item">
-                            <label>Formation</label>
+                            <label data-i18n="Formation">Formation</label>
                             <div class="val" id="sp-formation">-</div>
                         </div>
                         <div class="detail-item">
-                            <label>Subscription Plan</label>
+                            <label data-i18n="Subscription Plan">Subscription Plan</label>
                             <div class="val" id="sp-subscription-plan">-</div>
                         </div>
                         <div class="detail-item">
-                            <label>Next Payment Date</label>
-                            <div class="val" id="sp-next-payment-date">-</div>
-                        </div>
-                        <div class="detail-item">
-                            <label>Payment Status</label>
+                            <label data-i18n="Payment Status">Payment Status</label>
                             <div class="val" id="sp-payment-status">-</div>
                         </div>
                         <div class="detail-item">
-                            <label>Status</label>
-                            <div class="val" id="sp-status">-</div>
+                            <label data-i18n="Next Payment">Next Payment</label>
+                            <div class="val" id="sp-next-payment-date">-</div>
+                        </div>
+                    </div>
+
+                    <h4 class="section-title-h4">
+                        <i class="fa fa-phone"></i>
+                        <span data-i18n="Parent / Guardian Contact">Parent / Guardian Contact</span>
+                    </h4>
+                    <div class="detail-grid theme-emerald" style="margin-bottom: 30px;">
+                        <div class="detail-item">
+                            <label data-i18n="Parent Name">Parent Name</label>
+                            <div class="val" id="sp-parent-name">-</div>
+                        </div>
+                        <div class="detail-item">
+                            <label data-i18n="Phone 1">Phone 1</label>
+                            <div class="val" id="sp-parent-phone" style="display:flex; align-items:center; gap:8px;">-
+                            </div>
+                        </div>
+                        <div class="detail-item">
+                            <label data-i18n="Phone 2">Phone 2</label>
+                            <div class="val" id="sp-parent-phone2" style="display:flex; align-items:center; gap:8px;">-
+                            </div>
+                        </div>
+                        <div class="detail-item">
+                            <label data-i18n="Guardian Name">Guardian Name</label>
+                            <div class="val" id="sp-guardian-name">-</div>
+                        </div>
+                        <div class="detail-item">
+                            <label data-i18n="Relationship">Relationship</label>
+                            <div class="val" id="sp-guardian-rel">-</div>
+                        </div>
+                        <div class="detail-item">
+                            <label data-i18n="Guardian ID #">Guardian ID #</label>
+                            <div class="val" id="sp-guardian-id">-</div>
+                        </div>
+                        <div class="detail-item">
+                            <label data-i18n="Parents Status">Parents Status</label>
+                            <div class="val" id="sp-parents-status">-</div>
+                        </div>
+                    </div>
+
+                    <h4 class="section-title-h4">
+                        <i class="fa fa-heartbeat"></i>
+                        <span data-i18n="Health Status">Health Status</span>
+                    </h4>
+                    <div class="detail-grid theme-rose">
+                        <div class="detail-item full-width">
+                            <label data-i18n="Health Status">Health Status</label>
+                            <div class="val" id="sp-health-notes">-</div>
                         </div>
                     </div>
                 </div>
@@ -100,10 +352,11 @@
             <div id="footer-placeholder"></div>
         </div>
     </div>
-    
+
     <script src="js/vendor/jquery-1.12.4.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/components.js"></script>
     <script src="js/backend.js"></script>
 </body>
+
 </html>

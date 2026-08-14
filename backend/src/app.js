@@ -31,7 +31,7 @@ app.use(morgan('dev'));
 
 app.use(express.static(adminUiPath));
 
-app.get('/health', async (req, res, next) => {
+app.get('/api/health', async (req, res, next) => {
   try {
     await query('SELECT 1');
     res.json({ status: 'ok', database: 'connected' });
@@ -39,6 +39,7 @@ app.get('/health', async (req, res, next) => {
     next(error);
   }
 });
+
 
 app.use('/api', apiRoutes);
 

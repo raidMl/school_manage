@@ -92,6 +92,20 @@ async function bootstrapDatabase() {
       await safeAlter(connection, `ALTER TABLE students ADD COLUMN promo_code VARCHAR(50) NULL AFTER next_payment_date`);
       await safeAlter(connection, `ALTER TABLE students ADD COLUMN discount_percent DECIMAL(5,2) DEFAULT 0 AFTER promo_code`);
 
+      // students extended fields v2
+      await safeAlter(connection, `ALTER TABLE students ADD COLUMN parent_phone2 VARCHAR(30) NULL AFTER parent_phone`);
+      await safeAlter(connection, `ALTER TABLE students ADD COLUMN phone1_has_whatsapp TINYINT(1) DEFAULT 0 AFTER parent_phone`);
+      await safeAlter(connection, `ALTER TABLE students ADD COLUMN phone1_has_viber TINYINT(1) DEFAULT 0 AFTER phone1_has_whatsapp`);
+      await safeAlter(connection, `ALTER TABLE students ADD COLUMN phone1_has_telegram TINYINT(1) DEFAULT 0 AFTER phone1_has_viber`);
+      await safeAlter(connection, `ALTER TABLE students ADD COLUMN phone2_has_whatsapp TINYINT(1) DEFAULT 0 AFTER parent_phone2`);
+      await safeAlter(connection, `ALTER TABLE students ADD COLUMN phone2_has_viber TINYINT(1) DEFAULT 0 AFTER phone2_has_whatsapp`);
+      await safeAlter(connection, `ALTER TABLE students ADD COLUMN phone2_has_telegram TINYINT(1) DEFAULT 0 AFTER phone2_has_viber`);
+      await safeAlter(connection, `ALTER TABLE students ADD COLUMN guardian_name VARCHAR(255) NULL AFTER parent_phone2`);
+      await safeAlter(connection, `ALTER TABLE students ADD COLUMN guardian_relationship VARCHAR(100) NULL AFTER guardian_name`);
+      await safeAlter(connection, `ALTER TABLE students ADD COLUMN guardian_id_number VARCHAR(50) NULL AFTER guardian_relationship`);
+      await safeAlter(connection, `ALTER TABLE students ADD COLUMN health_notes TEXT NULL AFTER guardian_id_number`);
+      await safeAlter(connection, `ALTER TABLE students ADD COLUMN parents_status ENUM('together','divorced','father_deceased','mother_deceased','both_deceased','other') NULL AFTER health_notes`);
+
       // classrooms table additions
       await safeAlter(connection, `ALTER TABLE classrooms ADD COLUMN description TEXT NULL AFTER capacity`);
 

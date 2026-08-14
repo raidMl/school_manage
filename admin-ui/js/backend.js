@@ -22,11 +22,71 @@
     'Formation created successfully': 'تم إنشاء الدورة بنجاح',
     'Group created successfully': 'تم إنشاء المجموعة بنجاح',
     'Passwords do not match': 'كلمات المرور غير متطابقة',
+
+    // ── Add Student form ──────────────────────────────────────────────────────
+    'New Student Registration': 'تسجيل طالب جديد',
+    'Fill in all required fields to register a new student.': 'أدخل جميع الحقول المطلوبة لتسجيل طالب جديد.',
+    'Personal Information': 'المعلومات الشخصية',
+    'First Name': 'الاسم', 'Last Name': 'اللقب',
+    'Email': 'البريد الإلكتروني', 'Password': 'كلمة المرور',
+    'Gender': 'الجنس', 'Birth Date': 'تاريخ الميلاد', 'Blood Type': 'فصيلة الدم',
+    'Select gender': 'اختر الجنس', 'Male': 'ذكر', 'Female': 'أنثى',
+    'Not specified': 'غير محدد',
+    'Academic': 'المعلومات الأكاديمية',
+    'Formation': 'الدورة التدريبية',
+    'Loading formations...': 'جاري تحميل الدورات...',
+    'Enrollment Date': 'تاريخ التسجيل',
+    'Payment Status': 'حالة الدفع', 'Not Paid': 'غير مدفوع', 'Paid': 'مدفوع',
+    'Promo Code': 'رمز الترقية', 'No promo code': 'بدون رمز ترقية',
+    'Subscription Plan': 'خطة الاشتراك', 'Select plan': 'اختر خطة',
+    'Per Month (1 Month)': 'شهرياً (شهر واحد)',
+    'Per 3 Months': 'كل 3 أشهر',
+    'Per Year (12 Months)': 'سنوياً (12 شهراً)',
+    'Parent / Guardian Contact': 'معلومات الاتصال بولي الأمر',
+    'Parent Name': 'اسم ولي الأمر',
+    'Phone 1': 'الهاتف 1', 'Phone 2': 'الهاتف 2',
+    'Primary': 'الرئيسي', 'Optional': 'اختياري',
+    'Guardian Name': 'اسم النائب',
+    'Relationship': 'صلة القرابة',
+    'Guardian ID #': 'رقم بطاقة النائب',
+    'Parents Status': 'حالة الوالدين',
+    '— Not specified —': '— غير محدد —',
+    'Together': 'متزوجان',
+    'Divorced': 'مطلقان',
+    'Father Deceased': 'الأب متوفى',
+    'Mother Deceased': 'الأم متوفاة',
+    'Both Deceased': 'كلاهما متوفى',
+    'Other': 'أخرى',
+    'Health Status': 'الحالة الصحية',
+    'Does the student need special care?': 'هل يحتاج التلميذ رعاية خاصة؟',
+    'No — Normal Health': 'لا — صحة طبيعية',
+    'Yes — Needs Special Care': 'نعم — يحتاج رعاية خاصة',
+    'Other': 'أخرى',
+    'Photo URL': 'رابط الصورة',
+    'Save Student': 'حفظ الطالب',
+    'Back': 'رجوع',
+    // placeholders
+    'Full name of parent': 'الاسم الكامل لولي الأمر',
+    'First & Last name': 'الاسم واللقب',
+    'e.g. Uncle, Aunt...': 'مثال: عم، خالة...',
+    'National ID': 'رقم بطاقة التعريف الوطنية',
+    'Describe any health conditions, allergies, or special requirements...': 'صف الحالة الصحية، الحساسية أو أي متطلبات خاصة...',
+    'https://example.com/photo.jpg': 'https://example.com/photo.jpg',
   };
   function t(s) { return currentLang === 'ar' ? (AR[s] || s) : s; }
   function applyTranslations(root) {
     if (currentLang !== 'ar' || !root) return;
     root.querySelectorAll('[data-i18n]').forEach(function (el) {
+      var k = el.getAttribute('data-i18n'), v = AR[k];
+      if (v) el.textContent = v;
+    });
+    // Translate placeholder attributes
+    root.querySelectorAll('[data-i18n-ph]').forEach(function (el) {
+      var k = el.getAttribute('data-i18n-ph'), v = AR[k];
+      if (v) el.placeholder = v;
+    });
+    // Translate option elements
+    root.querySelectorAll('option[data-i18n]').forEach(function (el) {
       var k = el.getAttribute('data-i18n'), v = AR[k];
       if (v) el.textContent = v;
     });
@@ -49,12 +109,20 @@
     return Math.abs(hash % 1000) + 1;
   }
 
-  function avatarUrl(photo, name, type) {
-    if (photo && photo.trim() && photo.indexOf('/img/avatar-') === -1) return photo.trim();
-    var bg = type === 'student' ? 'f7971e' : (type === 'teacher' ? '11998e' : '4f6eff');
-    var letter = (name && name.trim()) ? name.trim().charAt(0).toUpperCase() : (type === 'student' ? 'S' : (type === 'teacher' ? 'T' : 'U'));
-    return 'https://ui-avatars.com/api/?name=' + letter + '&background=' + bg + '&color=fff&size=150';
-  }
+  function avatarUrl(photo, name, type, gender) {
+    if (photo && photo.trim() && photo.indexOf('/img/avatar-') === -1 && photo.indexOf('ui-avatars') === -1 && photo.indexOf('base64') === -1) {
+        return photo.trim();
+    }
+    var isFemale = gender && (gender.toLowerCase() === 'female' || gender === 'أنثى');
+    
+    if (type === 'student') {
+        return isFemale ? encodeURI('img/طالبة مسلمة.webp') : encodeURI('img/طالب.webp');
+    } else if (type === 'teacher') {
+        return isFemale ? encodeURI('img/معلمة مسلمة.webp') : encodeURI('img/معلم.webp');
+    } else {
+        return isFemale ? encodeURI('img/مشرفة.webp') : encodeURI('img/ادمين.webp');
+    }
+}
 
   // For formation cards that may have an image URL
   function formationImg(img, title) {
@@ -184,7 +252,7 @@
 
     var userAvatar = document.getElementById('header-user-avatar');
     if (userAvatar) {
-      userAvatar.src = avatarUrl(ctx.user.photo, name, 'default');
+      userAvatar.src = avatarUrl(ctx.user.photo, name, 'default', ctx.user.gender);
     }
 
     if (ctx.school) window._schoolId = ctx.school.id;
@@ -236,9 +304,9 @@
         if (notifBtn) notifBtn.style.pointerEvents = 'auto'; // enable click to open dropdown
         notifList.innerHTML = rows.map(function (r) {
           var name = esc([r.first_name, r.last_name].filter(Boolean).join(' '));
-          var img = avatarUrl(r.photo, name, 'student');
+          var img = avatarUrl(r.photo, name, 'student', r.gender);
           return '<a href="student-profile.html?id=' + r.id + '" style="display: flex; align-items: center; padding: 12px; border-bottom: 1px solid #eee; text-decoration: none; color: #333;">' +
-            '<img src="' + esc(img) + '" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; margin-right: 12px; flex-shrink: 0;" onerror="this.src=\'' + avatarUrl('', name, 'student') + '\'">' +
+            '<img src="' + esc(img) + '" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; margin-right: 12px; flex-shrink: 0;" onerror="this.src=\'' + avatarUrl('', name, 'student', typeof r !== 'undefined' ? r.gender : (typeof s !== 'undefined' ? s.gender : null)) + '\'">' +
             '<div><div style="font-weight: 600; font-size: 13px;">' + name + '</div>' +
             '<div style="font-size: 11px; color: #e74c3c;">Payment Overdue</div></div></a>';
         }).join('');
@@ -279,7 +347,7 @@
     if (!rows.length) { tb.innerHTML = '<tr><td colspan="5" class="text-center">' + t('No records found') + '</td></tr>'; return; }
     tb.innerHTML = rows.map(function (r) {
       var name = [r.first_name, r.last_name].filter(Boolean).join(' ');
-      var img = '<img src="' + esc(avatarUrl(r.photo, name, 'student')) + '" style="width:32px;height:32px;border-radius:50%;object-fit:cover" onerror="this.src=\'' + avatarUrl('', name, 'student') + '\'">';
+      var img = '<img src="' + esc(avatarUrl(r.photo, name, 'student', r.gender)) + '" style="width:32px;height:32px;border-radius:50%;object-fit:cover" onerror="this.src=\'' + avatarUrl('', name, 'student', typeof r !== 'undefined' ? r.gender : (typeof s !== 'undefined' ? s.gender : null)) + '\'">';
       return '<tr><td>' + img + '</td><td>' + esc(r.registration_number) + '</td><td>' + esc(name) + '</td><td>' + esc(r.email) + '</td><td>' + esc(r.enrollment_date || '-') + '</td></tr>';
     }).join('');
   }
@@ -289,7 +357,7 @@
     if (!rows.length) { tb.innerHTML = '<tr><td colspan="5" class="text-center">' + t('No records found') + '</td></tr>'; return; }
     tb.innerHTML = rows.map(function (r) {
       var name = [r.first_name, r.last_name].filter(Boolean).join(' ');
-      var img = '<img src="' + esc(avatarUrl(r.photo, name, 'teacher')) + '" style="width:32px;height:32px;border-radius:50%;object-fit:cover">';
+      var img = '<img src="' + esc(avatarUrl(r.photo, name, 'teacher', r.gender)) + '" style="width:32px;height:32px;border-radius:50%;object-fit:cover">';
       return '<tr><td>' + img + '</td><td>' + esc(r.employee_number) + '</td><td>' + esc(name) + '</td><td>' + esc(r.speciality || '-') + '</td><td>' + esc(r.hire_date || '-') + '</td></tr>';
     }).join('');
   }
@@ -544,9 +612,9 @@
     if (!rows.length) { tbody.innerHTML = '<tr><td colspan="8" class="text-center">' + t('No records found') + '</td></tr>'; return; }
     tbody.innerHTML = rows.map(function (r) {
       var fullName = [r.first_name, r.last_name].filter(Boolean).join(' ');
-      var chk = '<input type="checkbox" class="row-checkbox" value="' + r.id + '" data-type="student" data-name="' + esc(fullName) + '" data-reg="' + esc(r.registration_number) + '" data-photo="' + esc(avatarUrl(r.photo, fullName, 'student')) + '" data-formation="' + esc(r.formation_title || '') + '">';
+      var chk = '<input type="checkbox" class="row-checkbox" value="' + r.id + '" data-type="student" data-name="' + esc(fullName) + '" data-reg="' + esc(r.registration_number) + '" data-photo="' + esc(avatarUrl(r.photo, fullName, 'student', r.gender)) + '" data-formation="' + esc(r.formation_title || '') + '">';
       var name = esc(fullName);
-      var img = '<img src="' + esc(avatarUrl(r.photo, fullName, 'student')) + '" style="width:36px;height:36px;border-radius:50%;object-fit:cover" onerror="this.src=\'https://ui-avatars.com/api/?name=S&background=27ae60&color=fff&size=36\'">';
+      var img = '<img src="' + esc(avatarUrl(r.photo, fullName, 'student', r.gender)) + '" style="width:36px;height:36px;border-radius:50%;object-fit:cover" onerror="this.src=\'https://ui-avatars.com/api/?name=S&background=27ae60&color=fff&size=36\'">';
       var payStatus = r.payment_status === 'paid'
         ? '<span class="label label-success">Paid</span>'
         : '<span class="label label-danger">Unpaid</span>';
@@ -783,7 +851,20 @@
           blood_type: fd.get('blood_type') || null,
           formation_id: fd.get('formation_id'),
           registration_number: Math.floor(1000000000 + Math.random() * 9000000000).toString(),
-          parent_name: fd.get('parent_name') || null, parent_phone: fd.get('parent_phone') || null,
+          parent_name: fd.get('parent_name') || null,
+          parent_phone: fd.get('parent_phone') || null,
+          phone1_has_whatsapp: fd.get('phone1_has_whatsapp') === '1' ? 1 : 0,
+          phone1_has_viber: fd.get('phone1_has_viber') === '1' ? 1 : 0,
+          phone1_has_telegram: fd.get('phone1_has_telegram') === '1' ? 1 : 0,
+          parent_phone2: fd.get('parent_phone2') || null,
+          phone2_has_whatsapp: fd.get('phone2_has_whatsapp') === '1' ? 1 : 0,
+          phone2_has_viber: fd.get('phone2_has_viber') === '1' ? 1 : 0,
+          phone2_has_telegram: fd.get('phone2_has_telegram') === '1' ? 1 : 0,
+          guardian_name: fd.get('guardian_name') || null,
+          guardian_relationship: fd.get('guardian_relationship') || null,
+          guardian_id_number: fd.get('guardian_id_number') || null,
+          health_notes: fd.get('health_notes') || null,
+          parents_status: fd.get('parents_status') || null,
           enrollment_date: fd.get('enrollment_date') || null,
           payment_status: fd.get('payment_status') || 'not_paid',
           subscription_plan: fd.get('subscription_plan') || null,
@@ -802,8 +883,13 @@
     setupPromoCodeSelect(form);
     request('/api/student-registrations/' + id).then(function (p) {
       var s = p.data;
-      ['first_name', 'last_name', 'email', 'gender', 'birth_date', 'photo', 'blood_type', 'formation_id', 'registration_number', 'parent_name', 'parent_phone', 'enrollment_date', 'payment_status', 'subscription_plan'].forEach(function (f) {
+      ['first_name', 'last_name', 'email', 'gender', 'birth_date', 'photo', 'blood_type', 'formation_id', 'registration_number', 'parent_name', 'parent_phone', 'parent_phone2', 'guardian_name', 'guardian_relationship', 'guardian_id_number', 'health_notes', 'parents_status', 'enrollment_date', 'payment_status', 'subscription_plan'].forEach(function (f) {
         var el = form.querySelector('[name="' + f + '"]'); if (el && s[f] != null) el.value = s[f];
+      });
+      // checkboxes
+      ['phone1_has_whatsapp','phone1_has_viber','phone1_has_telegram','phone2_has_whatsapp','phone2_has_viber','phone2_has_telegram'].forEach(function(f) {
+        var el = form.querySelector('[name="' + f + '"]'); if (el) el.value = s[f] ? '1' : '0';
+        var chk = form.querySelector('[data-app-check="' + f + '"]'); if (chk) chk.classList.toggle('active', !!s[f]);
       });
       var statusEl = form.querySelector('[name="is_active"]');
       if (statusEl) statusEl.value = s.is_active ? '1' : '0';
@@ -819,12 +905,16 @@
         }, 100);
       }, 600);
       var preview = document.getElementById('student-photo-preview');
-      if (preview) preview.src = avatarUrl(s.photo, [s.first_name, s.last_name].join(' '), 'student');
+      if (preview) preview.src = avatarUrl(s.photo, [s.first_name, s.last_name].join(' '), 'student', s.gender);
     }).catch(function (err) { showAlert('#backend-form-status', err.message); });
     form.addEventListener('submit', function (e) {
       e.preventDefault(); var fd = new FormData(form); var payload = {};
-      ['first_name', 'last_name', 'email', 'gender', 'birth_date', 'photo', 'blood_type', 'formation_id', 'registration_number', 'parent_name', 'parent_phone', 'enrollment_date', 'payment_status', 'subscription_plan', 'promo_code'].forEach(function (f) {
+      ['first_name', 'last_name', 'email', 'gender', 'birth_date', 'photo', 'blood_type', 'formation_id', 'registration_number', 'parent_name', 'parent_phone', 'parent_phone2', 'guardian_name', 'guardian_relationship', 'guardian_id_number', 'health_notes', 'parents_status', 'enrollment_date', 'payment_status', 'subscription_plan', 'promo_code'].forEach(function (f) {
         var v = fd.get(f); if (v !== null) payload[f] = v || null;
+      });
+      // boolean app checkboxes
+      ['phone1_has_whatsapp','phone1_has_viber','phone1_has_telegram','phone2_has_whatsapp','phone2_has_viber','phone2_has_telegram'].forEach(function(f) {
+        var v = fd.get(f); if (v !== null) payload[f] = v === '1' ? 1 : 0;
       });
       var isActive = fd.get('is_active');
       if (isActive !== null) payload.is_active = isActive === '1' ? 1 : 0;
@@ -998,9 +1088,9 @@
     var tbody = document.querySelector('#backend-teachers-table tbody'); if (!tbody) return;
     if (!rows.length) { tbody.innerHTML = '<tr><td colspan="7" class="text-center">' + t('No records found') + '</td></tr>'; return; }
     tbody.innerHTML = rows.map(function (r) {
-      var chk = '<input type="checkbox" class="row-checkbox" value="' + r.id + '" data-type="teacher">';
       var name = esc([r.first_name, r.last_name].filter(Boolean).join(' '));
-      var img = '<img src="' + esc(avatarUrl(r.photo, [r.first_name, r.last_name].join(' '), 'teacher')) + '" style="width:36px;height:36px;border-radius:50%;object-fit:cover">';
+      var img = '<img src="' + esc(avatarUrl(r.photo, [r.first_name, r.last_name].join(' '), 'teacher', r.gender)) + '" style="width:36px;height:36px;border-radius:50%;object-fit:cover">';
+      var chk = '<input type="checkbox" class="row-checkbox" value="' + r.id + '" data-type="teacher" data-name="' + name + '" data-reg="' + esc(r.employee_number) + '" data-photo="' + esc(avatarUrl(r.photo, name, 'teacher', r.gender)) + '" data-speciality="' + esc(r.speciality || '') + '">';
       var statusBadge = r.is_active ? '<span class="label label-success">Active</span>' : '<span class="label label-danger">Inactive</span>';
       return '<tr><td>' + chk + '</td><td>' + img + '</td><td>' + esc(r.employee_number) + '</td><td>' + name + '</td><td>' + esc(r.email) + '</td><td>' + statusBadge + '</td><td>' + esc(r.speciality || '-') + '</td><td>' + esc(r.hire_date || '-') + '</td>' +
         '<td><a href="professor-profile.html?id=' + r.id + '" class="btn btn-xs btn-success" title="View Details"><i class="fa fa-eye"></i></a> ' +
@@ -1044,7 +1134,7 @@
       var bloodTypeEl = form.querySelector('[name="blood_type"]');
       if (bloodTypeEl && tc.blood_type) bloodTypeEl.value = tc.blood_type;
       var preview = document.getElementById('teacher-photo-preview');
-      if (preview) preview.src = avatarUrl(tc.photo, [tc.first_name, tc.last_name].join(' '), 'teacher');
+      if (preview) preview.src = avatarUrl(tc.photo, [tc.first_name, tc.last_name].join(' '), 'teacher', tc.gender);
     }).catch(function (err) { showAlert('#backend-form-status', err.message); });
     form.addEventListener('submit', function (e) {
       e.preventDefault(); var fd = new FormData(form); var payload = {};
@@ -1291,7 +1381,7 @@
     if (!students.length) { c.innerHTML = '<p class="text-muted" style="margin:8px">No students found</p>'; return; }
     c.innerHTML = students.map(function (s) {
       var name = [s.first_name, s.last_name].filter(Boolean).join(' ');
-      var img = avatarUrl(s.photo, name, 'student');
+      var img = avatarUrl(s.photo, name, 'student', s.gender);
       return '<label><input type="checkbox" name="student_ids" value="' + s.id + '"> ' +
         '<img src="' + esc(img) + '" onerror="this.src=\'https://ui-avatars.com/api/?name=S&background=27ae60&color=fff&size=30\'"> ' +
         '<span>' + esc(name) + '</span> <small class="text-muted">' + esc(s.registration_number) + '</small></label>';
@@ -1373,7 +1463,7 @@
       else {
         area.innerHTML = students.map(function (s) {
           var name = [s.first_name, s.last_name].filter(Boolean).join(' ');
-          var img = avatarUrl(s.photo, name, 'student');
+          var img = avatarUrl(s.photo, name, 'student', s.gender);
           return '<span class="student-card">' +
             '<img src="' + esc(img) + '" onerror="this.src=\'https://ui-avatars.com/api/?name=S&background=27ae60&color=fff&size=28\'"> ' +
             esc(name) +
@@ -1388,7 +1478,7 @@
       if (!available.length) { panel.innerHTML = '<p class="text-muted" style="margin:8px">All students already assigned</p>'; return; }
       panel.innerHTML = available.map(function (s) {
         var name = [s.first_name, s.last_name].filter(Boolean).join(' ');
-        var img = avatarUrl(s.photo, name, 'student');
+        var img = avatarUrl(s.photo, name, 'student', s.gender);
         return '<label><input type="checkbox" value="' + s.id + '"> <img src="' + esc(img) + '"> <span>' + esc(name) + '</span> <small class="text-muted">' + esc(s.registration_number) + '</small></label>';
       }).join('');
     });
@@ -1520,21 +1610,58 @@
       document.getElementById('sp-loading').style.display = 'none';
       document.getElementById('sp-content').style.display = 'block';
 
-      document.getElementById('sp-photo').src = avatarUrl(tc.photo, [tc.first_name, tc.last_name].join(' '), 'student');
+      document.getElementById('sp-photo').src = avatarUrl(tc.photo, [tc.first_name, tc.last_name].join(' '), 'student', tc.gender);
       document.getElementById('sp-name').textContent = [tc.first_name, tc.last_name].filter(Boolean).join(' ');
       document.getElementById('sp-reg-num').textContent = tc.registration_number || '-';
       document.getElementById('sp-email').textContent = tc.email || '-';
 
       document.getElementById('sp-gender').textContent = tc.gender || '-';
       document.getElementById('sp-birth-date').textContent = tc.birth_date || '-';
-      document.getElementById('sp-parent-name').textContent = tc.parent_name || '-';
-      document.getElementById('sp-parent-phone').textContent = tc.parent_phone || '-';
+      document.getElementById('sp-blood-type').textContent = tc.blood_type || '-';
+      
       document.getElementById('sp-enrollment-date').textContent = tc.enrollment_date || '-';
       document.getElementById('sp-formation').textContent = tc.formation_title || '-';
       document.getElementById('sp-subscription-plan').textContent = formatSubscriptionPlan(tc.subscription_plan);
-      document.getElementById('sp-next-payment-date').textContent = tc.next_payment_date || '-';
       document.getElementById('sp-payment-status').innerHTML = formatPaymentStatus(tc.payment_status);
+      document.getElementById('sp-next-payment-date').textContent = tc.next_payment_date || '-';
       document.getElementById('sp-status').innerHTML = tc.is_active ? '<span class="label label-success">Active</span>' : '<span class="label label-danger">Inactive</span>';
+
+      document.getElementById('sp-parent-name').textContent = tc.parent_name || '-';
+      
+      function renderPhoneApps(phone, wa, vb, tg) {
+        if (!phone) return '-';
+        var html = '<span>' + phone + '</span>';
+        if (wa) html += ' <i class="fa fa-whatsapp" style="color:#25D366;font-size:16px;margin-left:6px;" title="WhatsApp"></i>';
+        if (vb) html += ' <i class="fa fa-phone" style="color:#7c3aed;font-size:16px;margin-left:4px;" title="Viber"></i>';
+        if (tg) html += ' <i class="fa fa-telegram" style="color:#0088cc;font-size:16px;margin-left:4px;" title="Telegram"></i>';
+        return html;
+      }
+      
+      document.getElementById('sp-parent-phone').innerHTML = renderPhoneApps(tc.parent_phone, tc.phone1_has_whatsapp, tc.phone1_has_viber, tc.phone1_has_telegram);
+      document.getElementById('sp-parent-phone2').innerHTML = renderPhoneApps(tc.parent_phone2, tc.phone2_has_whatsapp, tc.phone2_has_viber, tc.phone2_has_telegram);
+      
+      document.getElementById('sp-guardian-name').textContent = tc.guardian_name || '-';
+      document.getElementById('sp-guardian-rel').textContent = tc.guardian_relationship || '-';
+      document.getElementById('sp-guardian-id').textContent = tc.guardian_id_number || '-';
+      
+      var ps = tc.parents_status || '-';
+      var psLabels = {
+        'together': 'Together', 'divorced': 'Divorced', 
+        'father_deceased': 'Father Deceased', 'mother_deceased': 'Mother Deceased', 
+        'both_deceased': 'Both Deceased', 'other': 'Other'
+      };
+      var psText = psLabels[ps] || ps;
+      document.getElementById('sp-parents-status').innerHTML = '<span data-i18n="'+psText+'">'+psText+'</span>';
+      
+      if (tc.needs_special_care) {
+        document.getElementById('sp-health-notes').innerHTML = '<span class="text-danger" style="font-weight:600;"><i class="fa fa-exclamation-triangle"></i> Needs Special Care</span>' + 
+          (tc.health_notes ? '<br><span style="font-size:13px;color:#555;margin-top:6px;display:block;">' + esc(tc.health_notes) + '</span>' : '');
+      } else {
+        document.getElementById('sp-health-notes').innerHTML = '<span class="text-success"><i class="fa fa-check-circle"></i> Normal Health</span>';
+      }
+      
+      // Trigger i18n translation for dynamically injected strings
+      if (window.AppI18n) window.AppI18n.translateAll(document.getElementById('sp-content'));
     }).catch(function (err) { showAlert(cont, err.message); });
   }
 
@@ -1546,7 +1673,7 @@
       document.getElementById('tp-loading').style.display = 'none';
       document.getElementById('tp-content').style.display = 'block';
 
-      document.getElementById('tp-photo').src = avatarUrl(tc.photo, [tc.first_name, tc.last_name].join(' '), 'teacher');
+      document.getElementById('tp-photo').src = avatarUrl(tc.photo, [tc.first_name, tc.last_name].join(' '), 'teacher', tc.gender);
       document.getElementById('tp-name').textContent = [tc.first_name, tc.last_name].filter(Boolean).join(' ');
       document.getElementById('tp-emp-num').textContent = tc.employee_number || '-';
       document.getElementById('tp-email').textContent = tc.email || '-';
@@ -1582,6 +1709,8 @@
     }).catch(function (err) { showAlert(cont, err.message); });
   }
 
+  var _groupPageStudents = [];
+
   function loadGroupProfile() {
     var cont = document.querySelector('#gp-container'); if (!cont) return;
     var id = urlParam('id'); if (!id) { showAlert(cont, 'No group ID in URL'); return; }
@@ -1599,21 +1728,261 @@
       document.getElementById('gp-max-students').textContent = tc.max_students || 'Unlimited';
       document.getElementById('gp-created').textContent = tc.created_at ? new Date(tc.created_at).toLocaleDateString() : '-';
 
-      // Render students
-      var stuList = document.getElementById('gp-students');
-      if (!tc.students || !tc.students.length) {
-        stuList.innerHTML = '<p class="text-muted">No students assigned to this group yet.</p>';
-      } else {
-        stuList.innerHTML = tc.students.map(function (s) {
-          var name = [s.first_name, s.last_name].filter(Boolean).join(' ');
-          var img = avatarUrl(s.photo, name, 'student');
-          return '<div class="student-card" style="margin-bottom:8px; display:inline-flex; width:auto; padding-right:16px;">' +
-            '<img src="' + esc(img) + '"> ' +
-            '<span>' + esc(name) + ' (' + esc(s.registration_number) + ')</span>' +
-            '</div>';
-        }).join('');
+      _groupPageStudents = tc.students || [];
+      renderGroupStudentsTable(_groupPageStudents);
+      
+      // Hook up filters
+      var searchInput = document.getElementById('gp-search-name');
+      var statusFilter = document.getElementById('gp-filter-status');
+      
+      function filterGroupStudents() {
+          var sVal = searchInput ? searchInput.value.toLowerCase() : '';
+          var statVal = statusFilter ? statusFilter.value : '';
+          var filtered = _groupPageStudents.filter(function(st) {
+              var name = [st.first_name, st.last_name].filter(Boolean).join(' ').toLowerCase();
+              var matchSearch = name.indexOf(sVal) > -1;
+              var matchStatus = statVal === '' || (statVal === '1' ? st.is_active : !st.is_active);
+              return matchSearch && matchStatus;
+          });
+          renderGroupStudentsTable(filtered);
       }
+      
+      if (searchInput) searchInput.addEventListener('input', filterGroupStudents);
+      if (statusFilter) statusFilter.addEventListener('change', filterGroupStudents);
+
+      // Fetch all students for the custom autocomplete dropdown
+      request('/api/student-registrations').then(function(res) {
+          var allStudents = res.data || [];
+          var addInput = document.getElementById('gp-add-student-input');
+          var dropdown = document.getElementById('gp-autocomplete-dropdown');
+          if (!addInput || !dropdown) return;
+
+          function renderDropdown(q) {
+              var groupIds = _groupPageStudents.map(function(s) { return s.id; });
+              var available = allStudents.filter(function(s) { return groupIds.indexOf(s.id) === -1; });
+              
+              if (q) {
+                  q = q.toLowerCase();
+                  available = available.filter(function(s) {
+                      var name = [s.first_name, s.last_name].filter(Boolean).join(' ').toLowerCase();
+                      var reg = (s.registration_number||'').toLowerCase();
+                      return name.indexOf(q) > -1 || reg.indexOf(q) > -1;
+                  });
+              }
+              
+              if (!available.length) {
+                  dropdown.innerHTML = '<div style="padding: 8px; text-align: center; color: #888; font-size: 13px;">No matching students found</div>';
+                  dropdown.style.display = 'block';
+                  return;
+              }
+              
+              dropdown.innerHTML = available.slice(0, 15).map(function(s) {
+                  var name = esc([s.first_name, s.last_name].filter(Boolean).join(' '));
+                  var img = esc(avatarUrl(s.photo, name, 'student', s.gender));
+                  var reg = esc(s.registration_number);
+                  return '<div class="autocomplete-item" data-id="' + s.id + '" style="display:flex;align-items:center;padding:8px;gap:10px;cursor:pointer;border-radius:4px;transition:background 0.2s;" onmouseover="this.style.background=\'#f1f5f9\'" onmouseout="this.style.background=\'transparent\'">' +
+                         '<img src="' + img + '" style="width:28px;height:28px;border-radius:50%;object-fit:cover;" onerror="this.src=\'https://ui-avatars.com/api/?name=S&background=27ae60&color=fff&size=28\'">' +
+                         '<div style="line-height:1.2"><div style="font-weight:600;font-size:13px;color:#333">' + name + '</div><div style="font-size:11px;color:#777">Reg: ' + reg + '</div></div>' +
+                         '</div>';
+              }).join('');
+              dropdown.style.display = 'block';
+              
+              // Bind clicks
+              dropdown.querySelectorAll('.autocomplete-item').forEach(function(item) {
+                  item.addEventListener('click', function() {
+                      var stId = parseInt(this.getAttribute('data-id'));
+                      addInput.value = '';
+                      dropdown.style.display = 'none';
+                      addInput.disabled = true;
+                      addInput.placeholder = 'Adding...';
+                      
+                      request('/api/groups/' + id + '/students', { method: 'POST', body: JSON.stringify({ student_ids: [stId] }) })
+                        .then(function() {
+                            addInput.disabled = false;
+                            addInput.placeholder = 'Search student to add...';
+                            loadGroupProfile(); // Reload to refresh table
+                        })
+                        .catch(function(err) {
+                            alert('Error: ' + err.message);
+                            addInput.disabled = false;
+                            addInput.placeholder = 'Search student to add...';
+                        });
+                  });
+              });
+          }
+
+          addInput.addEventListener('input', function() {
+              if (this.value.trim().length > 0) renderDropdown(this.value.trim());
+              else renderDropdown('');
+          });
+          addInput.addEventListener('focus', function() {
+              renderDropdown(this.value.trim());
+          });
+          document.addEventListener('click', function(e) {
+              if (addInput && dropdown && !addInput.contains(e.target) && !dropdown.contains(e.target)) {
+                  dropdown.style.display = 'none';
+              }
+          });
+          
+      }).catch(function(e) { console.error('Failed to load global students', e); });
+
     }).catch(function (err) { showAlert(cont, err.message); });
+  }
+
+  function renderGroupStudentsTable(rows) {
+      var tbody = document.getElementById('gp-students-tbody');
+      if (!tbody) return;
+      if (!rows.length) {
+          tbody.innerHTML = '<tr><td colspan="8" class="text-center">No students found.</td></tr>';
+          return;
+      }
+      tbody.innerHTML = rows.map(function(r) {
+          var fullName = [r.first_name, r.last_name].filter(Boolean).join(' ');
+          var chk = '<input type="checkbox" class="gp-row-checkbox" value="' + r.id + '" data-type="student" data-name="' + esc(fullName) + '" data-reg="' + esc(r.registration_number) + '" data-photo="' + esc(avatarUrl(r.photo, fullName, 'student', r.gender)) + '" data-formation="' + esc(r.formation_title || '') + '">';
+          var img = '<img src="' + esc(avatarUrl(r.photo, fullName, 'student', r.gender)) + '" style="width:36px;height:36px;border-radius:50%;object-fit:cover" onerror="this.src=\'https://ui-avatars.com/api/?name=S&background=27ae60&color=fff&size=36\'">';
+          
+          return '<tr>' +
+              '<td>' + chk + '</td>' +
+              '<td>' + img + '</td>' +
+              '<td>' + esc(r.registration_number) + '</td>' +
+              '<td>' + esc(fullName) + '</td>' +
+              '<td>' + (r.is_active ? '<span class="label label-success">Active</span>' : '<span class="label label-danger">Inactive</span>') + '</td>' +
+              '<td>' + esc(r.parent_name || '-') + '</td>' +
+              '<td>' + esc(formatGmtPlusOneDate(r.enrollment_date)) + '</td>' +
+              '<td>' +
+                  '<a href="student-profile.html?id=' + r.id + '" class="btn btn-xs btn-success" title="View"><i class="fa fa-eye"></i></a> ' +
+                  '<a href="edit-student.html?id=' + r.id + '" class="btn btn-xs btn-info" title="Edit"><i class="fa fa-pencil"></i></a> ' +
+                  '<button class="btn btn-xs btn-warning" data-del-group-student="' + r.id + '" title="Remove from Group"><i class="fa fa-chain-broken"></i></button>' +
+              '</td>' +
+          '</tr>';
+      }).join('');
+      
+      // Attach remove events
+      var tableEl = document.getElementById('gp-students-table');
+      if (!tableEl) return;
+      // Clone to remove old listeners so we don't trigger multiple times
+      var newTableEl = tableEl.cloneNode(true);
+      tableEl.parentNode.replaceChild(newTableEl, tableEl);
+      // Re-fetch tbody reference after clone
+      var tbody2 = newTableEl.querySelector('tbody');
+      if (tbody2 && tbody2.id) tbody2.id = 'gp-students-tbody'; // keep id on cloned element
+      
+      newTableEl.addEventListener('click', function (e) {
+          var btn = e.target.closest('[data-del-group-student]');
+          if (!btn) return;
+          if (!confirm('Remove this student from the group?')) return;
+          var stId = btn.getAttribute('data-del-group-student');
+          var groupId = urlParam('id');
+          request('/api/groups/' + groupId + '/students/' + stId, { method: 'DELETE' })
+            .then(function() {
+                loadGroupProfile(); // Reload to refresh table and datalist
+            }).catch(function (err) { alert(err.message); });
+      });
+
+      // Update checkboxes and generate button (re-query after clone)
+      var selectAll = newTableEl.querySelector('.select-all');
+      var rowCheckboxes = newTableEl.querySelectorAll('.gp-row-checkbox');
+      var genBtn = document.getElementById('btn-generate-cards');
+      
+      if (selectAll) {
+          selectAll.checked = false;
+          selectAll.onchange = function() {
+              var isChecked = this.checked;
+              rowCheckboxes.forEach(function(cb) { cb.checked = isChecked; });
+              if (genBtn) genBtn.style.display = Array.from(rowCheckboxes).some(function(cb) { return cb.checked; }) ? 'inline-block' : 'none';
+          };
+      }
+      rowCheckboxes.forEach(function(cb) {
+          cb.onchange = function() {
+              if (genBtn) genBtn.style.display = Array.from(rowCheckboxes).some(function(c) { return c.checked; }) ? 'inline-block' : 'none';
+          };
+      });
+  }
+
+  // Generate Cards event binding for group page
+  document.addEventListener('DOMContentLoaded', function() {
+      var genBtn = document.getElementById('btn-generate-cards');
+      if (genBtn && document.body.getAttribute('data-page') === 'groups') {
+          genBtn.addEventListener('click', function() {
+              var selected = Array.from(document.querySelectorAll('.gp-row-checkbox:checked')).map(function(cb) {
+                  return {
+                      id: cb.value,
+                      name: cb.getAttribute('data-name'),
+                      reg: cb.getAttribute('data-reg'),
+                      photo: cb.getAttribute('data-photo'),
+                      formation: cb.getAttribute('data-formation')
+                  };
+              });
+              if (!selected.length) return alert('No students selected.');
+              generateCardsForGroup(selected);
+          });
+      }
+  });
+
+  function generateCardsForGroup(selectedStudents) {
+      if (!window.html2canvas || !window.JSZip || !window.saveAs || !window.QRCode) {
+          return alert("Required libraries for generating cards are missing.");
+      }
+      
+      var zip = new JSZip();
+      var folder = zip.folder("Student_Cards");
+      var btn = document.getElementById('btn-generate-cards');
+      var origText = btn.innerHTML;
+      btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
+      btn.disabled = true;
+      
+      var cardTemplate = document.getElementById('school-card-template');
+      var container = document.getElementById('school-card-template-container');
+      container.style.left = '0';
+      container.style.top = '0';
+      container.style.opacity = '0.01'; // Make it renderable but invisible
+      container.style.pointerEvents = 'none';
+
+      request('/api/school-setup/settings').then(function (res) {
+          var school = res.school || {};
+          document.getElementById('card-school-name').textContent = school.name || 'المدرسة';
+          document.getElementById('card-school-logo').src = school.logo ? '/uploads/' + school.logo : 'img/logo/school-manager-logo.png';
+          
+          var processNext = function(index) {
+              if (index >= selectedStudents.length) {
+                  container.style.left = '-9999px';
+                  zip.generateAsync({type:"blob"}).then(function(content) {
+                      saveAs(content, "Group_Student_Cards.zip");
+                      btn.innerHTML = origText;
+                      btn.disabled = false;
+                  });
+                  return;
+              }
+              
+              var st = selectedStudents[index];
+              document.getElementById('card-student-name').textContent = st.name;
+              document.getElementById('card-student-photo').src = st.photo;
+              document.getElementById('card-qr-reg').textContent = st.reg;
+              document.getElementById('card-student-formation').textContent = st.formation || 'Student';
+              
+              var qrContainer = document.getElementById('card-qr-code');
+              qrContainer.innerHTML = '';
+              new QRCode(qrContainer, { text: st.reg, width: 70, height: 70, colorDark: "#0d1f3c", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.M });
+              
+              setTimeout(function() {
+                  html2canvas(cardTemplate, { scale: 3, useCORS: true, backgroundColor: null, logging: false }).then(function(canvas) {
+                      var imgData = canvas.toDataURL("image/jpeg", 0.95);
+                      folder.file("Student_" + st.reg + ".jpg", imgData.split(',')[1], {base64: true});
+                      processNext(index + 1);
+                  }).catch(function(err) {
+                      console.error('Canvas error', err);
+                      processNext(index + 1);
+                  });
+              }, 150); // Give DOM/QR time to settle
+          };
+          processNext(0);
+      }).catch(function(e) {
+          console.error(e);
+          btn.innerHTML = origText;
+          btn.disabled = false;
+          container.style.left = '-9999px';
+          alert('Failed to load school settings for cards.');
+      });
   }
   // ── Certificate ──────────────────────────────────────────────────────────────
   window.loadCertificatePage = function () {
@@ -2019,6 +2388,7 @@
     bindAdditionalAdminControls();
     // Students
     loadStudents(); bindAddStudentForm(); bindEditStudentForm(); loadStudentProfile(); bindImportExcel();
+    applyTranslations(document);
     populatePaymentFilters().then(function () { bindPaymentFilters(); loadPaymentsPage(); });
     // Teachers
     loadTeachers(); bindAddTeacherForm(); bindEditTeacherForm(); loadTeacherProfile();
@@ -3121,7 +3491,7 @@
         var idNumber = esc(type === 'student' ? r.registration_number : r.employee_number);
         var tag = esc(r.rfid_tag || '-');
         var scanTime = esc(r.scan_time || '-');
-        var img = '<img src="' + esc(avatarUrl(r.photo, name, type)) + '" style="width:36px;height:36px;border-radius:50%;object-fit:cover">';
+        var img = '<img src="' + esc(avatarUrl(r.photo, name, type, r.gender)) + '" style="width:36px;height:36px;border-radius:50%;object-fit:cover">';
 
         var isPresent = r.status === 'present';
         var isPending = r.status === 'pending' || r.status === null;
@@ -3249,7 +3619,7 @@
   }
 
   function initSchoolCards() {
-    var table = document.querySelector('#backend-students-table');
+    var table = document.querySelector('#backend-students-table') || document.querySelector('#backend-teachers-table');
     var btnCards = document.getElementById('btn-generate-cards');
     if (!table || !btnCards) return;
 
@@ -3337,7 +3707,7 @@
           var cb = checked[i];
           var studentName = cb.getAttribute('data-name') || cb.closest('tr').cells[3].innerText;
           var reg = cb.getAttribute('data-reg') || cb.closest('tr').cells[2].innerText;
-          var formation = cb.getAttribute('data-formation') || '';
+          var formation = cb.getAttribute('data-formation') || cb.getAttribute('data-speciality') || '';
           var photoSrc = cb.getAttribute('data-photo') || '';
 
           // --- Populate card ---

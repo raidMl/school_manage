@@ -1,0 +1,700 @@
+school-mangement
+├── .cpanel.yml
+├── .gitignore
+├── admin-ui
+│   ├── add-course.html
+│   ├── add-professor.html
+│   ├── add-student.html
+│   ├── all-classrooms.html
+│   ├── all-courses.html
+│   ├── all-groups.html
+│   ├── all-professors.html
+│   ├── all-students.html
+│   ├── attendance.html
+│   ├── certificate.html
+│   ├── course-info.html
+│   ├── css
+│   │   ├── accordions.css
+│   │   ├── alerts.css
+│   │   ├── animate.css
+│   │   ├── bootstrap-rtl.min.css
+│   │   ├── bootstrap.min.css
+│   │   ├── buttons.css
+│   │   ├── c3
+│   │   │   └── c3.min.css
+│   │   ├── calendar
+│   │   │   ├── fullcalendar.min.css
+│   │   │   └── fullcalendar.print.min.css
+│   │   ├── chosen
+│   │   │   ├── bootstrap-chosen.css
+│   │   │   └── chosen-sprite.png
+│   │   ├── code-editor
+│   │   │   ├── ambiance.css
+│   │   │   └── codemirror.css
+│   │   ├── colorpicker
+│   │   │   └── colorpicker.css
+│   │   ├── cropper
+│   │   │   └── cropper.min.css
+│   │   ├── data-table
+│   │   │   ├── bootstrap-editable.css
+│   │   │   └── bootstrap-table.css
+│   │   ├── datapicker
+│   │   │   ├── colorpicker.css
+│   │   │   └── datepicker3.css
+│   │   ├── dropzone
+│   │   │   └── dropzone.css
+│   │   ├── duallistbox
+│   │   │   └── bootstrap-duallistbox.min.css
+│   │   ├── editor
+│   │   │   ├── bootstrap-editable.css
+│   │   │   ├── datetimepicker.css
+│   │   │   ├── select2.css
+│   │   │   └── x-editor-style.css
+│   │   ├── educate-custon-icon.css
+│   │   ├── font-awesome.min.css
+│   │   ├── form
+│   │   │   ├── all-type-forms.css
+│   │   │   └── themesaller-forms.css
+│   │   ├── form.css
+│   │   ├── ionrangeslider
+│   │   │   ├── ion.rangeSlider.css
+│   │   │   ├── ion.rangeSlider.skinFlat.css
+│   │   │   └── sprite-skin-flat.png
+│   │   ├── main.css
+│   │   ├── meanmenu.min.css
+│   │   ├── metismenu
+│   │   │   ├── metisMenu-vertical.css
+│   │   │   └── metisMenu.min.css
+│   │   ├── modals.css
+│   │   ├── morrisjs
+│   │   │   └── morris.css
+│   │   ├── normalize.css
+│   │   ├── notifications
+│   │   │   ├── lobibox.min.css
+│   │   │   └── notifications.css
+│   │   ├── owl.carousel.css
+│   │   ├── owl.theme.css
+│   │   ├── owl.transitions.css
+│   │   ├── preloader
+│   │   │   └── preloader-style.css
+│   │   ├── responsive.css
+│   │   ├── rtl.css
+│   │   ├── scrollbar
+│   │   │   └── jquery.mcustomscrollbar.min.css
+│   │   ├── select2
+│   │   │   └── select2.min.css
+│   │   ├── sidebar.css
+│   │   ├── summernote
+│   │   │   ├── fonts
+│   │   │   │   ├── summernote.eot
+│   │   │   │   ├── summernote.ttf
+│   │   │   │   └── summernote.woff
+│   │   │   └── summernote.css
+│   │   ├── tabs.css
+│   │   ├── touchspin
+│   │   │   └── jquery.bootstrap-touchspin.min.css
+│   │   └── tree-viewer
+│   │       ├── 32px.png
+│   │       ├── throbber.gif
+│   │       └── tree-viewer.css
+│   ├── edit-course.html
+│   ├── edit-group.html
+│   ├── edit-professor.html
+│   ├── edit-student.html
+│   ├── excelscraper.html
+│   ├── fonts
+│   │   ├── educate-icon.svg
+│   │   ├── educate-icon.ttf
+│   │   ├── educate-icon.woff
+│   │   ├── fontawesome-webfont.eot
+│   │   ├── fontawesome-webfont.svg
+│   │   ├── fontawesome-webfont.ttf
+│   │   ├── fontawesome-webfont.woff
+│   │   ├── fontawesome-webfont.woff2
+│   │   ├── fontawesome.otf
+│   │   ├── glyphicons-halflings-regular.eot
+│   │   ├── glyphicons-halflings-regular.svg
+│   │   ├── glyphicons-halflings-regular.ttf
+│   │   ├── glyphicons-halflings-regular.woff
+│   │   └── glyphicons-halflings-regular.woff2
+│   ├── group-info.html
+│   ├── img
+│   │   ├── avatar-student.svg
+│   │   ├── avatar-teacher.svg
+│   │   ├── blog-details
+│   │   │   └── 1.jpg
+│   │   ├── contact
+│   │   │   ├── 1.jpg
+│   │   │   ├── 2.jpg
+│   │   │   ├── 3.jpg
+│   │   │   └── 4.jpg
+│   │   ├── courses
+│   │   │   ├── 1.jpg
+│   │   │   ├── 2.jpg
+│   │   │   └── 3.jpg
+│   │   ├── cropper
+│   │   │   └── 1.jpg
+│   │   ├── favicon.ico
+│   │   ├── formation-placeholder.jpg
+│   │   ├── green1.png
+│   │   ├── logo
+│   │   │   ├── logo.png
+│   │   │   └── logosn.png
+│   │   ├── notification
+│   │   │   ├── 1.jpg
+│   │   │   ├── 2.jpg
+│   │   │   ├── 3.jpg
+│   │   │   ├── 4.jpg
+│   │   │   ├── 5.jpg
+│   │   │   └── 6.jpg
+│   │   ├── product
+│   │   │   ├── book-1.jpg
+│   │   │   ├── book-2.jpg
+│   │   │   ├── book-3.jpg
+│   │   │   ├── book-4.jpg
+│   │   │   ├── pro4.jpg
+│   │   │   └── profile-bg.jpg
+│   │   ├── profile
+│   │   │   └── 1.jpg
+│   │   └── student
+│   │       ├── 1.jpg
+│   │       ├── 2.jpg
+│   │       ├── 3.jpg
+│   │       └── 4.jpg
+│   ├── index.html
+│   ├── js
+│   │   ├── backend.js
+│   │   ├── bootstrap.min.js
+│   │   ├── c3-charts
+│   │   │   ├── c3-active.js
+│   │   │   ├── c3.min.js
+│   │   │   └── d3.min.js
+│   │   ├── calendar
+│   │   │   ├── fullcalendar-active.js
+│   │   │   ├── fullcalendar.min.js
+│   │   │   └── moment.min.js
+│   │   ├── card.js
+│   │   ├── chart
+│   │   │   ├── jquery.peity.min.js
+│   │   │   └── peity-active.js
+│   │   ├── charts
+│   │   │   ├── area-chart.js
+│   │   │   ├── bar-chart.js
+│   │   │   ├── chart.js
+│   │   │   ├── line-chart.js
+│   │   │   └── rounded-chart.js
+│   │   ├── chosen
+│   │   │   ├── chosen-active.js
+│   │   │   └── chosen.jquery.js
+│   │   ├── code-editor
+│   │   │   ├── code-editor-active.js
+│   │   │   ├── code-editor.js
+│   │   │   └── codemirror.js
+│   │   ├── colorpicker
+│   │   │   ├── color-picker-active.js
+│   │   │   └── jquery.spectrum.min.js
+│   │   ├── components.js
+│   │   ├── counterup
+│   │   │   ├── counterup-active.js
+│   │   │   ├── jquery.counterup.min.js
+│   │   │   └── waypoints.min.js
+│   │   ├── cropper
+│   │   │   ├── cropper-actice.js
+│   │   │   └── cropper.min.js
+│   │   ├── data-map
+│   │   │   ├── d3.min.js
+│   │   │   ├── data-maps-active.js
+│   │   │   ├── datamaps.all.min.js
+│   │   │   └── topojson.js
+│   │   ├── data-table
+│   │   │   ├── bootstrap-editable.js
+│   │   │   ├── bootstrap-table-editable.js
+│   │   │   ├── bootstrap-table-export.js
+│   │   │   ├── bootstrap-table-resizable.js
+│   │   │   ├── bootstrap-table.js
+│   │   │   ├── colresizable-1.5.source.js
+│   │   │   ├── data-table-active.js
+│   │   │   └── tableexport.js
+│   │   ├── datapicker
+│   │   │   ├── bootstrap-datepicker.js
+│   │   │   └── datepicker-active.js
+│   │   ├── datepicker
+│   │   │   ├── datepicker-active.js
+│   │   │   └── jquery-ui.min.js
+│   │   ├── dropzone
+│   │   │   └── dropzone.js
+│   │   ├── duallistbox
+│   │   │   ├── duallistbox.active.js
+│   │   │   └── jquery.bootstrap-duallistbox.js
+│   │   ├── e-payment.js
+│   │   ├── editable
+│   │   │   ├── bootstrap-datetimepicker.js
+│   │   │   ├── bootstrap-editable.js
+│   │   │   ├── jquery.mockjax.js
+│   │   │   ├── mock-active.js
+│   │   │   ├── moment.min.js
+│   │   │   ├── select2.js
+│   │   │   └── xediable-active.js
+│   │   ├── form-validation
+│   │   │   ├── form-active.js
+│   │   │   ├── jquery.form.min.js
+│   │   │   └── jquery.validate.min.js
+│   │   ├── google.maps
+│   │   │   └── google.maps-active.js
+│   │   ├── i18n.js
+│   │   ├── i18n_orig.js
+│   │   ├── icheck
+│   │   │   ├── icheck-active.js
+│   │   │   └── icheck.min.js
+│   │   ├── input-mask
+│   │   │   └── jasny-bootstrap.min.js
+│   │   ├── ionrangeslider
+│   │   │   ├── ion.rangeSlider.active.js
+│   │   │   └── ion.rangeSlider.min.js
+│   │   ├── jquery-price-slider.js
+│   │   ├── jquery.maskedinput.min.js
+│   │   ├── jquery.meanmenu.js
+│   │   ├── jquery.payform.min.js
+│   │   ├── jquery.scrollup.min.js
+│   │   ├── jquery.sticky.js
+│   │   ├── knob
+│   │   │   ├── jquery.knob.js
+│   │   │   └── knob-active.js
+│   │   ├── main.js
+│   │   ├── masking-active.js
+│   │   ├── metismenu
+│   │   │   ├── metisMenu-active.js
+│   │   │   └── metisMenu.min.js
+│   │   ├── morrisjs
+│   │   │   ├── home3-active.js
+│   │   │   ├── morris-active-pro.js
+│   │   │   ├── morris-active.js
+│   │   │   ├── morris.js
+│   │   │   └── raphael-min.js
+│   │   ├── multiple-email
+│   │   │   └── multiple-email-active.js
+│   │   ├── notifications
+│   │   │   ├── lobibox.js
+│   │   │   └── notification-active.js
+│   │   ├── owl.carousel.min.js
+│   │   ├── password-meter
+│   │   │   ├── password-meter-active.js
+│   │   │   ├── pwstrength-bootstrap.min.js
+│   │   │   └── zxcvbn.js
+│   │   ├── payments-page.js
+│   │   ├── pdf
+│   │   │   ├── jquery.media.js
+│   │   │   └── pdf-active.js
+│   │   ├── peity
+│   │   │   ├── jquery.peity.min.js
+│   │   │   └── peity-active.js
+│   │   ├── plugins.js
+│   │   ├── rangle-slider
+│   │   │   ├── jquery-ui-1.10.4.custom.min.js
+│   │   │   ├── jquery-ui-touch-punch.min.js
+│   │   │   └── rangle-active.js
+│   │   ├── scrollbar
+│   │   │   ├── jquery.mcustomscrollbar.concat.min.js
+│   │   │   └── mcustomscrollbar-active.js
+│   │   ├── select2
+│   │   │   ├── select2-active.js
+│   │   │   └── select2.full.min.js
+│   │   ├── sparkline
+│   │   │   ├── jquery.charts-sparkline.js
+│   │   │   ├── jquery.sparkline.min.js
+│   │   │   └── sparkline-active.js
+│   │   ├── summernote
+│   │   │   ├── summernote-active.js
+│   │   │   └── summernote.min.js
+│   │   ├── tab.js
+│   │   ├── tawk-chat.js
+│   │   ├── touchspin
+│   │   │   ├── jquery.bootstrap-touchspin.min.js
+│   │   │   └── touchspin-active.js
+│   │   ├── tree-line
+│   │   │   ├── jstree.active.js
+│   │   │   └── jstree.min.js
+│   │   ├── vendor
+│   │   │   ├── jquery-1.12.4.min.js
+│   │   │   └── modernizr-2.8.3.min.js
+│   │   ├── wizard
+│   │   │   ├── jquery.steps.js
+│   │   │   └── steps-active.js
+│   │   └── wow.min.js
+│   ├── login.html
+│   ├── partials
+│   │   ├── footer.html
+│   │   ├── header.html
+│   │   └── sidebar.html
+│   ├── payments.html
+│   ├── pdf
+│   │   └── mamunur.pdf
+│   ├── professor-profile.html
+│   ├── promo-codes.html
+│   ├── readme.md
+│   ├── register.html
+│   ├── setup-school.html
+│   ├── student-profile.html
+│   ├── style.css
+│   └── weekly-program.html
+├── backend
+│   ├── .env
+│   ├── .env.example
+│   ├── fix_db.js
+│   ├── migrate.js
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── run_migration.js
+│   ├── run_migrations.js
+│   ├── run_wp_migration.js
+│   ├── run_wp_migration_v2.js
+│   ├── server.js
+│   ├── src
+│   │   ├── app.js
+│   │   ├── config
+│   │   │   ├── bootstrap.js
+│   │   │   └── db.js
+│   │   ├── middleware
+│   │   │   ├── auth.js
+│   │   │   └── errorHandler.js
+│   │   ├── routes
+│   │   │   ├── attendance.js
+│   │   │   ├── auth.routes.js
+│   │   │   ├── classrooms.routes.js
+│   │   │   ├── classroomsGroups.routes.js
+│   │   │   ├── contactInfos.routes.js
+│   │   │   ├── dashboard.routes.js
+│   │   │   ├── formations.routes.js
+│   │   │   ├── groups.routes.js
+│   │   │   ├── index.js
+│   │   │   ├── notifications.routes.js
+│   │   │   ├── paymentHistory.routes.js
+│   │   │   ├── promoCodes.routes.js
+│   │   │   ├── schools.routes.js
+│   │   │   ├── schoolSetup.routes.js
+│   │   │   ├── schoolUsers.routes.js
+│   │   │   ├── studentGroups.routes.js
+│   │   │   ├── studentRegistrations.routes.js
+│   │   │   ├── students.routes.js
+│   │   │   ├── studentSpace.routes.js
+│   │   │   ├── teacherRegistrations.routes.js
+│   │   │   ├── teachers.routes.js
+│   │   │   ├── teacherSpace.routes.js
+│   │   │   ├── userContactInfos.routes.js
+│   │   │   ├── users.routes.js
+│   │   │   └── weeklyProgram.routes.js
+│   │   └── utils
+│   │       ├── asyncHandler.js
+│   │       ├── crudRouter.js
+│   │       ├── httpError.js
+│   │       └── jwt.js
+│   └── tash list
+├── client_ui
+│   ├── attendance.html
+│   ├── css
+│   │   ├── accordions.css
+│   │   ├── alerts.css
+│   │   ├── animate.css
+│   │   ├── bootstrap-rtl.min.css
+│   │   ├── bootstrap.min.css
+│   │   ├── buttons.css
+│   │   ├── c3
+│   │   │   └── c3.min.css
+│   │   ├── calendar
+│   │   │   ├── fullcalendar.min.css
+│   │   │   └── fullcalendar.print.min.css
+│   │   ├── chosen
+│   │   │   ├── bootstrap-chosen.css
+│   │   │   └── chosen-sprite.png
+│   │   ├── code-editor
+│   │   │   ├── ambiance.css
+│   │   │   └── codemirror.css
+│   │   ├── colorpicker
+│   │   │   └── colorpicker.css
+│   │   ├── cropper
+│   │   │   └── cropper.min.css
+│   │   ├── data-table
+│   │   │   ├── bootstrap-editable.css
+│   │   │   └── bootstrap-table.css
+│   │   ├── datapicker
+│   │   │   ├── colorpicker.css
+│   │   │   └── datepicker3.css
+│   │   ├── dropzone
+│   │   │   └── dropzone.css
+│   │   ├── duallistbox
+│   │   │   └── bootstrap-duallistbox.min.css
+│   │   ├── editor
+│   │   │   ├── bootstrap-editable.css
+│   │   │   ├── datetimepicker.css
+│   │   │   ├── select2.css
+│   │   │   └── x-editor-style.css
+│   │   ├── educate-custon-icon.css
+│   │   ├── font-awesome.min.css
+│   │   ├── form
+│   │   │   ├── all-type-forms.css
+│   │   │   └── themesaller-forms.css
+│   │   ├── form.css
+│   │   ├── ionrangeslider
+│   │   │   ├── ion.rangeSlider.css
+│   │   │   ├── ion.rangeSlider.skinFlat.css
+│   │   │   └── sprite-skin-flat.png
+│   │   ├── main.css
+│   │   ├── meanmenu.min.css
+│   │   ├── metismenu
+│   │   │   ├── metisMenu-vertical.css
+│   │   │   └── metisMenu.min.css
+│   │   ├── modals.css
+│   │   ├── morrisjs
+│   │   │   └── morris.css
+│   │   ├── normalize.css
+│   │   ├── notifications
+│   │   │   ├── lobibox.min.css
+│   │   │   └── notifications.css
+│   │   ├── owl.carousel.css
+│   │   ├── owl.theme.css
+│   │   ├── owl.transitions.css
+│   │   ├── preloader
+│   │   │   └── preloader-style.css
+│   │   ├── responsive.css
+│   │   ├── rtl.css
+│   │   ├── scrollbar
+│   │   │   └── jquery.mcustomscrollbar.min.css
+│   │   ├── select2
+│   │   │   └── select2.min.css
+│   │   ├── sidebar.css
+│   │   ├── summernote
+│   │   │   ├── fonts
+│   │   │   │   ├── summernote.eot
+│   │   │   │   ├── summernote.ttf
+│   │   │   │   └── summernote.woff
+│   │   │   └── summernote.css
+│   │   ├── tabs.css
+│   │   ├── touchspin
+│   │   │   └── jquery.bootstrap-touchspin.min.css
+│   │   └── tree-viewer
+│   │       ├── 32px.png
+│   │       ├── throbber.gif
+│   │       └── tree-viewer.css
+│   ├── fonts
+│   │   ├── educate-icon.svg
+│   │   ├── educate-icon.ttf
+│   │   ├── educate-icon.woff
+│   │   ├── fontawesome-webfont.eot
+│   │   ├── fontawesome-webfont.svg
+│   │   ├── fontawesome-webfont.ttf
+│   │   ├── fontawesome-webfont.woff
+│   │   ├── fontawesome-webfont.woff2
+│   │   ├── fontawesome.otf
+│   │   ├── glyphicons-halflings-regular.eot
+│   │   ├── glyphicons-halflings-regular.svg
+│   │   ├── glyphicons-halflings-regular.ttf
+│   │   ├── glyphicons-halflings-regular.woff
+│   │   └── glyphicons-halflings-regular.woff2
+│   ├── img
+│   │   ├── avatar-student.svg
+│   │   ├── avatar-teacher.svg
+│   │   ├── blog-details
+│   │   │   └── 1.jpg
+│   │   ├── contact
+│   │   │   ├── 1.jpg
+│   │   │   ├── 2.jpg
+│   │   │   ├── 3.jpg
+│   │   │   └── 4.jpg
+│   │   ├── courses
+│   │   │   ├── 1.jpg
+│   │   │   ├── 2.jpg
+│   │   │   └── 3.jpg
+│   │   ├── cropper
+│   │   │   └── 1.jpg
+│   │   ├── favicon.ico
+│   │   ├── formation-placeholder.jpg
+│   │   ├── green1.png
+│   │   ├── logo
+│   │   │   ├── logo.png
+│   │   │   └── logosn.png
+│   │   ├── notification
+│   │   │   ├── 1.jpg
+│   │   │   ├── 2.jpg
+│   │   │   ├── 3.jpg
+│   │   │   ├── 4.jpg
+│   │   │   ├── 5.jpg
+│   │   │   └── 6.jpg
+│   │   ├── product
+│   │   │   ├── book-1.jpg
+│   │   │   ├── book-2.jpg
+│   │   │   ├── book-3.jpg
+│   │   │   ├── book-4.jpg
+│   │   │   ├── pro4.jpg
+│   │   │   └── profile-bg.jpg
+│   │   ├── profile
+│   │   │   └── 1.jpg
+│   │   └── student
+│   │       ├── 1.jpg
+│   │       ├── 2.jpg
+│   │       ├── 3.jpg
+│   │       └── 4.jpg
+│   ├── index.html
+│   ├── js
+│   │   ├── backend.js
+│   │   ├── bootstrap.min.js
+│   │   ├── c3-charts
+│   │   │   ├── c3-active.js
+│   │   │   ├── c3.min.js
+│   │   │   └── d3.min.js
+│   │   ├── calendar
+│   │   │   ├── fullcalendar-active.js
+│   │   │   ├── fullcalendar.min.js
+│   │   │   └── moment.min.js
+│   │   ├── card.js
+│   │   ├── chart
+│   │   │   ├── jquery.peity.min.js
+│   │   │   └── peity-active.js
+│   │   ├── charts
+│   │   │   ├── area-chart.js
+│   │   │   ├── bar-chart.js
+│   │   │   ├── chart.js
+│   │   │   ├── line-chart.js
+│   │   │   └── rounded-chart.js
+│   │   ├── chosen
+│   │   │   ├── chosen-active.js
+│   │   │   └── chosen.jquery.js
+│   │   ├── code-editor
+│   │   │   ├── code-editor-active.js
+│   │   │   ├── code-editor.js
+│   │   │   └── codemirror.js
+│   │   ├── colorpicker
+│   │   │   ├── color-picker-active.js
+│   │   │   └── jquery.spectrum.min.js
+│   │   ├── components.js
+│   │   ├── counterup
+│   │   │   ├── counterup-active.js
+│   │   │   ├── jquery.counterup.min.js
+│   │   │   └── waypoints.min.js
+│   │   ├── cropper
+│   │   │   ├── cropper-actice.js
+│   │   │   └── cropper.min.js
+│   │   ├── data-map
+│   │   │   ├── d3.min.js
+│   │   │   ├── data-maps-active.js
+│   │   │   ├── datamaps.all.min.js
+│   │   │   └── topojson.js
+│   │   ├── data-table
+│   │   │   ├── bootstrap-editable.js
+│   │   │   ├── bootstrap-table-editable.js
+│   │   │   ├── bootstrap-table-export.js
+│   │   │   ├── bootstrap-table-resizable.js
+│   │   │   ├── bootstrap-table.js
+│   │   │   ├── colresizable-1.5.source.js
+│   │   │   ├── data-table-active.js
+│   │   │   └── tableexport.js
+│   │   ├── datapicker
+│   │   │   ├── bootstrap-datepicker.js
+│   │   │   └── datepicker-active.js
+│   │   ├── datepicker
+│   │   │   ├── datepicker-active.js
+│   │   │   └── jquery-ui.min.js
+│   │   ├── dropzone
+│   │   │   └── dropzone.js
+│   │   ├── duallistbox
+│   │   │   ├── duallistbox.active.js
+│   │   │   └── jquery.bootstrap-duallistbox.js
+│   │   ├── e-payment.js
+│   │   ├── editable
+│   │   │   ├── bootstrap-datetimepicker.js
+│   │   │   ├── bootstrap-editable.js
+│   │   │   ├── jquery.mockjax.js
+│   │   │   ├── mock-active.js
+│   │   │   ├── moment.min.js
+│   │   │   ├── select2.js
+│   │   │   └── xediable-active.js
+│   │   ├── form-validation
+│   │   │   ├── form-active.js
+│   │   │   ├── jquery.form.min.js
+│   │   │   └── jquery.validate.min.js
+│   │   ├── google.maps
+│   │   │   └── google.maps-active.js
+│   │   ├── icheck
+│   │   │   ├── icheck-active.js
+│   │   │   └── icheck.min.js
+│   │   ├── input-mask
+│   │   │   └── jasny-bootstrap.min.js
+│   │   ├── ionrangeslider
+│   │   │   ├── ion.rangeSlider.active.js
+│   │   │   └── ion.rangeSlider.min.js
+│   │   ├── jquery-price-slider.js
+│   │   ├── jquery.maskedinput.min.js
+│   │   ├── jquery.meanmenu.js
+│   │   ├── jquery.payform.min.js
+│   │   ├── jquery.scrollup.min.js
+│   │   ├── jquery.sticky.js
+│   │   ├── knob
+│   │   │   ├── jquery.knob.js
+│   │   │   └── knob-active.js
+│   │   ├── main.js
+│   │   ├── masking-active.js
+│   │   ├── metismenu
+│   │   │   ├── metisMenu-active.js
+│   │   │   └── metisMenu.min.js
+│   │   ├── morrisjs
+│   │   │   ├── home3-active.js
+│   │   │   ├── morris-active-pro.js
+│   │   │   ├── morris-active.js
+│   │   │   ├── morris.js
+│   │   │   └── raphael-min.js
+│   │   ├── multiple-email
+│   │   │   └── multiple-email-active.js
+│   │   ├── notifications
+│   │   │   ├── lobibox.js
+│   │   │   └── notification-active.js
+│   │   ├── owl.carousel.min.js
+│   │   ├── password-meter
+│   │   │   ├── password-meter-active.js
+│   │   │   ├── pwstrength-bootstrap.min.js
+│   │   │   └── zxcvbn.js
+│   │   ├── pdf
+│   │   │   ├── jquery.media.js
+│   │   │   └── pdf-active.js
+│   │   ├── peity
+│   │   │   ├── jquery.peity.min.js
+│   │   │   └── peity-active.js
+│   │   ├── plugins.js
+│   │   ├── rangle-slider
+│   │   │   ├── jquery-ui-1.10.4.custom.min.js
+│   │   │   ├── jquery-ui-touch-punch.min.js
+│   │   │   └── rangle-active.js
+│   │   ├── scrollbar
+│   │   │   ├── jquery.mcustomscrollbar.concat.min.js
+│   │   │   └── mcustomscrollbar-active.js
+│   │   ├── select2
+│   │   │   ├── select2-active.js
+│   │   │   └── select2.full.min.js
+│   │   ├── sparkline
+│   │   │   ├── jquery.charts-sparkline.js
+│   │   │   ├── jquery.sparkline.min.js
+│   │   │   └── sparkline-active.js
+│   │   ├── summernote
+│   │   │   ├── summernote-active.js
+│   │   │   └── summernote.min.js
+│   │   ├── tab.js
+│   │   ├── tawk-chat.js
+│   │   ├── touchspin
+│   │   │   ├── jquery.bootstrap-touchspin.min.js
+│   │   │   └── touchspin-active.js
+│   │   ├── tree-line
+│   │   │   ├── jstree.active.js
+│   │   │   └── jstree.min.js
+│   │   ├── vendor
+│   │   │   ├── jquery-1.12.4.min.js
+│   │   │   └── modernizr-2.8.3.min.js
+│   │   ├── wizard
+│   │   │   ├── jquery.steps.js
+│   │   │   └── steps-active.js
+│   │   └── wow.min.js
+│   ├── partials
+│   │   ├── footer.html
+│   │   ├── header.html
+│   │   └── sidebar.html
+│   ├── student-space.html
+│   ├── style.css
+│   └── teacher-space.html
+└── readme.txt

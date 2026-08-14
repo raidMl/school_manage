@@ -26,6 +26,18 @@ const SELECT_STUDENT = `
     students.registration_number,
     students.parent_name,
     students.parent_phone,
+    students.phone1_has_whatsapp,
+    students.phone1_has_viber,
+    students.phone1_has_telegram,
+    students.parent_phone2,
+    students.phone2_has_whatsapp,
+    students.phone2_has_viber,
+    students.phone2_has_telegram,
+    students.guardian_name,
+    students.guardian_relationship,
+    students.guardian_id_number,
+    students.health_notes,
+    students.parents_status,
     students.enrollment_date,
     students.payment_status,
     students.subscription_plan,
@@ -221,6 +233,18 @@ router.post(
       registration_number: registrationNumber,
       parent_name: parentName = null,
       parent_phone: parentPhone = null,
+      phone1_has_whatsapp: phone1Whatsapp = 0,
+      phone1_has_viber: phone1Viber = 0,
+      phone1_has_telegram: phone1Telegram = 0,
+      parent_phone2: parentPhone2 = null,
+      phone2_has_whatsapp: phone2Whatsapp = 0,
+      phone2_has_viber: phone2Viber = 0,
+      phone2_has_telegram: phone2Telegram = 0,
+      guardian_name: guardianName = null,
+      guardian_relationship: guardianRelationship = null,
+      guardian_id_number: guardianIdNumber = null,
+      health_notes: healthNotes = null,
+      parents_status: parentsStatus = null,
       enrollment_date: enrollmentDate = null,
       payment_status: paymentStatus = 'not_paid',
       subscription_plan: subscriptionPlan = null,
@@ -263,9 +287,9 @@ router.post(
       const userId = userResult.insertId;
 
       await connection.execute(
-        `INSERT INTO students (user_id, school_id, formation_id, registration_number, parent_name, parent_phone, enrollment_date, payment_status, subscription_plan, next_payment_date, promo_code, discount_percent)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [userId, schoolId, formationId, registrationNumber, parentName, parentPhone, enrollmentDate, paymentStatus, subscriptionPlan, computeNextPaymentDate(enrollmentDate, subscriptionPlan, paymentStatus), appliedPromoCode, appliedDiscountPercent]
+        `INSERT INTO students (user_id, school_id, formation_id, registration_number, parent_name, parent_phone, phone1_has_whatsapp, phone1_has_viber, phone1_has_telegram, parent_phone2, phone2_has_whatsapp, phone2_has_viber, phone2_has_telegram, guardian_name, guardian_relationship, guardian_id_number, health_notes, parents_status, enrollment_date, payment_status, subscription_plan, next_payment_date, promo_code, discount_percent)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [userId, schoolId, formationId, registrationNumber, parentName, parentPhone, phone1Whatsapp ? 1 : 0, phone1Viber ? 1 : 0, phone1Telegram ? 1 : 0, parentPhone2, phone2Whatsapp ? 1 : 0, phone2Viber ? 1 : 0, phone2Telegram ? 1 : 0, guardianName, guardianRelationship, guardianIdNumber, healthNotes, parentsStatus, enrollmentDate, paymentStatus, subscriptionPlan, computeNextPaymentDate(enrollmentDate, subscriptionPlan, paymentStatus), appliedPromoCode, appliedDiscountPercent]
       );
 
       await connection.commit();
@@ -303,6 +327,18 @@ router.put(
       registration_number: registrationNumber,
       parent_name: parentName,
       parent_phone: parentPhone,
+      phone1_has_whatsapp: phone1Whatsapp,
+      phone1_has_viber: phone1Viber,
+      phone1_has_telegram: phone1Telegram,
+      parent_phone2: parentPhone2,
+      phone2_has_whatsapp: phone2Whatsapp,
+      phone2_has_viber: phone2Viber,
+      phone2_has_telegram: phone2Telegram,
+      guardian_name: guardianName,
+      guardian_relationship: guardianRelationship,
+      guardian_id_number: guardianIdNumber,
+      health_notes: healthNotes,
+      parents_status: parentsStatus,
       enrollment_date: enrollmentDate,
       payment_status: paymentStatus,
       subscription_plan: subscriptionPlan,
@@ -361,6 +397,18 @@ router.put(
       if (registrationNumber !== undefined) { stuUpdates.push('registration_number = ?'); stuValues.push(registrationNumber); }
       if (parentName !== undefined)         { stuUpdates.push('parent_name = ?');         stuValues.push(parentName); }
       if (parentPhone !== undefined)        { stuUpdates.push('parent_phone = ?');        stuValues.push(parentPhone); }
+      if (phone1Whatsapp !== undefined)     { stuUpdates.push('phone1_has_whatsapp = ?'); stuValues.push(phone1Whatsapp ? 1 : 0); }
+      if (phone1Viber !== undefined)        { stuUpdates.push('phone1_has_viber = ?');    stuValues.push(phone1Viber ? 1 : 0); }
+      if (phone1Telegram !== undefined)     { stuUpdates.push('phone1_has_telegram = ?'); stuValues.push(phone1Telegram ? 1 : 0); }
+      if (parentPhone2 !== undefined)       { stuUpdates.push('parent_phone2 = ?');       stuValues.push(parentPhone2); }
+      if (phone2Whatsapp !== undefined)     { stuUpdates.push('phone2_has_whatsapp = ?'); stuValues.push(phone2Whatsapp ? 1 : 0); }
+      if (phone2Viber !== undefined)        { stuUpdates.push('phone2_has_viber = ?');    stuValues.push(phone2Viber ? 1 : 0); }
+      if (phone2Telegram !== undefined)     { stuUpdates.push('phone2_has_telegram = ?'); stuValues.push(phone2Telegram ? 1 : 0); }
+      if (guardianName !== undefined)       { stuUpdates.push('guardian_name = ?');       stuValues.push(guardianName); }
+      if (guardianRelationship !== undefined){ stuUpdates.push('guardian_relationship = ?'); stuValues.push(guardianRelationship); }
+      if (guardianIdNumber !== undefined)   { stuUpdates.push('guardian_id_number = ?');  stuValues.push(guardianIdNumber); }
+      if (healthNotes !== undefined)        { stuUpdates.push('health_notes = ?');        stuValues.push(healthNotes); }
+      if (parentsStatus !== undefined)      { stuUpdates.push('parents_status = ?');      stuValues.push(parentsStatus); }
       if (enrollmentDate !== undefined)     { stuUpdates.push('enrollment_date = ?');     stuValues.push(enrollmentDate); }
       if (paymentStatus !== undefined)      { stuUpdates.push('payment_status = ?');      stuValues.push(paymentStatus); }
       if (subscriptionPlan !== undefined)  {
