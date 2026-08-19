@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
@@ -10,19 +10,40 @@
     <link rel="stylesheet" href="css/font-awesome.min.css">
     <link rel="stylesheet" href="css/sidebar.css">
     <style>
-        body { font-family: 'Inter', sans-serif; background: #f4f6fa; }
-        .card-panel { background: #fff; border-radius: 14px; padding: 30px; box-shadow: 0 2px 12px rgba(0,0,0,.06); margin-bottom: 20px; }
-        .profile-header { display: flex; align-items: center; gap: 24px; margin-bottom: 30px; border-bottom: 1px solid #eee; padding-bottom: 24px; }
-        .profile-photo { width: 180px; height: 120px; border-radius: 12px; object-fit: cover; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        .profile-title h3 { margin: 0; font-size: 24px; font-weight: 700; color: #222; }
-        .profile-title p { margin: 6px 0 0; color: #666; font-size: 14px; display: flex; align-items: center; gap: 6px; }
-        .detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px; }
-        .detail-item { background: #f8f9fc; padding: 16px; border-radius: 8px; border-left: 4px solid #4f6eff; }
-        .detail-item label { display: block; margin: 0 0 4px; font-size: 12px; color: #777; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
-        .detail-item .val { font-size: 15px; color: #333; font-weight: 500; }
-        .description-box { margin-top: 24px; background: #f8f9fc; padding: 20px; border-radius: 8px; border-left: 4px solid #f7971e; }
-        .description-box label { display: block; margin: 0 0 8px; font-size: 12px; color: #777; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
-        .description-box p { margin: 0; font-size: 15px; color: #333; line-height: 1.6; }
+        body { font-family: 'Inter', sans-serif; background: #f1f5f9; color: #334155; }
+        .card-panel { background: #ffffff; border-radius: 16px; padding: 32px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04); margin-bottom: 24px; border: 1px solid #e2e8f0; transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .card-panel:hover { box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08); }
+        
+        .profile-header { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 32px; margin-bottom: 36px; padding-bottom: 32px; border-bottom: 1px solid #f1f5f9; position: relative; }
+        .profile-photo { width: 220px; height: 160px; border-radius: 16px; object-fit: cover; box-shadow: 0 8px 24px rgba(0,0,0,0.12); transition: transform 0.3s ease; }
+        .profile-photo:hover { transform: scale(1.02); }
+        
+        .profile-title { flex: 1; }
+        .profile-title h3 { margin: 0 0 12px; font-size: 28px; font-weight: 800; color: #0f172a; letter-spacing: -0.5px; }
+        .profile-title p { margin: 0 0 8px; color: #64748b; font-size: 15px; display: flex; align-items: center; gap: 10px; }
+        .profile-title i { color: #3b82f6; width: 16px; text-align: center; }
+        
+        .edit-btn-container { position: absolute; top: 0; right: 0; }
+        .btn-edit { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 14px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); transition: all 0.3s ease; border: none; }
+        .btn-edit:hover { background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); transform: translateY(-2px); box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3); color: white; text-decoration: none; }
+
+        .section-title { margin-bottom: 24px; font-size: 18px; font-weight: 700; color: #1e293b; display: flex; align-items: center; gap: 10px; }
+        .section-title i { color: #8b5cf6; }
+
+        .detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
+        .detail-item { background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; position: relative; overflow: hidden; transition: all 0.3s ease; display: flex; flex-direction: column; justify-content: center; }
+        .detail-item::before { content: ''; position: absolute; left: 0; top: 0; height: 100%; width: 4px; background: #cbd5e1; transition: background 0.3s ease; }
+        .detail-item:hover { background: #ffffff; box-shadow: 0 4px 12px rgba(0,0,0,0.03); transform: translateY(-3px); border-color: #cbd5e1; }
+        .detail-item:hover::before { background: #3b82f6; }
+        .detail-item label { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; font-size: 13px; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .detail-item label i { color: #94a3b8; font-size: 14px; transition: color 0.3s ease; }
+        .detail-item:hover label i { color: #3b82f6; }
+        .detail-item .val { font-size: 16px; color: #0f172a; font-weight: 700; }
+        
+        .description-box { margin-top: 36px; background: #ffffff; padding: 24px; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: inset 0 2px 4px rgba(0,0,0,0.01); position: relative; }
+        .description-box::before { content: ''; position: absolute; left: 0; top: 0; height: 100%; width: 4px; background: #f59e0b; border-radius: 12px 0 0 12px; }
+        .description-box label { display: flex; align-items: center; gap: 8px; margin: 0 0 12px; font-size: 13px; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        .description-box p { margin: 0; font-size: 15px; color: #334155; line-height: 1.7; }
     </style>
 </head>
 <body data-page="courses">
@@ -32,17 +53,17 @@
         <div class="sb-content">
             <div class="sb-breadcrumb">
                 <i class="fa fa-home"></i>
-                <a href="index.html">Home</a>
+                <a href="index.html" data-i18n="Home">Home</a>
                 <span>/</span>
-                <a href="all-courses.html">Formations</a>
+                <a href="all-courses.html" data-i18n="Formations">Formations</a>
                 <span>/</span>
-                <span>Details</span>
+                <span data-i18n="Details">Details</span>
             </div>
             
             <div id="cp-container" class="card-panel">
                 <div id="cp-loading" class="text-center" style="padding:40px;color:#888;">
                     <i class="fa fa-spinner fa-spin fa-2x"></i>
-                    <p style="margin-top:12px;">Loading Formation...</p>
+                    <p style="margin-top:12px;" data-i18n="Loading...">Loading Formation...</p>
                 </div>
                 
                 <div id="cp-content" style="display:none;">
@@ -53,34 +74,51 @@
                             <p><i class="fa fa-user"></i> <span id="cp-teacher"></span></p>
                             <p><i class="fa fa-building"></i> <span id="cp-classroom"></span></p>
                         </div>
+                        <div class="edit-btn-container">
+                            <a href="#" id="btn-edit-course" class="btn-edit">
+                                <i class="fa fa-pencil"></i> <span data-i18n="Edit">Edit</span>
+                            </a>
+                        </div>
                     </div>
                     
-                    <h4 style="margin-bottom: 20px; font-size: 18px; font-weight: 600;">Formation Information</h4>
+                    <h4 class="section-title"><i class="fa fa-info-circle"></i> <span data-i18n="Formation Information">Formation Information</span></h4>
                     <div class="detail-grid">
                         <div class="detail-item">
-                            <label>Duration</label>
+                            <label><i class="fa fa-clock-o"></i> <span data-i18n="Duration">Duration</span></label>
                             <div class="val" id="cp-duration">-</div>
                         </div>
                         <div class="detail-item">
-                            <label>Price</label>
+                            <label><i class="fa fa-star"></i> <span data-i18n="Niveau">Niveau</span></label>
+                            <div class="val" id="cp-niveau">-</div>
+                        </div>
+                        <div class="detail-item">
+                            <label><i class="fa fa-users"></i> <span data-i18n="Places Capacity">Places Capacity</span></label>
+                            <div class="val" id="cp-places">-</div>
+                        </div>
+                        <div class="detail-item">
+                            <label><i class="fa fa-check-circle"></i> <span data-i18n="Registered">Registered</span></label>
+                            <div class="val" id="cp-registered">-</div>
+                        </div>
+                        <div class="detail-item">
+                            <label><i class="fa fa-money"></i> <span data-i18n="Price">Price</span></label>
                             <div class="val" id="cp-price">-</div>
                         </div>
                         <div class="detail-item">
-                            <label>Start Date</label>
+                            <label><i class="fa fa-calendar"></i> <span data-i18n="Start Date">Start Date</span></label>
                             <div class="val" id="cp-start-date">-</div>
                         </div>
                         <div class="detail-item">
-                            <label>End Date</label>
+                            <label><i class="fa fa-calendar-times-o"></i> <span data-i18n="End Date">End Date</span></label>
                             <div class="val" id="cp-end-date">-</div>
                         </div>
                         <div class="detail-item">
-                            <label>Created On</label>
+                            <label><i class="fa fa-plus-square"></i> <span data-i18n="Created On">Created On</span></label>
                             <div class="val" id="cp-created">-</div>
                         </div>
                     </div>
                     
                     <div class="description-box">
-                        <label>Description</label>
+                        <label><i class="fa fa-align-left"></i> <span data-i18n="Description">Description</span></label>
                         <p id="cp-description">-</p>
                     </div>
                 </div>
@@ -91,7 +129,8 @@
     
     <script src="js/vendor/jquery-1.12.4.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
+    <script src="js/i18n.js"></script>
     <script src="js/components.js"></script>
-    <script src="js/backend.js"></script>
+    <script src="js/backend.js?v=3"></script>
 </body>
 </html>

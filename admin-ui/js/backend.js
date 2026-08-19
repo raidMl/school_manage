@@ -2,16 +2,21 @@
   'use strict';
 
   var TOKEN_KEY = 'school_system_token';
-  var LANG_KEY = 'school_system_lang';
+  var LANG_KEY = 'app_lang';
   var currentLang = localStorage.getItem(LANG_KEY) || 'en';
 
   // ── i18n ────────────────────────────────────────────────────────────────────
   var AR = {
+    'selected': 'محدد',
     'Home': 'الرئيسية', 'Dashboard': 'لوحة التحكم', 'Teachers': 'الأساتذة',
     'All Teachers': 'جميع الأساتذة', 'Add Teacher': 'إضافة أستاذ',
     'Students': 'الطلاب', 'All Students': 'جميع الطلاب', 'Add Student': 'إضافة طالب',
     'Formations': 'الدورات', 'All Formations': 'جميع الدورات', 'Add Formation': 'إضافة دورة',
     'Classrooms': 'الفصول', 'Groups': 'المجموعات', 'School Settings': 'إعدادات المدرسة',
+    'Edit Classroom': 'تعديل القسم', 'Update': 'تحديث', 'Cancel': 'إلغاء',
+    'Classroom updated successfully': 'تم تحديث القسم بنجاح',
+    'Delete this classroom?': 'هل تريد حذف هذا القسم؟',
+    'Delete': 'حذف', 'Edit': 'تعديل', 'Name': 'الاسم', 'Capacity': 'السعة', 'Description': 'الوصف',
     'Notifications': 'الإشعارات', 'Log Out': 'تسجيل الخروج',
     'Certificate': 'الشهادة', 'Generate Certificate': 'إصدار شهادة',
     'Generate': 'إصدار', 'Print / Download': 'طباعة / تحميل',
@@ -20,8 +25,35 @@
     'Student created successfully': 'تم إنشاء الطالب بنجاح',
     'Teacher created successfully': 'تم إنشاء الأستاذ بنجاح',
     'Formation created successfully': 'تم إنشاء الدورة بنجاح',
+    'Formation updated successfully': 'تم تحديث الدورة بنجاح',
+    'Formation deleted successfully': 'تم حذف الدورة بنجاح',
+    'Student updated successfully': 'تم تحديث الطالب بنجاح',
+    'Teacher updated successfully': 'تم تحديث الأستاذ بنجاح',
     'Group created successfully': 'تم إنشاء المجموعة بنجاح',
+    'Group updated successfully': 'تم تحديث المجموعة بنجاح',
     'Passwords do not match': 'كلمات المرور غير متطابقة',
+    'Admin updated successfully': 'تم تحديث المشرف بنجاح',
+    'Admin removed successfully': 'تم إزالة المشرف بنجاح',
+    'Settings saved successfully': 'تم حفظ الإعدادات بنجاح',
+    'Classroom added': 'تم إضافة القسم',
+    'Certificate downloaded successfully!': 'تم تحميل الشهادة بنجاح!',
+    'ZIP file created successfully!': 'تم إنشاء ملف ZIP بنجاح!',
+    'Promo code generated successfully': 'تم إنشاء رمز ترويجي بنجاح',
+    'Program deleted.': 'تم حذف البرنامج.',
+    'Successfully imported ': 'تم استيراد ',
+    ' students!': ' طلاب بنجاح!',
+    'Attendance validated and locked successfully!': 'تم التحقق من الحضور وتأكيده بنجاح!',
+
+    // ── Niveau / Level ────────────────────────────────────────────────────────
+    'Beginner': 'للمبتدئين',
+    'Intermediate': 'متوسط',
+    'Advanced': 'متقدم',
+
+    // ── Formation / Subscription labels ──────────────────────────────────────
+    'Formation': 'دورة',
+    'Subscription': 'اشتراك',
+    'Open': 'مفتوح',
+    'Closed': 'مغلق',
 
     // ── Add Student form ──────────────────────────────────────────────────────
     'New Student Registration': 'تسجيل طالب جديد',
@@ -72,6 +104,54 @@
     'National ID': 'رقم بطاقة التعريف الوطنية',
     'Describe any health conditions, allergies, or special requirements...': 'صف الحالة الصحية، الحساسية أو أي متطلبات خاصة...',
     'https://example.com/photo.jpg': 'https://example.com/photo.jpg',
+
+    // ── Formation detail page ──────────────────────────────────────────────────
+    'hours': 'ساعة',
+    'Free': 'مجاني',
+    'No description provided.': 'لم يتم توفير وصف.',
+    'No teacher assigned': 'لم يتم تعيين أستاذ',
+    'No classroom assigned': 'لم يتم تعيين قسم',
+    'Formation Information': 'معلومات الدورة',
+    'Duration': 'المدة',
+    'Places Capacity': 'عدد المقاعد',
+    'Registered': 'المسجلون',
+    'Created On': 'تاريخ الإنشاء',
+    'Price': 'السعر',
+    'Start Date': 'تاريخ البداية',
+    'End Date': 'تاريخ النهاية',
+    'Description': 'الوصف',
+    'Details': 'التفاصيل',
+
+    // ── Add/Edit Formation form ────────────────────────────────────────────────
+    'Add Formation': 'إضافة دورة',
+    'Edit Formation': 'تعديل الدورة',
+    'Title': 'العنوان',
+    'Assign Teacher': 'تعيين أستاذ',
+    'Image URL': 'رابط الصورة',
+    'Duration (hours)': 'المدة (ساعات)',
+    'Price (DA)': 'السعر (دج)',
+    'Type': 'النوع',
+    'Status': 'الحالة',
+    'Number of Places': 'عدد المقاعد',
+    'Monthly Price (DA)': 'السعر الشهري (دج)',
+    '3-Month Price (DA)': 'سعر 3 أشهر (دج)',
+    'Yearly Price (DA)': 'السعر السنوي (دج)',
+    'Save Formation': 'حفظ الدورة',
+    'Update Formation': 'تحديث الدورة',
+    'Edit': 'تعديل',
+    'Add': 'إضافة',
+    'Create a new training formation.': 'إنشاء دورة تدريبية جديدة.',
+    'Update formation details.': 'تحديث تفاصيل الدورة.',
+    'Used for formations.': 'يستخدم للدورات.',
+    'Leave empty for subscriptions and assign later when creating a group.': 'اتركه فارغاً للاشتراكات وعيّنه لاحقاً عند إنشاء فوج.',
+    'e.g. Web Development Bootcamp': 'مثال: دورة تطوير الويب',
+    'Formation description...': 'وصف الدورة...',
+    'e.g. 40': 'مثال: 40',
+    'Loading...': 'جاري التحميل...',
+    'Formation created successfully': 'تم إنشاء الدورة بنجاح',
+    'Formation updated successfully': 'تم تحديث الدورة بنجاح',
+    'Formation deleted successfully': 'تم حذف الدورة بنجاح',
+    'Delete this formation?': 'هل أنت متأكد من حذف هذه الدورة؟'
   };
   function t(s) { return currentLang === 'ar' ? (AR[s] || s) : s; }
   function applyTranslations(root) {
@@ -184,6 +264,17 @@
     var shifted = new Date(date.getTime() + 60 * 60 * 1000);
     return shifted.toISOString().slice(0, 10);
   }
+  // Format any date value (ISO or YYYY-MM-DD) to DD/MM/YYYY
+  function fmtDate(value) {
+    if (!value) return '-';
+    var raw = String(value).trim();
+    // Extract YYYY-MM-DD part regardless of time/timezone suffix
+    var ymd = raw.split('T')[0].split(' ')[0];
+    if (!ymd || ymd === '-') return '-';
+    var parts = ymd.split('-');
+    if (parts.length === 3) return parts[2] + '/' + parts[1] + '/' + parts[0];
+    return ymd;
+  }
   function setText(sel, val) { var e = document.querySelector(sel); if (e) e.textContent = val; }
   function redirect(url) { window.location.href = url; }
   function urlParam(name) {
@@ -201,15 +292,7 @@
 
   // ── Language switcher ────────────────────────────────────────────────────────
   function initLanguageSwitcher() {
-    var label = document.getElementById('lang-current-label');
-    if (label) label.textContent = currentLang === 'ar' ? 'عر' : 'EN';
-    document.addEventListener('click', function (e) {
-      var btn = e.target.closest('.lang-switch-btn');
-      if (!btn) return;
-      e.preventDefault();
-      var lang = btn.getAttribute('data-lang');
-      if (lang !== currentLang) { localStorage.setItem(LANG_KEY, lang); window.location.reload(); }
-    });
+    // Language switching is handled entirely by i18n.js via window.setAppLanguage()
   }
 
   // ── Auth ─────────────────────────────────────────────────────────────────────
@@ -526,12 +609,12 @@
       password: card.querySelector('.admin-password') ? card.querySelector('.admin-password').value : null,
     };
     if (!payload.first_name || !payload.last_name || !payload.email) {
-      showAlert('#backend-setup-status', 'First name, last name and email are required for admin updates.');
+      showAlert('#backend-setup-status', t('First name, last name and email are required for admin updates.'));
       return;
     }
     request('/api/school-setup/settings/admin/' + encodeURIComponent(adminId), { method: 'PUT', body: JSON.stringify(payload) })
       .then(function () {
-        showAlert('#backend-setup-status', 'Admin updated successfully', 'success');
+        showAlert('#backend-setup-status', t('Admin updated successfully'), 'success');
         loadSchoolSettings();
       })
       .catch(function (err) { showAlert('#backend-setup-status', err.message); });
@@ -540,10 +623,10 @@
   function deleteExistingAdmin(card) {
     var adminId = card.getAttribute('data-admin-id');
     if (!adminId) return;
-    if (!confirm('Remove this admin from the school?')) return;
+    if (!confirm(t('Remove this admin from the school?'))) return;
     request('/api/school-setup/settings/admin/' + encodeURIComponent(adminId), { method: 'DELETE' })
       .then(function () {
-        showAlert('#backend-setup-status', 'Admin removed successfully', 'success');
+        showAlert('#backend-setup-status', t('Admin removed successfully'), 'success');
         loadSchoolSettings();
       })
       .catch(function (err) { showAlert('#backend-setup-status', err.message); });
@@ -582,7 +665,7 @@
       }
       request('/api/school-setup/settings', { method: 'PUT', body: JSON.stringify(payload) })
         .then(function (res) {
-          showAlert('#backend-setup-status', 'Settings saved successfully', 'success');
+          showAlert('#backend-setup-status', t('Settings saved successfully'), 'success');
           if (btn) btn.disabled = false;
           // Refresh auth context
           request('/api/auth/me').then(function (ctx) {
@@ -920,7 +1003,7 @@
       if (isActive !== null) payload.is_active = isActive === '1' ? 1 : 0;
       var btn = form.querySelector('[type=submit]'); if (btn) btn.disabled = true;
       request('/api/student-registrations/' + id, { method: 'PUT', body: JSON.stringify(payload) })
-        .then(function () { showAlert('#backend-form-status', 'Student updated successfully', 'success'); if (btn) btn.disabled = false; })
+        .then(function () { showAlert('#backend-form-status', t('Student updated successfully'), 'success'); if (btn) btn.disabled = false; })
         .catch(function (err) { showAlert('#backend-form-status', err.message); if (btn) btn.disabled = false; });
     });
   }
@@ -1005,7 +1088,7 @@
           var processNext = function (index) {
             if (index >= studentsToImport.length) {
               if (errors.length === 0) {
-                showAlert('#import-excel-status', 'Successfully imported ' + importedCount + ' students!', 'success');
+                showAlert('#import-excel-status', t('Successfully imported ') + importedCount + t(' students!'), 'success');
               } else {
                 showAlert('#import-excel-status', 'Imported ' + importedCount + ' students, with ' + errors.length + ' errors. Check console.', 'warning');
                 console.warn('Import errors:', errors);
@@ -1145,7 +1228,7 @@
       if (isActive !== null) payload.is_active = isActive === '1' ? 1 : 0;
       var btn = form.querySelector('[type=submit]'); if (btn) btn.disabled = true;
       request('/api/teacher-registrations/' + id, { method: 'PUT', body: JSON.stringify(payload) })
-        .then(function () { showAlert('#backend-form-status', 'Teacher updated successfully', 'success'); if (btn) btn.disabled = false; })
+        .then(function () { showAlert('#backend-form-status', t('Teacher updated successfully'), 'success'); if (btn) btn.disabled = false; })
         .catch(function (err) { showAlert('#backend-form-status', err.message); if (btn) btn.disabled = false; });
     });
   }
@@ -1162,8 +1245,7 @@
     tbody.innerHTML = rows.map(function (r) {
       var chk = '<input type="checkbox" class="row-checkbox" value="' + r.id + '" data-type="formation">';
       var img = '<img src="' + esc(formationImg(r.image, r.title)) + '" style="width:40px;height:40px;border-radius:6px;object-fit:cover">';
-      var typeLabel = r.type === 'subscription' ? 'Subscription' : 'Formation';
-      var periodLabel = r.subscription_period === '1_month' ? 'Monthly' : (r.subscription_period === '3_months' ? '3 months' : (r.subscription_period === '1_year' ? 'Yearly' : '-'));
+      var typeLabel = r.type === 'subscription' ? t('Subscription') : t('Formation');
       var priceValue = r.type === 'subscription' ? (
         r.subscription_period === '1_month' ? r.price_monthly :
           (r.subscription_period === '3_months' ? r.price_3_months :
@@ -1171,10 +1253,13 @@
       ) : r.price;
       var statusColor = (r.status === 'open') ? '#10b981' : '#ef4444';
       var statusSelect = '<select class="form-control input-sm quick-status-change" data-id="' + r.id + '" style="padding:2px 8px; height:26px; font-size:12px; min-width:90px; color:#fff; font-weight:600; background-color:' + statusColor + '; border:none; border-radius:4px;">' +
-        '<option value="open" ' + (r.status === 'open' ? 'selected' : '') + ' style="background:#fff; color:#333;">Open</option>' +
-        '<option value="closed" ' + (r.status === 'closed' ? 'selected' : '') + ' style="background:#fff; color:#333;">Closed</option>' +
+        '<option value="open" ' + (r.status === 'open' ? 'selected' : '') + ' style="background:#fff; color:#333;">' + t('Open') + '</option>' +
+        '<option value="closed" ' + (r.status === 'closed' ? 'selected' : '') + ' style="background:#fff; color:#333;">' + t('Closed') + '</option>' +
         '</select>';
-      return '<tr><td>' + chk + '</td><td>' + img + '</td><td>' + esc(r.title) + '</td><td>' + esc(typeLabel) + '</td><td>' + statusSelect + '</td><td>' + esc(periodLabel) + '</td><td>' + esc(r.teacher_name || '-') + '</td><td>' + esc(r.classroom_name || '-') + '</td><td>' + esc(r.start_date || '-') + '</td><td>' + esc(r.end_date || '-') + '</td><td>$' + esc(priceValue || 0) + '</td>' +
+      var niveauKey = r.niveau === 'begin' ? 'Beginner' : (r.niveau === 'intermediate' ? 'Intermediate' : 'Advanced');
+      var niveauText = t(niveauKey);
+      var placesText = r.places ? (r.registered_students || 0) + ' / ' + r.places : '-';
+      return '<tr><td>' + chk + '</td><td>' + img + '</td><td>' + esc(r.title) + '</td><td>' + esc(typeLabel) + '</td><td>' + statusSelect + '</td><td>' + esc(niveauText) + '</td><td>' + esc(placesText) + '</td><td>' + esc(fmtDate(r.start_date)) + '</td><td>' + esc(fmtDate(r.end_date)) + '</td><td>' + esc(priceValue || 0) + ' DA</td>' +
         '<td><a href="course-info.html?id=' + r.id + '" class="btn btn-xs btn-success" title="View Details"><i class="fa fa-eye"></i></a> ' +
         '<a href="edit-course.html?id=' + r.id + '" class="btn btn-xs btn-info" title="Edit"><i class="fa fa-pencil"></i></a> ' +
         '<button class="btn btn-xs btn-danger" data-del-formation="' + r.id + '" title="Delete"><i class="fa fa-trash"></i></button></td></tr>';
@@ -1182,9 +1267,12 @@
     var table = document.querySelector('#backend-formations-table');
     table.onclick = function (e) {
       var btn = e.target.closest('[data-del-formation]'); if (!btn) return;
-      if (!confirm('Delete this formation?')) return;
+      if (!confirm(t('Delete this formation?'))) return;
       request('/api/formations/' + btn.getAttribute('data-del-formation'), { method: 'DELETE' })
-        .then(loadFormations).catch(function (err) { showAlert('#backend-formations-status', err.message); });
+        .then(function () {
+          showAlert('#backend-formations-status', t('Formation deleted successfully'), 'success');
+          loadFormations();
+        }).catch(function (err) { showAlert('#backend-formations-status', err.message); });
     };
     table.onchange = function (e) {
       if (e.target.classList.contains('quick-status-change')) {
@@ -1229,7 +1317,7 @@
     setupFormationTypeToggle(form);
     form.addEventListener('submit', function (e) {
       e.preventDefault();
-      var schoolId = window._schoolId; if (!schoolId) { showAlert('#backend-form-status', 'School not loaded. Refresh.'); return; }
+      var schoolId = window._schoolId; if (!schoolId) { showAlert('#backend-form-status', t('School not loaded. Refresh.')); return; }
       var fd = new FormData(form); var btn = form.querySelector('[type=submit]'); if (btn) btn.disabled = true;
       request('/api/formations', {
         method: 'POST', body: JSON.stringify({
@@ -1238,21 +1326,22 @@
           duration_hours: fd.get('duration_hours') || null, price: fd.get('price') || 0,
           price_monthly: fd.get('price_monthly') || null, price_3_months: fd.get('price_3_months') || null, price_1_year: fd.get('price_1_year') || null,
           type: fd.get('type') || 'formation', subscription_period: fd.get('subscription_period') || null, status: fd.get('status') || 'open',
+          niveau: fd.get('niveau') || 'begin', places: fd.get('places') ? parseInt(fd.get('places'), 10) : 0,
           start_date: fd.get('start_date') || null, end_date: fd.get('end_date') || null,
         })
-      }).then(function () { showAlert('#backend-form-status', t('Formation created successfully'), 'success'); form.reset(); if (btn) btn.disabled = false; })
+      }).then(function () { showAlert('#backend-form-status', t('Formation created successfully'), 'success'); form.reset(); loadFormations(); if (btn) btn.disabled = false; })
         .catch(function (err) { showAlert('#backend-form-status', err.message); if (btn) btn.disabled = false; });
     });
   }
   function bindEditFormationForm() {
     var form = document.querySelector('#backend-edit-formation-form'); if (!form) return;
-    var id = urlParam('id'); if (!id) { showAlert('#backend-form-status', 'No formation ID in URL'); return; }
+    var id = urlParam('id'); if (!id) { showAlert('#backend-form-status', t('No formation ID in URL')); return; }
     var sel = form.querySelector('#formation-teacher-id');
     setupFormationTypeToggle(form);
     populateTeacherSelect(sel);
     request('/api/formations/' + id).then(function (p) {
       var f = p.data;
-      ['title', 'description', 'duration_hours', 'price', 'type', 'status', 'start_date', 'end_date', 'image'].forEach(function (field) {
+      ['title', 'description', 'duration_hours', 'price', 'type', 'status', 'niveau', 'places', 'start_date', 'end_date', 'image'].forEach(function (field) {
         var el = form.querySelector('[name="' + field + '"]'); if (el && f[field] != null) el.value = f[field];
       });
       ['price_monthly', 'price_3_months', 'price_1_year'].forEach(function (field) {
@@ -1277,9 +1366,10 @@
           teacher_id: fd.get('teacher_id') || null, title: fd.get('title'), description: fd.get('description') || null,
           image: fd.get('image') || null, duration_hours: fd.get('duration_hours') || null,
           price: fd.get('price') || 0, price_monthly: fd.get('price_monthly') || null, price_3_months: fd.get('price_3_months') || null, price_1_year: fd.get('price_1_year') || null,
-          type: fd.get('type') || 'formation', subscription_period: fd.get('subscription_period') || null, status: fd.get('status') || 'open', start_date: fd.get('start_date') || null, end_date: fd.get('end_date') || null,
+          type: fd.get('type') || 'formation', subscription_period: fd.get('subscription_period') || null, status: fd.get('status') || 'open',
+          niveau: fd.get('niveau') || 'begin', places: fd.get('places') ? parseInt(fd.get('places'), 10) : 0, start_date: fd.get('start_date') || null, end_date: fd.get('end_date') || null,
         })
-      }).then(function () { showAlert('#backend-form-status', 'Formation updated successfully', 'success'); if (btn) btn.disabled = false; })
+      }).then(function () { showAlert('#backend-form-status', t('Formation updated successfully'), 'success'); if (btn) btn.disabled = false; })
         .catch(function (err) { showAlert('#backend-form-status', err.message); if (btn) btn.disabled = false; });
     });
   }
@@ -1295,14 +1385,27 @@
     if (!rows.length) { tbody.innerHTML = '<tr><td colspan="5" class="text-center">' + t('No records found') + '</td></tr>'; return; }
     tbody.innerHTML = rows.map(function (r) {
       return '<tr><td>' + esc(r.id) + '</td><td>' + esc(r.name) + '</td><td>' + (r.capacity || '-') + '</td><td>' + esc(r.description || '-') + '</td>' +
-        '<td><button class="btn btn-xs btn-danger" data-del-classroom="' + r.id + '"><i class="fa fa-trash"></i></button></td></tr>';
+        '<td><button class="btn btn-xs btn-primary" data-edit-classroom=\'' + JSON.stringify(r).replace(/'/g, "&apos;") + '\' style="margin: 0 8px;" title="' + t('Edit') + '"><i class="fa fa-edit"></i></button>' +
+        '<button class="btn btn-xs btn-danger" data-del-classroom="' + r.id + '" title="' + t('Delete') + '"><i class="fa fa-trash"></i></button></td></tr>';
     }).join('');
     var tableEl = document.querySelector('#backend-classrooms-table');
     if (tableEl) tableEl.onclick = function (e) {
-      var btn = e.target.closest('[data-del-classroom]'); if (!btn) return;
-      if (!confirm('Delete this classroom?')) return;
-      request('/api/classrooms/' + btn.getAttribute('data-del-classroom'), { method: 'DELETE' })
-        .then(loadClassrooms).catch(function (err) { showAlert('#backend-classrooms-status', err.message); });
+      var delBtn = e.target.closest('[data-del-classroom]');
+      if (delBtn) {
+        if (!confirm(t('Delete this classroom?'))) return;
+        request('/api/classrooms/' + delBtn.getAttribute('data-del-classroom'), { method: 'DELETE' })
+          .then(loadClassrooms).catch(function (err) { showAlert('#backend-classrooms-status', err.message); });
+        return;
+      }
+      var editBtn = e.target.closest('[data-edit-classroom]');
+      if (editBtn) {
+        var data = JSON.parse(editBtn.getAttribute('data-edit-classroom'));
+        document.getElementById('edit-classroom-id').value = data.id;
+        document.getElementById('edit-classroom-name').value = data.name || '';
+        document.getElementById('edit-classroom-capacity').value = data.capacity || '';
+        document.getElementById('edit-classroom-desc').value = data.description || '';
+        $('#edit-classroom-modal').modal('show');
+      }
     };
   }
   function bindAddClassroomForm() {
@@ -1313,9 +1416,30 @@
         method: 'POST', body: JSON.stringify({
           name: fd.get('name'), capacity: fd.get('capacity') || null, description: fd.get('description') || null,
         })
-      }).then(function () { showAlert('#backend-classroom-form-status', 'Classroom added', 'success'); form.reset(); loadClassrooms(); if (btn) btn.disabled = false; })
+      }).then(function () { showAlert('#backend-classroom-form-status', t('Classroom added'), 'success'); form.reset(); loadClassrooms(); if (btn) btn.disabled = false; })
         .catch(function (err) { showAlert('#backend-classroom-form-status', err.message); if (btn) btn.disabled = false; });
     });
+    
+    var editForm = document.querySelector('#backend-edit-classroom-form');
+    if (editForm) {
+      editForm.addEventListener('submit', function (e) {
+        e.preventDefault(); var fd = new FormData(editForm); var btn = editForm.querySelector('[type=submit]'); if (btn) btn.disabled = true;
+        var id = document.getElementById('edit-classroom-id').value;
+        request('/api/classrooms/' + id, {
+          method: 'PUT', body: JSON.stringify({
+            name: fd.get('name'), capacity: fd.get('capacity') || null, description: fd.get('description') || null,
+          })
+        }).then(function () { 
+          showAlert('#backend-classrooms-status', t('Classroom updated successfully'), 'success'); 
+          $('#edit-classroom-modal').modal('hide');
+          loadClassrooms(); 
+          if (btn) btn.disabled = false; 
+        }).catch(function (err) { 
+          showAlert('#backend-edit-classroom-status', err.message); 
+          if (btn) btn.disabled = false; 
+        });
+      });
+    }
   }
 
   // ── Groups ───────────────────────────────────────────────────────────────────
@@ -1339,7 +1463,7 @@
       // Populate formation selects
       var fSel = document.querySelector('#group-formation-id');
       if (fSel) {
-        fSel.innerHTML = '<option value="">-- Select Formation *</option>' +
+        fSel.innerHTML = '<option value="">-- ' + t('Select Formation') + ' *</option>' +
           formations.map(function (f) { return '<option value="' + f.id + '">' + esc(f.title) + '</option>'; }).join('');
         fSel.addEventListener('change', function () { updateGroupTeacherSelection(this.form || document.querySelector('#backend-add-group-form')); });
       }
@@ -1347,21 +1471,21 @@
       if (groupTeacherSel) {
         populateTeacherSelect(groupTeacherSel).then(function () {
           if (groupTeacherSel.form && groupTeacherSel.form.id === 'backend-add-group-form') {
-            groupTeacherSel.form.querySelector('#group-teacher-note').textContent = 'Select a teacher for this group. If the formation already has a teacher, it will be auto-selected.';
+            groupTeacherSel.form.querySelector('#group-teacher-note').textContent = t('Select a teacher for this group. If the formation already has a teacher, it will be auto-selected.');
             updateGroupTeacherSelection(groupTeacherSel.form);
           }
         });
       }
       var fFilter = document.querySelector('#filter-formation');
       if (fFilter) {
-        fFilter.innerHTML = '<option value="">All Formations</option>' +
+        fFilter.innerHTML = '<option value="">' + t('All Formations') + '</option>' +
           formations.map(function (f) { return '<option value="' + f.id + '">' + esc(f.title) + '</option>'; }).join('');
       }
 
       // Populate classroom select
       var cSel = document.querySelector('#group-classroom-id');
-      if (cSel) cSel.innerHTML = '<option value="">No classroom</option>' +
-        classrooms.map(function (c) { return '<option value="' + c.id + '">' + esc(c.name) + (c.capacity ? ' (cap:' + c.capacity + ')' : '') + '</option>'; }).join('');
+      if (cSel) cSel.innerHTML = '<option value="">' + t('No classroom') + '</option>' +
+        classrooms.map(function (c) { return '<option value="' + c.id + '">' + esc(c.name) + (c.capacity ? ' (' + t('cap') + ':' + c.capacity + ')' : '') + '</option>'; }).join('');
 
       // Render student list for multi-select
       renderStudentSelectList('#student-select-list-create', _allStudents);
@@ -1378,7 +1502,7 @@
 
   function renderStudentSelectList(containerSel, students) {
     var c = document.querySelector(containerSel); if (!c) return;
-    if (!students.length) { c.innerHTML = '<p class="text-muted" style="margin:8px">No students found</p>'; return; }
+    if (!students.length) { c.innerHTML = '<p class="text-muted" style="margin:8px">' + t('No students found') + '</p>'; return; }
     c.innerHTML = students.map(function (s) {
       var name = [s.first_name, s.last_name].filter(Boolean).join(' ');
       var img = avatarUrl(s.photo, name, 'student', s.gender);
@@ -1411,7 +1535,7 @@
     var filtered = groups.filter(function (g) {
       return !filterFormationId || String(g.formation_id) === String(filterFormationId);
     });
-    if (!filtered.length) { c.innerHTML = '<p class="text-muted text-center">No groups found. Create one using the form.</p>'; return; }
+    if (!filtered.length) { c.innerHTML = '<p class="text-muted text-center">' + t('No groups found. Create one using the form.') + '</p>'; return; }
     c.innerHTML = filtered.map(function (g) {
       var chk = '<input type="checkbox" class="row-checkbox group-row-checkbox" value="' + g.id + '" data-type="group" style="transform:scale(1.3); cursor:pointer; margin:0;">';
       return '<div class="group-card" id="group-card-' + g.id + '">' +
@@ -1420,25 +1544,25 @@
         '<h4 style="display:flex; align-items:center; gap:10px;">' + chk + '<span>' + esc(g.name) + '</span></h4>' +
         '<p class="meta">' +
         '<i class="fa fa-book"></i> ' + esc(g.formation_title || '-') + ' &nbsp;|&nbsp; ' +
-        '<i class="fa fa-user"></i> ' + esc(g.teacher_name || 'No teacher') + ' &nbsp;|&nbsp; ' +
-        '<i class="fa fa-building"></i> ' + esc(g.classroom_name || 'No room') + ' &nbsp;|&nbsp; ' +
-        '<i class="fa fa-users"></i> <span id="group-count-' + g.id + '">' + g.student_count + '</span> students' +
+        '<i class="fa fa-user"></i> ' + esc(g.teacher_name || t('No teacher')) + ' &nbsp;|&nbsp; ' +
+        '<i class="fa fa-building"></i> ' + esc(g.classroom_name || t('No room')) + ' &nbsp;|&nbsp; ' +
+        '<i class="fa fa-users"></i> <span id="group-count-' + g.id + '">' + g.student_count + '</span> ' + t('students') +
         '</p>' +
         '<div id="group-students-' + g.id + '"></div>' +
         '</div>' +
         '<div class="col-lg-4 col-sm-4 col-xs-12 text-right">' +
-        '<a href="group-info.html?id=' + g.id + '" class="btn btn-sm btn-info" title="View Details"><i class="fa fa-eye"></i></a> ' +
-        '<a href="edit-group.html?id=' + g.id + '" class="btn btn-sm btn-primary" title="Edit Group"><i class="fa fa-pencil"></i></a> ' +
-        '<button class="btn btn-sm btn-success" onclick="toggleAddStudents(' + g.id + ')" title="Add Students"><i class="fa fa-user-plus"></i></button> ' +
-        '<button class="btn btn-sm btn-danger" data-del-group="' + g.id + '" title="Delete Group"><i class="fa fa-trash"></i></button>' +
+        '<a href="group-info.html?id=' + g.id + '" class="btn btn-sm btn-info" title="' + t('View Details') + '"><i class="fa fa-eye"></i></a> ' +
+        '<a href="edit-group.html?id=' + g.id + '" class="btn btn-sm btn-primary" title="' + t('Edit Group') + '"><i class="fa fa-pencil"></i></a> ' +
+        '<button class="btn btn-sm btn-success" onclick="toggleAddStudents(' + g.id + ')" title="' + t('Add Students') + '"><i class="fa fa-user-plus"></i></button> ' +
+        '<button class="btn btn-sm btn-danger" data-del-group="' + g.id + '" title="' + t('Delete Group') + '"><i class="fa fa-trash"></i></button>' +
         '</div>' +
         '</div>' +
         '<div id="add-students-panel-' + g.id + '" class="add-panel">' +
-        '<p><strong>Select students to add to this group:</strong></p>' +
-        '<input type="text" class="stu-search" placeholder="Search..." oninput="filterGroupStudents(this,' + g.id + ')">' +
+        '<p><strong>' + t('Select students to add to this group:') + '</strong></p>' +
+        '<input type="text" class="stu-search" placeholder="' + t('Search...') + '" oninput="filterGroupStudents(this,' + g.id + ')">' +
         '<div class="stu-list" id="student-list-' + g.id + '"></div>' +
-        '<button class="btn btn-primary btn-sm" style="margin-top:8px" onclick="addStudentsToGroup(' + g.id + ')"><i class="fa fa-save"></i> Save</button> ' +
-        '<button class="btn btn-default btn-sm" style="margin-top:8px" onclick="toggleAddStudents(' + g.id + ')">Cancel</button>' +
+        '<button class="btn btn-primary btn-sm" style="margin-top:8px" onclick="addStudentsToGroup(' + g.id + ')"><i class="fa fa-save"></i> ' + t('Save') + '</button> ' +
+        '<button class="btn btn-default btn-sm" style="margin-top:8px" onclick="toggleAddStudents(' + g.id + ')">' + t('Cancel') + '</button>' +
         '</div>' +
         '</div>';
     }).join('');
@@ -1446,7 +1570,7 @@
     // Delete group
     c.addEventListener('click', function (e) {
       var btn = e.target.closest('[data-del-group]'); if (!btn) return;
-      if (!confirm('Delete this group and remove all students from it?')) return;
+      if (!confirm(t('Delete this group and remove all students from it?'))) return;
       request('/api/groups/' + btn.getAttribute('data-del-group'), { method: 'DELETE' })
         .then(loadGroups).catch(function (err) { showAlert('#backend-groups-status', err.message); });
     });
@@ -1459,7 +1583,7 @@
     request('/api/groups/' + groupId + '/students').then(function (p) {
       var students = p.data || [];
       var area = document.getElementById('group-students-' + groupId); if (!area) return;
-      if (!students.length) { area.innerHTML = '<span class="text-muted" style="font-size:12px">No students yet</span>'; }
+      if (!students.length) { area.innerHTML = '<span class="text-muted" style="font-size:12px">' + t('No students yet') + '</span>'; }
       else {
         area.innerHTML = students.map(function (s) {
           var name = [s.first_name, s.last_name].filter(Boolean).join(' ');
@@ -1467,7 +1591,7 @@
           return '<span class="student-card">' +
             '<img src="' + esc(img) + '" onerror="this.src=\'https://ui-avatars.com/api/?name=S&background=27ae60&color=fff&size=28\'"> ' +
             esc(name) +
-            ' <span class="rm" onclick="removeStudentFromGroup(' + groupId + ',' + s.id + ')" title="Remove">×</span>' +
+            ' <span class="rm" onclick="removeStudentFromGroup(' + groupId + ',' + s.id + ')" title="' + t('Remove') + '">×</span>' +
             '</span>';
         }).join('');
       }
@@ -1475,7 +1599,7 @@
       var panel = document.getElementById('student-list-' + groupId); if (!panel) return;
       var assignedIds = students.map(function (s) { return s.id; });
       var available = _allStudents.filter(function (s) { return !assignedIds.includes(s.id); });
-      if (!available.length) { panel.innerHTML = '<p class="text-muted" style="margin:8px">All students already assigned</p>'; return; }
+      if (!available.length) { panel.innerHTML = '<p class="text-muted" style="margin:8px">' + t('All students already assigned') + '</p>'; return; }
       panel.innerHTML = available.map(function (s) {
         var name = [s.first_name, s.last_name].filter(Boolean).join(' ');
         var img = avatarUrl(s.photo, name, 'student', s.gender);
@@ -1501,7 +1625,7 @@
     var panel = document.getElementById('student-list-' + groupId); if (!panel) return;
     var checked = panel.querySelectorAll('input[type=checkbox]:checked');
     var ids = [].slice.call(checked).map(function (cb) { return parseInt(cb.value); });
-    if (!ids.length) { alert('Select at least one student'); return; }
+    if (!ids.length) { alert(t('Select at least one student')); return; }
     request('/api/groups/' + groupId + '/students', { method: 'POST', body: JSON.stringify({ student_ids: ids }) })
       .then(function (r) {
         showAlert('#backend-groups-status', r.message, 'success');
@@ -1510,7 +1634,7 @@
       }).catch(function (err) { showAlert('#backend-groups-status', err.message); });
   };
   window.removeStudentFromGroup = function (groupId, studentId) {
-    if (!confirm('Remove this student from the group?')) return;
+    if (!confirm(t('Remove this student from the group?'))) return;
     request('/api/groups/' + groupId + '/students/' + studentId, { method: 'DELETE' })
       .then(function () { loadGroupStudents(groupId); })
       .catch(function (err) { showAlert('#backend-groups-status', err.message); });
@@ -1526,11 +1650,11 @@
     var formation = (formations || []).find(function (f) { return String(f.id) === String(fSel.value); });
     if (formation && formation.teacher_id && !tSel.value) {
       tSel.value = formation.teacher_id;
-      if (note) note.textContent = 'Teacher auto-selected from formation. You can override it if needed.';
+      if (note) note.textContent = t('Teacher auto-selected from formation. You can override it if needed.');
     } else if (formation && formation.teacher_id) {
-      if (note) note.textContent = 'Formation already has a teacher. You can override the selected teacher.';
+      if (note) note.textContent = t('Formation already has a teacher. You can override the selected teacher.');
     } else {
-      if (note) note.textContent = 'Select a teacher for this group. If the formation already has a teacher, it will be auto-selected.';
+      if (note) note.textContent = t('Select a teacher for this group. If the formation already has a teacher, it will be auto-selected.');
     }
   }
 
@@ -1556,7 +1680,7 @@
 
   function bindEditGroupForm() {
     var form = document.querySelector('#backend-edit-group-form'); if (!form) return;
-    var id = urlParam('id'); if (!id) { showAlert('#backend-group-form-status', 'No group ID in URL'); return; }
+    var id = urlParam('id'); if (!id) { showAlert('#backend-group-form-status', t('No group ID in URL')); return; }
 
     Promise.all([
       request('/api/formations'),
@@ -1569,13 +1693,13 @@
 
       var fSel = form.querySelector('#group-formation-id');
       if (fSel) {
-        fSel.innerHTML = '<option value="">-- Select Formation *</option>' +
+        fSel.innerHTML = '<option value="">-- ' + t('Select Formation') + ' *</option>' +
           formations.map(function (f) { return '<option value="' + f.id + '" ' + (f.id === group.formation_id ? 'selected' : '') + '>' + esc(f.title) + '</option>'; }).join('');
         form._formations = formations;
         fSel.addEventListener('change', function () { updateGroupTeacherSelection(form); });
       }
       var cSel = form.querySelector('#group-classroom-id');
-      if (cSel) cSel.innerHTML = '<option value="">No classroom</option>' +
+      if (cSel) cSel.innerHTML = '<option value="">' + t('No classroom') + '</option>' +
         classrooms.map(function (c) { return '<option value="' + c.id + '" ' + (c.id === group.classroom_id ? 'selected' : '') + '>' + esc(c.name) + '</option>'; }).join('');
 
       var tSel = form.querySelector('#group-teacher-id');
@@ -1597,14 +1721,14 @@
       });
       var btn = form.querySelector('[type=submit]'); if (btn) btn.disabled = true;
       request('/api/groups/' + id, { method: 'PUT', body: JSON.stringify(payload) })
-        .then(function () { showAlert('#backend-group-form-status', 'Group updated successfully', 'success'); if (btn) btn.disabled = false; })
+        .then(function () { showAlert('#backend-group-form-status', t('Group updated successfully'), 'success'); if (btn) btn.disabled = false; })
         .catch(function (err) { showAlert('#backend-group-form-status', err.message); if (btn) btn.disabled = false; });
     });
   }
   // ── Profiles ─────────────────────────────────────────────────────────────────
   function loadStudentProfile() {
     var cont = document.querySelector('#sp-container'); if (!cont) return;
-    var id = urlParam('id'); if (!id) { showAlert(cont, 'No student ID in URL'); return; }
+    var id = urlParam('id'); if (!id) { showAlert(cont, t('No student ID in URL')); return; }
     request('/api/student-registrations/' + id).then(function (p) {
       var tc = p.data;
       document.getElementById('sp-loading').style.display = 'none';
@@ -1624,7 +1748,7 @@
       document.getElementById('sp-subscription-plan').textContent = formatSubscriptionPlan(tc.subscription_plan);
       document.getElementById('sp-payment-status').innerHTML = formatPaymentStatus(tc.payment_status);
       document.getElementById('sp-next-payment-date').textContent = tc.next_payment_date || '-';
-      document.getElementById('sp-status').innerHTML = tc.is_active ? '<span class="label label-success">Active</span>' : '<span class="label label-danger">Inactive</span>';
+      document.getElementById('sp-status').innerHTML = tc.is_active ? '<span class="label label-success">' + t('Active') + '</span>' : '<span class="label label-danger">' + t('Inactive') + '</span>';
 
       document.getElementById('sp-parent-name').textContent = tc.parent_name || '-';
       
@@ -1646,18 +1770,18 @@
       
       var ps = tc.parents_status || '-';
       var psLabels = {
-        'together': 'Together', 'divorced': 'Divorced', 
-        'father_deceased': 'Father Deceased', 'mother_deceased': 'Mother Deceased', 
-        'both_deceased': 'Both Deceased', 'other': 'Other'
+        'together': t('Together'), 'divorced': t('Divorced'), 
+        'father_deceased': t('Father Deceased'), 'mother_deceased': t('Mother Deceased'), 
+        'both_deceased': t('Both Deceased'), 'other': t('Other')
       };
       var psText = psLabels[ps] || ps;
       document.getElementById('sp-parents-status').innerHTML = '<span data-i18n="'+psText+'">'+psText+'</span>';
       
       if (tc.needs_special_care) {
-        document.getElementById('sp-health-notes').innerHTML = '<span class="text-danger" style="font-weight:600;"><i class="fa fa-exclamation-triangle"></i> Needs Special Care</span>' + 
+        document.getElementById('sp-health-notes').innerHTML = '<span class="text-danger" style="font-weight:600;"><i class="fa fa-exclamation-triangle"></i> ' + t('Needs Special Care') + '</span>' + 
           (tc.health_notes ? '<br><span style="font-size:13px;color:#555;margin-top:6px;display:block;">' + esc(tc.health_notes) + '</span>' : '');
       } else {
-        document.getElementById('sp-health-notes').innerHTML = '<span class="text-success"><i class="fa fa-check-circle"></i> Normal Health</span>';
+        document.getElementById('sp-health-notes').innerHTML = '<span class="text-success"><i class="fa fa-check-circle"></i> ' + t('Normal Health') + '</span>';
       }
       
       // Trigger i18n translation for dynamically injected strings
@@ -1667,7 +1791,7 @@
 
   function loadTeacherProfile() {
     var cont = document.querySelector('#tp-container'); if (!cont) return;
-    var id = urlParam('id'); if (!id) { showAlert(cont, 'No teacher ID in URL'); return; }
+    var id = urlParam('id'); if (!id) { showAlert(cont, t('No teacher ID in URL')); return; }
     request('/api/teacher-registrations/' + id).then(function (p) {
       var tc = p.data;
       document.getElementById('tp-loading').style.display = 'none';
@@ -1683,13 +1807,13 @@
       document.getElementById('tp-hire-date').textContent = tc.hire_date || '-';
       document.getElementById('tp-gender').textContent = tc.gender || '-';
       document.getElementById('tp-birth-date').textContent = tc.birth_date || '-';
-      document.getElementById('tp-status').innerHTML = tc.is_active ? '<span class="label label-success">Active</span>' : '<span class="label label-danger">Inactive</span>';
+      document.getElementById('tp-status').innerHTML = tc.is_active ? '<span class="label label-success">' + t('Active') + '</span>' : '<span class="label label-danger">' + t('Inactive') + '</span>';
     }).catch(function (err) { showAlert(cont, err.message); });
   }
 
   function loadFormationProfile() {
     var cont = document.querySelector('#cp-container'); if (!cont) return;
-    var id = urlParam('id'); if (!id) { showAlert(cont, 'No formation ID in URL'); return; }
+    var id = urlParam('id'); if (!id) { showAlert(cont, t('No formation ID in URL')); return; }
     request('/api/formations/' + id).then(function (p) {
       var tc = p.data;
       document.getElementById('cp-loading').style.display = 'none';
@@ -1697,15 +1821,21 @@
 
       document.getElementById('cp-image').src = formationImg(tc.image, tc.title);
       document.getElementById('cp-title').textContent = tc.title || '-';
-      document.getElementById('cp-teacher').textContent = tc.teacher_name || 'No teacher assigned';
-      document.getElementById('cp-classroom').textContent = tc.classroom_name || 'No classroom assigned';
+      document.getElementById('cp-teacher').textContent = tc.teacher_name || t('No teacher assigned');
+      document.getElementById('cp-classroom').textContent = tc.classroom_name || t('No classroom assigned');
+      
+      var editBtn = document.getElementById('btn-edit-course');
+      if (editBtn) editBtn.href = 'edit-course.html?id=' + tc.id;
 
-      document.getElementById('cp-duration').textContent = tc.duration_hours ? tc.duration_hours + ' hours' : '-';
-      document.getElementById('cp-price').textContent = tc.price ? tc.price + ' da' : 'Free';
-      document.getElementById('cp-start-date').textContent = tc.start_date || '-';
-      document.getElementById('cp-end-date').textContent = tc.end_date || '-';
-      document.getElementById('cp-created').textContent = tc.created_at ? new Date(tc.created_at).toLocaleDateString() : '-';
-      document.getElementById('cp-description').textContent = tc.description || 'No description provided.';
+      document.getElementById('cp-duration').textContent = tc.duration_hours ? tc.duration_hours + ' ' + t('hours') : '-';
+      document.getElementById('cp-niveau').textContent = t(tc.niveau === 'begin' ? 'Beginner' : (tc.niveau === 'intermediate' ? 'Intermediate' : 'Advanced'));
+      document.getElementById('cp-places').textContent = tc.places || '-';
+      document.getElementById('cp-registered').textContent = tc.registered_students || '0';
+      document.getElementById('cp-price').textContent = tc.price ? tc.price + ' DA' : t('Free');
+      document.getElementById('cp-start-date').textContent = fmtDate(tc.start_date);
+      document.getElementById('cp-end-date').textContent = fmtDate(tc.end_date);
+      document.getElementById('cp-created').textContent = fmtDate(tc.created_at);
+      document.getElementById('cp-description').textContent = tc.description || t('No description provided.');
     }).catch(function (err) { showAlert(cont, err.message); });
   }
 
@@ -1713,19 +1843,19 @@
 
   function loadGroupProfile() {
     var cont = document.querySelector('#gp-container'); if (!cont) return;
-    var id = urlParam('id'); if (!id) { showAlert(cont, 'No group ID in URL'); return; }
+    var id = urlParam('id'); if (!id) { showAlert(cont, t('No group ID in URL')); return; }
     request('/api/groups/' + id).then(function (p) {
       var tc = p.data;
       document.getElementById('gp-loading').style.display = 'none';
       document.getElementById('gp-content').style.display = 'block';
 
       document.getElementById('gp-name').textContent = tc.name || '-';
-      document.getElementById('gp-formation').textContent = tc.formation_title || 'No formation assigned';
-      document.getElementById('gp-classroom').textContent = tc.classroom_name || 'No classroom assigned';
+      document.getElementById('gp-formation').textContent = tc.formation_title || t('No formation assigned');
+      document.getElementById('gp-classroom').textContent = tc.classroom_name || t('No classroom assigned');
 
       document.getElementById('gp-start-date').textContent = tc.start_date || '-';
       document.getElementById('gp-end-date').textContent = tc.end_date || '-';
-      document.getElementById('gp-max-students').textContent = tc.max_students || 'Unlimited';
+      document.getElementById('gp-max-students').textContent = tc.max_students || t('Unlimited');
       document.getElementById('gp-created').textContent = tc.created_at ? new Date(tc.created_at).toLocaleDateString() : '-';
 
       _groupPageStudents = tc.students || [];
@@ -1771,7 +1901,7 @@
               }
               
               if (!available.length) {
-                  dropdown.innerHTML = '<div style="padding: 8px; text-align: center; color: #888; font-size: 13px;">No matching students found</div>';
+                  dropdown.innerHTML = '<div style="padding: 8px; text-align: center; color: #888; font-size: 13px;">' + t('No matching students found') + '</div>';
                   dropdown.style.display = 'block';
                   return;
               }
@@ -1782,7 +1912,7 @@
                   var reg = esc(s.registration_number);
                   return '<div class="autocomplete-item" data-id="' + s.id + '" style="display:flex;align-items:center;padding:8px;gap:10px;cursor:pointer;border-radius:4px;transition:background 0.2s;" onmouseover="this.style.background=\'#f1f5f9\'" onmouseout="this.style.background=\'transparent\'">' +
                          '<img src="' + img + '" style="width:28px;height:28px;border-radius:50%;object-fit:cover;" onerror="this.src=\'https://ui-avatars.com/api/?name=S&background=27ae60&color=fff&size=28\'">' +
-                         '<div style="line-height:1.2"><div style="font-weight:600;font-size:13px;color:#333">' + name + '</div><div style="font-size:11px;color:#777">Reg: ' + reg + '</div></div>' +
+                         '<div style="line-height:1.2"><div style="font-weight:600;font-size:13px;color:#333">' + name + '</div><div style="font-size:11px;color:#777">' + t('Reg') + ': ' + reg + '</div></div>' +
                          '</div>';
               }).join('');
               dropdown.style.display = 'block';
@@ -1794,7 +1924,7 @@
                       addInput.value = '';
                       dropdown.style.display = 'none';
                       addInput.disabled = true;
-                      addInput.placeholder = 'Adding...';
+                      addInput.placeholder = t('Adding') + '...';
                       
                       request('/api/groups/' + id + '/students', { method: 'POST', body: JSON.stringify({ student_ids: [stId] }) })
                         .then(function() {
@@ -2307,7 +2437,7 @@
           printBtn.disabled = false;
           genBtn.disabled = false;
           printBtn.innerHTML = '<i class="fa fa-download"></i> Download PDF / ZIP';
-          showAlert('#backend-certificate-status', 'Certificate downloaded successfully!', 'success');
+          showAlert('#backend-certificate-status', t('Certificate downloaded successfully!'), 'success');
         }).catch(function () {
           printBtn.disabled = false;
           genBtn.disabled = false;
@@ -2336,7 +2466,7 @@
               printBtn.disabled = false;
               genBtn.disabled = false;
               printBtn.innerHTML = '<i class="fa fa-download"></i> Download PDF / ZIP';
-              showAlert('#backend-certificate-status', 'ZIP file created successfully!', 'success');
+              showAlert('#backend-certificate-status', t('ZIP file created successfully!'), 'success');
             }).catch(function (err) {
               printBtn.disabled = false;
               genBtn.disabled = false;
@@ -2434,7 +2564,7 @@
           form.reset();
           if (btn) btn.disabled = false;
           loadPromoCodes();
-          showAlert('#backend-promos-status', 'Promo code generated successfully', 'success');
+          showAlert('#backend-promos-status', t('Promo code generated successfully'), 'success');
         }).catch(function (err) {
           if (btn) btn.disabled = false;
           showAlert('#backend-promos-status', err.message);
@@ -2999,7 +3129,7 @@
           renderProgList();
           document.getElementById('wp-detail').style.display = 'none';
           document.getElementById('wp-no-selection').style.display = 'block';
-          showAlert('#wp-global-alert', 'Program deleted.', 'success');
+          showAlert('#wp-global-alert', t('Program deleted.'), 'success');
         }).catch(function (err) { showAlert('#wp-global-alert', err.message, 'danger'); });
     });
 

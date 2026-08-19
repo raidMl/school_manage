@@ -46,10 +46,44 @@ html[dir="rtl"] .main-panels-row > div[class*="col-"] { float: right !important;
   </div>
 </div>
 
+<!-- Edit Classroom Modal -->
+<div class="modal fade" id="edit-classroom-modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <form id="backend-edit-classroom-form">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" data-i18n="Edit Classroom">Edit Classroom</h4>
+        </div>
+        <div class="modal-body">
+          <div id="backend-edit-classroom-status" class="alert" style="display:none"></div>
+          <input type="hidden" name="id" id="edit-classroom-id">
+          <div class="form-group">
+            <label data-i18n="Name">Name</label>
+            <input type="text" name="name" id="edit-classroom-name" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label data-i18n="Capacity">Capacity</label>
+            <input type="number" name="capacity" id="edit-classroom-capacity" class="form-control" data-i18n="e.g. 30" placeholder="e.g. 30">
+          </div>
+          <div class="form-group">
+            <label data-i18n="Description">Description</label>
+            <textarea name="description" id="edit-classroom-desc" class="form-control" rows="3"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal" data-i18n="Cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary" data-i18n="Update">Update</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 <div id="footer-placeholder"></div>
 </div></div>
 <script src="js/vendor/jquery-1.12.4.min.js"></script>
 <script src="js/bootstrap.min.js"></script>
 <script src="js/components.js"></script>
-<script src="js/backend.js"></script>
+<script src="js/backend.js?v=3"></script>
 </body></html>

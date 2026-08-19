@@ -87,6 +87,8 @@ async function bootstrapDatabase() {
       await safeAlter(connection, `ALTER TABLE formations ADD COLUMN price_3_months DECIMAL(10,2) NULL AFTER price_monthly`);
       await safeAlter(connection, `ALTER TABLE formations ADD COLUMN price_1_year DECIMAL(10,2) NULL AFTER price_3_months`);
       await safeAlter(connection, `ALTER TABLE formations ADD COLUMN subscription_period ENUM('1_month','3_months','1_year') NULL AFTER type`);
+      await safeAlter(connection, `ALTER TABLE formations ADD COLUMN niveau ENUM('begin','intermediate','advanced') DEFAULT 'begin' AFTER type`);
+      await safeAlter(connection, `ALTER TABLE formations ADD COLUMN places INT DEFAULT 0 AFTER niveau`);
       await safeAlter(connection, `ALTER TABLE formations ADD COLUMN status ENUM('open','closed') DEFAULT 'open' AFTER subscription_period`);
       await safeAlter(connection, `ALTER TABLE students ADD COLUMN next_payment_date DATE NULL AFTER subscription_plan`);
       await safeAlter(connection, `ALTER TABLE students ADD COLUMN promo_code VARCHAR(50) NULL AFTER next_payment_date`);

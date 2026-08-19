@@ -36,9 +36,12 @@ const SELECT_FORMATION = `
     f.start_date,
     f.end_date,
     f.status,
+    f.niveau,
+    f.places,
     f.created_at,
     CONCAT(u.first_name, ' ', u.last_name) AS teacher_name,
-    c.name AS classroom_name
+    c.name AS classroom_name,
+    (SELECT COUNT(*) FROM students WHERE formation_id = f.id) AS registered_students
   FROM formations f
   LEFT JOIN teachers t ON t.id = f.teacher_id
   LEFT JOIN users u ON u.id = t.user_id
@@ -87,6 +90,8 @@ router.post(
       price_1_year: price1Year = null,
       type = 'formation',
       status = 'open',
+      niveau = 'begin',
+      places = 0,
       subscription_period: subscriptionPeriod = null,
       start_date: startDate = null,
       end_date: endDate = null,
@@ -103,9 +108,9 @@ router.post(
       : price;
 
     const result = await query(
-      `INSERT INTO formations (school_id, teacher_id, classroom_id, title, description, image, duration_hours, price, price_monthly, price_3_months, price_1_year, type, subscription_period, status, start_date, end_date)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [schoolId, normalizedTeacherId, normalizedClassroomId, title, description, image, durationHours, effectivePrice, priceMonthly, price3Months, price1Year, type, subscriptionPeriod, status || 'open', startDate, endDate]
+      `INSERT INTO formations (school_id, teacher_id, classroom_id, title, description, image, duration_hours, price, price_monthly, price_3_months, price_1_year, type, subscription_period, status, niveau, places, start_date, end_date)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [schoolId, normalizedTeacherId, normalizedClassroomId, title, description, image, durationHours, effectivePrice, priceMonthly, price3Months, price1Year, type, subscriptionPeriod, status || 'open', niveau, places || 0, startDate, endDate]
     );
 
     const rows = await query(SELECT_FORMATION + ' WHERE f.id = ? LIMIT 1', [result.insertId]);
@@ -117,7 +122,7 @@ router.post(
 router.put(
   '/:id',
   asyncHandler(async (req, res) => {
-    const allowed = ['teacher_id', 'classroom_id', 'title', 'description', 'image', 'duration_hours', 'price', 'price_monthly', 'price_3_months', 'price_1_year', 'type', 'subscription_period', 'status', 'start_date', 'end_date'];
+    const allowed = ['teacher_id', 'classroom_id', 'title', 'description', 'image', 'duration_hours', 'price', 'price_monthly', 'price_3_months', 'price_1_year', 'type', 'subscription_period', 'status', 'niveau', 'places', 'start_date', 'end_date'];
     const updates = [];
     const values = [];
 

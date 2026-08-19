@@ -91,6 +91,17 @@ window.AppI18n = {
     "Next Payment": "الدفع القادم",
     "Group": "الفوج",
 
+    // ── Certificate page ──
+    "Generate Certificate": "إصدار شهادة",
+    "Select formation, group and students to generate certificates": "حدد الدورة والفوج والطلاب لإصدار الشهادات",
+    "Select Formation First": "اختر الدورة أولاً",
+    "Preview": "معاينة",
+    "Select Student(s)": "تحديد الطالب(الطلاب)",
+    "0 selected": "0 محدد",
+    "Select All": "تحديد الكل",
+    "Clear": "مسح",
+    "Select a formation to see students": "اختر دورة لرؤية الطلاب",
+    "Download PDF / ZIP": "تحميل كـ PDF / ZIP",
     // ── All Students page ──
     "Students List": "قائمة الطلاب",
     "All registered students from the database.": "جميع الطلاب المسجلين في قاعدة البيانات.",
@@ -232,17 +243,75 @@ window.AppI18n = {
     "Image URL": "رابط الصورة",
     "Duration (hours)": "المدة (ساعات)",
     "Price ($)": "السعر (دج)",
+    "Price (DA)": "السعر (دج)",
     "Used for formations.": "يستخدم للدورات.",
     "Formation": "دورة",
     "Subscription": "اشتراك",
     "Open": "مفتوح",
     "Closed": "مغلق",
     "Monthly Price ($)": "السعر الشهري (دج)",
+    "Monthly Price (DA)": "السعر الشهري (دج)",
     "3-Month Price ($)": "سعر 3 أشهر (دج)",
+    "3-Month Price (DA)": "سعر 3 أشهر (دج)",
     "Yearly Price ($)": "السعر السنوي (دج)",
+    "Yearly Price (DA)": "السعر السنوي (دج)",
     "Save Formation": "حفظ الدورة",
+    "Number of Places": "عدد المقاعد",
 
-    // ── Attendance page ──
+    // ── Formation detail page ────────────────────────────────────────────────
+    "Formation Information": "معلومات الدورة",
+    "Duration": "المدة",
+    "hours": "ساعة",
+    "Places Capacity": "عدد المقاعد",
+    "Price": "السعر",
+    "Start Date": "تاريخ البداية",
+    "End Date": "تاريخ النهاية",
+    "Created On": "تاريخ الإنشاء",
+    "Description": "الوصف",
+    "Details": "التفاصيل",
+    "Free": "مجاني",
+    "No description provided.": "لم يتم توفير وصف.",
+    "No teacher assigned": "لم يتم تعيين أستاذ",
+    "No classroom assigned": "لم يتم تعيين قسم",
+    "Add Formation": "إضافة دورة",
+    "Edit Formation": "تعديل الدورة",
+
+    "Update Formation": "تحديث الدورة",
+    "Edit": "تعديل",
+    "Add": "إضافة",
+    "Update formation details.": "تحديث تفاصيل الدورة.",
+    "e.g. Web Development Bootcamp": "مثال: دورة تطوير الويب",
+    "Formation description...": "وصف الدورة...",
+    "e.g. 40": "مثال: 40",
+    "Loading...": "جاري التحميل...",
+
+    // ── Niveau / Level ────────────────────────────────────────────────────────
+    "Niveau": "المستوى",
+    "Level": "المستوى",
+    "Beginner": "للمبتدئين",
+    "Intermediate": "متوسط",
+    "Advanced": "متقدم",
+    "begin": "للمبتدئين",
+    "intermediate": "متوسط",
+    "advanced": "متقدم",
+
+    // ── Places / Registered ───────────────────────────────────────────────────
+    "Places": "المقاعد",
+    "Registered": "المسجلون",
+    "Registered Students": "الطلاب المسجلون",
+    "Places / Reg.": "المقاعد / المسجلون",
+    "Available Places": "المقاعد المتاحة",
+
+    // ── Notifications (formation) ─────────────────────────────────────────────
+    "Formation created successfully": "تم إنشاء الدورة بنجاح",
+    "Formation updated successfully": "تم تحديث الدورة بنجاح",
+    "Formation deleted successfully": "تم حذف الدورة بنجاح",
+    "Student updated successfully": "تم تحديث الطالب بنجاح",
+    "Teacher updated successfully": "تم تحديث الأستاذ بنجاح",
+    "Group updated successfully": "تم تحديث المجموعة بنجاح",
+    "Classroom added": "تمت إضافة القسم بنجاح",
+
+    // ── Status / Attendance ──────────────────────────────────────────────────
     "Attendance & Scanning": "الحضور والمسح",
     "Scan QR Code": "مسح رمز QR",
     "Mark Attendance": "تسجيل الحضور",
@@ -582,11 +651,6 @@ window.AppI18n = {
         direction: rtl;
       }
 
-      /* Breadcrumb icon */
-      .sb-breadcrumb {
-        flex-direction: row-reverse;
-        justify-content: flex-end;
-      }
 
       /* Submenu indentation flipped */
       .sb-submenu li a {
