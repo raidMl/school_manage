@@ -504,6 +504,36 @@
 
       form.querySelector('[name="name"]').value = s.name || '';
       var logoEl = form.querySelector('[name="logo"]'); if (logoEl) logoEl.value = s.logo || '';
+      var typeEl = form.querySelector('[name="type"]'); 
+      var customTypeEl = form.querySelector('[name="custom_type"]');
+      if (typeEl) {
+        var options = Array.prototype.map.call(typeEl.options, function(o) { return o.value; });
+        if (s.type && s.type !== '' && options.indexOf(s.type) === -1) {
+          typeEl.value = 'نوع اخر';
+          if (customTypeEl) {
+            customTypeEl.style.display = 'block';
+            customTypeEl.value = s.type;
+            customTypeEl.required = true;
+          }
+        } else {
+          typeEl.value = s.type || '';
+          if (customTypeEl) {
+            customTypeEl.style.display = 'none';
+            customTypeEl.required = false;
+          }
+        }
+      }
+      var pLandlineEl = form.querySelector('[name="phone_landline"]'); if (pLandlineEl) pLandlineEl.value = s.phone_landline || '';
+      var p1El = form.querySelector('[name="phone_1"]'); if (p1El) p1El.value = s.phone_1 || '';
+      var p2El = form.querySelector('[name="phone_2"]'); if (p2El) p2El.value = s.phone_2 || '';
+      var sEmailEl = form.querySelector('[name="email"]'); if (sEmailEl) sEmailEl.value = s.email || '';
+      var faxEl = form.querySelector('[name="fax"]'); if (faxEl) faxEl.value = s.fax || '';
+      var stateEl = form.querySelector('[name="state"]'); if (stateEl) stateEl.value = s.state || '';
+      var distEl = form.querySelector('[name="district"]'); if (distEl) distEl.value = s.district || '';
+      var muniEl = form.querySelector('[name="municipality"]'); if (muniEl) muniEl.value = s.municipality || '';
+      var pCodeEl = form.querySelector('[name="postal_code"]'); if (pCodeEl) pCodeEl.value = s.postal_code || '';
+      var addrEl = form.querySelector('[name="address"]'); if (addrEl) addrEl.value = s.address || '';
+      var poboxEl = form.querySelector('[name="po_box"]'); if (poboxEl) poboxEl.value = s.po_box || '';
 
       var fbEl = form.querySelector('[name="fb"]'); if (fbEl) fbEl.value = c.fb || '';
       var waEl = form.querySelector('[name="whatsapp"]'); if (waEl) waEl.value = c.whatsapp || '';
@@ -634,11 +664,40 @@
 
   function bindSetupSchoolForm() {
     var form = document.querySelector('#backend-setup-school-form'); if (!form) return;
+
+    var typeEl = form.querySelector('[name="type"]');
+    var customTypeEl = form.querySelector('[name="custom_type"]');
+    if (typeEl && customTypeEl) {
+      typeEl.addEventListener('change', function() {
+        if (this.value === 'نوع اخر') {
+          customTypeEl.style.display = 'block';
+          customTypeEl.required = true;
+        } else {
+          customTypeEl.style.display = 'none';
+          customTypeEl.required = false;
+        }
+      });
+    }
+
     form.addEventListener('submit', function (e) {
       e.preventDefault(); var fd = new FormData(form);
+      var selectedType = fd.get('type');
+      var finalType = (selectedType === 'نوع اخر') ? fd.get('custom_type') : selectedType;
       var payload = {
         name: fd.get('name'),
         logo: fd.get('logo') || null,
+        type: finalType || null,
+        phone_landline: fd.get('phone_landline') || null,
+        phone_1: fd.get('phone_1') || null,
+        phone_2: fd.get('phone_2') || null,
+        email: fd.get('email') || null,
+        fax: fd.get('fax') || null,
+        state: fd.get('state') || null,
+        district: fd.get('district') || null,
+        municipality: fd.get('municipality') || null,
+        postal_code: fd.get('postal_code') || null,
+        po_box: fd.get('po_box') || null,
+        address: fd.get('address') || null,
         fb: fd.get('fb') || null,
         whatsapp: fd.get('whatsapp') || null,
         linkedin: fd.get('linkedin') || null,
@@ -724,7 +783,7 @@
   var paymentsPageLoading = false;
   var paymentsPageInitialized = false;
 
-  function loadPaymentsPage() {
+  window.loadPaymentsPage = function loadPaymentsPage() {
     var tbl = document.querySelector('#backend-payments-table'); if (!tbl) return;
     if (paymentsPageLoading) return;
 
@@ -1385,7 +1444,7 @@
     if (!rows.length) { tbody.innerHTML = '<tr><td colspan="5" class="text-center">' + t('No records found') + '</td></tr>'; return; }
     tbody.innerHTML = rows.map(function (r) {
       return '<tr><td>' + esc(r.id) + '</td><td>' + esc(r.name) + '</td><td>' + (r.capacity || '-') + '</td><td>' + esc(r.description || '-') + '</td>' +
-        '<td><button class="btn btn-xs btn-primary" data-edit-classroom=\'' + JSON.stringify(r).replace(/'/g, "&apos;") + '\' style="margin: 0 8px;" title="' + t('Edit') + '"><i class="fa fa-edit"></i></button>' +
+        '<td style="white-space:nowrap;"><button class="btn btn-xs btn-primary" data-edit-classroom=\'' + JSON.stringify(r).replace(/'/g, "&apos;") + '\' style="margin: 0 8px;" title="' + t('Edit') + '"><i class="fa fa-edit"></i></button>' +
         '<button class="btn btn-xs btn-danger" data-del-classroom="' + r.id + '" title="' + t('Delete') + '"><i class="fa fa-trash"></i></button></td></tr>';
     }).join('');
     var tableEl = document.querySelector('#backend-classrooms-table');

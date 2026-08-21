@@ -1,7 +1,12 @@
-<footer class="sb-footer-bar">
-    <p style="margin:0;color:#aaa;font-size:12px">
+<footer class="sb-footer-bar" style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:15px; text-align:center;">
+    <p style="margin:0 0 8px 0; color:#aaa; font-size:13px">
         &copy; <span id="footer-year"></span> School Management System
         &mdash; <span id="backend-school-name-footer"></span>
     </p>
+    <div class="social-links" style="display:flex; gap:15px; font-size:16px;">
+        <a href="#" style="color:#8a96a8; transition:color 0.2s" title="Facebook" onmouseover="this.style.color='#3b5998'" onmouseout="this.style.color='#8a96a8'"><i class="fa fa-facebook-official"></i></a>
+        <a href="#" style="color:#8a96a8; transition:color 0.2s" title="Instagram" onmouseover="this.style.color='#e1306c'" onmouseout="this.style.color='#8a96a8'"><i class="fa fa-instagram"></i></a>
+        <a href="#" style="color:#8a96a8; transition:color 0.2s" title="WhatsApp" onmouseover="this.style.color='#25d366'" onmouseout="this.style.color='#8a96a8'"><i class="fa fa-whatsapp"></i></a>
+    </div>
 </footer>
 <script>document.getElementById('footer-year').textContent = new Date().getFullYear();</script>

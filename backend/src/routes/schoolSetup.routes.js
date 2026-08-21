@@ -9,7 +9,9 @@ const router = express.Router();
 
 async function getSchoolForUser(userId) {
   const schools = await query(
-    `SELECT s.id, s.name, s.logo, s.admin_id, s.contact_info_id, s.created_at
+    `SELECT s.id, s.name, s.logo, s.admin_id, s.contact_info_id, s.created_at,
+            s.type, s.phone_landline, s.phone_1, s.phone_2, s.email, s.fax,
+            s.state, s.district, s.municipality, s.postal_code, s.po_box, s.address
      FROM schools s
      LEFT JOIN school_users su ON su.school_id = s.id
      WHERE s.admin_id = ? OR su.user_id = ?
@@ -34,7 +36,12 @@ router.post(
   '/',
   requireAuth,
   asyncHandler(async (req, res) => {
-    const { name, logo = null, contact_info_id: contactInfoId = null } = req.body;
+    const { 
+      name, logo = null, contact_info_id: contactInfoId = null,
+      type = null, phone_landline = null, phone_1 = null, phone_2 = null,
+      email = null, fax = null, state = null, district = null,
+      municipality = null, postal_code = null, po_box = null, address = null
+    } = req.body;
 
     if (!name) {
       throw new HttpError(400, 'name is required');
@@ -64,9 +71,9 @@ router.post(
       await connection.beginTransaction();
 
       const [schoolResult] = await connection.execute(
-        `INSERT INTO schools (name, logo, admin_id, contact_info_id)
-         VALUES (?, ?, ?, ?)`,
-        [name, logo, user.id, contactInfoId]
+        `INSERT INTO schools (name, logo, admin_id, contact_info_id, type, phone_landline, phone_1, phone_2, email, fax, state, district, municipality, postal_code, po_box, address)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [name, logo, user.id, contactInfoId, type, phone_landline, phone_1, phone_2, email, fax, state, district, municipality, postal_code, po_box, address]
       );
 
       const schoolId = schoolResult.insertId;
@@ -80,7 +87,9 @@ router.post(
       await connection.commit();
 
       const schools = await query(
-        `SELECT id, name, logo, admin_id, contact_info_id, created_at
+        `SELECT id, name, logo, admin_id, contact_info_id, created_at,
+                type, phone_landline, phone_1, phone_2, email, fax,
+                state, district, municipality, postal_code, po_box, address
          FROM schools
          WHERE id = ?
          LIMIT 1`,
@@ -127,7 +136,10 @@ router.put(
   '/settings',
   requireAuth,
   asyncHandler(async (req, res) => {
-    const { name, logo, fb, whatsapp, linkedin, admin_first_name, admin_last_name, admin_email, admin_password } = req.body;
+    const { 
+      name, logo, fb, whatsapp, linkedin, admin_first_name, admin_last_name, admin_email, admin_password,
+      type, phone_landline, phone_1, phone_2, email, fax, state, district, municipality, postal_code, po_box, address
+    } = req.body;
     if (!name) throw new HttpError(400, 'School name is required');
 
     const users = await query('SELECT id, role FROM users WHERE id = ? LIMIT 1', [req.auth.userId]);
@@ -163,8 +175,8 @@ router.put(
       let schoolId = school ? school.id : null;
       if (isNew) {
         const [schoolResult] = await connection.execute(
-          'INSERT INTO schools (name, logo, admin_id, contact_info_id) VALUES (?, ?, ?, ?)',
-          [name, logo || null, user.id, contactInfoId || null]
+          'INSERT INTO schools (name, logo, admin_id, contact_info_id, type, phone_landline, phone_1, phone_2, email, fax, state, district, municipality, postal_code, po_box, address) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          [name, logo || null, user.id, contactInfoId || null, type || null, phone_landline || null, phone_1 || null, phone_2 || null, email || null, fax || null, state || null, district || null, municipality || null, postal_code || null, po_box || null, address || null]
         );
         schoolId = schoolResult.insertId;
         await connection.execute(
@@ -173,8 +185,8 @@ router.put(
         );
       } else {
         await connection.execute(
-          'UPDATE schools SET name=?, logo=?, contact_info_id=? WHERE id=?',
-          [name, logo || null, contactInfoId || null, schoolId]
+          'UPDATE schools SET name=?, logo=?, contact_info_id=?, type=?, phone_landline=?, phone_1=?, phone_2=?, email=?, fax=?, state=?, district=?, municipality=?, postal_code=?, po_box=?, address=? WHERE id=?',
+          [name, logo || null, contactInfoId || null, type || null, phone_landline || null, phone_1 || null, phone_2 || null, email || null, fax || null, state || null, district || null, municipality || null, postal_code || null, po_box || null, address || null, schoolId]
         );
       }
 

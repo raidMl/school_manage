@@ -544,6 +544,8 @@
         loadStats();
         // Invalidate archive tab so it reloads fresh next time
         tabLoaded.history = false;
+        tabLoaded.dashboard = false;
+        if (typeof window.loadPaymentsPage === 'function') window.loadPaymentsPage();
 
         if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa fa-save"></i> Save Payment &amp; Mark as Paid'; }
       }).catch(function (err) {
@@ -774,6 +776,28 @@
         if (s2) selectStudent(s2);
       });
     };
+
+    var refreshBtn = document.getElementById('btn-refresh-states');
+    if (refreshBtn) {
+      refreshBtn.addEventListener('click', function() {
+        var icon = this.querySelector('.fa-refresh');
+        if (icon) icon.classList.add('fa-spin');
+        
+        loadAllStudents(function() {
+          tabLoaded.history = false;
+          tabLoaded.dashboard = false;
+
+          if (activeTab === 'tab-history') {
+            tabLoaded.history = true;
+            loadGlobalHistory();
+          } else if (activeTab === 'tab-dashboard' && typeof window.loadPaymentsPage === 'function') {
+            tabLoaded.dashboard = true;
+            window.loadPaymentsPage();
+          }
+          if (icon) setTimeout(function(){ icon.classList.remove('fa-spin'); }, 500);
+        });
+      });
+    }
   });
 
 })();

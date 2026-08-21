@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Treasury Management | School System Admin</title>
+    <link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/sidebar.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #f4f6f9; }
+
+        .card-panel {
+            background: #fff; border-radius: 14px; padding: 24px;
+            box-shadow: 0 2px 14px rgba(0,0,0,.06); margin-bottom: 22px;
+        }
+
+        .pay-tabs { display: flex; gap: 0; border-bottom: 2px solid #e8ecf0; margin-bottom: 24px; flex-wrap: wrap; }
+        .pay-tab {
+            padding: 10px 22px; font-size: 13.5px; font-weight: 600;
+            color: #6c757d; cursor: pointer; border-bottom: 3px solid transparent;
+            margin-bottom: -2px; transition: all .2s; white-space: nowrap;
+        }
+        .pay-tab:hover { color: #3d6ee4; }
+        .pay-tab.active { color: #3d6ee4; border-bottom-color: #3d6ee4; }
+
+        .stat-cards { display: flex; gap: 16px; margin-bottom: 22px; flex-wrap: wrap; }
+        .stat-card {
+            flex: 1; min-width: 150px;
+            background: linear-gradient(135deg, #3d6ee4, #5b8ef4);
+            border-radius: 12px; padding: 18px 20px; color: #fff;
+            box-shadow: 0 4px 16px rgba(61,110,228,.25);
+        }
+        .stat-card.green  { background: linear-gradient(135deg,#10b981,#34d399); box-shadow:0 4px 16px rgba(16,185,129,.22); }
+        .stat-card.red    { background: linear-gradient(135deg,#ef4444,#f87171); box-shadow:0 4px 16px rgba(239,68,68,.22); }
+        .stat-card.blue   { background: linear-gradient(135deg,#3b82f6,#60a5fa); box-shadow:0 4px 16px rgba(59,130,246,.22); }
+        
+        .stat-card h4 { font-size: 26px; font-weight: 700; margin: 0 0 4px; }
+        .stat-card p  { font-size: 12px; opacity: .85; margin: 0; }
+
+        .pay-form-row { display: flex; gap: 14px; flex-wrap: wrap; }
+        .pay-form-row .form-group { flex: 1; min-width: 160px; margin-bottom: 14px; }
+        .pay-form-row .form-group label { font-size: 12px; font-weight: 600; color: #555; margin-bottom: 5px; display: block; }
+        .pay-form-row .form-group .form-control { height: 38px; border-radius: 8px; font-size: 13.5px; }
+
+        .history-table th { background: #f8fafc; font-size: 12px; font-weight: 700; color: #5a6580; text-transform: uppercase; letter-spacing:.5px; }
+        .history-table td { font-size: 13.5px; vertical-align: middle; }
+
+        .badge-income { background:#10b981; color:#fff; padding:3px 10px; border-radius:20px; font-size:11.5px; font-weight:600; }
+        .badge-expense { background:#ef4444; color:#fff; padding:3px 10px; border-radius:20px; font-size:11.5px; font-weight:600; }
+
+        .filter-bar { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 18px; }
+        .filter-bar .form-group { margin-bottom: 0; flex: 1; min-width: 130px; }
+        .filter-bar label { font-size: 12px; font-weight: 600; color: #555; margin-bottom: 4px; display: block; }
+        .filter-bar .form-control { height: 36px; font-size: 13px; border-radius: 8px; }
+
+        .section-title { font-size: 15px; font-weight: 700; margin: 0 0 18px; color: #1a2340; display: flex; align-items: center; gap: 8px; }
+        .section-title i { color: #3d6ee4; }
+
+        @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+        .fade-in { animation: fadeIn .3s ease; }
+    </style>
+</head>
+<body data-page="treasury">
+    <div id="sidebar-placeholder"></div>
+    <div class="sb-main">
+        <div id="header-placeholder"></div>
+        <div class="sb-content">
+            <div class="sb-breadcrumb" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                <div>
+                    <i class="fa fa-home"></i>
+                    <a href="index.html">Home</a>
+                    <span>/</span>
+                    <span data-i18n="Treasury Management">Treasury Management</span>
+                </div>
+                <button id="btn-refresh-treasury" class="btn btn-sm" style="background:#fff; border:1px solid #e2e8f0; border-radius:8px; color:#5a6580; font-weight:600; padding:6px 12px; transition:all 0.2s;">
+                    <i class="fa fa-refresh"></i> <span data-i18n="Refresh">Refresh</span>
+                </button>
+            </div>
+
+            <!-- Stat cards -->
+            <div class="stat-cards">
+                <div class="stat-card green">
+                    <h4 id="stat-total-income">—</h4>
+                    <p><i class="fa fa-arrow-down"></i> <span data-i18n="Total Incomes">Total Incomes</span></p>
+                </div>
+                <div class="stat-card red">
+                    <h4 id="stat-total-expense">—</h4>
+                    <p><i class="fa fa-arrow-up"></i> <span data-i18n="Total Expenses">Total Expenses</span></p>
+                </div>
+                <div class="stat-card blue">
+                    <h4 id="stat-balance">—</h4>
+                    <p><i class="fa fa-balance-scale"></i> <span data-i18n="Net Balance">Net Balance</span></p>
+                </div>
+            </div>
+
+            <div class="card-panel">
+                <!-- Tabs -->
+                <div class="pay-tabs">
+                    <div class="pay-tab active" data-tab="tab-add-transaction"><i class="fa fa-plus-circle"></i> <span data-i18n="Add Transaction">Add Transaction</span></div>
+                    <div class="pay-tab" data-tab="tab-history"><i class="fa fa-history"></i> <span data-i18n="Transaction Archive">Transaction Archive</span></div>
+                </div>
+
+                <!-- TAB 1 — Add Transaction -->
+                <div id="tab-add-transaction" class="tab-pane fade-in">
+                    <p class="section-title"><i class="fa fa-money"></i> <span data-i18n="Record new income or expense">Record new income or expense</span></p>
+
+                    <form id="treasury-form">
+                        <div class="pay-form-row">
+                            <div class="form-group">
+                                <label><span data-i18n="Transaction Type">Transaction Type</span> <span class="text-danger">*</span></label>
+                                <select id="tr-type" name="type" class="form-control" required>
+                                    <option value="" disabled selected data-i18n="Select Type">Select Type</option>
+                                    <option value="income" data-i18n="Income (مداخيل)">Income (مداخيل)</option>
+                                    <option value="expense" data-i18n="Expense (مصاريف)">Expense (مصاريف)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label><span data-i18n="Amount">Amount</span> <span class="text-danger">*</span></label>
+                                <input type="number" id="tr-amount" name="amount" class="form-control"
+                                       min="0.01" step="0.01" placeholder="0.00" required>
+                            </div>
+                            <div class="form-group">
+                                <label><span data-i18n="Date">Date</span> <span class="text-danger">*</span></label>
+                                <input type="date" id="tr-date" name="transaction_date" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label><span data-i18n="Category">Category</span></label>
+                                <input type="text" id="tr-category" name="category" class="form-control" data-i18n-placeholder="e.g. Salaries, Electricity" placeholder="e.g. Salaries, Electricity">
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom:18px">
+                            <label><span data-i18n="Notes">Notes</span></label>
+                            <input type="text" id="tr-notes" name="notes" class="form-control"
+                                   style="border-radius:8px" data-i18n-placeholder="Optional notes..." placeholder="Optional notes...">
+                        </div>
+
+                        <div id="treasury-entry-status" class="alert" style="display:none"></div>
+
+                        <button type="submit" class="btn btn-primary" id="btn-save-transaction">
+                            <i class="fa fa-save"></i> <span data-i18n="Save Transaction">Save Transaction</span>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- TAB 2 — Transaction Archive -->
+                <div id="tab-history" class="tab-pane fade-in" style="display:none">
+                    <div class="filter-bar">
+                        <div class="form-group">
+                            <label data-i18n="Type">Type</label>
+                            <select id="hist-filter-type" class="form-control">
+                                <option value="" data-i18n="All">All</option>
+                                <option value="income" data-i18n="Income">Income</option>
+                                <option value="expense" data-i18n="Expense">Expense</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label data-i18n="From">From</label>
+                            <input type="date" id="hist-filter-date-start" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label data-i18n="To">To</label>
+                            <input type="date" id="hist-filter-date-end" class="form-control">
+                        </div>
+                        <div class="form-group" style="flex:0;min-width:auto">
+                            <label>&nbsp;</label>
+                            <button class="btn btn-primary btn-sm" id="btn-hist-filter" style="height:36px;border-radius:8px;white-space:nowrap">
+                                <i class="fa fa-filter"></i> <span data-i18n="Filter">Filter</span>
+                            </button>
+                        </div>
+                        <div class="form-group" style="flex:0;min-width:auto">
+                            <label>&nbsp;</label>
+                            <button class="btn btn-default btn-sm" id="btn-hist-reset" style="height:36px;border-radius:8px">
+                                <i class="fa fa-refresh"></i> <span data-i18n="Reset">Reset</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover history-table" id="treasury-history-table">
+                            <thead><tr>
+                                <th>#</th>
+                                <th data-i18n="Type">Type</th>
+                                <th data-i18n="Amount">Amount</th>
+                                <th data-i18n="Category">Category</th>
+                                <th data-i18n="Date">Date</th>
+                                <th data-i18n="Notes">Notes</th>
+                                <th data-i18n="Recorded By">Recorded By</th>
+                                <th data-i18n="Actions">Actions</th>
+                            </tr></thead>
+                            <tbody><tr><td colspan="8" class="text-center text-muted">Loading...</td></tr></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="footer-placeholder"></div>
+        </div>
+    </div>
+
+    <!-- Delete confirmation modal -->
+    <div id="delete-tx-modal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content" style="border-radius:12px">
+                <div class="modal-header" style="border-bottom:1px solid #f0f0f0">
+                    <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                    <h4 class="modal-title" style="font-size:15px"><i class="fa fa-trash text-danger"></i> <span data-i18n="Delete Transaction">Delete Transaction</span></h4>
+                </div>
+                <div class="modal-body" style="font-size:13.5px" data-i18n="Delete this record? This cannot be undone.">Delete this record? This cannot be undone.</div>
+                <div class="modal-footer" style="border-top:1px solid #f0f0f0">
+                    <button type="button" class="btn btn-default btn-sm" data-dismiss="modal" data-i18n="Cancel">Cancel</button>
+                    <button type="button" class="btn btn-danger btn-sm" id="btn-confirm-delete-tx">
+                        <i class="fa fa-trash"></i> <span data-i18n="Delete">Delete</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/vendor/jquery-1.12.4.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/components.js"></script>
+    <script src="js/backend.js?v=3"></script>
+    <script src="js/treasury.js"></script>
+</body>
+</html>

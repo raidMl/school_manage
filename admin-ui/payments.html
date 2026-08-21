@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
@@ -169,11 +169,16 @@
     <div class="sb-main">
         <div id="header-placeholder"></div>
         <div class="sb-content">
-            <div class="sb-breadcrumb">
-                <i class="fa fa-home"></i>
-                <a href="index.html">Home</a>
-                <span>/</span>
-                <span>Payments</span>
+            <div class="sb-breadcrumb" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                <div>
+                    <i class="fa fa-home"></i>
+                    <a href="index.html">Home</a>
+                    <span>/</span>
+                    <span>Payments</span>
+                </div>
+                <button id="btn-refresh-states" class="btn btn-sm" style="background:#fff; border:1px solid #e2e8f0; border-radius:8px; color:#5a6580; font-weight:600; padding:6px 12px; transition:all 0.2s;">
+                    <i class="fa fa-refresh"></i> <span data-i18n="Refresh">Refresh</span>
+                </button>
             </div>
 
             <!-- ── Stat cards ───────────────────────────────── -->
@@ -461,7 +466,7 @@
     <script src="js/vendor/jquery-1.12.4.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/components.js"></script>
-    <script src="js/backend.js?v=3"></script>
-    <script src="js/payments-page.js"></script>
+    <script src="js/backend.js?v=4"></script>
+    <script src="js/payments-page.js?v=2"></script>
 </body>
 </html>
