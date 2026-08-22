@@ -239,6 +239,61 @@
     });
   }
 
+  function uploadToCloudinary(file, folder) {
+    return new Promise(function(resolve, reject) {
+      if (!file) return reject(new Error('No file provided.'));
+      
+      request('/api/cloudinary/sign', {
+        method: 'POST',
+        body: JSON.stringify({ folder: folder || 'school_uploads' })
+      }).then(function(signData) {
+        if (!signData.signature) return reject(new Error('Failed to get upload signature.'));
+        
+        var fd = new FormData();
+        fd.append('file', file);
+        fd.append('api_key', signData.api_key);
+        fd.append('timestamp', signData.timestamp);
+        fd.append('signature', signData.signature);
+        fd.append('folder', signData.folder);
+
+        var uploadUrl = 'https://api.cloudinary.com/v1_1/' + signData.cloud_name + '/image/upload';
+        
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', uploadUrl, true);
+        xhr.onload = function() {
+          if (xhr.status === 200) {
+            resolve(JSON.parse(xhr.responseText).secure_url);
+          } else {
+            reject(new Error('Upload failed: ' + xhr.responseText));
+          }
+        };
+        xhr.onerror = function() { reject(new Error('Network error during upload.')); };
+        xhr.send(fd);
+      }).catch(reject);
+    });
+  }
+  window.uploadToCloudinary = uploadToCloudinary;
+
+  function handleCloudinaryUpload(fileInput, urlInput, iconId) {
+    var file = fileInput.files[0];
+    if (!file) return;
+    
+    var icon = document.getElementById(iconId);
+    if (icon) { icon.className = 'fa fa-spinner fa-spin'; }
+    
+    uploadToCloudinary(file, 'school_management').then(function(url) {
+      if (urlInput) urlInput.value = url;
+      if (icon) { icon.className = 'fa fa-check text-success'; }
+      setTimeout(function() { if(icon) icon.className = 'fa fa-upload'; }, 2000);
+    }).catch(function(err) {
+      alert(err.message);
+      if (icon) { icon.className = 'fa fa-upload'; }
+    });
+    // Reset input so same file can be selected again if needed
+    fileInput.value = '';
+  }
+  window.handleCloudinaryUpload = handleCloudinaryUpload;
+
   function esc(v) {
     return String(v == null ? '' : v)
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')

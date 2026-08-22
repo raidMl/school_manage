@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
@@ -42,7 +42,18 @@
       <div class="col-md-6"><div class="form-group"><label>Hire Date</label><input type="date" name="hire_date" class="form-control"></div></div>
       <div class="col-md-6"><div class="form-group"><label>Birth Date</label><input type="date" name="birth_date" class="form-control"></div></div>
     </div>
-    <div class="form-group"><label>Photo URL</label><input type="url" name="photo" class="form-control" placeholder="https://example.com/photo.jpg"></div>
+    <div class="form-group">
+      <label data-i18n="Photo URL">Photo URL</label>
+      <div class="input-group">
+        <input type="url" name="photo" class="form-control" placeholder="https://example.com/photo.jpg" data-i18n-ph="https://example.com/photo.jpg">
+        <span class="input-group-btn">
+          <label class="btn btn-default" title="Upload Image" data-i18n-title="Upload Image" style="margin:0;">
+            <i class="fa fa-upload" id="icon-upload-prof"></i>
+            <input type="file" accept="image/*" style="display:none;" onchange="handleCloudinaryUpload(this, document.querySelector('#backend-add-professor-form input[name=photo]'), 'icon-upload-prof')">
+          </label>
+        </span>
+      </div>
+    </div>
     <div class="form-group" style="margin-top:20px">
       <button type="submit" class="btn btn-success btn-lg"><i class="fa fa-save"></i> Save Teacher</button>
       <a href="all-professors.html" class="btn btn-default btn-lg" style="margin-left:10px"><i class="fa fa-arrow-left"></i> Back</a>

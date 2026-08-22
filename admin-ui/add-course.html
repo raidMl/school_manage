@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
@@ -47,9 +47,20 @@
       <div class="col-md-6">
         <div class="form-group">
           <label data-i18n="Image URL">Image URL</label>
-          <input type="url" name="image" class="form-control"
-                 placeholder="https://example.com/cover.jpg"
-                 data-i18n-ph="https://example.com/cover.jpg">
+          <div class="input-group">
+            <input type="url" name="image" class="form-control"
+                   placeholder="https://example.com/cover.jpg"
+                   data-i18n-ph="https://example.com/cover.jpg">
+            <span class="input-group-btn">
+              <label class="btn btn-default" title="Upload Image" data-i18n-title="Upload Image" style="margin:0; border-radius:0;">
+                <i class="fa fa-upload" id="icon-upload-course"></i>
+                <input type="file" accept="image/*" style="display:none;" onchange="handleCloudinaryUpload(this, document.querySelector('#backend-add-formation-form input[name=image]'), 'icon-upload-course')">
+              </label>
+              <button class="btn btn-default" type="button" id="btn-search-web-image" title="Search Web" data-i18n-title="Search Web">
+                <i class="fa fa-search"></i>
+              </button>
+            </span>
+          </div>
         </div>
       </div>
     </div>
@@ -125,9 +136,118 @@
 
 <div id="footer-placeholder"></div>
 </div></div>
+
+<!-- Web Image Search Modal -->
+<div class="modal fade" id="webImageModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content" style="border-radius:12px;">
+      <div class="modal-header" style="border-bottom:1px solid #f0f0f0">
+        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+        <h4 class="modal-title"><i class="fa fa-picture-o"></i> <span data-i18n="Search Web Images">Search Web Images</span></h4>
+      </div>
+      <div class="modal-body">
+        <div class="input-group" style="margin-bottom: 20px;">
+          <input type="text" id="web-image-search-input" class="form-control" placeholder="Search..." data-i18n-ph="Search...">
+          <span class="input-group-btn">
+            <button class="btn btn-primary" id="btn-trigger-web-search"><i class="fa fa-search"></i> <span data-i18n="Search">Search</span></button>
+          </span>
+        </div>
+        <div id="web-image-results" class="row" style="display:flex; flex-wrap:wrap;"></div>
+        <div id="web-image-loading" style="display:none; text-align:center; padding:40px;"><i class="fa fa-spinner fa-spin fa-2x" style="color:#4facfe"></i></div>
+        <div id="web-image-empty" style="display:none; text-align:center; padding:40px; color:#888;"><span data-i18n="No images found.">No images found.</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script src="js/vendor/jquery-1.12.4.min.js"></script>
 <script src="js/bootstrap.min.js"></script>
 <script src="js/i18n.js"></script>
 <script src="js/components.js"></script>
 <script src="js/backend.js?v=3"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var titleInput = document.querySelector('input[name="title"]');
+  var imageInput = document.querySelector('input[name="image"]');
+  var btnSearch = document.getElementById('btn-search-web-image');
+  var modal = document.getElementById('webImageModal');
+  var searchInput = document.getElementById('web-image-search-input');
+  var btnTriggerSearch = document.getElementById('btn-trigger-web-search');
+  var resultsContainer = document.getElementById('web-image-results');
+  var loadingSpinner = document.getElementById('web-image-loading');
+  var emptyState = document.getElementById('web-image-empty');
+
+  function base() {
+    var l = window.location;
+    return (l.hostname === 'localhost' || l.hostname === '127.0.0.1')
+      ? l.protocol + '//' + l.hostname + ':5000' : '';
+  }
+
+  function doSearch(query) {
+    if (!query) return;
+    resultsContainer.innerHTML = '';
+    emptyState.style.display = 'none';
+    loadingSpinner.style.display = 'block';
+
+    var token = localStorage.getItem('school_system_token');
+    fetch(base() + '/api/image-search?q=' + encodeURIComponent(query), {
+      headers: token ? { 'Authorization': 'Bearer ' + token } : {}
+    }).then(function(r) { return r.json(); }).then(function(data) {
+      loadingSpinner.style.display = 'none';
+      var images = data.results || [];
+
+      if (images.length === 0) {
+        emptyState.style.display = 'block';
+      } else {
+        images.forEach(function(img) {
+          var col = document.createElement('div');
+          col.className = 'col-md-4 col-sm-6';
+          col.style.marginBottom = '15px';
+          col.innerHTML =
+            '<div class="web-img-result" data-url="' + img.image + '" style="cursor:pointer; border-radius:10px; overflow:hidden; border:2px solid transparent; transition:all 0.2s; box-shadow:0 2px 8px rgba(0,0,0,.08);">' +
+              '<div style="height:130px; background-image:url(' + img.thumbnail + '); background-size:cover; background-position:center;"></div>' +
+              '<div style="padding:6px 8px; font-size:11px; color:#555; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + img.title + '</div>' +
+            '</div>';
+          resultsContainer.appendChild(col);
+        });
+
+        resultsContainer.querySelectorAll('.web-img-result').forEach(function(el) {
+          el.addEventListener('click', function() {
+            var selectedUrl = this.getAttribute('data-url');
+            if (imageInput) imageInput.value = selectedUrl;
+            $(modal).modal('hide');
+          });
+          el.addEventListener('mouseover', function() { this.style.borderColor = '#4facfe'; this.style.transform = 'translateY(-2px)'; });
+          el.addEventListener('mouseout',  function() { this.style.borderColor = 'transparent'; this.style.transform = ''; });
+        });
+      }
+    }).catch(function() {
+      loadingSpinner.style.display = 'none';
+      emptyState.style.display = 'block';
+    });
+  }
+
+  if(btnSearch) {
+    btnSearch.addEventListener('click', function() {
+      var query = titleInput ? titleInput.value.trim() : '';
+      if(searchInput) searchInput.value = query;
+      $(modal).modal('show');
+      if(query) doSearch(query);
+    });
+  }
+
+  if(btnTriggerSearch) {
+    btnTriggerSearch.addEventListener('click', function() {
+      doSearch(searchInput.value.trim());
+    });
+  }
+  
+  if(searchInput) {
+    searchInput.addEventListener('keyup', function(e) {
+      if(e.key === 'Enter') doSearch(this.value.trim());
+    });
+  }
+});
+</script>
 </body></html>
