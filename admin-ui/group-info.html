@@ -22,7 +22,19 @@
         .student-card { display: inline-flex; align-items: center; gap: 6px; background: #f0f4ff; border-radius: 20px; padding: 4px 10px; margin: 2px; font-size: 12px; font-weight: 500; }
         .student-card img { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; }
     </style>
+
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#007bff">
+    <link rel="apple-touch-icon" href="img/icon-512.jpg">
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('sw.js');
+        });
+      }
+    </script>
 </head>
+
 <body data-page="groups">
     <div id="sidebar-placeholder"></div>
     <div class="sb-main">

@@ -19,7 +19,19 @@
         .status-present { background: #d4edda; color: #155724; }
         .status-absent { background: #f8d7da; color: #721c24; }
     </style>
+
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#28a745">
+    <link rel="apple-touch-icon" href="img/icon-512.jpg">
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('sw.js');
+        });
+      }
+    </script>
 </head>
+
 <body data-page="teacher-space">
     <div id="sidebar-placeholder"></div>
 

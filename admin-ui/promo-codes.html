@@ -20,7 +20,19 @@
         .table thead th{background:#f8fafc;border-bottom:0;font-size:13px;font-weight:700;color:#475569}
         .table tbody td{vertical-align:middle}
     </style>
+
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#007bff">
+    <link rel="apple-touch-icon" href="img/icon-512.jpg">
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('sw.js');
+        });
+      }
+    </script>
 </head>
+
 <body data-page="courses">
     <div id="sidebar-placeholder"></div>
     <div class="sb-main">

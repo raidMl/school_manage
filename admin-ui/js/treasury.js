@@ -91,7 +91,7 @@
     if (!tbody) return;
 
     if (!rows.length) {
-      tbody.innerHTML = '<tr><td colspan="8"><div style="text-align:center;padding:40px 20px;color:#8a96a8">' +
+      tbody.innerHTML = '<tr><td colspan="9"><div style="text-align:center;padding:40px 20px;color:#8a96a8">' +
         '<i class="fa fa-inbox" style="font-size:48px;margin-bottom:12px;opacity:.4;display:block"></i>' +
         '<p style="font-size:14px">No transactions found.</p></div></td></tr>';
       return;
@@ -109,16 +109,19 @@
         : '<span style="font-size:11px;color:#8a96a8;background:#f1f5f9;padding:2px 6px;border-radius:4px" data-i18n="Auto-added">Auto-added</span>';
 
       var catHtml = r.category ? '<span data-i18n="' + esc(r.category) + '">' + esc(r.category) + '</span>' : '-';
+      
+      var printBtn = '<button class="btn btn-xs btn-info" style="margin-right: 4px;" onclick=\'window.printReceipt(' + JSON.stringify(r).replace(/'/g, "&#39;") + ')\' title="Print Receipt"><i class="fa fa-print"></i></button>';
 
       return '<tr>' +
         '<td>' + (i + 1) + '</td>' +
         '<td>' + typeBadge + '</td>' +
         '<td><strong style="' + amountStyle + '">' + (r.type === 'income' ? '+ ' : '- ') + fmtMoney(r.amount) + '</strong></td>' +
         '<td>' + catHtml + '</td>' +
+        '<td>' + esc(r.person_name || '-') + '</td>' +
         '<td>' + esc(fmtDate(r.transaction_date)) + '</td>' +
         '<td style="max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + esc(r.notes || '-') + '</td>' +
         '<td>' + esc(by) + '</td>' +
-        '<td>' + deleteBtn + '</td>' +
+        '<td>' + printBtn + ' &nbsp; ' + deleteBtn + '</td>' +
         '</tr>';
     }).join('');
 
@@ -169,7 +172,8 @@
         amount:           parseFloat(document.getElementById('tr-amount').value),
         transaction_date: document.getElementById('tr-date').value,
         category:         document.getElementById('tr-category').value || null,
-        notes:            document.getElementById('tr-notes').value || null
+        notes:            document.getElementById('tr-notes').value || null,
+        person_name:      document.getElementById('tr-person-name') ? document.getElementById('tr-person-name').value || null : null
       };
 
       if (!payload.type) { showAlert('#treasury-entry-status', 'Please select a transaction type.'); return; }
@@ -181,8 +185,26 @@
       request('/api/treasury', {
         method: 'POST',
         body: JSON.stringify(payload)
-      }).then(function () {
-        showAlert('#treasury-entry-status', 'Transaction saved successfully!', 'success');
+      }).then(function (resp) {
+        var insertedId = (resp && resp.id) ? resp.id : '';
+        var transactionToPrint = {
+            id: insertedId,
+            type: payload.type,
+            amount: payload.amount,
+            transaction_date: payload.transaction_date,
+            category: payload.category,
+            notes: payload.notes,
+            person_name: payload.person_name
+        };
+        var printHtml = ' <button class="btn btn-sm btn-info" style="margin-left: 15px;" onclick=\'window.printReceipt(' + JSON.stringify(transactionToPrint).replace(/'/g, "&#39;") + ')\'><i class="fa fa-print"></i> Print وصل الدفع</button>';
+        
+        var alertEl = document.querySelector('#treasury-entry-status');
+        if (alertEl) {
+            alertEl.className = 'alert alert-success';
+            alertEl.innerHTML = 'Transaction saved successfully!' + printHtml;
+            alertEl.style.display = 'block';
+        }
+        
         form.reset();
         if (dateInput) dateInput.value = new Date().toISOString().slice(0, 10);
         loadTreasury();
@@ -266,6 +288,84 @@
   /* ═══════════════════════════════════════════════════════════════════════
      INIT
   ═══════════════════════════════════════════════════════════════════════ */
+  window.printReceipt = function(transaction) {
+    var iframe = document.getElementById('print-receipt-iframe');
+    if (!iframe) {
+      iframe = document.createElement('iframe');
+      iframe.id = 'print-receipt-iframe';
+      iframe.style.position = 'absolute';
+      iframe.style.width = '0';
+      iframe.style.height = '0';
+      iframe.style.border = 'none';
+      document.body.appendChild(iframe);
+    }
+    
+    // Format date in GMT+1
+    var dateObj = new Date(transaction.transaction_date);
+    var dateString = isNaN(dateObj.getTime()) ? transaction.transaction_date : dateObj.toLocaleString('en-GB', {
+        timeZone: 'Africa/Algiers',
+        year: 'numeric', month: '2-digit', day: '2-digit', 
+        hour: '2-digit', minute: '2-digit', hour12: false
+    });
+    
+    var personLine = transaction.person_name ? `<div><strong>الاسم (Name):</strong> ${esc(transaction.person_name)}</div>` : '';
+
+    var html = `
+      <html>
+        <head>
+          <title>Receipt - ${transaction.id || 'New'}</title>
+          <style>
+            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 40px; text-align: center; direction: rtl; }
+            .receipt-container { border: 2px solid #333; padding: 30px; max-width: 400px; margin: 0 auto; border-radius: 8px; }
+            h2 { color: #333; margin-bottom: 5px; font-size: 24px; }
+            .header { border-bottom: 2px dashed #ccc; padding-bottom: 15px; margin-bottom: 25px; }
+            .details { text-align: right; line-height: 2; margin-bottom: 25px; font-size: 16px; }
+            .amount { font-size: 28px; font-weight: bold; margin-bottom: 25px; padding: 10px; background: #f9f9f9; border: 1px solid #ddd; }
+            .footer { font-size: 14px; color: #555; border-top: 2px dashed #ccc; padding-top: 15px; }
+            @media print {
+              body { padding: 0; }
+              .receipt-container { border: none; }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="receipt-container">
+            <div class="header">
+              <h2>وصل الدفع (Payment Receipt)</h2>
+              <p>التاريخ (Date & Time GMT+1): ${dateString}</p>
+            </div>
+            <div class="details">
+              <div><strong>نوع المعاملة:</strong> ${transaction.type === 'income' ? 'مداخيل (Income)' : 'مصاريف (Expense)'}</div>
+              ${personLine}
+              <div><strong>الفئة (Category):</strong> ${esc(transaction.category || '-')}</div>
+              <div><strong>ملاحظات (Notes):</strong> ${esc(transaction.notes || '-')}</div>
+            </div>
+            <div class="amount">
+              المبلغ: ${fmtMoney(transaction.amount)} DZD
+            </div>
+            <div class="footer">
+              <p>المسجل: ${esc(transaction.recorded_by_name || '')} ${esc(transaction.recorded_by_last || '')}</p>
+              <p>شكرا لكم</p>
+            </div>
+          </div>
+          <script>
+            window.onload = function() { 
+              setTimeout(function() { 
+                window.print(); 
+              }, 200); 
+            }
+          </script>
+        </body>
+      </html>
+    `;
+    
+    var doc = iframe.contentWindow || iframe.contentDocument;
+    if (doc.document) doc = doc.document;
+    doc.open();
+    doc.write(html);
+    doc.close();
+  };
+
   document.addEventListener('DOMContentLoaded', function () {
     initTabs();
     bindForm();

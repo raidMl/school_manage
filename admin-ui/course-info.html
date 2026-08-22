@@ -45,7 +45,19 @@
         .description-box label { display: flex; align-items: center; gap: 8px; margin: 0 0 12px; font-size: 13px; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
         .description-box p { margin: 0; font-size: 15px; color: #334155; line-height: 1.7; }
     </style>
+
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#007bff">
+    <link rel="apple-touch-icon" href="img/icon-512.jpg">
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('sw.js');
+        });
+      }
+    </script>
 </head>
+
 <body data-page="courses">
     <div id="sidebar-placeholder"></div>
     <div class="sb-main">

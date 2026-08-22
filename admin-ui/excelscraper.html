@@ -267,7 +267,19 @@
   }
   .scraper-wrapper #printSheet table.p-table th{background:#eee7d6; font-family:'IBM Plex Mono',monospace; font-size:10px;}
 </style>
+
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#007bff">
+    <link rel="apple-touch-icon" href="img/icon-512.jpg">
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('sw.js');
+        });
+      }
+    </script>
 </head>
+
 <body data-page="excelscraper">
     <div id="sidebar-placeholder"></div>
     <div class="sb-main">

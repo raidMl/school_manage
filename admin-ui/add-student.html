@@ -26,7 +26,19 @@
       .health-option.selected-healthy { border-color: #16a34a; background: #f0fdf4; color: #16a34a; font-weight: 600; }
       .health-option.selected-special  { border-color: #dc2626; background: #fef2f2; color: #dc2626; font-weight: 600; }
     </style>
+
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#007bff">
+    <link rel="apple-touch-icon" href="img/icon-512.jpg">
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('sw.js');
+        });
+      }
+    </script>
 </head>
+
 <body data-page="students">
 <div id="sidebar-placeholder"></div>
 <div class="sb-main">

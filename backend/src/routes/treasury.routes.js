@@ -37,6 +37,7 @@ router.get(
           t.amount, 
           t.transaction_date, 
           t.notes, 
+          t.person_name,
           t.recorded_by,
           u.first_name as recorded_by_name, 
           u.last_name as recorded_by_last
@@ -54,11 +55,14 @@ router.get(
           p.amount, 
           p.payment_date as transaction_date, 
           p.notes, 
+          CONCAT(stu_u.first_name, ' ', stu_u.last_name) as person_name,
           p.recorded_by_user_id as recorded_by,
           u.first_name as recorded_by_name, 
           u.last_name as recorded_by_last
         FROM payment_history p
         LEFT JOIN users u ON p.recorded_by_user_id = u.id
+        LEFT JOIN students st ON p.student_id = st.id
+        LEFT JOIN users stu_u ON st.user_id = stu_u.id
         WHERE p.school_id = ?
       ) as combined
       WHERE 1=1
@@ -100,7 +104,7 @@ router.post(
     if (!schoolId) throw new HttpError(400, 'No school found');
 
     const userId = req.auth.userId;
-    const { type, category, amount, transaction_date, notes } = req.body;
+    const { type, category, amount, transaction_date, notes, person_name } = req.body;
 
     if (!type || (type !== 'income' && type !== 'expense'))
       throw new HttpError(400, 'Valid type (income/expense) is required');
@@ -111,9 +115,9 @@ router.post(
 
     const [result] = await pool.execute(
       `INSERT INTO treasury_transactions
-       (school_id, type, category, amount, transaction_date, notes, recorded_by)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [schoolId, type, category || null, amount, transaction_date, notes || null, userId]
+       (school_id, type, category, amount, transaction_date, notes, person_name, recorded_by)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [schoolId, type, category || null, amount, transaction_date, notes || null, person_name || null, userId]
     );
 
     res.status(201).json({
