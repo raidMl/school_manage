@@ -337,7 +337,7 @@
             <div class="details">
               <div><strong>نوع المعاملة:</strong> ${transaction.type === 'income' ? 'مداخيل (Income)' : 'مصاريف (Expense)'}</div>
               ${personLine}
-              <div><strong>الفئة (Category):</strong> ${esc(transaction.category || '-')}</div>
+              <div><strong>التصنيف (Category):</strong> ${esc(transaction.category || '-')}</div>
               <div><strong>ملاحظات (Notes):</strong> ${esc(transaction.notes || '-')}</div>
             </div>
             <div class="amount">
