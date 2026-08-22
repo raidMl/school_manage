@@ -185,6 +185,7 @@ window.AppI18n = {
     "Expense": "مصاريف",
     "Amount": "المبلغ",
     "Category": "التصنيف",
+    "Name (Person)": "المانح",
     "Notes": "ملاحظات",
     "Save Transaction": "حفظ المعاملة",
     "Delete Transaction": "حذف المعاملة",
