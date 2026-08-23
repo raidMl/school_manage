@@ -424,10 +424,32 @@
                   </div>
 
                   <div class="row">
-                    <div class="col-md-12">
+                    <div class="col-md-6">
                       <div class="form-group">
-                        <label data-i18n="Logo URL">Logo URL</label>
-                        <input type="url" name="logo" id="logo" class="form-control">
+                        <label data-i18n="Logo URL">Logo URL (رابط الشعار)</label>
+                        <div class="input-group">
+                          <input type="url" name="logo" id="logo" class="form-control" placeholder="https://...">
+                          <span class="input-group-btn">
+                            <label class="btn btn-default" title="Upload Image" data-i18n-title="Upload Image" style="margin:0; border-radius:0;">
+                              <i class="fa fa-upload" id="icon-upload-logo"></i>
+                              <input type="file" accept="image/*" style="display:none;" onchange="handleCloudinaryUpload(this, document.getElementById('logo'), 'icon-upload-logo')">
+                            </label>
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label data-i18n="Second Logo URL">Second Logo URL (الشعار الثاني)</label>
+                        <div class="input-group">
+                          <input type="url" name="logo2" id="logo2" class="form-control" placeholder="https://...">
+                          <span class="input-group-btn">
+                            <label class="btn btn-default" title="Upload Image" data-i18n-title="Upload Image" style="margin:0; border-radius:0;">
+                              <i class="fa fa-upload" id="icon-upload-logo2"></i>
+                              <input type="file" accept="image/*" style="display:none;" onchange="handleCloudinaryUpload(this, document.getElementById('logo2'), 'icon-upload-logo2')">
+                            </label>
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>

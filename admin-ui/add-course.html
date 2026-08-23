@@ -113,12 +113,18 @@
       </div>
       <div class="col-md-4">
         <div class="form-group">
-          <label data-i18n="Niveau">Niveau</label>
-          <select name="niveau" class="form-control">
-            <option value="begin" data-i18n="Beginner">Beginner</option>
-            <option value="intermediate" data-i18n="Intermediate">Intermediate</option>
-            <option value="advanced" data-i18n="Advanced">Advanced</option>
-          </select>
+          <label data-i18n="Niveau">Niveau (المستوى)</label>
+          <div style="display:flex; gap:10px; margin-bottom:10px;">
+            <select id="niveau-type" class="form-control">
+              <option value="academic">أكاديمي</option>
+              <option value="general">عام</option>
+            </select>
+            <select id="niveau-select" class="form-control">
+               <!-- populated dynamically -->
+            </select>
+          </div>
+          <input type="text" id="niveau-other" class="form-control" style="display:none;" placeholder="Enter level (أدخل المستوى)">
+          <input type="hidden" name="niveau" id="niveau-final" value="">
         </div>
       </div>
       <div class="col-md-4">
@@ -259,6 +265,74 @@ document.addEventListener('DOMContentLoaded', function() {
     searchInput.addEventListener('keyup', function(e) {
       if(e.key === 'Enter') doSearch(this.value.trim());
     });
+  }
+
+  // --- Dynamic Niveau Logic ---
+  var niveauType = document.getElementById('niveau-type');
+  var niveauSelect = document.getElementById('niveau-select');
+  var niveauOther = document.getElementById('niveau-other');
+  var niveauFinal = document.getElementById('niveau-final');
+
+  var academicOptions = [
+    {val: 'تحضيري', text: 'تحضيري'},
+    {val: '1 ابتدائي', text: '1 ابتدائي'},
+    {val: '2 ابتدائي', text: '2 ابتدائي'},
+    {val: '3 ابتدائي', text: '3 ابتدائي'},
+    {val: '4 ابتدائي', text: '4 ابتدائي'},
+    {val: '5 ابتدائي', text: '5 ابتدائي'},
+    {val: '1 متوسط', text: '1 متوسط'},
+    {val: '2 متوسط', text: '2 متوسط'},
+    {val: '3 متوسط', text: '3 متوسط'},
+    {val: '4 متوسط', text: '4 متوسط'},
+    {val: '1 ثانوي', text: '1 ثانوي'},
+    {val: '2 ثانوي', text: '2 ثانوي'},
+    {val: '3 ثانوي', text: '3 ثانوي'},
+    {val: 'جامعي', text: 'جامعي'},
+    {val: 'other', text: 'اخر (Other)'}
+  ];
+
+  var generalOptions = [
+    {val: 'متقدم', text: 'متقدم'},
+    {val: 'متوسط', text: 'متوسط'},
+    {val: 'للمبتدئين', text: 'للمبتدئين'}
+  ];
+
+  function populateNiveau() {
+    var type = niveauType.value;
+    var opts = type === 'academic' ? academicOptions : generalOptions;
+    niveauSelect.innerHTML = '';
+    opts.forEach(function(o) {
+      var opt = document.createElement('option');
+      opt.value = o.val;
+      opt.textContent = o.text;
+      niveauSelect.appendChild(opt);
+    });
+    checkOther();
+  }
+
+  function checkOther() {
+    if (niveauSelect.value === 'other') {
+      niveauOther.style.display = 'block';
+    } else {
+      niveauOther.style.display = 'none';
+      niveauOther.value = '';
+    }
+    updateFinal();
+  }
+
+  function updateFinal() {
+    if (niveauSelect.value === 'other') {
+      niveauFinal.value = niveauOther.value.trim();
+    } else {
+      niveauFinal.value = niveauSelect.value;
+    }
+  }
+
+  if (niveauType && niveauSelect && niveauOther && niveauFinal) {
+    niveauType.addEventListener('change', populateNiveau);
+    niveauSelect.addEventListener('change', checkOther);
+    niveauOther.addEventListener('input', updateFinal);
+    populateNiveau(); // initial run
   }
 });
 </script>

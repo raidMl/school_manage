@@ -559,6 +559,7 @@
 
       form.querySelector('[name="name"]').value = s.name || '';
       var logoEl = form.querySelector('[name="logo"]'); if (logoEl) logoEl.value = s.logo || '';
+      var logo2El = form.querySelector('[name="logo2"]'); if (logo2El) logo2El.value = s.logo2 || '';
       var typeEl = form.querySelector('[name="type"]'); 
       var customTypeEl = form.querySelector('[name="custom_type"]');
       if (typeEl) {
@@ -741,6 +742,7 @@
       var payload = {
         name: fd.get('name'),
         logo: fd.get('logo') || null,
+        logo2: fd.get('logo2') || null,
         type: finalType || null,
         phone_landline: fd.get('phone_landline') || null,
         phone_1: fd.get('phone_1') || null,
