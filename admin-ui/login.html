@@ -15,6 +15,16 @@
 <html class="no-js" lang="en">
 
 <head>
+    <!-- Anti-FOUC & Preloader -->
+    <style id="fouc-style">body { opacity: 0; visibility: hidden; }</style>
+    <script>
+      (function() {
+        var lang = localStorage.getItem('app_lang') || 'ar';
+        document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+        document.documentElement.lang = lang;
+      })();
+    </script>
+
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <title>Login | School Manager</title>
@@ -421,11 +431,22 @@
             document.getElementById('btnAr').classList.toggle('active', lang === 'ar');
         }
 
-        // On load, apply saved language
+        // On load, apply saved language then reveal
         (function() {
-            const saved = localStorage.getItem('app_lang') || 'en';
+            const saved = localStorage.getItem('app_lang') || 'ar';
             setLang(saved);
+            var s = document.getElementById('fouc-style');
+            if (s) s.remove();
+            document.body.style.transition = 'opacity 0.15s ease';
+            document.body.style.opacity = '1';
+            document.body.style.visibility = 'visible';
         })();
+        setTimeout(function() {
+            var s = document.getElementById('fouc-style');
+            if (s) s.remove();
+            document.body.style.opacity = '1';
+            document.body.style.visibility = 'visible';
+        }, 600);
     </script>
 </body>
 

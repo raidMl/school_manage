@@ -803,10 +803,35 @@ window.AppI18n = {
 // ── Bootstrap ────────────────────────────────────────────────────────────────
 AppI18n.init();
 
-// Translate the static HTML after DOM is ready
+// Translate the static HTML after DOM is ready, then reveal the page
 document.addEventListener('DOMContentLoaded', function () {
   AppI18n.translateAll();
+
+  // Remove the FOUC-prevention style and reveal the page
+  var foucStyle = document.getElementById('fouc-style');
+  if (foucStyle) foucStyle.remove();
+  document.body.style.transition = 'opacity 0.15s ease';
+  document.body.style.opacity = '1';
+  document.body.style.visibility = 'visible';
 });
+
+// Safety fallback: always reveal after 800ms in case DOMContentLoaded already fired
+// or something else prevented the handler from running
+(function() {
+  function revealPage() {
+    var foucStyle = document.getElementById('fouc-style');
+    if (foucStyle) foucStyle.remove();
+    if (document.body) {
+      document.body.style.opacity = '1';
+      document.body.style.visibility = 'visible';
+    }
+  }
+  setTimeout(revealPage, 800);
+  // Also run if DOMContentLoaded already fired (script loaded late)
+  if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    revealPage();
+  }
+})();
 
 // Global helper called by lang switcher buttons
 window.setAppLanguage = function (lang) {

@@ -1,6 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Anti-FOUC & Preloader -->
+    <style id="fouc-style">body { opacity: 0; visibility: hidden; }</style>
+    <script>
+      (function() {
+        var lang = localStorage.getItem('app_lang') || 'ar';
+        if(lang === 'ar') {
+          document.documentElement.dir = 'rtl';
+          document.documentElement.lang = 'ar';
+        } else {
+          document.documentElement.dir = 'ltr';
+          document.documentElement.lang = 'en';
+        }
+      })();
+    </script>
+
     <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Add Formation | School System Admin</title>
     <link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico">
@@ -274,6 +289,7 @@ document.addEventListener('DOMContentLoaded', function() {
   var niveauFinal = document.getElementById('niveau-final');
 
   var academicOptions = [
+    {val: 'تمهيدي', text: 'تمهيدي'},
     {val: 'تحضيري', text: 'تحضيري'},
     {val: '1 ابتدائي', text: '1 ابتدائي'},
     {val: '2 ابتدائي', text: '2 ابتدائي'},
@@ -288,6 +304,8 @@ document.addEventListener('DOMContentLoaded', function() {
     {val: '2 ثانوي', text: '2 ثانوي'},
     {val: '3 ثانوي', text: '3 ثانوي'},
     {val: 'جامعي', text: 'جامعي'},
+    {val: 'امي', text: 'امي'},
+    {val: 'كل المستويات', text: 'كل المستويات'},
     {val: 'other', text: 'اخر (Other)'}
   ];
 

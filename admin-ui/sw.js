@@ -1,28 +1,50 @@
-const CACHE_NAME = 'admin-cache-v1';
-const urlsToCache = [
-  '/',
-  '/admin-ui/index.html',
-  '/admin-ui/css/style.css',
-  // Add other static assets if needed
-];
+const CACHE_NAME = 'admin-cache-v2';
 
+// Install: skip pre-caching to avoid failures from missing files
 self.addEventListener('install', event => {
+  self.skipWaiting();
+});
+
+// Activate: clean up old caches
+self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        return cache.addAll(urlsToCache);
+    caches.keys().then(keys =>
+      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
+    ).then(() => self.clients.claim())
+  );
+});
+
+// Fetch: network-first strategy
+// Always try to get fresh data from the network.
+// Only fall back to cache if the network fails (offline mode).
+// Never cache API responses.
+self.addEventListener('fetch', event => {
+  const url = new URL(event.request.url);
+
+  // Skip non-http(s) schemes (e.g. chrome-extension://, moz-extension://)
+  if (!url.protocol.startsWith('http')) {
+    return;
+  }
+
+  // Skip non-GET and API requests entirely (always go to network)
+  if (event.request.method !== 'GET' || url.pathname.startsWith('/api/')) {
+    return;
+  }
+
+  event.respondWith(
+    fetch(event.request)
+      .then(response => {
+        // Cache successful static asset responses
+        if (response.ok && (url.pathname.match(/\.(css|js|woff2?|png|jpg|webp|svg|ico)$/))) {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+        }
+        return response;
+      })
+      .catch(() => {
+        // Network failed — try cache as fallback
+        return caches.match(event.request);
       })
   );
 });
 
-self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        if (response) {
-          return response;
-        }
-        return fetch(event.request);
-      })
-  );
-});

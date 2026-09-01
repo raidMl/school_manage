@@ -244,4 +244,86 @@ router.put(
   })
 );
 
+router.put(
+  '/settings/admin/:id',
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    const { first_name, last_name, email, password, is_active } = req.body;
+    const adminId = req.params.id;
+
+    const users = await query('SELECT id, role FROM users WHERE id = ? LIMIT 1', [req.auth.userId]);
+    const user = users[0];
+    if (!user || (user.role !== 'admin' && user.role !== 'super_admin')) {
+      throw new HttpError(403, 'Not authorized');
+    }
+
+    const school = await getSchoolForUser(user.id);
+    if (!school) throw new HttpError(404, 'School not found');
+
+    // verify the adminId belongs to this school
+    const admins = await query(
+      `SELECT u.id FROM users u 
+       INNER JOIN school_users su ON su.user_id = u.id 
+       WHERE u.id = ? AND su.school_id = ? AND u.role = 'admin'`,
+      [adminId, school.id]
+    );
+
+    if (admins.length === 0) {
+      throw new HttpError(404, 'Admin not found in this school');
+    }
+
+    const updates = [];
+    const vals = [];
+
+    if (first_name !== undefined) { updates.push('first_name=?'); vals.push(first_name); }
+    if (last_name !== undefined) { updates.push('last_name=?'); vals.push(last_name); }
+    if (email !== undefined) { updates.push('email=?'); vals.push(email); }
+    if (is_active !== undefined) { updates.push('is_active=?'); vals.push(is_active); }
+    if (password && password.trim() !== '') {
+      updates.push('password=?');
+      vals.push(await bcrypt.hash(password, 10));
+    }
+
+    if (updates.length > 0) {
+      vals.push(adminId);
+      await query(`UPDATE users SET ${updates.join(', ')} WHERE id=?`, vals);
+    }
+
+    res.json({ success: true });
+  })
+);
+
+router.delete(
+  '/settings/admin/:id',
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    const adminId = req.params.id;
+
+    const users = await query('SELECT id, role FROM users WHERE id = ? LIMIT 1', [req.auth.userId]);
+    const user = users[0];
+    if (!user || (user.role !== 'admin' && user.role !== 'super_admin')) {
+      throw new HttpError(403, 'Not authorized');
+    }
+
+    const school = await getSchoolForUser(user.id);
+    if (!school) throw new HttpError(404, 'School not found');
+
+    const admins = await query(
+      `SELECT u.id FROM users u 
+       INNER JOIN school_users su ON su.user_id = u.id 
+       WHERE u.id = ? AND su.school_id = ? AND u.role = 'admin'`,
+      [adminId, school.id]
+    );
+
+    if (admins.length === 0) {
+      throw new HttpError(404, 'Admin not found in this school');
+    }
+
+    await query('DELETE FROM school_users WHERE user_id = ? AND school_id = ?', [adminId, school.id]);
+    await query('DELETE FROM users WHERE id = ?', [adminId]);
+
+    res.json({ success: true });
+  })
+);
+
 module.exports = router;

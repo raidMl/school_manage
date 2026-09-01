@@ -1,6 +1,21 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Anti-FOUC & Preloader -->
+    <style id="fouc-style">body { opacity: 0; visibility: hidden; }</style>
+    <script>
+      (function() {
+        var lang = localStorage.getItem('app_lang') || 'ar';
+        if(lang === 'ar') {
+          document.documentElement.dir = 'rtl';
+          document.documentElement.lang = 'ar';
+        } else {
+          document.documentElement.dir = 'ltr';
+          document.documentElement.lang = 'en';
+        }
+      })();
+    </script>
+
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>All Students | School System Admin</title>

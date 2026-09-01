@@ -151,7 +151,18 @@
     'Formation created successfully': 'تم إنشاء الدورة بنجاح',
     'Formation updated successfully': 'تم تحديث الدورة بنجاح',
     'Formation deleted successfully': 'تم حذف الدورة بنجاح',
-    'Delete this formation?': 'هل أنت متأكد من حذف هذه الدورة؟'
+    'Delete this formation?': 'هل أنت متأكد من حذف هذه الدورة؟',
+    'Manage Administrators': 'إدارة المسؤولين',
+    'As the primary creator, you can create, update, and remove extra admin users for this school.': 'بصفتك المنشئ الرئيسي، يمكنك إنشاء وتحديث وإزالة مستخدمين إداريين إضافيين لهذه المدرسة.',
+    'Active': 'نشط',
+    'Inactive': 'غير نشط',
+    'New Password': 'كلمة المرور الجديدة',
+    'Save': 'حفظ',
+    'Remove': 'إزالة',
+    'Add New Admin': 'إضافة مسؤول جديد',
+    'Save Admins': 'حفظ المسؤولين',
+    'Leave blank to keep current': 'اتركه فارغاً للاحتفاظ بكلمة المرور الحالية',
+    'Update Teacher': 'تحديث الأستاذ'
   };
   function t(s) { return currentLang === 'ar' ? (AR[s] || s) : s; }
   function applyTranslations(root) {
@@ -615,16 +626,16 @@
     container.innerHTML = admins.map(function (admin) {
       return '<div class="additional-admin-card" data-admin-id="' + admin.id + '">' +
         '<div class="row">' +
-        '<div class="col-md-3"><div class="form-group"><label>First Name</label><input type="text" class="form-control admin-first-name" value="' + esc(admin.first_name || '') + '"></div></div>' +
-        '<div class="col-md-3"><div class="form-group"><label>Last Name</label><input type="text" class="form-control admin-last-name" value="' + esc(admin.last_name || '') + '"></div></div>' +
-        '<div class="col-md-4"><div class="form-group"><label>Email</label><input type="email" class="form-control admin-email" value="' + esc(admin.email || '') + '"></div></div>' +
-        '<div class="col-md-2"><div class="form-group"><label>Status</label><select class="form-control admin-is-active"><option value="1"' + (admin.is_active ? ' selected' : '') + '>Active</option><option value="0"' + (!admin.is_active ? ' selected' : '') + '>Inactive</option></select></div></div>' +
+        '<div class="col-md-3"><div class="form-group"><label>' + t('First Name') + '</label><input type="text" class="form-control admin-first-name" value="' + esc(admin.first_name || '') + '"></div></div>' +
+        '<div class="col-md-3"><div class="form-group"><label>' + t('Last Name') + '</label><input type="text" class="form-control admin-last-name" value="' + esc(admin.last_name || '') + '"></div></div>' +
+        '<div class="col-md-4"><div class="form-group"><label>' + t('Email') + '</label><input type="email" class="form-control admin-email" value="' + esc(admin.email || '') + '"></div></div>' +
+        '<div class="col-md-2"><div class="form-group"><label>' + t('Status') + '</label><select class="form-control admin-is-active"><option value="1"' + (admin.is_active ? ' selected' : '') + '>' + t('Active') + '</option><option value="0"' + (!admin.is_active ? ' selected' : '') + '>' + t('Inactive') + '</option></select></div></div>' +
         '</div>' +
         '<div class="row">' +
-        '<div class="col-md-6"><div class="form-group"><label>New Password</label><input type="password" class="form-control admin-password" placeholder="Leave blank to keep current"></div></div>' +
+        '<div class="col-md-6"><div class="form-group"><label>' + t('New Password') + '</label><input type="password" class="form-control admin-password" placeholder="' + t('Leave blank to keep current') + '"></div></div>' +
         '<div class="col-md-6 admin-card-actions">' +
-        '<button type="button" class="btn admin-save-button" data-admin-id="' + admin.id + '"><i class="fa fa-save"></i> Save</button>' +
-        '<button type="button" class="btn admin-delete-button" data-admin-id="' + admin.id + '"><i class="fa fa-trash"></i> Remove</button>' +
+        '<button type="button" class="btn admin-save-button" data-admin-id="' + admin.id + '"><i class="fa fa-save"></i> ' + t('Save') + '</button>' +
+        '<button type="button" class="btn admin-delete-button" data-admin-id="' + admin.id + '"><i class="fa fa-trash"></i> ' + t('Remove') + '</button>' +
         '</div>' +
         '</div>' +
         '</div>';
@@ -638,15 +649,15 @@
     row.setAttribute('data-new-admin', '1');
     row.innerHTML =
       '<div class="row">' +
-      '<div class="col-md-3"><div class="form-group"><label>First Name</label><input type="text" name="additional_admin_first_name[]" class="form-control" required></div></div>' +
-      '<div class="col-md-3"><div class="form-group"><label>Last Name</label><input type="text" name="additional_admin_last_name[]" class="form-control" required></div></div>' +
-      '<div class="col-md-4"><div class="form-group"><label>Email</label><input type="email" name="additional_admin_email[]" class="form-control" required></div></div>' +
-      '<div class="col-md-2"><div class="form-group"><label>Status</label><select name="additional_admin_is_active[]" class="form-control"><option value="1">Active</option><option value="0">Inactive</option></select></div></div>' +
+      '<div class="col-md-3"><div class="form-group"><label>' + t('First Name') + '</label><input type="text" name="additional_admin_first_name[]" class="form-control" required></div></div>' +
+      '<div class="col-md-3"><div class="form-group"><label>' + t('Last Name') + '</label><input type="text" name="additional_admin_last_name[]" class="form-control" required></div></div>' +
+      '<div class="col-md-4"><div class="form-group"><label>' + t('Email') + '</label><input type="email" name="additional_admin_email[]" class="form-control" required></div></div>' +
+      '<div class="col-md-2"><div class="form-group"><label>' + t('Status') + '</label><select name="additional_admin_is_active[]" class="form-control"><option value="1">' + t('Active') + '</option><option value="0">' + t('Inactive') + '</option></select></div></div>' +
       '</div>' +
       '<div class="row">' +
-      '<div class="col-md-6"><div class="form-group"><label>Password</label><input type="password" name="additional_admin_password[]" class="form-control" required></div></div>' +
+      '<div class="col-md-6"><div class="form-group"><label>' + t('Password') + '</label><input type="password" name="additional_admin_password[]" class="form-control" required></div></div>' +
       '<div class="col-md-6 admin-card-actions">' +
-      '<button type="button" class="btn remove-additional-admin"><i class="fa fa-times"></i> Remove</button>' +
+      '<button type="button" class="btn remove-additional-admin"><i class="fa fa-times"></i> ' + t('Remove') + '</button>' +
       '</div>' +
       '</div>';
     container.appendChild(row);
