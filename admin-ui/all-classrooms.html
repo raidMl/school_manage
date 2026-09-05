@@ -23,7 +23,367 @@
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/font-awesome.min.css">
     <link rel="stylesheet" href="css/sidebar.css">
-    <style>body{font-family:'Inter',sans-serif}.card-panel{background:#fff;border-radius:14px;padding:24px;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:20px;max-width:860px}</style>
+    <style>
+      body { font-family: 'Inter', sans-serif; background: #f8fafc; }
+
+      .card-panel {
+        background: #ffffff;
+        border-radius: 16px;
+        padding: 24px 28px;
+        box-shadow: 0 4px 20px rgba(0,0,0,.04);
+        margin-bottom: 20px;
+        border: 1px solid #edf2f7;
+      }
+
+      /* ── Page Header Area ── */
+      .page-header-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 14px;
+        margin-bottom: 22px;
+      }
+
+      .page-header-bar h2 {
+        margin: 0;
+        font-size: 22px;
+        font-weight: 700;
+        color: #0f172a;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .page-header-bar h2 .icon-badge {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #e0e7ff, #ede9fe);
+        color: #4f46e5;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        box-shadow: 0 2px 8px rgba(79, 70, 229, 0.15);
+      }
+
+      /* ── Add Classroom Trigger Button ── */
+      #btn-add-classroom {
+        background: linear-gradient(135deg, #4f46e5, #6366f1);
+        color: #ffffff;
+        border: none;
+        border-radius: 12px;
+        padding: 10px 22px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+        transition: all 0.22s ease;
+      }
+
+      #btn-add-classroom:hover {
+        background: linear-gradient(135deg, #4338ca, #4f46e5);
+        box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45);
+        transform: translateY(-1px);
+      }
+
+      /* ── Fullscreen Centered Overlay System ── */
+      #add-classroom-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 99999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 18px;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transition: opacity 0.24s ease, visibility 0.24s;
+      }
+
+      #add-classroom-overlay.open {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+      }
+
+      /* Backdrop */
+      .modal-backdrop-custom {
+        position: absolute;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.48);
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
+        z-index: 1;
+      }
+
+      /* Centered Modal Card */
+      .modal-dialog-custom {
+        position: relative;
+        z-index: 2;
+        width: 100%;
+        max-width: 520px;
+        max-height: 90vh;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        background: #ffffff;
+        border-radius: 20px;
+        box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.35), 0 0 0 1px rgba(99, 102, 241, 0.15);
+        transform: scale(0.94) translateY(8px);
+        transition: transform 0.26s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      #add-classroom-overlay.open .modal-dialog-custom {
+        transform: scale(1) translateY(0);
+      }
+
+      /* Top accent color stripe */
+      .modal-dialog-custom::before {
+        content: '';
+        display: block;
+        height: 5px;
+        width: 100%;
+        background: linear-gradient(90deg, #4f46e5, #06b6d4, #6366f1);
+      }
+
+      .panel-content-wrap {
+        padding: 24px 28px;
+      }
+
+      /* Panel Header */
+      .panel-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 20px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid #f1f5f9;
+      }
+
+      .panel-title-area {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .panel-icon-wrap {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        background: #e0e7ff;
+        color: #4f46e5;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        flex-shrink: 0;
+      }
+
+      .panel-head h4 {
+        margin: 0 0 3px;
+        font-size: 17px;
+        font-weight: 700;
+        color: #0f172a;
+      }
+
+      .panel-head p {
+        margin: 0;
+        font-size: 12.5px;
+        color: #64748b;
+      }
+
+      .btn-close-panel {
+        background: #f1f5f9;
+        color: #64748b;
+        border: none;
+        border-radius: 50%;
+        width: 34px;
+        height: 34px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 15px;
+        cursor: pointer;
+        transition: all 0.2s;
+        flex-shrink: 0;
+      }
+
+      .btn-close-panel:hover {
+        background: #fee2e2;
+        color: #ef4444;
+        transform: rotate(90deg);
+      }
+
+      /* Form Fields - Stacked Under Each Other */
+      .field-group {
+        margin-bottom: 18px;
+      }
+
+      .field-label {
+        font-size: 13.5px;
+        font-weight: 600;
+        color: #334155;
+        margin-bottom: 6px;
+        display: block;
+      }
+
+      .input-wrapper {
+        position: relative;
+      }
+
+      .input-wrapper .input-icon {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #94a3b8;
+        font-size: 14px;
+        pointer-events: none;
+        z-index: 3;
+      }
+
+      .input-wrapper .input-icon-top {
+        position: absolute;
+        top: 14px;
+        color: #94a3b8;
+        font-size: 14px;
+        pointer-events: none;
+        z-index: 3;
+      }
+
+      /* LTR input icons */
+      html[dir="ltr"] .input-wrapper .input-icon,
+      html[dir="ltr"] .input-wrapper .input-icon-top { left: 14px; }
+      html[dir="ltr"] .input-wrapper .form-control { padding-left: 38px; }
+
+      /* RTL input icons */
+      html[dir="rtl"] .input-wrapper .input-icon,
+      html[dir="rtl"] .input-wrapper .input-icon-top { right: 14px; }
+      html[dir="rtl"] .input-wrapper .form-control { padding-right: 38px; }
+
+      .modal-dialog-custom .form-control {
+        border-radius: 12px;
+        border: 1.5px solid #cbd5e1;
+        font-size: 14px;
+        padding: 11px 14px;
+        background: #f8fafc;
+        transition: all 0.18s ease;
+        height: auto;
+        color: #0f172a;
+        width: 100%;
+        box-sizing: border-box;
+      }
+
+      .modal-dialog-custom .form-control:focus {
+        background: #ffffff;
+        border-color: #6366f1;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+        outline: none;
+      }
+
+      .modal-dialog-custom textarea.form-control {
+        resize: vertical;
+        min-height: 75px;
+      }
+
+      /* Form Actions */
+      .panel-actions {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 24px;
+        padding-top: 16px;
+        border-top: 1px solid #f1f5f9;
+      }
+
+      @media (max-width: 575px) {
+        .panel-actions {
+          flex-direction: column-reverse;
+          gap: 10px;
+        }
+        .panel-actions button {
+          width: 100%;
+          justify-content: center;
+        }
+      }
+
+      .btn-save-classroom {
+        background: linear-gradient(135deg, #4f46e5, #6366f1);
+        color: #ffffff;
+        border: none;
+        border-radius: 10px;
+        padding: 11px 24px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+        transition: all 0.2s ease;
+      }
+
+      .btn-save-classroom:hover {
+        opacity: 0.95;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 18px rgba(79, 70, 229, 0.35);
+      }
+
+      .btn-cancel-classroom {
+        background: #f1f5f9;
+        color: #475569;
+        border: none;
+        border-radius: 10px;
+        padding: 11px 20px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.18s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .btn-cancel-classroom:hover {
+        background: #e2e8f0;
+        color: #1e293b;
+      }
+
+      /* ── Table Styling ── */
+      #backend-classrooms-table thead th {
+        background: #f8fafc;
+        color: #475569;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border-top: none;
+        border-bottom: 2px solid #e2e8f0;
+        padding: 14px 16px;
+      }
+
+      #backend-classrooms-table tbody tr {
+        transition: background 0.15s ease;
+      }
+
+      #backend-classrooms-table tbody tr:hover {
+        background: #f8faff;
+      }
+
+      #backend-classrooms-table td {
+        vertical-align: middle;
+        font-size: 14px;
+        color: #334155;
+        padding: 14px 16px;
+        border-color: #f1f5f9;
+      }
+    </style>
 
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#007bff">
@@ -42,65 +402,144 @@
 <div class="sb-main">
 <div id="header-placeholder"></div>
 <div class="sb-content">
-<div class="sb-breadcrumb"><i class="fa fa-home"></i> <a href="index.html">Home</a> <span>/</span> <a href="index.html">Home</a> <span>/</span> <span>Classrooms</span></div>
-<style>
-html[dir="rtl"] .main-panels-row > div[class*="col-"] { float: right !important; }
-</style>
-<div class="row main-panels-row">
-  <div class="col-lg-4 col-md-5 col-sm-12">
-    <div class="card-panel" style="max-width:none">
-      <h3 style="margin:0 0 16px;font-size:16px;font-weight:700"><i class="fa fa-plus-circle" style="color:#4f6eff"></i> Add Classroom</h3>
+<div class="sb-breadcrumb">
+  <i class="fa fa-home"></i>
+  <a href="index.html" data-i18n="Home">Home</a>
+  <span>/</span>
+  <span data-i18n="Classrooms">Classrooms</span>
+</div>
+
+<!-- Header bar -->
+<div class="page-header-bar">
+  <h2>
+    <span class="icon-badge"><i class="fa fa-building"></i></span>
+    <span data-i18n="Classrooms">Classrooms</span>
+  </h2>
+  <button id="btn-add-classroom" type="button" onclick="toggleAddPanel(event)">
+    <i class="fa fa-plus"></i>
+    <span data-i18n="Add Classroom">Add Classroom</span>
+  </button>
+</div>
+
+<!-- Centered Modal Dropdown with guaranteed z-index hierarchy -->
+<div id="add-classroom-overlay">
+  <!-- Clickable backdrop -->
+  <div class="modal-backdrop-custom" onclick="toggleAddPanel(true)"></div>
+
+  <!-- Centered Dialog -->
+  <div class="modal-dialog-custom">
+    <div class="panel-content-wrap">
+      <div class="panel-head">
+        <div class="panel-title-area">
+          <div class="panel-icon-wrap">
+            <i class="fa fa-door-open fa-building"></i>
+          </div>
+          <div>
+            <h4 data-i18n="Add Classroom">Add Classroom</h4>
+            <p data-i18n="Create a new classroom">Create a new classroom or hall</p>
+          </div>
+        </div>
+        <button type="button" class="btn-close-panel" onclick="toggleAddPanel(true)" title="Close">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+
       <div id="backend-classroom-form-status" class="alert" style="display:none"></div>
+      
+      <!-- Inputs Stacked Under Each Other -->
       <form id="backend-add-classroom-form">
-        <div class="form-group"><label>Name <span class="text-danger">*</span></label><input type="text" name="name" class="form-control" placeholder="e.g. Room A-101" required></div>
-        <div class="form-group"><label>Capacity</label><input type="number" name="capacity" class="form-control" placeholder="e.g. 30" min="1"></div>
-        <div class="form-group"><label>Description</label><textarea name="description" class="form-control" rows="2"></textarea></div>
-        <button type="submit" class="btn btn-primary btn-block"><i class="fa fa-save"></i> Save Classroom</button>
+        <!-- Field 1: Name -->
+        <div class="field-group">
+          <label class="field-label"><span data-i18n="Name">Name</span> <span class="text-danger">*</span></label>
+          <div class="input-wrapper">
+            <i class="fa fa-tag input-icon"></i>
+            <input type="text" id="add-classroom-name-input" name="name" class="form-control" data-i18n-placeholder="e.g. Room A-101" placeholder="e.g. Room A-101" required>
+          </div>
+        </div>
+
+        <!-- Field 2: Capacity -->
+        <div class="field-group">
+          <label class="field-label" data-i18n="Capacity">Capacity</label>
+          <div class="input-wrapper">
+            <i class="fa fa-users input-icon"></i>
+            <input type="number" name="capacity" class="form-control" data-i18n-placeholder="e.g. 30" placeholder="e.g. 30" min="1">
+          </div>
+        </div>
+
+        <!-- Field 3: Description -->
+        <div class="field-group" style="margin-bottom: 0;">
+          <label class="field-label" data-i18n="Description">Description</label>
+          <div class="input-wrapper">
+            <i class="fa fa-align-left input-icon-top"></i>
+            <textarea name="description" class="form-control" rows="2" data-i18n-placeholder="Optional notes, equipment, location..." placeholder="Optional notes, equipment, location..."></textarea>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="panel-actions">
+          <button type="button" class="btn-cancel-classroom" onclick="toggleAddPanel(true)">
+            <i class="fa fa-times"></i>
+            <span data-i18n="Cancel">Cancel</span>
+          </button>
+          <button type="submit" class="btn-save-classroom">
+            <i class="fa fa-save"></i>
+            <span data-i18n="Save Classroom">Save Classroom</span>
+          </button>
+        </div>
       </form>
     </div>
   </div>
-  <div class="col-lg-8 col-md-7 col-sm-12">
-    <div class="card-panel" style="max-width:none">
-      <h3 style="margin:0 0 16px;font-size:16px;font-weight:700">All Classrooms</h3>
-      <div id="backend-classrooms-status" class="alert" style="display:none"></div>
-      <div class="table-responsive">
-        <table id="backend-classrooms-table" class="table table-striped table-hover table-bordered">
-          <thead><tr><th>#</th><th>Name</th><th>Capacity</th><th>Description</th><th width="80">Actions</th></tr></thead>
-          <tbody><tr><td colspan="5" class="text-center">Loading...</td></tr></tbody>
-        </table>
-      </div>
-    </div>
+</div>
+
+<!-- Classrooms table -->
+<div class="card-panel">
+  <div id="backend-classrooms-status" class="alert" style="display:none"></div>
+  <div class="table-responsive">
+    <table id="backend-classrooms-table" class="table table-hover">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th data-i18n="Name">Name</th>
+          <th data-i18n="Capacity">Capacity</th>
+          <th data-i18n="Description">Description</th>
+          <th width="100" class="text-center" data-i18n="Actions">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td colspan="5" class="text-center" data-i18n="Loading...">Loading...</td></tr>
+      </tbody>
+    </table>
   </div>
 </div>
 
 <!-- Edit Classroom Modal -->
 <div class="modal fade" id="edit-classroom-modal" tabindex="-1" role="dialog">
   <div class="modal-dialog" role="document">
-    <div class="modal-content">
+    <div class="modal-content" style="border-radius: 16px; overflow: hidden; border: none; box-shadow: 0 20px 40px rgba(0,0,0,0.15);">
       <form id="backend-edit-classroom-form">
-        <div class="modal-header">
+        <div class="modal-header" style="border-bottom: 1px solid #f1f5f9; padding: 18px 24px;">
           <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title" data-i18n="Edit Classroom">Edit Classroom</h4>
+          <h4 class="modal-title" data-i18n="Edit Classroom" style="font-weight:700; color:#1e1b4b;">Edit Classroom</h4>
         </div>
-        <div class="modal-body">
+        <div class="modal-body" style="padding: 24px;">
           <div id="backend-edit-classroom-status" class="alert" style="display:none"></div>
           <input type="hidden" name="id" id="edit-classroom-id">
           <div class="form-group">
-            <label data-i18n="Name">Name</label>
-            <input type="text" name="name" id="edit-classroom-name" class="form-control" required>
+            <label data-i18n="Name" style="font-weight:600; font-size:13px; color:#334155;">Name</label>
+            <input type="text" name="name" id="edit-classroom-name" class="form-control" required style="border-radius:10px; padding:10px 14px;">
           </div>
           <div class="form-group">
-            <label data-i18n="Capacity">Capacity</label>
-            <input type="number" name="capacity" id="edit-classroom-capacity" class="form-control" data-i18n="e.g. 30" placeholder="e.g. 30">
+            <label data-i18n="Capacity" style="font-weight:600; font-size:13px; color:#334155;">Capacity</label>
+            <input type="number" name="capacity" id="edit-classroom-capacity" class="form-control" placeholder="e.g. 30" style="border-radius:10px; padding:10px 14px;">
           </div>
           <div class="form-group">
-            <label data-i18n="Description">Description</label>
-            <textarea name="description" id="edit-classroom-desc" class="form-control" rows="3"></textarea>
+            <label data-i18n="Description" style="font-weight:600; font-size:13px; color:#334155;">Description</label>
+            <textarea name="description" id="edit-classroom-desc" class="form-control" rows="3" style="border-radius:10px; padding:10px 14px;"></textarea>
           </div>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal" data-i18n="Cancel">Cancel</button>
-          <button type="submit" class="btn btn-primary" data-i18n="Update">Update</button>
+        <div class="modal-footer" style="border-top: 1px solid #f1f5f9; padding: 16px 24px;">
+          <button type="button" class="btn btn-default" data-dismiss="modal" data-i18n="Cancel" style="border-radius:8px;">Cancel</button>
+          <button type="submit" class="btn btn-primary" data-i18n="Update" style="background:#4f46e5; border-color:#4f46e5; border-radius:8px;">Update</button>
         </div>
       </form>
     </div>
@@ -109,6 +548,40 @@ html[dir="rtl"] .main-panels-row > div[class*="col-"] { float: right !important;
 
 <div id="footer-placeholder"></div>
 </div></div>
+
+<script>
+  function toggleAddPanel(forceClose) {
+    if (typeof forceClose === 'object' && forceClose !== null && forceClose.stopPropagation) {
+      forceClose.stopPropagation();
+      forceClose = false;
+    }
+    var overlay = document.getElementById('add-classroom-overlay');
+    var isOpen = overlay.classList.contains('open');
+
+    if (forceClose === true || isOpen) {
+      overlay.classList.remove('open');
+    } else {
+      overlay.classList.add('open');
+      setTimeout(function () {
+        var input = document.getElementById('add-classroom-name-input');
+        if (input) input.focus();
+      }, 150);
+    }
+  }
+
+  // Close on Escape key press
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' || e.keyCode === 27) {
+      toggleAddPanel(true);
+    }
+  });
+
+  // Auto-close panel after successful save
+  document.addEventListener('classroom-added', function () {
+    toggleAddPanel(true);
+  });
+</script>
+
 <script src="js/vendor/jquery-1.12.4.min.js"></script>
 <script src="js/bootstrap.min.js"></script>
 <script src="js/components.js"></script>

@@ -105,12 +105,16 @@
       var amountStyle = r.type === 'income' ? 'color:#10b981' : 'color:#ef4444';
 
       var deleteBtn = r.source_table === 'treasury'
-        ? '<button class="btn btn-xs btn-danger" data-del-tx="' + r.id + '" title="Delete"><i class="fa fa-trash"></i></button>'
+        ? '<button class="btn btn-xs btn-danger" style="margin: 0 4px;" data-del-tx="' + r.id + '" title="Delete"><i class="fa fa-trash"></i></button>'
         : '<span style="font-size:11px;color:#8a96a8;background:#f1f5f9;padding:2px 6px;border-radius:4px" data-i18n="Auto-added">Auto-added</span>';
+
+      var editBtn = r.source_table === 'treasury'
+        ? '<button class="btn btn-xs btn-primary" style="margin: 0 4px;" data-edit-tx=\'' + JSON.stringify(r).replace(/'/g, "&#39;") + '\' title="Edit"><i class="fa fa-edit"></i></button>'
+        : '';
 
       var catHtml = r.category ? '<span data-i18n="' + esc(r.category) + '">' + esc(r.category) + '</span>' : '-';
       
-      var printBtn = '<button class="btn btn-xs btn-info" style="margin-right: 4px;" onclick=\'window.printReceipt(' + JSON.stringify(r).replace(/'/g, "&#39;") + ')\' title="Print Receipt"><i class="fa fa-print"></i></button>';
+      var printBtn = '<button class="btn btn-xs btn-info" style="margin: 0 4px;" onclick=\'window.printReceipt(' + JSON.stringify(r).replace(/'/g, "&#39;") + ')\' title="Print Receipt"><i class="fa fa-print"></i></button>';
 
       return '<tr>' +
         '<td>' + (i + 1) + '</td>' +
@@ -121,7 +125,7 @@
         '<td>' + esc(fmtDate(r.transaction_date)) + '</td>' +
         '<td style="max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + esc(r.notes || '-') + '</td>' +
         '<td>' + esc(by) + '</td>' +
-        '<td>' + printBtn + ' &nbsp; ' + deleteBtn + '</td>' +
+        '<td>' + printBtn + editBtn + deleteBtn + '</td>' +
         '</tr>';
     }).join('');
 
@@ -131,6 +135,77 @@
     tbody.querySelectorAll('[data-del-tx]').forEach(function (btn) {
       btn.addEventListener('click', function () {
         openDeleteConfirm(this.getAttribute('data-del-tx'));
+      });
+    });
+
+    // Bind edit buttons
+    tbody.querySelectorAll('[data-edit-tx]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        openEditModal(JSON.parse(this.getAttribute('data-edit-tx')));
+      });
+    });
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     EDIT MODAL
+  ═══════════════════════════════════════════════════════════════════════ */
+  function openEditModal(tx) {
+    if (!window.jQuery) return;
+    document.getElementById('edit-tr-id').value = tx.id;
+    document.getElementById('edit-tr-type').value = tx.type;
+    document.getElementById('edit-tr-amount').value = tx.amount;
+    
+    // Format date for datetime-local
+    var dateObj = new Date(tx.transaction_date);
+    if (!isNaN(dateObj.getTime())) {
+      dateObj.setMinutes(dateObj.getMinutes() - dateObj.getTimezoneOffset());
+      document.getElementById('edit-tr-date').value = dateObj.toISOString().slice(0, 16);
+    } else {
+      document.getElementById('edit-tr-date').value = tx.transaction_date;
+    }
+    
+    document.getElementById('edit-tr-category').value = tx.category || '';
+    document.getElementById('edit-tr-person-name').value = tx.person_name || '';
+    document.getElementById('edit-tr-notes').value = tx.notes || '';
+    
+    hideAlert('#edit-treasury-entry-status');
+    $('#edit-tx-modal').modal('show');
+  }
+
+  function bindEditForm() {
+    var form = document.getElementById('edit-treasury-form');
+    if (!form) return;
+    
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      hideAlert('#edit-treasury-entry-status');
+
+      var txId = document.getElementById('edit-tr-id').value;
+      var payload = {
+        type:             document.getElementById('edit-tr-type').value,
+        amount:           parseFloat(document.getElementById('edit-tr-amount').value),
+        transaction_date: document.getElementById('edit-tr-date').value,
+        category:         document.getElementById('edit-tr-category').value || null,
+        notes:            document.getElementById('edit-tr-notes').value || null,
+        person_name:      document.getElementById('edit-tr-person-name').value || null
+      };
+
+      if (!payload.type) { showAlert('#edit-treasury-entry-status', 'Please select a transaction type.'); return; }
+      if (!payload.amount || payload.amount <= 0) { showAlert('#edit-treasury-entry-status', 'Please enter a valid amount.'); return; }
+
+      var btn = document.getElementById('btn-save-edit-tx');
+      if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Saving...'; }
+
+      request('/api/treasury/' + txId, {
+        method: 'PUT',
+        body: JSON.stringify(payload)
+      }).then(function (resp) {
+        if (window.jQuery) $('#edit-tx-modal').modal('hide');
+        loadTreasury();
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa fa-save"></i> Save'; }
+      }).catch(function (err) {
+        showAlert('#edit-treasury-entry-status', err.message);
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa fa-save"></i> Save'; }
       });
     });
   }
@@ -369,6 +444,7 @@
   document.addEventListener('DOMContentLoaded', function () {
     initTabs();
     bindForm();
+    bindEditForm();
     bindFilters();
     bindDeleteModal();
     bindRefresh();

@@ -144,6 +144,14 @@
                                     <option value="expense" data-i18n="Expense (مصاريف)">Expense (مصاريف)</option>
                                 </select>
                             </div>
+                              <div class="form-group">
+                                <label><span data-i18n="Category">Category</span> <span class="text-danger">*</span></label>
+                                <input type="text" id="tr-category" name="category" class="form-control" data-i18n-placeholder="e.g. Salaries, Electricity" placeholder="e.g. Salaries, Electricity" required>
+                            </div>
+                            <div class="form-group">
+                                <label><span data-i18n="Name (Person)" >Name (Person)</span> <span class="text-danger">*</span></label>
+                                <input type="text" id="tr-person-name" name="person_name" class="form-control" data-i18n-placeholder="Name of person" placeholder="Name of person" required>
+                            </div>
                             <div class="form-group">
                                 <label><span data-i18n="Amount">Amount</span> <span class="text-danger">*</span></label>
                                 <input type="number" id="tr-amount" name="amount" class="form-control"
@@ -153,14 +161,7 @@
                                 <label><span data-i18n="Date">Date</span> <span class="text-danger">*</span></label>
                                 <input type="datetime-local" id="tr-date" name="transaction_date" class="form-control" required>
                             </div>
-                            <div class="form-group">
-                                <label><span data-i18n="Category">Category</span></label>
-                                <input type="text" id="tr-category" name="category" class="form-control" data-i18n-placeholder="e.g. Salaries, Electricity" placeholder="e.g. Salaries, Electricity">
-                            </div>
-                            <div class="form-group">
-                                <label><span data-i18n="Name">Name (Student/Teacher)</span></label>
-                                <input type="text" id="tr-person-name" name="person_name" class="form-control" data-i18n-placeholder="Name of person" placeholder="Name of person">
-                            </div>
+                          
                         </div>
 
                         <div class="form-group" style="margin-bottom:18px">
@@ -230,6 +231,57 @@
             </div>
 
             <div id="footer-placeholder"></div>
+        </div>
+    </div>
+
+    <!-- Edit transaction modal -->
+    <div id="edit-tx-modal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content" style="border-radius:12px">
+                <form id="edit-treasury-form">
+                    <div class="modal-header" style="border-bottom:1px solid #f0f0f0">
+                        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                        <h4 class="modal-title" style="font-size:15px"><i class="fa fa-edit text-primary"></i> <span data-i18n="Edit Transaction">Edit Transaction</span></h4>
+                    </div>
+                    <div class="modal-body" style="font-size:13.5px">
+                        <input type="hidden" id="edit-tr-id">
+                        <div class="form-group">
+                            <label><span data-i18n="Transaction Type">Transaction Type</span> <span class="text-danger">*</span></label>
+                            <select id="edit-tr-type" name="type" class="form-control" required>
+                                <option value="income" data-i18n="Income (مداخيل)">Income (مداخيل)</option>
+                                <option value="expense" data-i18n="Expense (مصاريف)">Expense (مصاريف)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label><span data-i18n="Amount">Amount</span> <span class="text-danger">*</span></label>
+                            <input type="number" id="edit-tr-amount" name="amount" class="form-control" min="0.01" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label><span data-i18n="Date">Date</span> <span class="text-danger">*</span></label>
+                            <input type="datetime-local" id="edit-tr-date" name="transaction_date" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label><span data-i18n="Category">Category</span> <span class="text-danger">*</span></label>
+                            <input type="text" id="edit-tr-category" name="category" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label><span data-i18n="Name (Person)">Name (Person)</span> <span class="text-danger">*</span></label>
+                            <input type="text" id="edit-tr-person-name" name="person_name" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label><span data-i18n="Notes">Notes</span></label>
+                            <input type="text" id="edit-tr-notes" name="notes" class="form-control">
+                        </div>
+                        <div id="edit-treasury-entry-status" class="alert" style="display:none; margin-top:10px;"></div>
+                    </div>
+                    <div class="modal-footer" style="border-top:1px solid #f0f0f0">
+                        <button type="button" class="btn btn-default btn-sm" data-dismiss="modal" data-i18n="Cancel">Cancel</button>
+                        <button type="submit" class="btn btn-primary btn-sm" id="btn-save-edit-tx">
+                            <i class="fa fa-save"></i> <span data-i18n="Save">Save</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 

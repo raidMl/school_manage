@@ -12,7 +12,7 @@
     'All Teachers': 'جميع الأساتذة', 'Add Teacher': 'إضافة أستاذ',
     'Students': 'الطلاب', 'All Students': 'جميع الطلاب', 'Add Student': 'إضافة طالب',
     'Formations': 'الدورات', 'All Formations': 'جميع الدورات', 'Add Formation': 'إضافة دورة',
-    'Classrooms': 'الفصول', 'Groups': 'المجموعات', 'School Settings': 'إعدادات المدرسة',
+    'Classrooms': 'الأقسام', 'Groups': 'المجموعات', 'School Settings': 'إعدادات المدرسة',
     'Edit Classroom': 'تعديل القسم', 'Update': 'تحديث', 'Cancel': 'إلغاء',
     'Classroom updated successfully': 'تم تحديث القسم بنجاح',
     'Delete this classroom?': 'هل تريد حذف هذا القسم؟',
@@ -162,7 +162,18 @@
     'Add New Admin': 'إضافة مسؤول جديد',
     'Save Admins': 'حفظ المسؤولين',
     'Leave blank to keep current': 'اتركه فارغاً للاحتفاظ بكلمة المرور الحالية',
-    'Update Teacher': 'تحديث الأستاذ'
+    'Update Teacher': 'تحديث الأستاذ',
+    'MALE': 'ذكر',
+    'FEMALE': 'أنثى',
+    'Male': 'ذكر',
+    'Female': 'أنثى',
+    'Needs Special Care': 'يحتاج رعاية خاصة',
+    'Normal Health': 'صحة جيدة',
+    'Assign to Group': 'تعيين إلى مجموعة',
+    'No Group': 'بدون مجموعة',
+    'Select Formation first': 'اختر الدورة أولاً',
+    'Group is optional': 'يمكنك تعيين الطالب لمجموعة الآن أو لاحقاً.',
+    'Group assignment failed': 'فشل تعيين المجموعة'
   };
   function t(s) { return currentLang === 'ar' ? (AR[s] || s) : s; }
   function applyTranslations(root) {
@@ -1046,14 +1057,41 @@
     populatePromoCodeSelect(promoSelect, formationSelect.value);
   }
 
+  function populateGroupSelect(groupSel, formationId) {
+    if (!groupSel) return;
+    if (!formationId) {
+      groupSel.innerHTML = '<option value="">' + t('Select Formation first') + '</option>';
+      return;
+    }
+    groupSel.innerHTML = '<option value="">' + t('Loading...') + '</option>';
+    request('/api/groups?formation_id=' + encodeURIComponent(formationId)).then(function (p) {
+      var list = (p.data || []).filter(function (g) { return !g.status || g.status === 'open'; });
+      groupSel.innerHTML = '<option value="">\u2014 ' + t('No Group') + ' (Optional) \u2014</option>' +
+        list.map(function (g) { return '<option value="' + g.id + '">' + esc(g.name) + '</option>'; }).join('');
+    }).catch(function () {
+      groupSel.innerHTML = '<option value="">\u2014 ' + t('No Group') + ' \u2014</option>';
+    });
+  }
+
   function bindAddStudentForm() {
     var form = document.querySelector('#backend-add-student-form'); if (!form) return;
     populateFormationSelect(form.querySelector('#student-formation-id'));
     setupSubscriptionPlanToggle(form);
     setupPromoCodeSelect(form);
+
+    // Populate groups when formation changes
+    var formationSel = form.querySelector('#student-formation-id');
+    var groupSel = form.querySelector('#student-group-id');
+    if (formationSel && groupSel) {
+      formationSel.addEventListener('change', function () {
+        populateGroupSelect(groupSel, this.value);
+      });
+    }
+
     form.addEventListener('submit', function (e) {
       e.preventDefault(); var fd = new FormData(form);
       var btn = form.querySelector('[type=submit]'); if (btn) btn.disabled = true;
+      var selectedGroupId = fd.get('group_id') || null;
       request('/api/student-registrations', {
         method: 'POST', body: JSON.stringify({
           first_name: fd.get('first_name'), last_name: fd.get('last_name'), email: fd.get('email'), password: fd.get('password'),
@@ -1080,8 +1118,27 @@
           subscription_plan: fd.get('subscription_plan') || null,
           promo_code: fd.get('promo_code') || null,
         })
-      }).then(function () { showAlert('#backend-form-status', t('Student created successfully'), 'success'); form.reset(); if (btn) btn.disabled = false; })
-        .catch(function (err) { showAlert('#backend-form-status', err.message); if (btn) btn.disabled = false; });
+      }).then(function (resp) {
+        var newStudentId = resp.data && resp.data.id;
+        // If a group was selected, assign the student to it
+        if (selectedGroupId && newStudentId) {
+          return request('/api/student-groups', {
+            method: 'POST',
+            body: JSON.stringify({ student_id: newStudentId, group_id: parseInt(selectedGroupId) })
+          }).then(function () {
+            showAlert('#backend-form-status', t('Student created successfully'), 'success');
+          }).catch(function () {
+            // Group assignment failed but student was created — still show success
+            showAlert('#backend-form-status', t('Student created successfully') + ' (' + t('Group assignment failed') + ')', 'success');
+          });
+        } else {
+          showAlert('#backend-form-status', t('Student created successfully'), 'success');
+        }
+      }).then(function () {
+        form.reset();
+        if (groupSel) groupSel.innerHTML = '<option value="">\u2014 Select a Formation first \u2014</option>';
+        if (btn) btn.disabled = false;
+      }).catch(function (err) { showAlert('#backend-form-status', err.message); if (btn) btn.disabled = false; });
     });
   }
   function bindEditStudentForm() {
@@ -1543,7 +1600,7 @@
         method: 'POST', body: JSON.stringify({
           name: fd.get('name'), capacity: fd.get('capacity') || null, description: fd.get('description') || null,
         })
-      }).then(function () { showAlert('#backend-classroom-form-status', t('Classroom added'), 'success'); form.reset(); loadClassrooms(); if (btn) btn.disabled = false; })
+      }).then(function () { showAlert('#backend-classroom-form-status', t('Classroom added'), 'success'); form.reset(); loadClassrooms(); if (btn) btn.disabled = false; if (typeof toggleAddPanel === 'function') setTimeout(function(){ toggleAddPanel(true); }, 900); })
         .catch(function (err) { showAlert('#backend-classroom-form-status', err.message); if (btn) btn.disabled = false; });
     });
     
@@ -1866,7 +1923,7 @@
       document.getElementById('sp-reg-num').textContent = tc.registration_number || '-';
       document.getElementById('sp-email').textContent = tc.email || '-';
 
-      document.getElementById('sp-gender').textContent = tc.gender || '-';
+      document.getElementById('sp-gender').textContent = tc.gender ? t(tc.gender) : '-';
       document.getElementById('sp-birth-date').textContent = tc.birth_date || '-';
       document.getElementById('sp-blood-type').textContent = tc.blood_type || '-';
       
@@ -1929,12 +1986,37 @@
       document.getElementById('tp-emp-num').textContent = tc.employee_number || '-';
       document.getElementById('tp-email').textContent = tc.email || '-';
 
+      // Professional
       document.getElementById('tp-speciality').textContent = tc.speciality || '-';
       document.getElementById('tp-diploma').textContent = tc.diploma || '-';
-      document.getElementById('tp-hire-date').textContent = tc.hire_date || '-';
-      document.getElementById('tp-gender').textContent = tc.gender || '-';
+      var hireDate = tc.hire_date ? tc.hire_date.toString().slice(0, 10) : '-';
+      document.getElementById('tp-hire-date').textContent = hireDate;
+
+      // Personal
+      document.getElementById('tp-gender').textContent = tc.gender ? t(tc.gender) : '-';
       document.getElementById('tp-birth-date').textContent = tc.birth_date || '-';
-      document.getElementById('tp-status').innerHTML = tc.is_active ? '<span class="label label-success">' + t('Active') + '</span>' : '<span class="label label-danger">' + t('Inactive') + '</span>';
+      var phoneEl = document.getElementById('tp-phone');
+      if (phoneEl) phoneEl.textContent = tc.phone || tc.parent_phone || '-';
+
+      // Status in header & card
+      var statusBadge = tc.is_active
+        ? '<span class="label label-success"><i class="fa fa-check-circle"></i> ' + t('Active') + '</span>'
+        : '<span class="label label-danger"><i class="fa fa-times-circle"></i> ' + t('Inactive') + '</span>';
+      var statusEl = document.getElementById('tp-status');
+      if (statusEl) statusEl.innerHTML = statusBadge;
+      var statusCardEl = document.getElementById('tp-status-card');
+      if (statusCardEl) statusCardEl.innerHTML = statusBadge;
+
+      // Role
+      var roleEl = document.getElementById('tp-role');
+      if (roleEl) roleEl.textContent = tc.role ? t(tc.role.charAt(0).toUpperCase() + tc.role.slice(1)) : t('Teacher');
+
+      // Edit link
+      var editLink = document.getElementById('tp-edit-link');
+      if (editLink) editLink.href = 'edit-professor.html?id=' + id;
+
+      // Apply i18n translations
+      if (window.AppI18n) window.AppI18n.translateAll(document.getElementById('tp-content'));
     }).catch(function (err) { showAlert(cont, err.message); });
   }
 
@@ -2721,10 +2803,10 @@
     var bar = document.createElement('div');
     bar.id = 'quick-action-bar';
     bar.style.cssText = 'position:fixed; bottom:-80px; left:50%; transform:translateX(-50%); background:#2c3e50; color:white; padding:12px 24px; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.15); display:flex; align-items:center; gap:16px; transition:bottom 0.3s; z-index:9999;';
-    bar.innerHTML = '<span id="qa-count" style="font-weight:600;">0 selected</span>' +
-      '<button id="qa-active" class="btn btn-success btn-sm"><i class="fa fa-check"></i> Active</button>' +
-      '<button id="qa-inactive" class="btn btn-warning btn-sm"><i class="fa fa-times"></i> Inactive</button>' +
-      '<button id="qa-delete" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> Delete</button>';
+    bar.innerHTML = '<span id="qa-count" style="font-weight:600;">0 <span data-i18n="selected">selected</span></span>' +
+      '<button id="qa-active" class="btn btn-success btn-sm"><i class="fa fa-check"></i> <span data-i18n="Active">Active</span></button>' +
+      '<button id="qa-inactive" class="btn btn-warning btn-sm"><i class="fa fa-times"></i> <span data-i18n="Inactive">Inactive</span></button>' +
+      '<button id="qa-delete" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> <span data-i18n="Delete">Delete</span></button>';
     document.body.appendChild(bar);
 
     function updateQA() {
@@ -2732,7 +2814,7 @@
       var type = checked.length ? checked[0].getAttribute('data-type') : null;
       if (checked.length > 0) {
         bar.style.bottom = '24px';
-        document.getElementById('qa-count').textContent = checked.length + ' selected';
+        document.getElementById('qa-count').innerHTML = checked.length + ' <span data-i18n="selected">selected</span>';
         if (type === 'group') {
           document.getElementById('qa-active').style.display = 'none';
           document.getElementById('qa-inactive').style.display = 'none';
@@ -2740,13 +2822,14 @@
           document.getElementById('qa-active').style.display = 'inline-block';
           document.getElementById('qa-inactive').style.display = 'inline-block';
           if (type === 'formation') {
-            document.getElementById('qa-active').innerHTML = '<i class="fa fa-check"></i> Open';
-            document.getElementById('qa-inactive').innerHTML = '<i class="fa fa-times"></i> Closed';
+            document.getElementById('qa-active').innerHTML = '<i class="fa fa-check"></i> <span data-i18n="Open">Open</span>';
+            document.getElementById('qa-inactive').innerHTML = '<i class="fa fa-times"></i> <span data-i18n="Closed">Closed</span>';
           } else {
-            document.getElementById('qa-active').innerHTML = '<i class="fa fa-check"></i> Active';
-            document.getElementById('qa-inactive').innerHTML = '<i class="fa fa-times"></i> Inactive';
+            document.getElementById('qa-active').innerHTML = '<i class="fa fa-check"></i> <span data-i18n="Active">Active</span>';
+            document.getElementById('qa-inactive').innerHTML = '<i class="fa fa-times"></i> <span data-i18n="Inactive">Inactive</span>';
           }
         }
+        if (window.AppI18n) window.AppI18n.translateAll(bar);
       } else {
         bar.style.bottom = '-80px';
       }
@@ -2809,6 +2892,7 @@
 
       Promise.all(promises).then(function () {
         document.querySelectorAll('.select-all').forEach(function (cb) { cb.checked = false; });
+        document.querySelectorAll('.row-checkbox').forEach(function (cb) { cb.checked = false; });
         updateQA();
         if (type === 'student') loadStudents();
         else if (type === 'teacher') loadTeachers();
@@ -2816,6 +2900,9 @@
         else if (type === 'group') loadGroups();
       }).catch(function (err) {
         alert('Action partially failed: ' + err.message);
+        document.querySelectorAll('.select-all').forEach(function (cb) { cb.checked = false; });
+        document.querySelectorAll('.row-checkbox').forEach(function (cb) { cb.checked = false; });
+        updateQA();
         if (type === 'student') loadStudents();
         else if (type === 'teacher') loadTeachers();
         else if (type === 'formation') loadFormations();

@@ -195,6 +195,8 @@ window.AppI18n = {
     "Transaction saved successfully!": "تم حفظ المعاملة بنجاح!",
     "Auto-added": "إضافة تلقائية",
     "Student Payment": "دفع رسوم طالب",
+    "Namest": "المانح",
+    "Name of person": "المانح",
 
     // ── Add Student form ──
     "New Student Registration": "تسجيل طالب جديد",
@@ -264,6 +266,17 @@ window.AppI18n = {
     "Save Teacher": "حفظ الأستاذ",
     "e.g. Mathematics": "مثال: الرياضيات",
     "e.g. PhD": "مثال: دكتوراه",
+
+    // ── Professor / Teacher profile page ──
+    "Professor": "أستاذ",
+    "Professional Information": "المعلومات المهنية",
+    "Hire Date": "تاريخ التوظيف",
+    "Phone": "الهاتف",
+    "Account": "الحساب",
+    "Role": "الدور",
+    "Loading Profile...": "جاري تحميل الملف الشخصي...",
+    "Profile": "الملف الشخصي",
+    "Teachers": "الأساتذة",
 
     // ── Add Formation form ──
     "Create a new training formation.": "إنشاء دورة تدريبية جديدة.",
@@ -340,6 +353,15 @@ window.AppI18n = {
     "Teacher updated successfully": "تم تحديث الأستاذ بنجاح",
     "Group updated successfully": "تم تحديث المجموعة بنجاح",
     "Classroom added": "تمت إضافة القسم بنجاح",
+    "Classrooms": "الأقسام",
+    "Add Classroom": "إضافة قسم",
+    "Save Classroom": "حفظ القسم",
+    "Edit Classroom": "تعديل القسم",
+    "Create a new classroom": "إضافة قاعة تدريس جديدة",
+    "Room name or number": "اسم أو رقم القاعة",
+    "Max student capacity": "أقصى سعة للطلاب",
+    "e.g. Room A-101": "مثال: قاعة أ-101",
+    "e.g. 30": "مثال: 30",
 
     // ── Status / Attendance ──────────────────────────────────────────────────
     "Attendance & Scanning": "الحضور والمسح",
@@ -601,7 +623,8 @@ window.AppI18n = {
     "Select Formation First": "اختر الدورة أولاً",
     "No students found": "لم يتم العثور على طلاب",
     "No students found for this selection.": "لم يتم العثور على طلاب لهذا التحديد.",
-    "Unknown": "غير معروف"
+    "Unknown": "غير معروف",
+    "selected": "محدد"
   },
 
   // ── Language init ─────────────────────────────────────────────────────────
@@ -817,7 +840,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // Safety fallback: always reveal after 800ms in case DOMContentLoaded already fired
 // or something else prevented the handler from running
-(function() {
+(function () {
   function revealPage() {
     var foucStyle = document.getElementById('fouc-style');
     if (foucStyle) foucStyle.remove();

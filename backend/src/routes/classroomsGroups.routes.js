@@ -104,6 +104,11 @@ router.get('/groups', requireAuth, asyncHandler(async (req, res) => {
     }
   }
 
+  if (req.query.formation_id) {
+    extraWhere += ' AND g.formation_id = ?';
+    params.push(req.query.formation_id);
+  }
+
   const rows = await query(
     GROUP_SELECT +
     `WHERE f.school_id = ? ${extraWhere} GROUP BY g.id ORDER BY g.id DESC`,

@@ -146,4 +146,38 @@ router.delete(
   })
 );
 
+// ─── PUT /:id  — update transaction ──────────────────────────────────────────
+router.put(
+  '/:id',
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    const schoolId = await getSchoolId(req.auth.userId);
+    if (!schoolId) throw new HttpError(400, 'No school found');
+
+    const { type, category, amount, transaction_date, notes, person_name } = req.body;
+    
+    if (!type || (type !== 'income' && type !== 'expense'))
+      throw new HttpError(400, 'Valid type (income/expense) is required');
+    if (!amount || isNaN(amount) || amount <= 0)
+      throw new HttpError(400, 'Valid positive amount is required');
+    if (!transaction_date)
+      throw new HttpError(400, 'Transaction date is required');
+
+    const tx = await query(
+      'SELECT id FROM treasury_transactions WHERE id = ? AND school_id = ? LIMIT 1',
+      [req.params.id, schoolId]
+    );
+    if (!tx.length) throw new HttpError(404, 'Transaction not found');
+
+    await pool.execute(
+      `UPDATE treasury_transactions 
+       SET type = ?, category = ?, amount = ?, transaction_date = ?, notes = ?, person_name = ?
+       WHERE id = ?`,
+      [type, category || null, amount, transaction_date, notes || null, person_name || null, req.params.id]
+    );
+
+    res.json({ message: 'Transaction updated successfully' });
+  })
+);
+
 module.exports = router;
