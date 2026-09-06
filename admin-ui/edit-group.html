@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <!-- Anti-FOUC & Preloader -->
@@ -20,11 +20,248 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Edit Group | School System Admin</title>
     <link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/font-awesome.min.css">
     <link rel="stylesheet" href="css/sidebar.css">
-    <style>body{font-family:'Inter',sans-serif}.card-panel{background:#fff;border-radius:14px;padding:30px;box-shadow:0 2px 12px rgba(0,0,0,.06);max-width:800px;margin:20px auto}</style>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+        }
+
+        .edit-page-container {
+            max-width: 860px;
+            margin: 0 auto;
+            padding-bottom: 16px;
+        }
+
+        /* ── Compact Breadcrumbs ── */
+        .sb-breadcrumb {
+            margin-bottom: 10px;
+            font-size: 12.5px;
+        }
+
+        /* ── Compact Page Header Bar ── */
+        .page-header-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .header-title-wrap {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-icon-badge {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #4f46e5, #6366f1);
+            color: #ffffff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 17px;
+            box-shadow: 0 4px 12px -2px rgba(79, 70, 229, 0.35);
+            flex-shrink: 0;
+        }
+
+        .header-title-wrap h2 {
+            margin: 0;
+            font-size: 19px;
+            font-weight: 700;
+            color: #0f172a;
+            letter-spacing: -0.01em;
+            line-height: 1.2;
+        }
+
+        .header-title-wrap p {
+            margin: 2px 0 0;
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .header-actions-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn-header-pill {
+            background: #ffffff;
+            border: 1.5px solid #e2e8f0;
+            color: #475569;
+            border-radius: 9px;
+            padding: 6px 14px;
+            font-size: 12.5px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            transition: all 0.18s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+        }
+
+        .btn-header-pill:hover {
+            border-color: #6366f1;
+            color: #4f46e5;
+            background: #f8faff;
+            text-decoration: none;
+        }
+
+        /* ── Compact Main Form Card ── */
+        .card-panel-modern {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 22px 26px;
+            box-shadow: 0 4px 20px rgba(15, 23, 42, 0.03), 0 1px 2px rgba(15, 23, 42, 0.02);
+            border: 1px solid #edf2f7;
+            margin-bottom: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .card-panel-modern {
+                padding: 18px 16px;
+            }
+        }
+
+        /* ── Tight Fields & Labels ── */
+        .field-group {
+            margin-bottom: 12px;
+        }
+
+        .field-label {
+            font-size: 12.5px;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            line-height: 1.3;
+        }
+
+        .field-label i {
+            color: #6366f1;
+            font-size: 12px;
+        }
+
+        .card-panel-modern .form-control {
+            border-radius: 9px;
+            border: 1.5px solid #cbd5e1;
+            background: #f8fafc;
+            color: #0f172a;
+            font-size: 13px;
+            height: 38px;
+            padding: 6px 12px;
+            transition: all 0.18s ease;
+            box-shadow: none;
+        }
+
+        .card-panel-modern .form-control:focus {
+            background: #ffffff;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+            outline: none;
+        }
+
+        .card-panel-modern select.form-control {
+            cursor: pointer;
+        }
+
+        /* Compact Teacher Helper Note */
+        .helper-note-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #f0f4ff;
+            color: #4338ca;
+            border: 1px solid #dbeafe;
+            border-radius: 7px;
+            padding: 4px 9px;
+            margin-top: 5px;
+            font-size: 11px;
+            font-weight: 500;
+            line-height: 1.3;
+        }
+
+        .helper-note-badge i {
+            color: #6366f1;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+
+        /* ── Compact Footer Actions ── */
+        .form-actions-footer {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 10px;
+            padding-top: 16px;
+            border-top: 1px solid #f1f5f9;
+            margin-top: 6px;
+        }
+
+        .btn-save-primary {
+            background: linear-gradient(135deg, #4f46e5, #6366f1);
+            color: #ffffff;
+            border: none;
+            border-radius: 9px;
+            padding: 9px 24px;
+            font-size: 13.5px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            box-shadow: 0 3px 10px rgba(79, 70, 229, 0.28);
+            transition: all 0.18s ease;
+        }
+
+        .btn-save-primary:hover {
+            background: linear-gradient(135deg, #4338ca, #4f46e5);
+            box-shadow: 0 5px 15px rgba(79, 70, 229, 0.38);
+            transform: translateY(-1px);
+            color: #ffffff;
+        }
+
+        .btn-cancel-secondary {
+            background: #f1f5f9;
+            color: #475569;
+            border: none;
+            border-radius: 9px;
+            padding: 9px 18px;
+            font-size: 13.5px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            transition: all 0.18s ease;
+        }
+
+        .btn-cancel-secondary:hover {
+            background: #e2e8f0;
+            color: #1e293b;
+            text-decoration: none;
+        }
+
+        /* RTL adjustments */
+        html[dir="rtl"] .btn-header-pill i.fa-arrow-left,
+        html[dir="rtl"] .btn-cancel-secondary i.fa-arrow-left {
+            transform: rotate(180deg);
+        }
+    </style>
 
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#007bff">
@@ -43,60 +280,166 @@
     <div class="sb-main">
         <div id="header-placeholder"></div>
         <div class="sb-content">
-            <div class="sb-breadcrumb"><i class="fa fa-home"></i> <a href="index.html">Home</a> <span>/</span> <a href="all-groups.html">Groups</a> <span>/</span> <span>Edit Group</span></div>
-            
-            <div class="card-panel">
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
-                    <h3 style="margin:0;font-size:20px;font-weight:700">Edit Group Details</h3>
+            <div class="edit-page-container">
+                <!-- Breadcrumbs -->
+                <div class="sb-breadcrumb">
+                    <i class="fa fa-home"></i>
+                    <a href="index.html" data-i18n="Home">Home</a>
+                    <span>/</span>
+                    <a href="all-groups.html" data-i18n="Groups">Groups</a>
+                    <span>/</span>
+                    <span data-i18n="Edit Group">Edit Group</span>
                 </div>
-                <div id="backend-group-form-status" class="alert" style="display:none"></div>
-                
-                <form id="backend-edit-group-form" novalidate>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Formation <span class="text-danger">*</span></label>
-                                <select id="group-formation-id" name="formation_id" class="form-control" required><option value="">Loading...</option></select>
-                            </div>
+
+                <!-- Page Header Bar -->
+                <div class="page-header-bar">
+                    <div class="header-title-wrap">
+                        <div class="header-icon-badge">
+                            <i class="fa fa-pencil-square-o"></i>
                         </div>
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label>Classroom</label>
-                                <select id="group-classroom-id" name="classroom_id" class="form-control"><option value="">No classroom</option></select>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label>Teacher <span class="text-danger">*</span></label>
-                                <select id="group-teacher-id" name="teacher_id" class="form-control" required><option value="">Loading teachers...</option></select>
-                                <small id="group-teacher-note" class="text-muted">Select a teacher for this group.</small>
-                            </div>
+                        <div>
+                            <h2 data-i18n="Edit Group Details">Edit Group Details</h2>
+                            <p data-i18n="Modify group configuration, schedule, and capacity">Modify group configuration, schedule, and capacity</p>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label>Group Name <span class="text-danger">*</span></label>
-                        <input type="text" name="name" class="form-control" required>
+                    <div class="header-actions-group">
+                        <a id="btn-header-view-group" href="all-groups.html" class="btn-header-pill">
+                            <i class="fa fa-eye" style="color:#6366f1;"></i>
+                            <span data-i18n="View Details">View Details</span>
+                        </a>
+                        <a href="all-groups.html" class="btn-header-pill">
+                            <i class="fa fa-arrow-left"></i>
+                            <span data-i18n="Back">Back</span>
+                        </a>
                     </div>
-                    <div class="row">
-                        <div class="col-md-4"><div class="form-group"><label>Start Date</label><input type="date" name="start_date" class="form-control"></div></div>
-                        <div class="col-md-4"><div class="form-group"><label>End Date</label><input type="date" name="end_date" class="form-control"></div></div>
-                        <div class="col-md-4"><div class="form-group"><label>Max Students</label><input type="number" name="max_students" class="form-control" min="1"></div></div>
-                    </div>
-                    
-                    <div class="form-group" style="margin-top:20px">
-                        <button type="submit" class="btn btn-primary btn-lg"><i class="fa fa-save"></i> Save Changes</button>
-                        <a href="all-groups.html" class="btn btn-default btn-lg" style="margin-left:10px"><i class="fa fa-arrow-left"></i> Back</a>
-                    </div>
-                </form>
+                </div>
+
+                <!-- Form Card -->
+                <div class="card-panel-modern">
+                    <div id="backend-group-form-status" class="alert" style="display:none; border-radius:10px; padding:10px 14px; margin-bottom:14px; font-size:13px;"></div>
+
+                    <form id="backend-edit-group-form" novalidate>
+                        <!-- Row 1: Name & Formation -->
+                        <div class="row">
+                            <div class="col-sm-6 col-xs-12">
+                                <div class="field-group">
+                                    <label class="field-label">
+                                        <i class="fa fa-tag"></i>
+                                        <span data-i18n="Group Name">Group Name</span>
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text" name="name" class="form-control" data-i18n-placeholder="e.g. Group A" placeholder="e.g. Group A" required>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-xs-12">
+                                <div class="field-group">
+                                    <label class="field-label">
+                                        <i class="fa fa-book"></i>
+                                        <span data-i18n="Formation">Formation</span>
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <select id="group-formation-id" name="formation_id" class="form-control" required>
+                                        <option value="" data-i18n="Loading...">Loading...</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Row 2: Teacher & Classroom -->
+                        <div class="row">
+                            <div class="col-sm-6 col-xs-12">
+                                <div class="field-group">
+                                    <label class="field-label">
+                                        <i class="fa fa-user-circle"></i>
+                                        <span data-i18n="Teacher">Teacher</span>
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <select id="group-teacher-id" name="teacher_id" class="form-control" required>
+                                        <option value="" data-i18n="Loading teachers...">Loading teachers...</option>
+                                    </select>
+                                    <div class="helper-note-badge">
+                                        <i class="fa fa-info-circle"></i>
+                                        <span id="group-teacher-note" data-i18n="Select a teacher for this group.">Select a teacher for this group.</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-xs-12">
+                                <div class="field-group">
+                                    <label class="field-label">
+                                        <i class="fa fa-building"></i>
+                                        <span data-i18n="Classroom">Classroom</span>
+                                    </label>
+                                    <select id="group-classroom-id" name="classroom_id" class="form-control">
+                                        <option value="" data-i18n="No classroom">No classroom</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Row 3: Dates & Max Capacity -->
+                        <div class="row">
+                            <div class="col-sm-4 col-xs-12">
+                                <div class="field-group">
+                                    <label class="field-label">
+                                        <i class="fa fa-calendar"></i>
+                                        <span data-i18n="Start Date">Start Date</span>
+                                    </label>
+                                    <input type="date" name="start_date" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col-sm-4 col-xs-12">
+                                <div class="field-group">
+                                    <label class="field-label">
+                                        <i class="fa fa-calendar-check-o"></i>
+                                        <span data-i18n="End Date">End Date</span>
+                                    </label>
+                                    <input type="date" name="end_date" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col-sm-4 col-xs-12">
+                                <div class="field-group">
+                                    <label class="field-label">
+                                        <i class="fa fa-users"></i>
+                                        <span data-i18n="Max Capacity">Max Capacity</span>
+                                    </label>
+                                    <input type="number" name="max_students" class="form-control" data-i18n-placeholder="Leave blank for unlimited" placeholder="Leave blank for unlimited" min="1">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Footer Actions -->
+                        <div class="form-actions-footer">
+                            <a href="all-groups.html" class="btn-cancel-secondary">
+                                <i class="fa fa-arrow-left"></i>
+                                <span data-i18n="Cancel">Cancel</span>
+                            </a>
+                            <button type="submit" class="btn-save-primary">
+                                <i class="fa fa-save"></i>
+                                <span data-i18n="Save Changes">Save Changes</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
-            
+
             <div id="footer-placeholder"></div>
         </div>
     </div>
-    
+
     <script src="js/vendor/jquery-1.12.4.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/components.js"></script>
     <script src="js/backend.js?v=3"></script>
+    <script>
+      // Wire dynamic "View Details" button to the group ID
+      (function() {
+        var params = new URLSearchParams(window.location.search);
+        var gid = params.get('id');
+        var viewBtn = document.getElementById('btn-header-view-group');
+        if (viewBtn && gid) {
+          viewBtn.href = 'group-info.html?id=' + encodeURIComponent(gid);
+        }
+      })();
+    </script>
 </body>
 </html>

@@ -25,18 +25,36 @@
     <link rel="stylesheet" href="css/sidebar.css">
     <style>
       body { font-family: 'Inter', sans-serif; }
-      .card-panel { background: #fff; border-radius: 14px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,.06); margin-bottom: 20px; max-width: 900px; }
-      .section-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #6c7a8d; border-bottom: 2px solid #f0f4f8; padding-bottom: 8px; margin: 24px 0 16px; }
-      .section-title i { margin-right: 6px; }
+      .form-card { background: #fff; border-radius: 16px; box-shadow: 0 4px 24px rgba(0,0,0,.08); max-width: 900px; width: 100%; margin: 0 auto 24px auto; overflow: hidden; }
+      .sb-breadcrumb { max-width: 900px; margin: 0 auto 14px auto; }
+      .form-card-header { background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%); padding: 18px 26px; color: #fff; }
+      .form-card-header h3 { margin: 0; font-size: 17px; font-weight: 700; }
+      .form-card-header p { margin: 3px 0 0; font-size: 12px; opacity: .85; }
+      .form-card-body { padding: 20px 26px 22px; }
+      .sec-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #9ca3af; border-bottom: 1.5px solid #f0f4f8; padding-bottom: 5px; margin: 16px 0 10px; }
+      .sec-title:first-child { margin-top: 0; }
+      .form-group { margin-bottom: 10px; }
+      .form-group label { font-size: 12px; font-weight: 600; color: #374151; margin-bottom: 3px; display: block; }
+      .form-control { height: 34px; font-size: 13px; border-radius: 8px; border: 1.5px solid #e5e7eb; padding: 4px 10px; transition: border-color .15s, box-shadow .15s; }
+      .form-control:focus { border-color: #f7971e; box-shadow: 0 0 0 3px rgba(247,151,30,.1); outline: none; }
+      select.form-control { padding: 4px 8px; }
+      .row { margin-left: -7px; margin-right: -7px; }
+      .row > [class*="col-"] { padding-left: 7px; padding-right: 7px; }
+      .input-group .form-control { border-radius: 8px 0 0 8px; }
+      .input-group-btn .btn { border-radius: 0 8px 8px 0; height: 34px; padding: 0 12px; border: 1.5px solid #e5e7eb; border-left: none; background: #f9fafb; }
+      .btn-submit { background: linear-gradient(135deg, #f7971e, #ffd200); border: none; color: #fff; font-weight: 700; padding: 8px 22px; border-radius: 8px; font-size: 14px; cursor: pointer; transition: opacity .2s; }
+      .btn-submit:hover { opacity: .88; }
+      .btn-back { background: #f3f4f6; border: 1.5px solid #e5e7eb; color: #374151; font-weight: 500; padding: 8px 18px; border-radius: 8px; font-size: 14px; margin-left: 8px; text-decoration: none; display: inline-block; }
+      .btn-back:hover { background: #e5e7eb; color: #111; text-decoration: none; }
       .app-checks { display: flex; gap: 6px; flex-wrap: wrap; }
-      .app-check-btn { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 20px; border: 1.5px solid #d1d5db; background: #f9fafb; cursor: pointer; font-size: 12px; font-weight: 600; color: #6b7280; transition: all 0.18s; user-select: none; }
+      .app-check-btn { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 20px; border: 1.5px solid #d1d5db; background: #f9fafb; cursor: pointer; font-size: 11px; font-weight: 600; color: #6b7280; transition: all 0.18s; user-select: none; }
       .app-check-btn:hover { border-color: #9ca3af; }
       .app-check-btn.active-wa { border-color: #25D366; background: #e8fdf1; color: #16a34a; }
       .app-check-btn.active-vb { border-color: #7c3aed; background: #f3f0ff; color: #7c3aed; }
       .app-check-btn.active-tg { border-color: #0088cc; background: #e6f4fb; color: #0088cc; }
-      .app-check-btn .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; display: inline-block; }
-      .health-indicator { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
-      .health-option { display: flex; align-items: center; gap: 5px; padding: 6px 14px; border-radius: 20px; border: 1.5px solid #d1d5db; cursor: pointer; font-size: 13px; transition: all 0.18s; }
+      .app-check-btn .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; display: inline-block; }
+      .health-indicator { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 5px; }
+      .health-option { display: flex; align-items: center; gap: 5px; padding: 5px 12px; border-radius: 20px; border: 1.5px solid #d1d5db; cursor: pointer; font-size: 12px; transition: all 0.18s; }
       .health-option input[type=radio] { display: none; }
       .health-option.selected-healthy { border-color: #16a34a; background: #f0fdf4; color: #16a34a; font-weight: 600; }
       .health-option.selected-special  { border-color: #dc2626; background: #fef2f2; color: #dc2626; font-weight: 600; }
@@ -59,19 +77,19 @@
 <div class="sb-main">
 <div id="header-placeholder"></div>
 <div class="sb-content">
-<div class="sb-breadcrumb"><i class="fa fa-home"></i> <a href="index.html">Home</a> <span>/</span> <a href="all-students.html">Students</a> <span>/</span> <span>Add</span></div>
+<div class="sb-breadcrumb"><i class="fa fa-home"></i> <a href="index.html" data-i18n="Home">Home</a> <span>/</span> <a href="all-students.html" data-i18n="Students">Students</a> <span>/</span> <span data-i18n="Add">Add</span></div>
 
-<div class="card-panel">
-  <h3 style="margin:0 0 4px;font-size:17px;font-weight:700">
-    <i class="fa fa-user-plus" style="color:#f7971e"></i>
-    <span data-i18n="New Student Registration">New Student Registration</span>
-  </h3>
-  <p style="color:#888;font-size:13px;margin:0 0 20px" data-i18n="Fill in all required fields to register a new student.">Fill in all required fields to register a new student.</p>
-  <div id="backend-form-status" class="alert" style="display:none"></div>
-  <form id="backend-add-student-form" novalidate>
+<div class="form-card">
+  <div class="form-card-header">
+    <h3><i class="fa fa-user-plus"></i> <span data-i18n="New Student Registration">New Student Registration</span></h3>
+    <p data-i18n="Fill in all required fields to register a new student.">Fill in all required fields to register a new student.</p>
+  </div>
+  <div class="form-card-body">
+    <div id="backend-form-status" class="alert" style="display:none"></div>
+    <form id="backend-add-student-form" novalidate>
 
     <!-- Personal Info -->
-    <div class="section-title"><i class="fa fa-user"></i> <span data-i18n="Personal Information">Personal Information</span></div>
+    <div class="sec-title"><i class="fa fa-user"></i> <span data-i18n="Personal Information">Personal Information</span></div>
     <div class="row">
       <div class="col-md-6"><div class="form-group">
         <label><span data-i18n="First Name">First Name</span> <span class="text-danger">*</span></label>
@@ -116,7 +134,7 @@
     </div>
 
     <!-- Academic -->
-    <div class="section-title"><i class="fa fa-graduation-cap"></i> <span data-i18n="Academic">Academic</span></div>
+    <div class="sec-title"><i class="fa fa-graduation-cap"></i> <span data-i18n="Academic">Academic</span></div>
     <div class="row">
       <div class="col-md-12"><div class="form-group">
         <label><span data-i18n="Formation">Formation</span> <span class="text-danger">*</span></label>
@@ -171,7 +189,7 @@
     </div>
 
     <!-- Parent / Guardian Contact -->
-    <div class="section-title"><i class="fa fa-phone"></i> <span data-i18n="Parent / Guardian Contact">Parent / Guardian Contact</span></div>
+    <div class="sec-title"><i class="fa fa-phone"></i> <span data-i18n="Parent / Guardian Contact">Parent / Guardian Contact</span></div>
 
     <div class="row">
       <div class="col-md-6"><div class="form-group">
@@ -243,7 +261,7 @@
     </div>
 
     <!-- Health Status -->
-    <div class="section-title">
+    <div class="sec-title">
       <i class="fa fa-heartbeat"></i>
       <span data-i18n="Health Status">Health Status</span>
     </div>
@@ -272,7 +290,7 @@
     </div>
 
     <!-- Other -->
-    <div class="section-title"><i class="fa fa-image"></i> <span data-i18n="Other">Other</span></div>
+    <div class="sec-title"><i class="fa fa-image"></i> <span data-i18n="Other">Other</span></div>
     <div class="form-group">
       <label data-i18n="Photo URL">Photo URL</label>
       <div class="input-group">
@@ -286,15 +304,12 @@
       </div>
     </div>
 
-    <div class="form-group" style="margin-top:24px; display:flex; gap:10px;">
-      <button type="submit" class="btn btn-warning btn-lg">
-        <i class="fa fa-save"></i> <span data-i18n="Save Student">Save Student</span>
-      </button>
-      <a href="all-students.html" class="btn btn-default btn-lg">
-        <i class="fa fa-arrow-left"></i> <span data-i18n="Back">Back</span>
-      </a>
-    </div>
-  </form>
+      <div style="margin-top:18px; display:flex; align-items:center; gap:10px;">
+        <button type="submit" class="btn-submit"><i class="fa fa-save"></i> <span data-i18n="Save Student">Save Student</span></button>
+        <a href="all-students.html" class="btn-back"><i class="fa fa-arrow-left"></i> <span data-i18n="Back">Back</span></a>
+      </div>
+    </form>
+  </div>
 </div>
 
 <div id="footer-placeholder"></div>

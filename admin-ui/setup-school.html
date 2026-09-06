@@ -189,67 +189,121 @@
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 
-    /* Admin Cards */
-    .additional-admin-card,
-    .additional-admin-row {
-      background: #fafafa;
+    /* Admin Management - Responsive Table / Card Layout */
+    .admins-table-wrapper {
+      background: #fff;
       border: 1px solid #e2e8f0;
       border-radius: 12px;
-      padding: 20px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
       margin-bottom: 20px;
-      position: relative;
-      transition: box-shadow 0.2s;
     }
 
-    .additional-admin-card:hover,
-    .additional-admin-row:hover {
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
-      background: #fff;
+    .admin-management-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0;
+    }
+
+    .admin-management-table th {
+      background: #f8fafc;
+      color: #475569;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 14px 12px;
+      border-bottom: 2px solid #e2e8f0;
+      text-align: inherit;
+      white-space: nowrap;
+    }
+
+    .admin-management-table td {
+      padding: 10px 10px;
+      vertical-align: middle;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .admin-management-table tr:hover td {
+      background-color: #fafbfc;
+    }
+
+    .admin-management-table .admin-cell-label {
+      display: none;
+    }
+
+    .admin-management-table .form-control {
+      font-size: 13px;
+      padding: 7px 10px;
+      height: 38px;
+      border-radius: 6px;
       border-color: #cbd5e1;
+      width: 100%;
+    }
+
+    .admin-management-table .form-control:focus {
+      border-color: #6366f1;
+      box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.15);
     }
 
     .admin-card-actions {
       display: flex;
-      align-items: flex-end;
-      justify-content: flex-end;
-      gap: 10px;
-      height: 100%;
-      padding-top: 25px;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      white-space: nowrap;
     }
 
     .admin-save-button {
       background: #10b981;
       border: none;
       color: white;
-      padding: 8px 16px;
+      padding: 7px 12px;
       border-radius: 6px;
       font-weight: 500;
+      font-size: 13px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+      transition: background 0.2s;
     }
 
     .admin-save-button:hover {
       background: #059669;
+      color: white;
     }
 
     .admin-delete-button {
       background: #ef4444;
       border: none;
       color: white;
-      padding: 8px 16px;
+      padding: 7px 12px;
       border-radius: 6px;
       font-weight: 500;
+      font-size: 13px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+      transition: background 0.2s;
     }
 
     .admin-delete-button:hover {
       background: #dc2626;
+      color: white;
     }
 
     .remove-additional-admin {
       color: #ef4444;
       border: 1px solid #fecaca;
       background: #fef2f2;
-      padding: 8px 16px;
+      padding: 7px 12px;
       border-radius: 6px;
       font-weight: 500;
+      font-size: 13px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
       transition: all 0.2s;
     }
 
@@ -258,7 +312,7 @@
       color: #dc2626;
     }
 
-    /* Responsive */
+    /* Responsive: Mobile View */
     @media (max-width: 768px) {
       .settings-container {
         flex-direction: column;
@@ -271,6 +325,82 @@
         padding-right: 0;
         border-bottom: 1px solid #f0f0f0;
         padding-bottom: 20px;
+      }
+
+      /* Admin Cards Layout on Mobile */
+      .admins-table-wrapper {
+        background: transparent;
+        border: none;
+        overflow: visible;
+        margin-bottom: 10px;
+      }
+
+      .admin-management-table,
+      .admin-management-table tbody,
+      .admin-management-table tr,
+      .admin-management-table td {
+        display: block !important;
+        width: 100% !important;
+        box-sizing: border-box;
+      }
+
+      .admin-management-table thead {
+        display: none !important;
+      }
+
+      .admin-management-table tr.additional-admin-card,
+      .admin-management-table tr.additional-admin-row {
+        background: #fafafa !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 12px;
+        padding: 18px 18px 14px;
+        margin-bottom: 18px;
+        transition: box-shadow 0.2s;
+      }
+
+      .admin-management-table tr.additional-admin-card:hover,
+      .admin-management-table tr.additional-admin-row:hover {
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+        background: #fff !important;
+        border-color: #cbd5e1 !important;
+      }
+
+      .admin-management-table td {
+        padding: 0 0 12px 0 !important;
+        border: none !important;
+        background: transparent !important;
+      }
+
+      .admin-management-table .admin-cell-label {
+        display: block !important;
+        font-weight: 500;
+        color: #475569;
+        margin-bottom: 6px;
+        font-size: 14px;
+      }
+
+      .admin-management-table .form-control {
+        font-size: 14px;
+        padding: 10px 14px;
+        height: auto;
+      }
+
+      .admin-management-table td.admin-card-actions {
+        display: flex !important;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 10px;
+        padding-top: 12px !important;
+        padding-bottom: 0 !important;
+        margin-top: 4px;
+        border-top: 1px dashed #e2e8f0 !important;
+      }
+
+      .admin-management-table .admin-save-button,
+      .admin-management-table .admin-delete-button,
+      .admin-management-table .remove-additional-admin {
+        padding: 8px 16px;
+        font-size: 14px;
       }
     }
   </style>
@@ -314,7 +444,7 @@
                 </li>
                 <li><a href="#tab-profile" role="tab" data-toggle="tab"><i class="fa fa-user-circle"></i> My Profile</a>
                 </li>
-                <li><a href="#tab-admins" role="tab" data-toggle="tab"><i class="fa fa-users"></i> Manage Admins</a>
+                <li><a href="#tab-admins" role="tab" data-toggle="tab"><i class="fa fa-users"></i> <span data-i18n="Manage Admins">Manage Admins</span></a>
                 </li>
                 <li><a href="#tab-preferences" role="tab" data-toggle="tab"><i class="fa fa-cogs"></i> UI Preferences</a>
                 </li>
@@ -549,9 +679,22 @@
                   <p class="text-muted" style="margin-bottom:20px;font-size:13px" data-i18n="As the primary creator, you can create, update, and remove extra admin users for this school.">As the primary creator, you can
                     create, update, and remove extra admin users for this school.</p>
 
-                  <div id="existing-admins-list"></div>
-
-                  <div id="additional-admins-list"></div>
+                  <div class="admins-table-wrapper">
+                    <table class="admin-management-table" id="admins-table">
+                      <thead>
+                        <tr>
+                          <th style="width: 17%;" data-i18n="First Name">First Name</th>
+                          <th style="width: 17%;" data-i18n="Last Name">Last Name</th>
+                          <th style="width: 26%;" data-i18n="Email">Email</th>
+                          <th style="width: 13%;" data-i18n="Status">Status</th>
+                          <th style="width: 15%;" data-i18n="New Password">New Password</th>
+                          <th style="width: 12%; text-align: center;" data-i18n="Actions">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody id="existing-admins-list"></tbody>
+                      <tbody id="additional-admins-list"></tbody>
+                    </table>
+                  </div>
 
                   <div style="margin-top: 20px; padding-top: 15px; border-top: 1px dashed #e2e8f0;">
                     <button id="add-additional-admin" type="button" class="btn btn-default btn-sm"
@@ -616,7 +759,7 @@
   <script src="js/vendor/jquery-1.12.4.min.js"></script>
   <script src="js/bootstrap.min.js"></script>
   <script src="js/components.js"></script>
-  <script src="js/backend.js?v=3"></script>
+  <script src="js/backend.js?v=4"></script>
   <script>
     (function() {
       function highlightCards() {

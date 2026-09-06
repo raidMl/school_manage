@@ -23,7 +23,32 @@
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/font-awesome.min.css">
     <link rel="stylesheet" href="css/sidebar.css">
-    <style>body{font-family:'Inter',sans-serif}.card-panel{background:#fff;border-radius:14px;padding:24px;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:20px;max-width:860px}</style>
+    <style>
+      body { font-family: 'Inter', sans-serif; }
+      .form-card { background: #fff; border-radius: 16px; box-shadow: 0 4px 24px rgba(0,0,0,.08); max-width: 900px; width: 100%; margin: 0 auto 24px auto; overflow: hidden; }
+      .sb-breadcrumb { max-width: 900px; margin: 0 auto 14px auto; }
+      .form-card-header { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); padding: 18px 26px; color: #fff; }
+      .form-card-header h3 { margin: 0; font-size: 17px; font-weight: 700; }
+      .form-card-header p { margin: 3px 0 0; font-size: 12px; opacity: .85; }
+      .form-card-body { padding: 20px 26px 22px; }
+      .sec-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #9ca3af; border-bottom: 1.5px solid #f0f4f8; padding-bottom: 5px; margin: 16px 0 10px; }
+      .sec-title:first-child { margin-top: 0; }
+      .form-group { margin-bottom: 10px; }
+      .form-group label { font-size: 12px; font-weight: 600; color: #374151; margin-bottom: 3px; display: block; }
+      .form-group .help-block { font-size: 11px; color: #9ca3af; margin-top: 3px; }
+      .form-control { height: 34px; font-size: 13px; border-radius: 8px; border: 1.5px solid #e5e7eb; padding: 4px 10px; transition: border-color .15s, box-shadow .15s; }
+      .form-control:focus { border-color: #4facfe; box-shadow: 0 0 0 3px rgba(79,172,254,.1); outline: none; }
+      textarea.form-control { height: auto; }
+      select.form-control { padding: 4px 8px; }
+      .row { margin-left: -7px; margin-right: -7px; }
+      .row > [class*="col-"] { padding-left: 7px; padding-right: 7px; }
+      .input-group .form-control { border-radius: 8px 0 0 8px; }
+      .input-group-btn .btn { border-radius: 0 8px 8px 0; height: 34px; padding: 0 12px; border: 1.5px solid #e5e7eb; border-left: none; background: #f9fafb; }
+      .btn-submit { background: linear-gradient(135deg, #4facfe, #00f2fe); border: none; color: #fff; font-weight: 600; padding: 8px 22px; border-radius: 8px; font-size: 14px; cursor: pointer; transition: opacity .2s; }
+      .btn-submit:hover { opacity: .88; }
+      .btn-back { background: #f3f4f6; border: 1.5px solid #e5e7eb; color: #374151; font-weight: 500; padding: 8px 18px; border-radius: 8px; font-size: 14px; margin-left: 8px; text-decoration: none; display: inline-block; }
+      .btn-back:hover { background: #e5e7eb; color: #111; text-decoration: none; }
+    </style>
 
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#007bff">
@@ -44,127 +69,139 @@
 <div class="sb-content">
 <div class="sb-breadcrumb"><i class="fa fa-home"></i> <a href="index.html" data-i18n="Home">Home</a> <span>/</span> <a href="all-courses.html" data-i18n="Formations">Formations</a> <span>/</span> <span data-i18n="Add">Add</span></div>
 
-<div class="card-panel">
-  <h3 style="margin:0 0 4px;font-size:17px;font-weight:700"><i class="fa fa-book" style="color:#4facfe"></i> <span data-i18n="Add Formation">Add Formation</span></h3>
-  <p style="color:#888;font-size:13px;margin:0 0 20px" data-i18n="Create a new training formation.">Create a new training formation.</p>
-  <div id="backend-form-status" class="alert" style="display:none"></div>
-  <form id="backend-add-formation-form" novalidate>
-    <div class="form-group">
-      <label data-i18n="Title">Title <span class="text-danger">*</span></label>
-      <input type="text" name="title" class="form-control"
-             placeholder="e.g. Web Development Bootcamp"
-             data-i18n-ph="e.g. Web Development Bootcamp" required>
-    </div>
-    <div class="form-group">
-      <label data-i18n="Description">Description</label>
-      <textarea name="description" class="form-control" rows="3"
-                placeholder="Formation description..."
-                data-i18n-ph="Formation description..."></textarea>
-    </div>
-    <div class="row">
-      <div class="col-md-6">
-        <div class="form-group" id="teacher-group">
-          <label data-i18n="Assign Teacher">Assign Teacher <small class="text-muted" data-i18n="(optional)">(optional)</small></label>
-          <select id="formation-teacher-id" name="teacher_id" class="form-control">
-            <option value="" data-i18n="Loading...">Loading teachers...</option>
-          </select>
-          <small class="help-block" data-i18n="Leave empty for subscriptions and assign later when creating a group.">Leave empty for subscriptions and assign later when creating a group.</small>
-        </div>
+<div class="form-card">
+  <div class="form-card-header">
+    <h3><i class="fa fa-book"></i> <span data-i18n="Add Formation">Add Formation</span></h3>
+    <p data-i18n="Create a new training formation.">Create a new training formation.</p>
+  </div>
+  <div class="form-card-body">
+    <div id="backend-form-status" class="alert" style="display:none"></div>
+    <form id="backend-add-formation-form" novalidate>
+      <div class="sec-title"><i class="fa fa-info-circle"></i> <span data-i18n="Basic Info">Basic Info</span></div>
+      <div class="form-group">
+        <label><span data-i18n="Title">Title</span> <span class="text-danger">*</span></label>
+        <input type="text" name="title" class="form-control"
+               placeholder="e.g. Web Development Bootcamp"
+               data-i18n-ph="e.g. Web Development Bootcamp" required>
       </div>
-      <div class="col-md-6">
-        <div class="form-group">
-          <label data-i18n="Image URL">Image URL</label>
-          <div class="input-group">
-            <input type="url" name="image" class="form-control"
-                   placeholder="https://example.com/cover.jpg"
-                   data-i18n-ph="https://example.com/cover.jpg">
-            <span class="input-group-btn">
-              <label class="btn btn-default" title="Upload Image" data-i18n-title="Upload Image" style="margin:0; border-radius:0;">
-                <i class="fa fa-upload" id="icon-upload-course"></i>
-                <input type="file" accept="image/*" style="display:none;" onchange="handleCloudinaryUpload(this, document.querySelector('#backend-add-formation-form input[name=image]'), 'icon-upload-course')">
-              </label>
-              <button class="btn btn-default" type="button" id="btn-search-web-image" title="Search Web" data-i18n-title="Search Web">
-                <i class="fa fa-search"></i>
-              </button>
-            </span>
-          </div>
-        </div>
+      <div class="form-group">
+        <label data-i18n="Description">Description</label>
+        <textarea name="description" class="form-control" rows="2"
+                  placeholder="Formation description..."
+                  data-i18n-ph="Formation description..."></textarea>
       </div>
-    </div>
-    <div class="row">
-      <div class="col-md-4">
-        <div class="form-group">
-          <label data-i18n="Duration (hours)">Duration (hours)</label>
-          <input type="number" name="duration_hours" class="form-control" min="1"
-                 placeholder="e.g. 40" data-i18n-ph="e.g. 40">
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="form-group" id="formation-price-group">
-          <label data-i18n="Price (DA)">Price (DA)</label>
-          <input type="number" name="price" class="form-control" value="0" min="0" step="0.01">
-          <small class="help-block" data-i18n="Used for formations.">Used for formations.</small>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="form-group">
-          <label data-i18n="Type">Type</label>
-          <select name="type" class="form-control">
-            <option value="formation" data-i18n="Formation">Formation</option>
-            <option value="subscription" data-i18n="Subscription">Subscription</option>
-          </select>
-        </div>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-md-4">
-        <div class="form-group">
-          <label data-i18n="Status">Status</label>
-          <select name="status" class="form-control">
-            <option value="open" data-i18n="Open">Open</option>
-            <option value="closed" data-i18n="Closed">Closed</option>
-          </select>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="form-group">
-          <label data-i18n="Niveau">Niveau (المستوى)</label>
-          <div style="display:flex; gap:10px; margin-bottom:10px;">
-            <select id="niveau-type" class="form-control">
-              <option value="academic">أكاديمي</option>
-              <option value="general">عام</option>
-            </select>
-            <select id="niveau-select" class="form-control">
-               <!-- populated dynamically -->
-            </select>
-          </div>
-          <input type="text" id="niveau-other" class="form-control" style="display:none;" placeholder="Enter level (أدخل المستوى)">
-          <input type="hidden" name="niveau" id="niveau-final" value="">
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="form-group">
-          <label data-i18n="Number of Places">Number of Places</label>
-          <input type="number" name="places" class="form-control" value="0" min="0">
-        </div>
-      </div>
-    </div>
-    <div id="subscription-prices-group" style="display:none">
+
+      <div class="sec-title"><i class="fa fa-sliders"></i> <span data-i18n="Settings">Settings</span></div>
       <div class="row">
-        <div class="col-md-4"><div class="form-group"><label data-i18n="Monthly Price (DA)">Monthly Price (DA)</label><input type="number" name="price_monthly" class="form-control" min="0" step="0.01"></div></div>
-        <div class="col-md-4"><div class="form-group"><label data-i18n="3-Month Price (DA)">3-Month Price (DA)</label><input type="number" name="price_3_months" class="form-control" min="0" step="0.01"></div></div>
-        <div class="col-md-4"><div class="form-group"><label data-i18n="Yearly Price (DA)">Yearly Price (DA)</label><input type="number" name="price_1_year" class="form-control" min="0" step="0.01"></div></div>
+        <div class="col-md-4">
+          <div class="form-group">
+            <label data-i18n="Type">Type</label>
+            <select name="type" class="form-control">
+              <option value="formation" data-i18n="Formation">Formation</option>
+              <option value="subscription" data-i18n="Subscription">Subscription</option>
+            </select>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="form-group">
+            <label data-i18n="Status">Status</label>
+            <select name="status" class="form-control">
+              <option value="open" data-i18n="Open">Open</option>
+              <option value="closed" data-i18n="Closed">Closed</option>
+            </select>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="form-group">
+            <label data-i18n="Number of Places">Number of Places</label>
+            <input type="number" name="places" class="form-control" value="0" min="0">
+          </div>
+        </div>
       </div>
-    </div>
-    <div class="row">
-      <div class="col-md-6"><div class="form-group"><label data-i18n="Start Date">Start Date</label><input type="date" name="start_date" class="form-control"></div></div>
-      <div class="col-md-6"><div class="form-group"><label data-i18n="End Date">End Date</label><input type="date" name="end_date" class="form-control"></div></div>
-    </div>
-    <div class="form-group" style="margin-top:20px">
-      <button type="submit" class="btn btn-primary btn-lg"><i class="fa fa-save"></i> <span data-i18n="Save Formation">Save Formation</span></button>
-      <a href="all-courses.html" class="btn btn-default btn-lg" style="margin-left:10px"><i class="fa fa-arrow-left"></i> <span data-i18n="Back">Back</span></a>
-    </div>
-  </form>
+      <div class="row">
+        <div class="col-md-4">
+          <div class="form-group">
+            <label data-i18n="Duration (hours)">Duration (hours)</label>
+            <input type="number" name="duration_hours" class="form-control" min="1"
+                   placeholder="e.g. 40" data-i18n-ph="e.g. 40">
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="form-group" id="formation-price-group">
+            <label data-i18n="Price (DA)">Price (DA)</label>
+            <input type="number" name="price" class="form-control" value="0" min="0" step="0.01">
+            <small class="help-block" data-i18n="Used for formations.">Used for formations.</small>
+          </div>
+        </div>
+      </div>
+      <div id="subscription-prices-group" style="display:none">
+        <div class="row">
+          <div class="col-md-4"><div class="form-group"><label data-i18n="Monthly Price (DA)">Monthly Price (DA)</label><input type="number" name="price_monthly" class="form-control" min="0" step="0.01"></div></div>
+          <div class="col-md-4"><div class="form-group"><label data-i18n="3-Month Price (DA)">3-Month Price (DA)</label><input type="number" name="price_3_months" class="form-control" min="0" step="0.01"></div></div>
+          <div class="col-md-4"><div class="form-group"><label data-i18n="Yearly Price (DA)">Yearly Price (DA)</label><input type="number" name="price_1_year" class="form-control" min="0" step="0.01"></div></div>
+        </div>
+      </div>
+
+      <div class="sec-title"><i class="fa fa-calendar"></i> <span data-i18n="Schedule">Schedule</span></div>
+      <div class="row">
+        <div class="col-md-6"><div class="form-group"><label data-i18n="Start Date">Start Date</label><input type="date" name="start_date" class="form-control"></div></div>
+        <div class="col-md-6"><div class="form-group"><label data-i18n="End Date">End Date</label><input type="date" name="end_date" class="form-control"></div></div>
+      </div>
+
+      <div class="sec-title"><i class="fa fa-graduation-cap"></i> <span data-i18n="Academic Level">Academic Level</span></div>
+      <div class="row">
+        <div class="col-md-6">
+          <div class="form-group">
+            <label data-i18n="Niveau">Niveau (المستوى)</label>
+            <div style="display:flex; gap:8px; margin-bottom:6px;">
+              <select id="niveau-type" class="form-control">
+                <option value="academic">أكاديمي</option>
+                <option value="general">عام</option>
+              </select>
+              <select id="niveau-select" class="form-control">
+                 <!-- populated dynamically -->
+              </select>
+            </div>
+            <input type="text" id="niveau-other" class="form-control" style="display:none;" placeholder="Enter level (أدخل المستوى)">
+            <input type="hidden" name="niveau" id="niveau-final" value="">
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-group" id="teacher-group">
+            <label data-i18n="Assign Teacher">Assign Teacher <small class="text-muted" data-i18n="(optional)">(optional)</small></label>
+            <select id="formation-teacher-id" name="teacher_id" class="form-control">
+              <option value="" data-i18n="Loading...">Loading teachers...</option>
+            </select>
+            <small class="help-block" data-i18n="Leave empty for subscriptions and assign later when creating a group.">Leave empty for subscriptions and assign later when creating a group.</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="sec-title"><i class="fa fa-image"></i> <span data-i18n="Image">Image</span></div>
+      <div class="form-group">
+        <label data-i18n="Image URL">Image URL</label>
+        <div class="input-group">
+          <input type="url" name="image" class="form-control"
+                 placeholder="https://example.com/cover.jpg"
+                 data-i18n-ph="https://example.com/cover.jpg">
+          <span class="input-group-btn">
+            <label class="btn btn-default" title="Upload Image" data-i18n-title="Upload Image" style="margin:0; border-radius:0;">
+              <i class="fa fa-upload" id="icon-upload-course"></i>
+              <input type="file" accept="image/*" style="display:none;" onchange="handleCloudinaryUpload(this, document.querySelector('#backend-add-formation-form input[name=image]'), 'icon-upload-course')">
+            </label>
+            <button class="btn btn-default" type="button" id="btn-search-web-image" title="Search Web" data-i18n-title="Search Web">
+              <i class="fa fa-search"></i>
+            </button>
+          </span>
+        </div>
+      </div>
+
+      <div style="margin-top:18px; display:flex; align-items:center; gap:10px;">
+        <button type="submit" class="btn-submit"><i class="fa fa-save"></i> <span data-i18n="Save Formation">Save Formation</span></button>
+        <a href="all-courses.html" class="btn-back"><i class="fa fa-arrow-left"></i> <span data-i18n="Back">Back</span></a>
+      </div>
+    </form>
+  </div>
 </div>
 
 <div id="footer-placeholder"></div>

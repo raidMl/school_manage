@@ -188,6 +188,59 @@ router.delete(
   })
 );
 
+// ─── PUT  /:id  —  update payment record ────────────────────────────────────
+router.put(
+  '/:id',
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    const schoolId = await getSchoolId(req.auth.userId);
+    const existing = await query(
+      'SELECT id, student_id FROM payment_history WHERE id = ? AND school_id = ? LIMIT 1',
+      [req.params.id, schoolId]
+    );
+    if (!existing.length) throw new HttpError(404, 'Payment record not found');
+
+    const {
+      amount,
+      payment_date: paymentDate,
+      payment_method: paymentMethod = 'cash',
+      notes = null,
+    } = req.body;
+
+    if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
+      throw new HttpError(400, 'Valid positive amount is required');
+    }
+    if (!paymentDate) {
+      throw new HttpError(400, 'Payment date is required');
+    }
+
+    await pool.execute(
+      `UPDATE payment_history
+       SET amount = ?, payment_date = ?, payment_method = ?, notes = ?
+       WHERE id = ? AND school_id = ?`,
+      [Number(amount), paymentDate, paymentMethod, notes || null, req.params.id, schoolId]
+    );
+
+    const updated = await query(
+      `SELECT ph.*,
+         u.first_name, u.last_name, u.photo,
+         st.registration_number,
+         st.id AS student_id,
+         f.title AS formation_title,
+         rec.first_name AS recorded_by_name, rec.last_name AS recorded_by_last
+       FROM payment_history ph
+       INNER JOIN students st  ON st.id  = ph.student_id
+       INNER JOIN users u      ON u.id   = st.user_id
+       LEFT  JOIN formations f ON f.id   = st.formation_id
+       LEFT  JOIN users rec    ON rec.id = ph.recorded_by_user_id
+       WHERE ph.id = ? LIMIT 1`,
+      [req.params.id]
+    );
+
+    res.json({ message: 'Payment updated successfully', data: updated[0] });
+  })
+);
+
 // ─── GET  /  —  all school payments with optional filters ───────────────────
 router.get(
   '/',

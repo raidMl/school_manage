@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <!-- Anti-FOUC & Preloader -->
@@ -6,16 +6,10 @@
     <script>
       (function() {
         var lang = localStorage.getItem('app_lang') || 'ar';
-        if(lang === 'ar') {
-          document.documentElement.dir = 'rtl';
-          document.documentElement.lang = 'ar';
-        } else {
-          document.documentElement.dir = 'ltr';
-          document.documentElement.lang = 'en';
-        }
+        if(lang === 'ar') { document.documentElement.dir = 'rtl'; document.documentElement.lang = 'ar'; }
+        else { document.documentElement.dir = 'ltr'; document.documentElement.lang = 'en'; }
       })();
     </script>
-
     <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Edit Student | School System Admin</title>
     <link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico">
@@ -23,17 +17,35 @@
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/font-awesome.min.css">
     <link rel="stylesheet" href="css/sidebar.css">
-    <style>body{font-family:'Inter',sans-serif}.card-panel{background:#fff;border-radius:14px;padding:24px;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:20px;max-width:860px}</style>
-
+    <style>
+      body { font-family: 'Inter', sans-serif; }
+      .form-card { background: #fff; border-radius: 16px; box-shadow: 0 4px 24px rgba(0,0,0,.08); max-width: 900px; width: 100%; margin: 0 auto 24px auto; overflow: hidden; }
+      .sb-breadcrumb { max-width: 900px; margin: 0 auto 14px auto; }
+      .form-card-header { background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%); padding: 18px 26px; color: #fff; }
+      .form-card-header h3 { margin: 0; font-size: 17px; font-weight: 700; }
+      .form-card-header p { margin: 3px 0 0; font-size: 12px; opacity: .85; }
+      .form-card-body { padding: 20px 26px 22px; }
+      .sec-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #9ca3af; border-bottom: 1.5px solid #f0f4f8; padding-bottom: 5px; margin: 16px 0 10px; }
+      .sec-title:first-child { margin-top: 0; }
+      .form-group { margin-bottom: 10px; }
+      .form-group label { font-size: 12px; font-weight: 600; color: #374151; margin-bottom: 3px; display: block; }
+      .form-control { height: 34px; font-size: 13px; border-radius: 8px; border: 1.5px solid #e5e7eb; padding: 4px 10px; transition: border-color .15s, box-shadow .15s; }
+      .form-control:focus { border-color: #f7971e; box-shadow: 0 0 0 3px rgba(247,151,30,.1); outline: none; }
+      select.form-control { padding: 4px 8px; }
+      .row { margin-left: -7px; margin-right: -7px; }
+      .row > [class*="col-"] { padding-left: 7px; padding-right: 7px; }
+      .input-group .form-control { border-radius: 8px 0 0 8px; }
+      .input-group-btn .btn { border-radius: 0 8px 8px 0; height: 34px; padding: 0 12px; border: 1.5px solid #e5e7eb; border-left: none; background: #f9fafb; }
+      .btn-submit { background: linear-gradient(135deg, #f7971e, #ffd200); border: none; color: #fff; font-weight: 700; padding: 8px 22px; border-radius: 8px; font-size: 14px; cursor: pointer; transition: opacity .2s; }
+      .btn-submit:hover { opacity: .88; }
+      .btn-back { background: #f3f4f6; border: 1.5px solid #e5e7eb; color: #374151; font-weight: 500; padding: 8px 18px; border-radius: 8px; font-size: 14px; margin-left: 8px; text-decoration: none; display: inline-block; }
+      .btn-back:hover { background: #e5e7eb; color: #111; text-decoration: none; }
+    </style>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#007bff">
     <link rel="apple-touch-icon" href="img/icon-512.jpg">
     <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('sw.js');
-        });
-      }
+      if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js'); }); }
     </script>
 </head>
 
@@ -42,73 +54,135 @@
 <div class="sb-main">
 <div id="header-placeholder"></div>
 <div class="sb-content">
-<div class="sb-breadcrumb"><i class="fa fa-home"></i> <a href="index.html">Home</a> <span>/</span> <a href="all-students.html">Students</a> <span>/</span> <span>Edit</span></div>
+<div class="sb-breadcrumb">
+  <i class="fa fa-home"></i>
+  <a href="index.html" data-i18n="Home">Home</a> <span>/</span>
+  <a href="all-students.html" data-i18n="Students">Students</a> <span>/</span>
+  <span data-i18n="Edit">Edit</span>
+</div>
 
-<div class="card-panel">
-  <h3 style="margin:0 0 4px;font-size:17px;font-weight:700"><i class="fa fa-edit" style="color:#3498db"></i> Edit Student</h3>
-  <p style="color:#888;font-size:13px;margin:0 0 20px">Update student details.</p>
-  <div id="backend-form-status" class="alert" style="display:none"></div>
-  <form id="backend-edit-student-form" novalidate>
-    <div class="row">
-      <div class="col-md-6"><div class="form-group"><label>First Name</label><input type="text" name="first_name" class="form-control"></div></div>
-      <div class="col-md-6"><div class="form-group"><label>Last Name</label><input type="text" name="last_name" class="form-control"></div></div>
-    </div>
-    <div class="row">
-      <div class="col-md-6"><div class="form-group"><label>Email</label><input type="email" name="email" class="form-control"></div></div>
-      <div class="col-md-6"><div class="form-group"><label>Status</label><select name="is_active" class="form-control"><option value="1">Active</option><option value="0">Inactive</option></select></div></div>
-    </div>
-    <div class="row">
-      <div class="col-md-6"><div class="form-group"><label>Gender</label><select name="gender" class="form-control"><option value="">Select</option><option value="MALE">Male</option><option value="FEMALE">Female</option></select></div></div>
-      <div class="col-md-6"><div class="form-group"><label>Formation</label><select id="student-formation-id" name="formation_id" class="form-control"><option value="">Loading formations...</option></select></div></div>
-    </div>
-    <div class="row">
-      <div class="col-md-6">
-        <div class="form-group">
-          <label>Payment Status</label>
+<div class="form-card">
+  <div class="form-card-header">
+    <h3><i class="fa fa-edit"></i> <span data-i18n="Edit Student">Edit Student</span></h3>
+    <p data-i18n="Update student details.">Update student details.</p>
+  </div>
+  <div class="form-card-body">
+    <div id="backend-form-status" class="alert" style="display:none"></div>
+    <form id="backend-edit-student-form" novalidate>
+
+      <div class="sec-title"><i class="fa fa-user"></i> <span data-i18n="Personal Information">Personal Information</span></div>
+      <div class="row">
+        <div class="col-md-6"><div class="form-group">
+          <label data-i18n="First Name">First Name</label>
+          <input type="text" name="first_name" class="form-control">
+        </div></div>
+        <div class="col-md-6"><div class="form-group">
+          <label data-i18n="Last Name">Last Name</label>
+          <input type="text" name="last_name" class="form-control">
+        </div></div>
+      </div>
+      <div class="row">
+        <div class="col-md-4"><div class="form-group">
+          <label data-i18n="Gender">Gender</label>
+          <select name="gender" class="form-control">
+            <option value="" data-i18n="Select">Select</option>
+            <option value="MALE" data-i18n="Male">Male</option>
+            <option value="FEMALE" data-i18n="Female">Female</option>
+          </select>
+        </div></div>
+        <div class="col-md-4"><div class="form-group">
+          <label data-i18n="Birth Date">Birth Date</label>
+          <input type="date" name="birth_date" class="form-control">
+        </div></div>
+        <div class="col-md-4"><div class="form-group">
+          <label data-i18n="Status">Status</label>
+          <select name="is_active" class="form-control">
+            <option value="1" data-i18n="Active">Active</option>
+            <option value="0" data-i18n="Inactive">Inactive</option>
+          </select>
+        </div></div>
+      </div>
+
+      <div class="sec-title"><i class="fa fa-envelope"></i> <span data-i18n="Account">Account</span></div>
+      <div class="row">
+        <div class="col-md-12"><div class="form-group">
+          <label data-i18n="Email">Email</label>
+          <input type="email" name="email" class="form-control">
+        </div></div>
+      </div>
+
+      <div class="sec-title"><i class="fa fa-graduation-cap"></i> <span data-i18n="Academic">Academic</span></div>
+      <div class="row">
+        <div class="col-md-6"><div class="form-group">
+          <label data-i18n="Formation">Formation</label>
+          <select id="student-formation-id" name="formation_id" class="form-control">
+            <option value="" data-i18n="Loading formations...">Loading formations...</option>
+          </select>
+        </div></div>
+        <div class="col-md-6"><div class="form-group">
+          <label data-i18n="Enrollment Date">Enrollment Date</label>
+          <input type="date" name="enrollment_date" class="form-control">
+        </div></div>
+      </div>
+      <div class="row">
+        <div class="col-md-6"><div class="form-group">
+          <label data-i18n="Payment Status">Payment Status</label>
           <select name="payment_status" class="form-control">
-            <option value="not_paid">Not Paid</option>
-            <option value="paid">Paid</option>
+            <option value="not_paid" data-i18n="Not Paid">Not Paid</option>
+            <option value="paid" data-i18n="Paid">Paid</option>
           </select>
-        </div>
-      </div>
-      <div class="col-md-6">
-        <div class="form-group">
-          <label>Promo Code</label>
+        </div></div>
+        <div class="col-md-6"><div class="form-group">
+          <label data-i18n="Promo Code">Promo Code</label>
           <select id="student-promo-code" name="promo_code" class="form-control">
-            <option value="">No promo code</option>
+            <option value="" data-i18n="No promo code">No promo code</option>
           </select>
-        </div>
+        </div></div>
       </div>
-    </div>
-    <div class="row">
-      <div class="col-md-12" id="subscription-plan-group" style="display:none">
-        <div class="form-group">
-          <label>Subscription Plan <span class="text-danger">*</span></label>
+      <div class="row" id="subscription-plan-group" style="display:none">
+        <div class="col-md-6"><div class="form-group">
+          <label><span data-i18n="Subscription Plan">Subscription Plan</span> <span class="text-danger">*</span></label>
           <select name="subscription_plan" class="form-control">
-            <option value="">Select plan</option>
-            <option value="1_month">Per Month (1 Month)</option>
-            <option value="3_months">Per 3 Months</option>
-            <option value="1_year">Per Year (12 Months)</option>
+            <option value="" data-i18n="Select plan">Select plan</option>
+            <option value="1_month" data-i18n="Per Month (1 Month)">Per Month (1 Month)</option>
+            <option value="3_months" data-i18n="Per 3 Months">Per 3 Months</option>
+            <option value="1_year" data-i18n="Per Year (12 Months)">Per Year (12 Months)</option>
           </select>
+        </div></div>
+      </div>
+
+      <div class="sec-title"><i class="fa fa-phone"></i> <span data-i18n="Parent / Guardian Contact">Parent / Guardian Contact</span></div>
+      <div class="row">
+        <div class="col-md-6"><div class="form-group">
+          <label data-i18n="Parent Name">Parent Name</label>
+          <input type="text" name="parent_name" class="form-control">
+        </div></div>
+        <div class="col-md-6"><div class="form-group">
+          <label data-i18n="Parent Phone">Parent Phone</label>
+          <input type="tel" name="parent_phone" class="form-control">
+        </div></div>
+      </div>
+
+      <div class="sec-title"><i class="fa fa-image"></i> <span data-i18n="Photo">Photo</span></div>
+      <div class="form-group">
+        <label data-i18n="Photo URL">Photo URL</label>
+        <div class="input-group">
+          <input type="url" name="photo" class="form-control" placeholder="https://..." data-i18n-ph="https://...">
+          <span class="input-group-btn">
+            <label class="btn btn-default" title="Upload Image" data-i18n-title="Upload Image" style="margin:0;">
+              <i class="fa fa-upload" id="icon-upload-student-edit"></i>
+              <input type="file" accept="image/*" style="display:none;" onchange="handleCloudinaryUpload(this, document.querySelector('#backend-edit-student-form input[name=photo]'), 'icon-upload-student-edit')">
+            </label>
+          </span>
         </div>
       </div>
-    </div>
-    <div class="row">
-      <div class="col-md-12"><div class="form-group"><label>Enrollment Date</label><input type="date" name="enrollment_date" class="form-control"></div></div>
-    </div>
-    <div class="row">
-      <div class="col-md-6"><div class="form-group"><label>Parent Name</label><input type="text" name="parent_name" class="form-control"></div></div>
-      <div class="col-md-6"><div class="form-group"><label>Parent Phone</label><input type="tel" name="parent_phone" class="form-control"></div></div>
-    </div>
-    <div class="row">
-      <div class="col-md-6"><div class="form-group"><label>Birth Date</label><input type="date" name="birth_date" class="form-control"></div></div>
-      <div class="col-md-6"><div class="form-group"><label>Photo URL</label><input type="url" name="photo" class="form-control"></div></div>
-    </div>
-    <div class="form-group" style="margin-top:20px">
-      <button type="submit" class="btn btn-primary btn-lg"><i class="fa fa-save"></i> Update Student</button>
-      <a href="all-students.html" class="btn btn-default btn-lg" style="margin-left:10px"><i class="fa fa-arrow-left"></i> Back</a>
-    </div>
-  </form>
+
+      <div style="margin-top:18px; display:flex; align-items:center; gap:10px;">
+        <button type="submit" class="btn-submit"><i class="fa fa-save"></i> <span data-i18n="Update Student">Update Student</span></button>
+        <a href="all-students.html" class="btn-back"><i class="fa fa-arrow-left"></i> <span data-i18n="Back">Back</span></a>
+      </div>
+    </form>
+  </div>
 </div>
 
 <div id="footer-placeholder"></div>

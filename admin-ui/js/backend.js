@@ -3,7 +3,7 @@
 
   var TOKEN_KEY = 'school_system_token';
   var LANG_KEY = 'app_lang';
-  var currentLang = localStorage.getItem(LANG_KEY) || 'en';
+  var currentLang = localStorage.getItem(LANG_KEY) || (document.documentElement.lang || 'ar');
 
   // ── i18n ────────────────────────────────────────────────────────────────────
   var AR = {
@@ -12,7 +12,7 @@
     'All Teachers': 'جميع الأساتذة', 'Add Teacher': 'إضافة أستاذ',
     'Students': 'الطلاب', 'All Students': 'جميع الطلاب', 'Add Student': 'إضافة طالب',
     'Formations': 'الدورات', 'All Formations': 'جميع الدورات', 'Add Formation': 'إضافة دورة',
-    'Classrooms': 'الأقسام', 'Groups': 'المجموعات', 'School Settings': 'إعدادات المدرسة',
+    'Classrooms': 'الأقسام', 'Groups': 'الأفواج', 'School Settings': 'إعدادات المدرسة',
     'Edit Classroom': 'تعديل القسم', 'Update': 'تحديث', 'Cancel': 'إلغاء',
     'Classroom updated successfully': 'تم تحديث القسم بنجاح',
     'Delete this classroom?': 'هل تريد حذف هذا القسم؟',
@@ -156,11 +156,74 @@
     'As the primary creator, you can create, update, and remove extra admin users for this school.': 'بصفتك المنشئ الرئيسي، يمكنك إنشاء وتحديث وإزالة مستخدمين إداريين إضافيين لهذه المدرسة.',
     'Active': 'نشط',
     'Inactive': 'غير نشط',
-    'New Password': 'كلمة المرور الجديدة',
+    'Basic Info': 'المعلومات الأساسية',
+    'Academic Level': 'المستوى الأكاديمي',
+    'Schedule': 'الجدول الزمني',
+    'Professional': 'المعلومات المهنية',
+    'Edit Student': 'تعديل التلميذ',
+    'Edit Teacher': 'تعديل الأستاذ',
+    'Update Student': 'تحديث بيانات التلميذ',
+    'Update Teacher': 'تحديث بيانات الأستاذ',
+    'Update student details.': 'تحديث بيانات ومعلومات التلميذ.',
+    'Update teacher details.': 'تحديث بيانات ومعلومات الأستاذ.',
+    'Fill in the fields below to register a new teacher.': 'املأ الحقول أدناه لتسجيل أستاذ جديد.',
+    'New Student Registration': 'تسجيل تلميذ جديد',
+    'New Teacher Registration': 'تسجيل أستاذ جديد',
+    'Save Teacher': 'حفظ بيانات الأستاذ',
+    'Assign to Group': 'تعيين إلى الفوج',
+    'Group is optional': 'يمكنك تعيين التلميذ إلى فوج الآن أو لاحقاً.',
+    'Select Formation first': 'اختر دورة تدريبية أولاً',
+    'Select': 'اختر',
+    'Search...': 'بحث...',
+    'Search Web': 'بحث في الويب',
+    'Search Web Images': 'البحث عن صور في الويب',
+    'Upload Image': 'رفع صورة',
+    'No images found.': 'لم يتم العثور على أي صور.',
+    'Speciality': 'التخصص',
+    'Diploma': 'الشهادة / المؤهل',
+    'Total Incomes': 'إجمالي المداخيل',
+    'Total Expenses': 'إجمالي المصاريف',
+    'Net Balance': 'صافي الرصيد',
+    'Record new income or expense': 'تسجيل مداخيل أو مصاريف جديدة',
+    'Transaction Type': 'نوع المعاملة',
+    'Select Type': 'اختر النوع',
+    'Income (مداخيل)': 'مداخيل (Income)',
+    'Expense (مصاريف)': 'مصاريف (Expense)',
+    'e.g. Salaries, Electricity': 'مثال: رواتب، كهرباء...',
+    'Name of person': 'اسم الشخص',
+    'Save Transaction': 'حفظ المعاملة',
+    'Transaction Archive': 'أرشيف المعاملات',
+    'Auto-added': 'تمت إضافته تلقائياً',
+    'Print Receipt': 'طباعة الوصل',
+    'Edit Transaction': 'تعديل المعاملة',
+    'Delete Transaction': 'حذف المعاملة',
+    'Delete this record? This cannot be undone.': 'هل تريد حذف هذا السجل؟ لا يمكن التراجع عن هذا الإجراء.',
+    'Name (Person)': 'الاسم (الشخص)',
+    'Optional notes...': 'ملاحظات اختيارية...',
+    'e.g. Mathematics': 'مثال: رياضيات',
+    'e.g. PhD': 'مثال: ماستر، دكتوراه',
+    'Photo': 'الصورة الشخصية',
+    'Image': 'الصورة',
+    'Refresh': 'تحديث',
+    'Date': 'التاريخ',
+    'Category': 'الفئة',
+    'Amount': 'المبلغ',
+    'Notes': 'الملاحظات',
+    'Total Income': 'إجمالي المداخيل',
+    'Total Expense': 'إجمالي المصاريف',
+    'Balance': 'الرصيد',
+    'Treasury Management': 'تسيير الخزينة',
+    'Add Transaction': 'إضافة معاملة',
+    'Transactions History': 'سجل المعاملات',
     'Save': 'حفظ',
     'Remove': 'إزالة',
     'Add New Admin': 'إضافة مسؤول جديد',
     'Save Admins': 'حفظ المسؤولين',
+    'Manage Admins': 'إدارة المسؤولين',
+    'Manage Administrators': 'إدارة المسؤولين',
+    'New Password': 'كلمة مرور جديدة',
+    'Actions': 'الإجراءات',
+    'No additional admins configured yet.': 'لا يوجد مسؤولون إضافيون حالياً.',
     'Leave blank to keep current': 'اتركه فارغاً للاحتفاظ بكلمة المرور الحالية',
     'Update Teacher': 'تحديث الأستاذ',
     'MALE': 'ذكر',
@@ -173,24 +236,124 @@
     'No Group': 'بدون مجموعة',
     'Select Formation first': 'اختر الدورة أولاً',
     'Group is optional': 'يمكنك تعيين الطالب لمجموعة الآن أو لاحقاً.',
-    'Group assignment failed': 'فشل تعيين المجموعة'
+    'Group assignment failed': 'فشل تعيين المجموعة',
+
+    // ── Groups & Actions ──
+    'Group': 'الفوج',
+    'Groups': 'الأفواج',
+    'Groups & Classes': 'الأفواج والمجموعات',
+    'Create Group': 'إنشاء فوج',
+    'Add Group': 'إضافة فوج',
+    'View Details': 'عرض التفاصيل',
+    'Edit Group': 'تعديل الفوج',
+    'Edit Group Details': 'تعديل تفاصيل الفوج',
+    'Save Changes': 'حفظ التغييرات',
+    'Add Students': 'إضافة طلاب',
+    'Delete Group': 'حذف الفوج',
+    'View Students': 'عرض الطلاب',
+    'students': 'طالب',
+    'Students': 'الطلاب',
+    'Delete this group and remove all students from it?': 'هل تريد حذف هذا الفوج وإزالة جميع الطلاب منه؟',
+    'All students already assigned': 'تم تعيين جميع الطلاب بالفعل',
+    'Select at least one student': 'اختر طالباً واحداً على الأقل',
+    'Loading students...': 'جاري تحميل الطلاب...',
+    'Loading teachers...': 'جاري تحميل الأساتذة...',
+    'Loading groups...': 'جاري تحميل الأفواج...',
+    'Students added successfully': 'تمت إضافة الطلاب بنجاح',
+    'No teacher': 'بدون أستاذ',
+    'No classroom': 'بدون قسم',
+    'Details': 'التفاصيل',
+    'Group Details': 'تفاصيل الفوج',
+    'Back': 'رجوع',
+    'Dates': 'التواريخ',
+    'Actions': 'الإجراءات',
+    'Teacher': 'الأستاذ',
+    'Formation': 'الدورة',
+    'Classroom': 'القسم',
+    'Unlimited': 'غير محدود',
+    'Max Capacity': 'أقصى سعة',
+    'Max Students': 'أقصى سعة للطلاب',
+    'Leave blank for unlimited': 'اتركه فارغاً لعدد غير محدود',
+    'Enrolled Students': 'الطلاب المسجلون',
+    'Registered Students': 'الطلاب المسجلون',
+    'All students assigned to this group.': 'جميع الطلاب المعينين والنشطين في هذا الفوج',
+    'All students assigned and active in this group': 'جميع الطلاب المعينين والنشطين في هذا الفوج',
+    'Setup a new class or group for students': 'إعداد فوج أو صف دراسي جديد للطلاب',
+    'Search & Select Students:': 'البحث وتحديد الطلاب:',
+    'Search & Select Students': 'البحث وتحديد الطلاب',
+    'Search students...': 'البحث عن طلاب...',
+    'Select students to add to': 'اختر الطلاب لإضافتهم إلى',
+    'Select students to add to this group:': 'اختر الطلاب لإضافتهم إلى هذا الفوج:',
+    'Add Selected Students': 'إضافة الطلاب المحددين',
+    'All Formations': 'جميع الدورات',
+    'Select Formation': 'اختر الدورة',
+    'Select Teacher': 'اختر الأستاذ',
+    'No groups found. Create one using the button above.': 'لم يتم العثور على أي فوج. قم بإنشاء فوج باستخدام الزر أعلاه.',
+    'No groups found. Create one using the form.': 'لم يتم العثور على أي فوج. قم بإنشاء فوج باستخدام النموذج.',
+    'Select a teacher for this group. If the formation already has a teacher, it will be auto-selected.': 'اختر أستاذاً لهذا الفوج. إذا كانت الدورة تحتوي بالفعل على أستاذ، فسيتم تحديده تلقائياً.',
+    'Teacher auto-selected from formation. You can override it if needed.': 'تم تحديد الأستاذ تلقائياً من الدورة. يمكنك تغييره إذا لزم الأمر.',
+    'Formation already has a teacher. You can override the selected teacher.': 'الدورة تحتوي بالفعل على أستاذ. يمكنك تغيير الأستاذ المحدد.',
+    'Modify group configuration, schedule, and capacity': 'تعديل إعدادات الفوج والجدول الزمني والسعة',
+    'Basic Information': 'المعلومات الأساسية',
+    'Teacher & Classroom': 'الأستاذ والقاعة',
+    'Schedule & Capacity': 'الجدول الزمني والسعة',
+    'Select a teacher for this group.': 'اختر أستاذاً لهذا الفوج.',
+    'All Status': 'جميع الحالات',
+    'Generate Cards': 'إصدار البطاقات',
+    'Search by name...': 'البحث بالاسم...',
+    'Search student to add...': 'البحث عن طالب لإضافته...',
+    'Photo': 'الصورة',
+    'Reg #': 'رقم التسجيل',
+    'Reg': 'رقم التسجيل',
+    'Parent': 'الولي',
+    'Enrolled': 'تاريخ التسجيل',
+    'View': 'عرض',
+    'Edit': 'تعديل',
+    'Remove': 'إزالة',
+    'Remove from Group': 'إزالة من الفوج',
+    'Remove this student from the group?': 'هل تريد إزالة هذا الطالب من الفوج؟',
+    'No matching students found': 'لم يتم العثور على طلاب مطابقين',
+    'Adding': 'جاري الإضافة',
+    'Adding...': 'جاري الإضافة...',
+    'No formation assigned': 'لم يتم تعيين دورة',
+    'No classroom assigned': 'لم يتم تعيين قسم',
+    'Loading Group Details...': 'جاري تحميل تفاصيل الفوج...',
+    'Loading Group...': 'جاري تحميل الفوج...',
+    'No students found': 'لا يوجد طلاب',
+    'Close': 'إغلاق',
+    'Optional': 'اختياري',
+    'cap': 'سعة'
   };
-  function t(s) { return currentLang === 'ar' ? (AR[s] || s) : s; }
+  function t(s) {
+    if (currentLang !== 'ar') return s;
+    if (AR[s] !== undefined) return AR[s];
+    if (window.AppI18n && window.AppI18n.dict && window.AppI18n.dict[s] !== undefined) return window.AppI18n.dict[s];
+    return s;
+  }
   function applyTranslations(root) {
     if (currentLang !== 'ar' || !root) return;
+    function lookup(k) {
+      if (!k) return null;
+      return AR[k] || (window.AppI18n && window.AppI18n.dict && window.AppI18n.dict[k]);
+    }
     root.querySelectorAll('[data-i18n]').forEach(function (el) {
-      var k = el.getAttribute('data-i18n'), v = AR[k];
+      var k = el.getAttribute('data-i18n'), v = lookup(k);
       if (v) el.textContent = v;
     });
     // Translate placeholder attributes
-    root.querySelectorAll('[data-i18n-ph]').forEach(function (el) {
-      var k = el.getAttribute('data-i18n-ph'), v = AR[k];
+    root.querySelectorAll('[data-i18n-ph], [data-i18n-placeholder]').forEach(function (el) {
+      var k = el.getAttribute('data-i18n-ph') || el.getAttribute('data-i18n-placeholder'), v = lookup(k);
       if (v) el.placeholder = v;
     });
     // Translate option elements
     root.querySelectorAll('option[data-i18n]').forEach(function (el) {
-      var k = el.getAttribute('data-i18n'), v = AR[k];
+      var k = el.getAttribute('data-i18n'), v = lookup(k);
       if (v) el.textContent = v;
+    });
+    // Translate title attributes
+    root.querySelectorAll('[data-i18n-title]').forEach(function (el) {
+      var k = el.getAttribute('data-i18n-title'), v = lookup(k);
+      if (v) el.setAttribute('title', v);
     });
   }
   if (currentLang === 'ar') {
@@ -631,46 +794,38 @@
     var container = document.getElementById('existing-admins-list');
     if (!container) return;
     if (!admins.length) {
-      container.innerHTML = '<div class="text-muted" style="margin-bottom:16px"><i class="fa fa-info-circle"></i> No additional admins configured yet.</div>';
+      container.innerHTML = '<tr class="no-admins-row"><td colspan="6" class="text-muted" style="text-align:center; padding:20px;"><i class="fa fa-info-circle"></i> ' + t('No additional admins configured yet.') + '</td></tr>';
       return;
     }
     container.innerHTML = admins.map(function (admin) {
-      return '<div class="additional-admin-card" data-admin-id="' + admin.id + '">' +
-        '<div class="row">' +
-        '<div class="col-md-3"><div class="form-group"><label>' + t('First Name') + '</label><input type="text" class="form-control admin-first-name" value="' + esc(admin.first_name || '') + '"></div></div>' +
-        '<div class="col-md-3"><div class="form-group"><label>' + t('Last Name') + '</label><input type="text" class="form-control admin-last-name" value="' + esc(admin.last_name || '') + '"></div></div>' +
-        '<div class="col-md-4"><div class="form-group"><label>' + t('Email') + '</label><input type="email" class="form-control admin-email" value="' + esc(admin.email || '') + '"></div></div>' +
-        '<div class="col-md-2"><div class="form-group"><label>' + t('Status') + '</label><select class="form-control admin-is-active"><option value="1"' + (admin.is_active ? ' selected' : '') + '>' + t('Active') + '</option><option value="0"' + (!admin.is_active ? ' selected' : '') + '>' + t('Inactive') + '</option></select></div></div>' +
-        '</div>' +
-        '<div class="row">' +
-        '<div class="col-md-6"><div class="form-group"><label>' + t('New Password') + '</label><input type="password" class="form-control admin-password" placeholder="' + t('Leave blank to keep current') + '"></div></div>' +
-        '<div class="col-md-6 admin-card-actions">' +
-        '<button type="button" class="btn admin-save-button" data-admin-id="' + admin.id + '"><i class="fa fa-save"></i> ' + t('Save') + '</button>' +
-        '<button type="button" class="btn admin-delete-button" data-admin-id="' + admin.id + '"><i class="fa fa-trash"></i> ' + t('Remove') + '</button>' +
-        '</div>' +
-        '</div>' +
-        '</div>';
+      return '<tr class="additional-admin-card" data-admin-id="' + admin.id + '">' +
+        '<td><label class="admin-cell-label">' + t('First Name') + '</label><input type="text" class="form-control admin-first-name" value="' + esc(admin.first_name || '') + '" placeholder="' + t('First Name') + '"></td>' +
+        '<td><label class="admin-cell-label">' + t('Last Name') + '</label><input type="text" class="form-control admin-last-name" value="' + esc(admin.last_name || '') + '" placeholder="' + t('Last Name') + '"></td>' +
+        '<td><label class="admin-cell-label">' + t('Email') + '</label><input type="email" class="form-control admin-email" value="' + esc(admin.email || '') + '" placeholder="' + t('Email') + '"></td>' +
+        '<td><label class="admin-cell-label">' + t('Status') + '</label><select class="form-control admin-is-active"><option value="1"' + (admin.is_active ? ' selected' : '') + '>' + t('Active') + '</option><option value="0"' + (!admin.is_active ? ' selected' : '') + '>' + t('Inactive') + '</option></select></td>' +
+        '<td><label class="admin-cell-label">' + t('New Password') + '</label><input type="password" class="form-control admin-password" placeholder="' + t('Leave blank to keep current') + '"></td>' +
+        '<td class="admin-card-actions">' +
+        '<button type="button" class="btn admin-save-button" data-admin-id="' + admin.id + '" title="' + t('Save') + '"><i class="fa fa-save"></i> <span>' + t('Save') + '</span></button>' +
+        '<button type="button" class="btn admin-delete-button" data-admin-id="' + admin.id + '" title="' + t('Remove') + '"><i class="fa fa-trash"></i> <span>' + t('Remove') + '</span></button>' +
+        '</td>' +
+        '</tr>';
     }).join('');
   }
 
   function addAdditionalAdminRow() {
     var container = document.getElementById('additional-admins-list'); if (!container) return;
-    var row = document.createElement('div');
+    var row = document.createElement('tr');
     row.className = 'additional-admin-row';
     row.setAttribute('data-new-admin', '1');
     row.innerHTML =
-      '<div class="row">' +
-      '<div class="col-md-3"><div class="form-group"><label>' + t('First Name') + '</label><input type="text" name="additional_admin_first_name[]" class="form-control" required></div></div>' +
-      '<div class="col-md-3"><div class="form-group"><label>' + t('Last Name') + '</label><input type="text" name="additional_admin_last_name[]" class="form-control" required></div></div>' +
-      '<div class="col-md-4"><div class="form-group"><label>' + t('Email') + '</label><input type="email" name="additional_admin_email[]" class="form-control" required></div></div>' +
-      '<div class="col-md-2"><div class="form-group"><label>' + t('Status') + '</label><select name="additional_admin_is_active[]" class="form-control"><option value="1">' + t('Active') + '</option><option value="0">' + t('Inactive') + '</option></select></div></div>' +
-      '</div>' +
-      '<div class="row">' +
-      '<div class="col-md-6"><div class="form-group"><label>' + t('Password') + '</label><input type="password" name="additional_admin_password[]" class="form-control" required></div></div>' +
-      '<div class="col-md-6 admin-card-actions">' +
-      '<button type="button" class="btn remove-additional-admin"><i class="fa fa-times"></i> ' + t('Remove') + '</button>' +
-      '</div>' +
-      '</div>';
+      '<td><label class="admin-cell-label">' + t('First Name') + '</label><input type="text" name="additional_admin_first_name[]" class="form-control" required placeholder="' + t('First Name') + '"></td>' +
+      '<td><label class="admin-cell-label">' + t('Last Name') + '</label><input type="text" name="additional_admin_last_name[]" class="form-control" required placeholder="' + t('Last Name') + '"></td>' +
+      '<td><label class="admin-cell-label">' + t('Email') + '</label><input type="email" name="additional_admin_email[]" class="form-control" required placeholder="' + t('Email') + '"></td>' +
+      '<td><label class="admin-cell-label">' + t('Status') + '</label><select name="additional_admin_is_active[]" class="form-control"><option value="1">' + t('Active') + '</option><option value="0">' + t('Inactive') + '</option></select></td>' +
+      '<td><label class="admin-cell-label">' + t('Password') + '</label><input type="password" name="additional_admin_password[]" class="form-control" required placeholder="' + t('Password') + '"></td>' +
+      '<td class="admin-card-actions">' +
+      '<button type="button" class="btn remove-additional-admin" title="' + t('Remove') + '"><i class="fa fa-times"></i> <span>' + t('Remove') + '</span></button>' +
+      '</td>';
     container.appendChild(row);
   }
 
@@ -913,7 +1068,7 @@
         '<td>' + esc(enrollmentDate) + '</td>' +
         '<td style="white-space: nowrap;">' +
           '<a href="student-profile.html?id=' + r.id + '" class="btn btn-xs btn-success" title="View"><i class="fa fa-eye"></i></a> ' +
-          '<button class="btn btn-xs btn-primary btn-enter-payment" data-student-id="' + r.id + '" title="Enter Payment"><i class="fa fa-dollar"></i></button>' +
+          '<button class="btn btn-xs btn-primary btn-enter-payment" data-student-id="' + r.id + '" title="Enter Payment"><i class="fa fa-plus"></i></button>' +
           '</td>' +
         '</tr>';
     }).join('');
@@ -1531,6 +1686,9 @@
       ['price_monthly', 'price_3_months', 'price_1_year'].forEach(function (field) {
         var el = form.querySelector('[name="' + field + '"]'); if (el && f[field] != null) el.value = f[field];
       });
+      if (typeof window._niveauPreSelect === 'function' && f.niveau) {
+        window._niveauPreSelect(f.niveau);
+      }
       if (f.image) { var pv = document.getElementById('formation-image-preview'); if (pv) pv.src = formationImg(f.image, f.title); }
       if (f.teacher_id && sel) setTimeout(function () { sel.value = f.teacher_id; }, 600);
       setTimeout(function () {
@@ -1719,49 +1877,146 @@
     var filtered = groups.filter(function (g) {
       return !filterFormationId || String(g.formation_id) === String(filterFormationId);
     });
-    if (!filtered.length) { c.innerHTML = '<p class="text-muted text-center">' + t('No groups found. Create one using the form.') + '</p>'; return; }
-    c.innerHTML = filtered.map(function (g) {
-      var chk = '<input type="checkbox" class="row-checkbox group-row-checkbox" value="' + g.id + '" data-type="group" style="transform:scale(1.3); cursor:pointer; margin:0;">';
-      return '<div class="group-card" id="group-card-' + g.id + '">' +
-        '<div class="row">' +
-        '<div class="col-lg-8 col-sm-8 col-xs-12">' +
-        '<h4 style="display:flex; align-items:center; gap:10px;">' + chk + '<span>' + esc(g.name) + '</span></h4>' +
-        '<p class="meta">' +
-        '<i class="fa fa-book"></i> ' + esc(g.formation_title || '-') + ' &nbsp;|&nbsp; ' +
-        '<i class="fa fa-user"></i> ' + esc(g.teacher_name || t('No teacher')) + ' &nbsp;|&nbsp; ' +
-        '<i class="fa fa-building"></i> ' + esc(g.classroom_name || t('No room')) + ' &nbsp;|&nbsp; ' +
-        '<i class="fa fa-users"></i> <span id="group-count-' + g.id + '">' + g.student_count + '</span> ' + t('students') +
-        '</p>' +
-        '<div id="group-students-' + g.id + '"></div>' +
-        '</div>' +
-        '<div class="col-lg-4 col-sm-4 col-xs-12 text-right">' +
-        '<a href="group-info.html?id=' + g.id + '" class="btn btn-sm btn-info" title="' + t('View Details') + '"><i class="fa fa-eye"></i></a> ' +
-        '<a href="edit-group.html?id=' + g.id + '" class="btn btn-sm btn-primary" title="' + t('Edit Group') + '"><i class="fa fa-pencil"></i></a> ' +
-        '<button class="btn btn-sm btn-success" onclick="toggleAddStudents(' + g.id + ')" title="' + t('Add Students') + '"><i class="fa fa-user-plus"></i></button> ' +
-        '<button class="btn btn-sm btn-danger" data-del-group="' + g.id + '" title="' + t('Delete Group') + '"><i class="fa fa-trash"></i></button>' +
-        '</div>' +
-        '</div>' +
-        '<div id="add-students-panel-' + g.id + '" class="add-panel">' +
-        '<p><strong>' + t('Select students to add to this group:') + '</strong></p>' +
-        '<input type="text" class="stu-search" placeholder="' + t('Search...') + '" oninput="filterGroupStudents(this,' + g.id + ')">' +
-        '<div class="stu-list" id="student-list-' + g.id + '"></div>' +
-        '<button class="btn btn-primary btn-sm" style="margin-top:8px" onclick="addStudentsToGroup(' + g.id + ')"><i class="fa fa-save"></i> ' + t('Save') + '</button> ' +
-        '<button class="btn btn-default btn-sm" style="margin-top:8px" onclick="toggleAddStudents(' + g.id + ')">' + t('Cancel') + '</button>' +
-        '</div>' +
-        '</div>';
-    }).join('');
+    var isTable = c.tagName === 'TBODY' || !!c.closest('table');
+    if (!filtered.length) {
+      if (isTable) {
+        c.innerHTML = '<tr><td colspan="8" class="text-center text-muted" style="padding:32px;">' + t('No groups found. Create one using the button above.') + '</td></tr>';
+      } else {
+        c.innerHTML = '<p class="text-muted text-center">' + t('No groups found. Create one using the form.') + '</p>';
+      }
+      return;
+    }
 
-    // Delete group
-    c.addEventListener('click', function (e) {
+    if (isTable) {
+      c.innerHTML = filtered.map(function (g) {
+        var chk = '<input type="checkbox" class="row-checkbox group-row-checkbox" value="' + g.id + '" data-type="group" style="transform:scale(1.2); cursor:pointer; margin:0;">';
+        var dates = (g.start_date ? g.start_date.slice(0, 10) : '-') + ' <span class="text-muted">→</span> ' + (g.end_date ? g.end_date.slice(0, 10) : '-');
+        return '<tr id="group-row-' + g.id + '">' +
+          '<td class="text-center" width="40" style="vertical-align:middle;">' + chk + '</td>' +
+          '<td style="vertical-align:middle;"><div style="display:flex;align-items:center;gap:10px;"><span class="group-icon-badge"><i class="fa fa-users"></i></span> <strong style="font-size:14px;color:#0f172a;">' + esc(g.name) + '</strong></div></td>' +
+          '<td style="vertical-align:middle;"><span class="label-formation"><i class="fa fa-book"></i> ' + esc(g.formation_title || '-') + '</span></td>' +
+          '<td style="vertical-align:middle;"><span class="teacher-info"><i class="fa fa-user-circle" style="color:#6366f1;"></i> ' + esc(g.teacher_name || t('No teacher')) + '</span></td>' +
+          '<td style="vertical-align:middle;"><span class="room-info"><i class="fa fa-building" style="color:#10b981;"></i> ' + esc(g.classroom_name || t('No classroom')) + '</span></td>' +
+          '<td style="vertical-align:middle;"><a href="group-info.html?id=' + g.id + '" class="student-count-badge" title="' + t('View Students') + '"><i class="fa fa-user"></i> <span id="group-count-' + g.id + '">' + (g.student_count || 0) + '</span> ' + t('students') + '</a></td>' +
+          '<td style="vertical-align:middle;"><small class="text-muted" style="font-weight:500;">' + dates + '</small></td>' +
+          '<td class="text-center" style="vertical-align:middle; white-space:nowrap; min-width:180px;">' +
+          '<div style="display:inline-flex; align-items:center; justify-content:center; gap:5px; white-space:nowrap;">' +
+          '<a href="group-info.html?id=' + g.id + '" class="btn btn-default btn-sm" style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;padding:0;border-radius:8px;" title="' + t('View Details') + '"><i class="fa fa-eye text-info"></i></a>' +
+          '<a href="edit-group.html?id=' + g.id + '" class="btn btn-default btn-sm" style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;padding:0;border-radius:8px;" title="' + t('Edit Group') + '"><i class="fa fa-pencil text-primary"></i></a>' +
+          '<button type="button" class="btn btn-default btn-sm" style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;padding:0;border-radius:8px;" onclick="openAddStudentsModal(' + g.id + ', \'' + esc(g.name).replace(/'/g, "\\'") + '\')" title="' + t('Add Students') + '"><i class="fa fa-user-plus text-success"></i></button>' +
+          '<button type="button" class="btn btn-default btn-sm" style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;padding:0;border-radius:8px;" data-del-group="' + g.id + '" title="' + t('Delete Group') + '"><i class="fa fa-trash text-danger"></i></button>' +
+          '</div>' +
+          '</td>' +
+          '</tr>';
+      }).join('');
+    } else {
+      c.innerHTML = filtered.map(function (g) {
+        var chk = '<input type="checkbox" class="row-checkbox group-row-checkbox" value="' + g.id + '" data-type="group" style="transform:scale(1.3); cursor:pointer; margin:0;">';
+        return '<div class="group-card" id="group-card-' + g.id + '">' +
+          '<div class="row">' +
+          '<div class="col-lg-8 col-sm-8 col-xs-12">' +
+          '<h4 style="display:flex; align-items:center; gap:10px;">' + chk + '<span>' + esc(g.name) + '</span></h4>' +
+          '<p class="meta">' +
+          '<i class="fa fa-book"></i> ' + esc(g.formation_title || '-') + ' &nbsp;|&nbsp; ' +
+          '<i class="fa fa-user"></i> ' + esc(g.teacher_name || t('No teacher')) + ' &nbsp;|&nbsp; ' +
+          '<i class="fa fa-building"></i> ' + esc(g.classroom_name || t('No room')) + ' &nbsp;|&nbsp; ' +
+          '<i class="fa fa-users"></i> <span id="group-count-' + g.id + '">' + g.student_count + '</span> ' + t('students') +
+          '</p>' +
+          '<div id="group-students-' + g.id + '"></div>' +
+          '</div>' +
+          '<div class="col-lg-4 col-sm-4 col-xs-12 text-right">' +
+          '<a href="group-info.html?id=' + g.id + '" class="btn btn-sm btn-info" title="' + t('View Details') + '"><i class="fa fa-eye"></i></a> ' +
+          '<a href="edit-group.html?id=' + g.id + '" class="btn btn-sm btn-primary" title="' + t('Edit Group') + '"><i class="fa fa-pencil"></i></a> ' +
+          '<button class="btn btn-sm btn-success" onclick="toggleAddStudents(' + g.id + ')" title="' + t('Add Students') + '"><i class="fa fa-user-plus"></i></button> ' +
+          '<button class="btn btn-sm btn-danger" data-del-group="' + g.id + '" title="' + t('Delete Group') + '"><i class="fa fa-trash"></i></button>' +
+          '</div>' +
+          '</div>' +
+          '<div id="add-students-panel-' + g.id + '" class="add-panel">' +
+          '<p><strong>' + t('Select students to add to this group:') + '</strong></p>' +
+          '<input type="text" class="stu-search" placeholder="' + t('Search...') + '" oninput="filterGroupStudents(this,' + g.id + ')">' +
+          '<div class="stu-list" id="student-list-' + g.id + '"></div>' +
+          '<button class="btn btn-primary btn-sm" style="margin-top:8px" onclick="addStudentsToGroup(' + g.id + ')"><i class="fa fa-save"></i> ' + t('Save') + '</button> ' +
+          '<button class="btn btn-default btn-sm" style="margin-top:8px" onclick="toggleAddStudents(' + g.id + ')">' + t('Cancel') + '</button>' +
+          '</div>' +
+          '</div>';
+      }).join('');
+      filtered.forEach(function (g) { loadGroupStudents(g.id); });
+    }
+    applyTranslations(c);
+
+    // Delete group handler
+    c.onclick = function (e) {
       var btn = e.target.closest('[data-del-group]'); if (!btn) return;
       if (!confirm(t('Delete this group and remove all students from it?'))) return;
       request('/api/groups/' + btn.getAttribute('data-del-group'), { method: 'DELETE' })
         .then(loadGroups).catch(function (err) { showAlert('#backend-groups-status', err.message); });
-    });
-
-    // Load students for each group
-    filtered.forEach(function (g) { loadGroupStudents(g.id); });
+    };
   }
+
+  window.openAddStudentsModal = function (groupId, groupName) {
+    var nameEl = document.getElementById('modal-group-name');
+    if (nameEl) nameEl.textContent = groupName || '';
+    var idEl = document.getElementById('modal-group-id');
+    if (idEl) idEl.value = groupId;
+    var list = document.getElementById('modal-student-list');
+    if (list) list.innerHTML = '<p class="text-muted text-center" style="padding:20px;">' + t('Loading...') + '</p>';
+    if (typeof toggleAddStudentsModal === 'function') toggleAddStudentsModal(false);
+
+    request('/api/groups/' + groupId + '/students').then(function (p) {
+      var assigned = (p.data || []).map(function (s) { return s.id; });
+      var available = _allStudents.filter(function (s) { return !assigned.includes(s.id); });
+      if (!list) return;
+      if (!available.length) {
+        list.innerHTML = '<p class="text-muted text-center" style="padding:20px;">' + t('All students already assigned') + '</p>';
+        return;
+      }
+      list.innerHTML = available.map(function (s) {
+        var name = [s.first_name, s.last_name].filter(Boolean).join(' ');
+        var img = avatarUrl(s.photo, name, 'student', s.gender);
+        return '<label class="student-select-item" style="display:flex;align-items:center;gap:10px;padding:8px 10px;cursor:pointer;border-radius:8px;margin-bottom:4px;border:1px solid #f1f5f9;background:#f8fafc;">' +
+          '<input type="checkbox" name="modal_student_ids" value="' + s.id + '" style="cursor:pointer;transform:scale(1.15);margin:0;"> ' +
+          '<img src="' + esc(img) + '" style="width:30px;height:30px;border-radius:50%;object-fit:cover;"> ' +
+          '<div style="flex:1;"><div style="font-weight:600;font-size:13px;color:#1e293b;">' + esc(name) + '</div><small class="text-muted">' + esc(s.registration_number || '') + '</small></div>' +
+          '</label>';
+      }).join('');
+      // Bind search if input exists
+      var search = document.getElementById('modal-student-search');
+      if (search) {
+        search.value = '';
+        search.oninput = function () {
+          var q = this.value.toLowerCase();
+          list.querySelectorAll('label').forEach(function (lbl) {
+            lbl.style.display = lbl.textContent.toLowerCase().includes(q) ? '' : 'none';
+          });
+        };
+      }
+    }).catch(function (err) {
+      if (list) list.innerHTML = '<p class="text-danger text-center" style="padding:20px;">' + err.message + '</p>';
+    });
+  };
+
+  window.saveStudentsToGroupModal = function () {
+    var idEl = document.getElementById('modal-group-id');
+    if (!idEl) return;
+    var groupId = idEl.value;
+    var list = document.getElementById('modal-student-list');
+    var checked = list ? list.querySelectorAll('input[type=checkbox]:checked') : [];
+    var ids = [].slice.call(checked).map(function (cb) { return parseInt(cb.value); });
+    if (!ids.length) { alert(t('Select at least one student')); return; }
+    
+    var btn = document.getElementById('btn-save-group-students');
+    if (btn) btn.disabled = true;
+    request('/api/groups/' + groupId + '/students', { method: 'POST', body: JSON.stringify({ student_ids: ids }) })
+      .then(function (r) {
+        showAlert('#backend-groups-status', r.message || t('Students added successfully'), 'success');
+        loadGroups();
+        if (typeof toggleAddStudentsModal === 'function') toggleAddStudentsModal(true);
+        if (btn) btn.disabled = false;
+      }).catch(function (err) {
+        alert(err.message);
+        if (btn) btn.disabled = false;
+      });
+  };
 
   function loadGroupStudents(groupId) {
     request('/api/groups/' + groupId + '/students').then(function (p) {
@@ -1858,6 +2113,7 @@
       }).then(function () {
         showAlert('#backend-group-form-status', t('Group created successfully'), 'success');
         form.reset(); loadGroups(); if (btn) btn.disabled = false;
+        if (typeof toggleCreateGroupModal === 'function') setTimeout(function(){ toggleCreateGroupModal(true); }, 900);
       }).catch(function (err) { showAlert('#backend-group-form-status', err.message); if (btn) btn.disabled = false; });
     });
   }
@@ -1894,8 +2150,14 @@
         });
       }
       ['name', 'start_date', 'end_date', 'max_students'].forEach(function (f) {
-        var el = form.querySelector('[name="' + f + '"]'); if (el && group[f] != null) el.value = group[f];
+        var el = form.querySelector('[name="' + f + '"]');
+        if (el && group[f] != null) {
+          var val = group[f];
+          if ((f === 'start_date' || f === 'end_date') && val) val = String(val).slice(0, 10);
+          el.value = val;
+        }
       });
+      applyTranslations(form);
     }).catch(function (err) { showAlert('#backend-group-form-status', err.message); });
 
     form.addEventListener('submit', function (e) {
@@ -2062,13 +2324,21 @@
       document.getElementById('gp-formation').textContent = tc.formation_title || t('No formation assigned');
       document.getElementById('gp-classroom').textContent = tc.classroom_name || t('No classroom assigned');
 
-      document.getElementById('gp-start-date').textContent = tc.start_date || '-';
-      document.getElementById('gp-end-date').textContent = tc.end_date || '-';
+      document.getElementById('gp-start-date').textContent = tc.start_date ? tc.start_date.slice(0, 10) : '-';
+      document.getElementById('gp-end-date').textContent = tc.end_date ? tc.end_date.slice(0, 10) : '-';
       document.getElementById('gp-max-students').textContent = tc.max_students || t('Unlimited');
       document.getElementById('gp-created').textContent = tc.created_at ? new Date(tc.created_at).toLocaleDateString() : '-';
 
+      // Edit button link
+      var editLink = document.getElementById('gp-edit-link');
+      if (editLink) editLink.href = 'edit-group.html?id=' + id;
+
       _groupPageStudents = tc.students || [];
       renderGroupStudentsTable(_groupPageStudents);
+
+      // Trigger i18n
+      if (window.AppI18n) window.AppI18n.translateAll(document.getElementById('gp-content'));
+      applyTranslations(document.getElementById('gp-content'));
       
       // Hook up filters
       var searchInput = document.getElementById('gp-search-name');
@@ -2110,7 +2380,7 @@
               }
               
               if (!available.length) {
-                  dropdown.innerHTML = '<div style="padding: 8px; text-align: center; color: #888; font-size: 13px;">' + t('No matching students found') + '</div>';
+                  dropdown.innerHTML = '<div style="padding: 10px; text-align: center; color: #64748b; font-size: 13px;">' + t('No matching students found') + '</div>';
                   dropdown.style.display = 'block';
                   return;
               }
@@ -2119,9 +2389,9 @@
                   var name = esc([s.first_name, s.last_name].filter(Boolean).join(' '));
                   var img = esc(avatarUrl(s.photo, name, 'student', s.gender));
                   var reg = esc(s.registration_number);
-                  return '<div class="autocomplete-item" data-id="' + s.id + '" style="display:flex;align-items:center;padding:8px;gap:10px;cursor:pointer;border-radius:4px;transition:background 0.2s;" onmouseover="this.style.background=\'#f1f5f9\'" onmouseout="this.style.background=\'transparent\'">' +
-                         '<img src="' + img + '" style="width:28px;height:28px;border-radius:50%;object-fit:cover;" onerror="this.src=\'https://ui-avatars.com/api/?name=S&background=27ae60&color=fff&size=28\'">' +
-                         '<div style="line-height:1.2"><div style="font-weight:600;font-size:13px;color:#333">' + name + '</div><div style="font-size:11px;color:#777">' + t('Reg') + ': ' + reg + '</div></div>' +
+                  return '<div class="autocomplete-item" data-id="' + s.id + '" style="display:flex;align-items:center;padding:8px 10px;gap:10px;cursor:pointer;border-radius:8px;margin-bottom:3px;transition:background 0.18s;" onmouseover="this.style.background=\'#f1f5f9\'" onmouseout="this.style.background=\'transparent\'">' +
+                         '<img src="' + img + '" style="width:32px;height:32px;border-radius:50%;object-fit:cover;" onerror="this.src=\'https://ui-avatars.com/api/?name=S&background=27ae60&color=fff&size=32\'">' +
+                         '<div style="line-height:1.2"><div style="font-weight:600;font-size:13px;color:#0f172a">' + name + '</div><div style="font-size:11px;color:#64748b">' + t('Reg') + ': ' + reg + '</div></div>' +
                          '</div>';
               }).join('');
               dropdown.style.display = 'block';
@@ -2138,13 +2408,13 @@
                       request('/api/groups/' + id + '/students', { method: 'POST', body: JSON.stringify({ student_ids: [stId] }) })
                         .then(function() {
                             addInput.disabled = false;
-                            addInput.placeholder = 'Search student to add...';
+                            addInput.placeholder = t('Search student to add...');
                             loadGroupProfile(); // Reload to refresh table
                         })
                         .catch(function(err) {
                             alert('Error: ' + err.message);
                             addInput.disabled = false;
-                            addInput.placeholder = 'Search student to add...';
+                            addInput.placeholder = t('Search student to add...');
                         });
                   });
               });
@@ -2172,29 +2442,33 @@
       var tbody = document.getElementById('gp-students-tbody');
       if (!tbody) return;
       if (!rows.length) {
-          tbody.innerHTML = '<tr><td colspan="8" class="text-center">No students found.</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted" style="padding:28px;">' + t('No students found') + '</td></tr>';
           return;
       }
       tbody.innerHTML = rows.map(function(r) {
           var fullName = [r.first_name, r.last_name].filter(Boolean).join(' ');
-          var chk = '<input type="checkbox" class="gp-row-checkbox" value="' + r.id + '" data-type="student" data-name="' + esc(fullName) + '" data-reg="' + esc(r.registration_number) + '" data-photo="' + esc(avatarUrl(r.photo, fullName, 'student', r.gender)) + '" data-formation="' + esc(r.formation_title || '') + '">';
-          var img = '<img src="' + esc(avatarUrl(r.photo, fullName, 'student', r.gender)) + '" style="width:36px;height:36px;border-radius:50%;object-fit:cover" onerror="this.src=\'https://ui-avatars.com/api/?name=S&background=27ae60&color=fff&size=36\'">';
+          var chk = '<input type="checkbox" class="gp-row-checkbox" value="' + r.id + '" data-type="student" data-name="' + esc(fullName) + '" data-reg="' + esc(r.registration_number) + '" data-photo="' + esc(avatarUrl(r.photo, fullName, 'student', r.gender)) + '" data-formation="' + esc(r.formation_title || '') + '" style="cursor:pointer; transform:scale(1.2); margin:0;">';
+          var img = '<img class="student-photo-circle" src="' + esc(avatarUrl(r.photo, fullName, 'student', r.gender)) + '" onerror="this.src=\'https://ui-avatars.com/api/?name=S&background=27ae60&color=fff&size=38\'">';
+          var statusBadge = r.is_active 
+              ? '<span class="label label-success" style="border-radius:20px; padding:3px 10px; font-weight:600;"><i class="fa fa-check-circle"></i> ' + t('Active') + '</span>'
+              : '<span class="label label-danger" style="border-radius:20px; padding:3px 10px; font-weight:600;"><i class="fa fa-times-circle"></i> ' + t('Inactive') + '</span>';
           
           return '<tr>' +
-              '<td>' + chk + '</td>' +
-              '<td>' + img + '</td>' +
-              '<td>' + esc(r.registration_number) + '</td>' +
-              '<td>' + esc(fullName) + '</td>' +
-              '<td>' + (r.is_active ? '<span class="label label-success">Active</span>' : '<span class="label label-danger">Inactive</span>') + '</td>' +
+              '<td class="text-center" width="40">' + chk + '</td>' +
+              '<td class="text-center" width="54">' + img + '</td>' +
+              '<td><span class="label" style="background:#f1f5f9; color:#475569; font-weight:600; border-radius:6px; font-size:12px; border:1px solid #e2e8f0;">' + esc(r.registration_number) + '</span></td>' +
+              '<td><strong style="color:#0f172a;">' + esc(fullName) + '</strong></td>' +
+              '<td>' + statusBadge + '</td>' +
               '<td>' + esc(r.parent_name || '-') + '</td>' +
-              '<td>' + esc(formatGmtPlusOneDate(r.enrollment_date)) + '</td>' +
-              '<td>' +
-                  '<a href="student-profile.html?id=' + r.id + '" class="btn btn-xs btn-success" title="View"><i class="fa fa-eye"></i></a> ' +
-                  '<a href="edit-student.html?id=' + r.id + '" class="btn btn-xs btn-info" title="Edit"><i class="fa fa-pencil"></i></a> ' +
-                  '<button class="btn btn-xs btn-warning" data-del-group-student="' + r.id + '" title="Remove from Group"><i class="fa fa-chain-broken"></i></button>' +
+              '<td><small class="text-muted">' + esc(formatGmtPlusOneDate(r.enrollment_date)) + '</small></td>' +
+              '<td class="text-center" style="white-space:nowrap;">' +
+                  '<a href="student-profile.html?id=' + r.id + '" class="btn-table-action btn-table-view" title="' + t('View') + '"><i class="fa fa-eye"></i></a>' +
+                  '<a href="edit-student.html?id=' + r.id + '" class="btn-table-action btn-table-edit" title="' + t('Edit') + '"><i class="fa fa-pencil"></i></a>' +
+                  '<button type="button" class="btn-table-action btn-table-remove" data-del-group-student="' + r.id + '" title="' + t('Remove from Group') + '"><i class="fa fa-chain-broken"></i></button>' +
               '</td>' +
           '</tr>';
       }).join('');
+      applyTranslations(tbody);
       
       // Attach remove events
       var tableEl = document.getElementById('gp-students-table');
@@ -2209,7 +2483,7 @@
       newTableEl.addEventListener('click', function (e) {
           var btn = e.target.closest('[data-del-group-student]');
           if (!btn) return;
-          if (!confirm('Remove this student from the group?')) return;
+          if (!confirm(t('Remove this student from the group?'))) return;
           var stId = btn.getAttribute('data-del-group-student');
           var groupId = urlParam('id');
           request('/api/groups/' + groupId + '/students/' + stId, { method: 'DELETE' })

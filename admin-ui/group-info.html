@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <!-- Anti-FOUC & Preloader -->
@@ -20,22 +20,423 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Group Details | School System Admin</title>
     <link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/font-awesome.min.css">
     <link rel="stylesheet" href="css/sidebar.css">
     <style>
-        body { font-family: 'Inter', sans-serif; background: #f4f6fa; }
-        .card-panel { background: #fff; border-radius: 14px; padding: 30px; box-shadow: 0 2px 12px rgba(0,0,0,.06); margin-bottom: 20px; }
-        .profile-header { display: flex; align-items: center; gap: 24px; margin-bottom: 30px; border-bottom: 1px solid #eee; padding-bottom: 24px; }
-        .profile-title h3 { margin: 0; font-size: 24px; font-weight: 700; color: #222; }
-        .profile-title p { margin: 6px 0 0; color: #666; font-size: 14px; display: flex; align-items: center; gap: 6px; }
-        .detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px; }
-        .detail-item { background: #f8f9fc; padding: 16px; border-radius: 8px; border-left: 4px solid #4f6eff; }
-        .detail-item label { display: block; margin: 0 0 4px; font-size: 12px; color: #777; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
-        .detail-item .val { font-size: 15px; color: #333; font-weight: 500; }
-        .student-card { display: inline-flex; align-items: center; gap: 6px; background: #f0f4ff; border-radius: 20px; padding: 4px 10px; margin: 2px; font-size: 12px; font-weight: 500; }
-        .student-card img { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; }
+        body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #1e293b; }
+
+        /* ── Hero Banner ── */
+        .group-hero-card {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 45%, #4338ca 100%);
+            border-radius: 20px;
+            padding: 32px 36px;
+            color: #ffffff;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 12px 35px -8px rgba(49, 46, 129, 0.4);
+            margin-bottom: 24px;
+        }
+
+        .group-hero-card::before {
+            content: '';
+            position: absolute;
+            top: -60px;
+            right: -60px;
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.35) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .group-hero-card::after {
+            content: '';
+            position: absolute;
+            bottom: -50px;
+            left: 20%;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.25) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero-top-row {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-info-area {
+            display: flex;
+            align-items: center;
+            gap: 22px;
+            flex-wrap: wrap;
+        }
+
+        .group-avatar-badge {
+            width: 76px;
+            height: 76px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: #ffffff;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            flex-shrink: 0;
+        }
+
+        .group-avatar-badge:hover {
+            transform: scale(1.05) rotate(-3deg);
+        }
+
+        .hero-text h2 {
+            margin: 0 0 8px;
+            font-size: 26px;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -0.02em;
+        }
+
+        .hero-badges-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .hero-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            background: rgba(255, 255, 255, 0.14);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 5px 14px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #f1f5f9;
+        }
+
+        .hero-pill i {
+            color: #a5b4fc;
+        }
+
+        .hero-action-btns {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .btn-hero-edit {
+            background: rgba(255, 255, 255, 0.16);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #ffffff;
+            border-radius: 12px;
+            padding: 9px 18px;
+            font-size: 13.5px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .btn-hero-edit:hover {
+            background: #ffffff;
+            color: #4338ca;
+            text-decoration: none;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+            transform: translateY(-1px);
+        }
+
+        .btn-hero-back {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.85);
+            border-radius: 12px;
+            padding: 9px 16px;
+            font-size: 13.5px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .btn-hero-back:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            text-decoration: none;
+        }
+
+        html[dir="rtl"] .btn-hero-back i {
+            transform: rotate(180deg);
+        }
+
+        /* ── Metric Cards Grid ── */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .metric-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 20px 22px;
+            border: 1px solid #f1f5f9;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+        }
+
+        .metric-icon-wrap {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 19px;
+            flex-shrink: 0;
+        }
+
+        .metric-icon-blue   { background: #eff6ff; color: #2563eb; }
+        .metric-icon-purple { background: #faf5ff; color: #9333ea; }
+        .metric-icon-green  { background: #f0fdf4; color: #16a34a; }
+        .metric-icon-amber  { background: #fffbeb; color: #d97706; }
+
+        .metric-info label {
+            margin: 0 0 2px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            display: block;
+        }
+
+        .metric-info .val {
+            font-size: 16px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        /* ── Students Section Panel ── */
+        .card-panel {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 28px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            margin-bottom: 24px;
+            border: 1px solid #f1f5f9;
+        }
+
+        .section-header-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 22px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .section-title h3 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 700;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title p {
+            margin: 4px 0 0;
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        .controls-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .controls-toolbar .form-control {
+            border-radius: 10px;
+            border: 1.5px solid #cbd5e1;
+            font-size: 13px;
+            background: #f8fafc;
+            transition: all 0.18s;
+            height: 38px;
+        }
+
+        .controls-toolbar .form-control:focus {
+            background: #ffffff;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+        }
+
+        .add-student-search-box {
+            position: relative;
+        }
+
+        #gp-autocomplete-dropdown {
+            display: none;
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            right: 0;
+            min-width: 260px;
+            max-height: 280px;
+            overflow-y: auto;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            box-shadow: 0 14px 35px -8px rgba(0, 0, 0, 0.18);
+            z-index: 1000;
+            padding: 6px;
+        }
+
+        html[dir="rtl"] #gp-autocomplete-dropdown {
+            left: auto;
+            right: 0;
+            text-align: right;
+        }
+
+        #btn-generate-cards {
+            background: linear-gradient(135deg, #0284c7, #0ea5e9);
+            color: #ffffff;
+            border: none;
+            border-radius: 10px;
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+            transition: all 0.2s;
+        }
+
+        #btn-generate-cards:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(14, 165, 233, 0.4);
+        }
+
+        /* ── Students Table ── */
+        #gp-students-table {
+            margin-bottom: 0;
+        }
+
+        #gp-students-table thead th {
+            background: #f8fafc;
+            color: #475569;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-top: none;
+            border-bottom: 2px solid #e2e8f0;
+            padding: 13px 16px;
+            vertical-align: middle;
+        }
+
+        #gp-students-table tbody tr {
+            transition: background 0.15s ease;
+        }
+
+        #gp-students-table tbody tr:hover {
+            background: #f8faff;
+        }
+
+        #gp-students-table td {
+            vertical-align: middle;
+            font-size: 13.5px;
+            color: #334155;
+            padding: 12px 16px;
+            border-color: #f1f5f9;
+        }
+
+        #gp-students-table td:last-child {
+            white-space: nowrap !important;
+            min-width: 130px;
+        }
+
+        .student-photo-circle {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1.5px solid #e2e8f0;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+        }
+
+        .btn-table-action {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            background: #ffffff;
+            color: #475569;
+            font-size: 12px;
+            transition: all 0.18s;
+            margin: 0 2px;
+            text-decoration: none;
+        }
+
+        .btn-table-action:hover {
+            transform: translateY(-1px);
+            text-decoration: none;
+        }
+
+        .btn-table-view:hover { background: #eff6ff; color: #2563eb; border-color: #bfdbfe; }
+        .btn-table-edit:hover { background: #f5f3ff; color: #7c3aed; border-color: #ddd6fe; }
+        .btn-table-remove:hover { background: #fef2f2; color: #dc2626; border-color: #fecaca; }
+
+        /* Loading Spinner */
+        #gp-loading {
+            padding: 60px 20px;
+            text-align: center;
+            color: #6366f1;
+        }
+
+        #gp-loading p {
+            margin-top: 14px;
+            font-weight: 600;
+            color: #64748b;
+        }
     </style>
 
     <link rel="manifest" href="manifest.json">
@@ -57,87 +458,150 @@
         <div class="sb-content">
             <div class="sb-breadcrumb">
                 <i class="fa fa-home"></i>
-                <a href="index.html">Home</a>
+                <a href="index.html" data-i18n="Home">Home</a>
                 <span>/</span>
-                <a href="all-groups.html">Groups</a>
+                <a href="all-groups.html" data-i18n="Groups">Groups</a>
                 <span>/</span>
-                <span>Details</span>
+                <span data-i18n="Details">Details</span>
             </div>
             
-            <div id="gp-container" class="card-panel">
-                <div id="gp-loading" class="text-center" style="padding:40px;color:#888;">
-                    <i class="fa fa-spinner fa-spin fa-2x"></i>
-                    <p style="margin-top:12px;">Loading Group...</p>
+            <div id="gp-container">
+                <!-- Loading State -->
+                <div id="gp-loading">
+                    <i class="fa fa-circle-o-notch fa-spin fa-3x"></i>
+                    <p data-i18n="Loading Group Details...">Loading Group Details...</p>
                 </div>
                 
+                <!-- Main Content -->
                 <div id="gp-content" style="display:none;">
-                    <div class="profile-header">
-                        <div class="profile-title">
-                            <h3 id="gp-name">Group Name</h3>
-                            <p><i class="fa fa-book"></i> <span id="gp-formation"></span></p>
-                            <p><i class="fa fa-building"></i> <span id="gp-classroom"></span></p>
-                        </div>
-                    </div>
-                    
-                    <h4 style="margin-bottom: 20px; font-size: 18px; font-weight: 600;">Group Information</h4>
-                    <div class="detail-grid" style="margin-bottom: 30px;">
-                        <div class="detail-item">
-                            <label>Start Date</label>
-                            <div class="val" id="gp-start-date">-</div>
-                        </div>
-                        <div class="detail-item">
-                            <label>End Date</label>
-                            <div class="val" id="gp-end-date">-</div>
-                        </div>
-                        <div class="detail-item">
-                            <label>Max Students</label>
-                            <div class="val" id="gp-max-students">-</div>
-                        </div>
-                        <div class="detail-item">
-                            <label>Created On</label>
-                            <div class="val" id="gp-created">-</div>
-                        </div>
-                    </div>
-                    
-                    <div class="card-panel" style="margin-top:30px; padding:20px;">
-                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-                            <div>
-                                <h3 style="margin:0;font-size:16px;font-weight:700">Enrolled Students</h3>
-                                <p style="margin:4px 0 0;color:#888;font-size:13px">All students assigned to this group.</p>
-                            </div>
-                            <div style="display:flex; gap:8px;">
-                                <input type="text" id="gp-search-name" class="form-control input-sm" placeholder="Search by name..." style="width:150px;">
-                                <select id="gp-filter-status" class="form-control input-sm" style="width:120px;">
-                                    <option value="">All Status</option>
-                                    <option value="1">Active</option>
-                                    <option value="0">Inactive</option>
-                                </select>
-                                <button id="btn-generate-cards" class="btn btn-secondary btn-sm" style="display:none;"><i class="fa fa-id-card"></i> Generate Cards</button>
-                                
-                                <!-- Add Student Component -->
-                                <div style="position: relative; display: inline-block; margin-left: 15px;">
-                                    <input type="text" id="gp-add-student-input" class="form-control input-sm" placeholder="Search student to add..." style="width:220px;" autocomplete="off">
-                                    <div id="gp-autocomplete-dropdown" style="display:none; position:absolute; top:100%; left:0; width:100%; max-height:300px; overflow-y:auto; background:#fff; border:1px solid #e2e8f0; border-radius:8px; box-shadow:0 10px 25px rgba(0,0,0,0.1); z-index:1000; text-align:left; padding: 4px;">
-                                        <!-- populated by JS -->
+                    <!-- Hero Banner -->
+                    <div class="group-hero-card">
+                        <div class="hero-top-row">
+                            <div class="hero-info-area">
+                                <div class="group-avatar-badge">
+                                    <i class="fa fa-users"></i>
+                                </div>
+                                <div class="hero-text">
+                                    <h2 id="gp-name">Group Name</h2>
+                                    <div class="hero-badges-row">
+                                        <span class="hero-pill">
+                                            <i class="fa fa-book"></i>
+                                            <span id="gp-formation">Formation Title</span>
+                                        </span>
+                                        <span class="hero-pill">
+                                            <i class="fa fa-building"></i>
+                                            <span id="gp-classroom">Classroom</span>
+                                        </span>
                                     </div>
                                 </div>
                             </div>
+                            <div class="hero-action-btns">
+                                <a id="gp-edit-link" href="edit-group.html" class="btn-hero-edit">
+                                    <i class="fa fa-pencil"></i>
+                                    <span data-i18n="Edit Group">Edit Group</span>
+                                </a>
+                                <a href="all-groups.html" class="btn-hero-back">
+                                    <i class="fa fa-arrow-left"></i>
+                                    <span data-i18n="Back">Back</span>
+                                </a>
+                            </div>
                         </div>
+                    </div>
+                    
+                    <!-- Metrics / Information Grid -->
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-icon-wrap metric-icon-blue">
+                                <i class="fa fa-calendar"></i>
+                            </div>
+                            <div class="metric-info">
+                                <label data-i18n="Start Date">Start Date</label>
+                                <div class="val" id="gp-start-date">-</div>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon-wrap metric-icon-purple">
+                                <i class="fa fa-flag-checkered"></i>
+                            </div>
+                            <div class="metric-info">
+                                <label data-i18n="End Date">End Date</label>
+                                <div class="val" id="gp-end-date">-</div>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon-wrap metric-icon-green">
+                                <i class="fa fa-users"></i>
+                            </div>
+                            <div class="metric-info">
+                                <label data-i18n="Max Capacity">Max Capacity</label>
+                                <div class="val" id="gp-max-students">-</div>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon-wrap metric-icon-amber">
+                                <i class="fa fa-clock-o"></i>
+                            </div>
+                            <div class="metric-info">
+                                <label data-i18n="Created On">Created On</label>
+                                <div class="val" id="gp-created">-</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Enrolled Students Table Card -->
+                    <div class="card-panel">
+                        <div class="section-header-bar">
+                            <div class="section-title">
+                                <h3>
+                                    <i class="fa fa-graduation-cap" style="color:#6366f1;"></i>
+                                    <span data-i18n="Enrolled Students">Enrolled Students</span>
+                                </h3>
+                                <p data-i18n="All students assigned and active in this group">All students assigned and active in this group</p>
+                            </div>
+                            <div class="controls-toolbar">
+                                <input type="text" id="gp-search-name" class="form-control" data-i18n-placeholder="Search by name..." placeholder="Search by name..." style="width:160px;">
+                                <select id="gp-filter-status" class="form-control" style="width:120px;">
+                                    <option value="" data-i18n="All Status">All Status</option>
+                                    <option value="1" data-i18n="Active">Active</option>
+                                    <option value="0" data-i18n="Inactive">Inactive</option>
+                                </select>
+                                <button id="btn-generate-cards" class="btn btn-sm" style="display:none;">
+                                    <i class="fa fa-id-card"></i> <span data-i18n="Generate Cards">Generate Cards</span>
+                                </button>
+                                
+                                <!-- Add Student Autocomplete Box -->
+                                <div class="add-student-search-box">
+                                    <input type="text" id="gp-add-student-input" class="form-control" data-i18n-placeholder="Search student to add..." placeholder="Search student to add..." style="width:230px;" autocomplete="off">
+                                    <div id="gp-autocomplete-dropdown"></div>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="table-responsive">
-                            <table id="gp-students-table" class="table table-striped table-hover table-bordered">
-                                <thead><tr>
-                                    <th width="40"><input type="checkbox" class="select-all"></th>
-                                    <th width="50">Photo</th><th>Reg #</th><th>Name</th>
-                                    <th>Status</th><th>Parent</th><th>Enrolled</th><th width="140">Actions</th>
-                                </tr></thead>
+                            <table id="gp-students-table" class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th width="40" class="text-center">
+                                            <input type="checkbox" class="select-all" style="cursor:pointer; transform:scale(1.2); margin:0;">
+                                        </th>
+                                        <th width="54" data-i18n="Photo">Photo</th>
+                                        <th data-i18n="Reg #">Reg #</th>
+                                        <th data-i18n="Name">Name</th>
+                                        <th data-i18n="Status">Status</th>
+                                        <th data-i18n="Parent">Parent</th>
+                                        <th data-i18n="Enrolled">Enrolled</th>
+                                        <th width="140" class="text-center" data-i18n="Actions">Actions</th>
+                                    </tr>
+                                </thead>
                                 <tbody id="gp-students-tbody">
-                                    <tr><td colspan="8" class="text-center">Loading...</td></tr>
+                                    <tr><td colspan="8" class="text-center text-muted py-4" data-i18n="Loading students...">Loading students...</td></tr>
                                 </tbody>
                             </table>
                         </div>
                     </div>
                 </div>
             </div>
+            
             <div id="footer-placeholder"></div>
         </div>
     </div>
@@ -154,6 +618,7 @@
         letter-spacing: 0 !important; word-spacing: 0 !important; font-family: 'Cairo', sans-serif !important;
       }
     </style>
+
     <!-- Hidden Student Card Template -->
     <div id="school-card-template-container" style="position: absolute; left: -9999px; top: -9999px;">
         <div id="school-card-template" style="width:630px;height:400px;background:#0d1f3c;border-radius:10px;color:#fff;font-family:'Cairo',sans-serif;direction:rtl;display:flex;flex-direction:row;overflow:hidden;box-sizing:border-box;position:relative;">
@@ -196,6 +661,7 @@
             </div>
         </div>
     </div>
+
     <script src="js/vendor/jquery-1.12.4.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/components.js"></script>

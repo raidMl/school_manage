@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <!-- Anti-FOUC & Preloader -->
@@ -23,7 +23,409 @@
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/font-awesome.min.css">
     <link rel="stylesheet" href="css/sidebar.css">
-    <style>body{font-family:'Inter',sans-serif}.card-panel{background:#fff;border-radius:14px;padding:24px;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:20px;max-width:860px}</style>
+    <style>
+      body { font-family: 'Inter', sans-serif; background: #f8fafc; }
+
+      .card-panel {
+        background: #ffffff;
+        border-radius: 16px;
+        padding: 24px 28px;
+        box-shadow: 0 4px 20px rgba(0,0,0,.04);
+        margin-bottom: 20px;
+        border: 1px solid #edf2f7;
+      }
+
+      /* ── Page Header Bar ── */
+      .page-header-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 14px;
+        margin-bottom: 22px;
+      }
+
+      .page-header-bar h2 {
+        margin: 0;
+        font-size: 22px;
+        font-weight: 700;
+        color: #0f172a;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .page-header-bar h2 .icon-badge {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #e0e7ff, #ede9fe);
+        color: #4f46e5;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        box-shadow: 0 2px 8px rgba(79, 70, 229, 0.15);
+      }
+
+      .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .header-actions .form-control {
+        border-radius: 10px;
+        border: 1.5px solid #e2e8f0;
+        font-size: 13.5px;
+        height: 40px;
+        background: #ffffff;
+      }
+
+      /* ── Create Group Trigger Button ── */
+      #btn-create-group {
+        background: linear-gradient(135deg, #4f46e5, #6366f1);
+        color: #ffffff;
+        border: none;
+        border-radius: 12px;
+        padding: 10px 22px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+        transition: all 0.22s ease;
+      }
+
+      #btn-create-group:hover {
+        background: linear-gradient(135deg, #4338ca, #4f46e5);
+        box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45);
+        transform: translateY(-1px);
+      }
+
+      /* ── Table Styling ── */
+      #backend-groups-table thead th {
+        background: #f8fafc;
+        color: #475569;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border-top: none;
+        border-bottom: 2px solid #e2e8f0;
+        padding: 14px 16px;
+      }
+
+      #backend-groups-table tbody tr {
+        transition: background 0.15s ease;
+      }
+
+      #backend-groups-table tbody tr:hover {
+        background: #f8faff;
+      }
+
+      #backend-groups-table td {
+        vertical-align: middle;
+        font-size: 14px;
+        color: #334155;
+        padding: 14px 16px;
+        border-color: #f1f5f9;
+      }
+
+      #backend-groups-table th:last-child,
+      #backend-groups-table td:last-child {
+        white-space: nowrap !important;
+        min-width: 175px !important;
+      }
+
+      /* Group pills & elements */
+      .group-icon-badge {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        background: #ede9fe;
+        color: #6366f1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+      }
+
+      .label-formation {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #f0fdf4;
+        color: #166534;
+        border: 1px solid #bbf7d0;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 12.5px;
+        font-weight: 600;
+      }
+
+      .student-count-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #eff6ff;
+        color: #1d4ed8;
+        border: 1px solid #bfdbfe;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12.5px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.15s;
+      }
+      .student-count-badge:hover {
+        background: #dbeafe;
+        color: #1e40af;
+        text-decoration: none;
+      }
+
+      /* ── Centered Modal Overlay System ── */
+      .custom-modal-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 99999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 18px;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transition: opacity 0.24s ease, visibility 0.24s;
+      }
+
+      .custom-modal-overlay.open {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+      }
+
+      .modal-backdrop-custom {
+        position: absolute;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.48);
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
+        z-index: 1;
+      }
+
+      .modal-dialog-custom {
+        position: relative;
+        z-index: 2;
+        width: 100%;
+        max-width: 580px;
+        max-height: 90vh;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        background: #ffffff;
+        border-radius: 20px;
+        box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.35), 0 0 0 1px rgba(99, 102, 241, 0.15);
+        transform: scale(0.94) translateY(8px);
+        transition: transform 0.26s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .custom-modal-overlay.open .modal-dialog-custom {
+        transform: scale(1) translateY(0);
+      }
+
+      .modal-dialog-custom::before {
+        content: '';
+        display: block;
+        height: 5px;
+        width: 100%;
+        background: linear-gradient(90deg, #4f46e5, #06b6d4, #6366f1);
+      }
+
+      .panel-content-wrap {
+        padding: 24px 28px;
+      }
+
+      .panel-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 20px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid #f1f5f9;
+      }
+
+      .panel-title-area {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .panel-icon-wrap {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        background: #e0e7ff;
+        color: #4f46e5;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        flex-shrink: 0;
+      }
+
+      .panel-head h4 {
+        margin: 0 0 3px;
+        font-size: 17px;
+        font-weight: 700;
+        color: #0f172a;
+      }
+
+      .panel-head p {
+        margin: 0;
+        font-size: 12.5px;
+        color: #64748b;
+      }
+
+      .btn-close-panel {
+        background: #f1f5f9;
+        color: #64748b;
+        border: none;
+        border-radius: 50%;
+        width: 34px;
+        height: 34px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 15px;
+        cursor: pointer;
+        transition: all 0.2s;
+        flex-shrink: 0;
+      }
+
+      .btn-close-panel:hover {
+        background: #fee2e2;
+        color: #ef4444;
+        transform: rotate(90deg);
+      }
+
+      .field-group {
+        margin-bottom: 16px;
+      }
+
+      .field-label {
+        font-size: 13.5px;
+        font-weight: 600;
+        color: #334155;
+        margin-bottom: 6px;
+        display: block;
+      }
+
+      .modal-dialog-custom .form-control {
+        border-radius: 10px;
+        border: 1.5px solid #cbd5e1;
+        font-size: 14px;
+        padding: 10px 14px;
+        background: #f8fafc;
+        transition: all 0.18s ease;
+        height: auto;
+        color: #0f172a;
+      }
+
+      .modal-dialog-custom .form-control:focus {
+        background: #ffffff;
+        border-color: #6366f1;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+        outline: none;
+      }
+
+      /* Student list inside modal */
+      .stu-list-box {
+        max-height: 180px;
+        overflow-y: auto;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 8px;
+        background: #f8fafc;
+      }
+
+      .stu-list-box label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 6px 10px;
+        cursor: pointer;
+        border-radius: 8px;
+        margin-bottom: 3px;
+        transition: background 0.15s;
+      }
+
+      .stu-list-box label:hover {
+        background: #e0e7ff;
+      }
+
+      .stu-list-box img {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+
+      .panel-actions {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 22px;
+        padding-top: 16px;
+        border-top: 1px solid #f1f5f9;
+      }
+
+      .btn-save-group {
+        background: linear-gradient(135deg, #4f46e5, #6366f1);
+        color: #ffffff;
+        border: none;
+        border-radius: 10px;
+        padding: 10px 24px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+        transition: all 0.2s ease;
+      }
+
+      .btn-save-group:hover {
+        opacity: 0.95;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 18px rgba(79, 70, 229, 0.35);
+      }
+
+      .btn-cancel-modal {
+        background: #f1f5f9;
+        color: #475569;
+        border: none;
+        border-radius: 10px;
+        padding: 10px 20px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.18s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .btn-cancel-modal:hover {
+        background: #e2e8f0;
+        color: #1e293b;
+      }
+    </style>
 
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#007bff">
@@ -42,64 +444,237 @@
 <div class="sb-main">
 <div id="header-placeholder"></div>
 <div class="sb-content">
-<div class="sb-breadcrumb"><i class="fa fa-home"></i> <a href="index.html">Home</a> <span>/</span> <a href="index.html">Home</a> <span>/</span> <span>Groups</span></div>
+<div class="sb-breadcrumb">
+  <i class="fa fa-home"></i>
+  <a href="index.html" data-i18n="Home">Home</a>
+  <span>/</span>
+  <span data-i18n="Groups & Classes">Groups & Classes</span>
+</div>
 
-<style>
-.group-card{border-left:4px solid #4f6eff;padding:16px;border-radius:8px;background:#fff;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:14px}
-.group-card h4{margin:0 0 4px;font-size:15px;font-weight:700}.group-card .meta{color:#888;font-size:12px;margin-bottom:8px}
-.student-card{display:inline-flex;align-items:center;gap:6px;background:#f0f4ff;border-radius:20px;padding:4px 10px;margin:2px;font-size:12px;font-weight:500}
-.student-card img{width:22px;height:22px;border-radius:50%;object-fit:cover}
-.student-card .rm{cursor:pointer;color:#e74c3c;font-weight:700;margin-left:4px}
-.add-panel{display:none;margin-top:12px;padding:12px;background:#f8f9fc;border-radius:8px}
-.add-panel.open{display:block}
-.stu-list{max-height:200px;overflow-y:auto;border:1px solid #e0e3ef;border-radius:6px;padding:6px}
-.stu-list label{display:flex;align-items:center;gap:8px;padding:5px;cursor:pointer;border-radius:4px}
-.stu-list label:hover{background:#eaf2ff}
-.stu-list img{width:26px;height:26px;border-radius:50%;object-fit:cover}
-.stu-search{width:100%;margin-bottom:6px;padding:6px 10px;border:1px solid #ccc;border-radius:6px}
-html[dir="rtl"] .main-panels-row > div[class*="col-"] { float: right !important; }
-</style>
-<div class="row main-panels-row">
-  <div class="col-lg-4 col-md-5 col-sm-12">
-    <div class="card-panel" style="max-width:none">
-      <h3 style="margin:0 0 16px;font-size:16px;font-weight:700"><i class="fa fa-users" style="color:#4f6eff"></i> Create Group</h3>
+<!-- Header bar -->
+<div class="page-header-bar">
+  <h2>
+    <span class="icon-badge"><i class="fa fa-users"></i></span>
+    <span data-i18n="Groups & Classes">Groups & Classes</span>
+  </h2>
+  <div class="header-actions">
+    <select id="filter-formation" class="form-control" style="width: auto; min-width: 170px;">
+      <option value="" data-i18n="All Formations">All Formations</option>
+    </select>
+    <button id="btn-create-group" type="button" onclick="toggleCreateGroupModal(false)">
+      <i class="fa fa-plus"></i>
+      <span data-i18n="Create Group">Create Group</span>
+    </button>
+  </div>
+</div>
+
+<!-- Full-width Groups Table Card -->
+<div class="card-panel">
+  <div id="backend-groups-status" class="alert" style="display:none"></div>
+  <div class="table-responsive">
+    <table id="backend-groups-table" class="table table-hover">
+      <thead>
+        <tr>
+          <th width="40" class="text-center">
+            <input type="checkbox" class="select-all" style="cursor:pointer; transform:scale(1.2); margin:0;">
+          </th>
+          <th data-i18n="Group Name">Group Name</th>
+          <th data-i18n="Formation">Formation</th>
+          <th data-i18n="Teacher">Teacher</th>
+          <th data-i18n="Classroom">Classroom</th>
+          <th data-i18n="Students">Students</th>
+          <th data-i18n="Dates">Dates</th>
+          <th class="text-center" style="white-space: nowrap; min-width: 180px;" data-i18n="Actions">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="backend-groups-list">
+        <tr><td colspan="8" class="text-center text-muted py-4" data-i18n="Loading...">Loading groups...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Centered Create Group Modal -->
+<div id="create-group-overlay" class="custom-modal-overlay">
+  <div class="modal-backdrop-custom" onclick="toggleCreateGroupModal(true)"></div>
+  <div class="modal-dialog-custom">
+    <div class="panel-content-wrap">
+      <div class="panel-head">
+        <div class="panel-title-area">
+          <div class="panel-icon-wrap">
+            <i class="fa fa-users"></i>
+          </div>
+          <div>
+            <h4 data-i18n="Create Group">Create Group</h4>
+            <p data-i18n="Setup a new class or group for students">Setup a new class or group for students</p>
+          </div>
+        </div>
+        <button type="button" class="btn-close-panel" onclick="toggleCreateGroupModal(true)" title="Close" data-i18n-title="Close">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+
       <div id="backend-group-form-status" class="alert" style="display:none"></div>
+
       <form id="backend-add-group-form">
-        <div class="form-group"><label>Formation <span class="text-danger">*</span></label><select id="group-formation-id" name="formation_id" class="form-control" required><option value="">Loading...</option></select></div>
-        <div class="form-group"><label>Group Name <span class="text-danger">*</span></label><input type="text" name="name" class="form-control" placeholder="e.g. Group A" required></div>
-        <div class="form-group"><label>Classroom</label><select id="group-classroom-id" name="classroom_id" class="form-control"><option value="">No classroom</option></select></div>
-        <div class="form-group"><label>Teacher <span class="text-danger">*</span></label><select id="group-teacher-id" name="teacher_id" class="form-control" required><option value="">Loading teachers...</option></select><small id="group-teacher-note" class="text-muted">Select a teacher for this group.</small></div>
+        <div class="field-group">
+          <label class="field-label"><span data-i18n="Formation">Formation</span> <span class="text-danger">*</span></label>
+          <select id="group-formation-id" name="formation_id" class="form-control" required>
+            <option value="" data-i18n="Loading...">Loading...</option>
+          </select>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label"><span data-i18n="Group Name">Group Name</span> <span class="text-danger">*</span></label>
+          <input type="text" id="group-name-input" name="name" class="form-control" data-i18n-placeholder="e.g. Group A" placeholder="e.g. Group A" required>
+        </div>
+
         <div class="row">
-          <div class="col-md-6"><div class="form-group"><label>Start Date</label><input type="date" name="start_date" class="form-control"></div></div>
-          <div class="col-md-6"><div class="form-group"><label>End Date</label><input type="date" name="end_date" class="form-control"></div></div>
+          <div class="col-sm-6 col-xs-12">
+            <div class="field-group">
+              <label class="field-label"><span data-i18n="Teacher">Teacher</span> <span class="text-danger">*</span></label>
+              <select id="group-teacher-id" name="teacher_id" class="form-control" required>
+                <option value="" data-i18n="Loading teachers...">Loading teachers...</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-sm-6 col-xs-12">
+            <div class="field-group">
+              <label class="field-label" data-i18n="Classroom">Classroom</label>
+              <select id="group-classroom-id" name="classroom_id" class="form-control">
+                <option value="" data-i18n="No classroom">No classroom</option>
+              </select>
+            </div>
+          </div>
         </div>
-        <div class="form-group"><label>Max Students</label><input type="number" name="max_students" class="form-control" placeholder="Leave blank for unlimited" min="1"></div>
-        <div class="form-group">
-          <label>Add Students</label>
-          <input type="text" id="student-search-create" class="stu-search" placeholder="Search students...">
-          <div id="student-select-list-create" class="stu-list"><p class="text-muted" style="margin:8px">Loading...</p></div>
+        <small id="group-teacher-note" class="text-muted" style="display:block; margin-top:-10px; margin-bottom:14px; font-size:11.5px;"></small>
+
+        <div class="row">
+          <div class="col-sm-6 col-xs-12">
+            <div class="field-group">
+              <label class="field-label" data-i18n="Start Date">Start Date</label>
+              <input type="date" name="start_date" class="form-control">
+            </div>
+          </div>
+          <div class="col-sm-6 col-xs-12">
+            <div class="field-group">
+              <label class="field-label" data-i18n="End Date">End Date</label>
+              <input type="date" name="end_date" class="form-control">
+            </div>
+          </div>
         </div>
-        <button type="submit" class="btn btn-primary btn-block btn-lg"><i class="fa fa-save"></i> Create Group</button>
+
+        <div class="field-group">
+          <label class="field-label" data-i18n="Max Students">Max Students</label>
+          <input type="number" name="max_students" class="form-control" data-i18n-placeholder="Leave blank for unlimited" placeholder="Leave blank for unlimited" min="1">
+        </div>
+
+        <div class="field-group" style="margin-bottom:0;">
+          <label class="field-label"><span data-i18n="Add Students">Add Students</span> (<span data-i18n="Optional">Optional</span>)</label>
+          <input type="text" id="student-search-create" class="form-control" style="margin-bottom:8px;" data-i18n-placeholder="Search students..." placeholder="Search students...">
+          <div id="student-select-list-create" class="stu-list-box">
+            <p class="text-muted" style="margin:8px" data-i18n="Loading students...">Loading students...</p>
+          </div>
+        </div>
+
+        <div class="panel-actions">
+          <button type="button" class="btn-cancel-modal" onclick="toggleCreateGroupModal(true)">
+            <i class="fa fa-times"></i>
+            <span data-i18n="Cancel">Cancel</span>
+          </button>
+          <button type="submit" class="btn-save-group">
+            <i class="fa fa-save"></i>
+            <span data-i18n="Create Group">Create Group</span>
+          </button>
+        </div>
       </form>
     </div>
   </div>
-  <div class="col-lg-8 col-md-7 col-sm-12">
-    <div class="card-panel" style="max-width:none">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-        <h3 style="margin:0;font-size:16px;font-weight:700">All Groups</h3>
-        <div style="display:flex;align-items:center;gap:12px;">
-          <label style="margin:0;display:flex;align-items:center;gap:6px;cursor:pointer;"><input type="checkbox" class="select-all"> Select All</label>
-          <select id="filter-formation" class="form-control" style="width:auto"><option value="">All Formations</option></select>
+</div>
+
+<!-- Modal for Adding Students to Existing Group -->
+<div id="add-students-modal-overlay" class="custom-modal-overlay">
+  <div class="modal-backdrop-custom" onclick="toggleAddStudentsModal(true)"></div>
+  <div class="modal-dialog-custom">
+    <div class="panel-content-wrap">
+      <div class="panel-head">
+        <div class="panel-title-area">
+          <div class="panel-icon-wrap" style="background:#dcfce7; color:#16a34a;">
+            <i class="fa fa-user-plus"></i>
+          </div>
+          <div>
+            <h4 data-i18n="Add Students to Group">Add Students to Group</h4>
+            <p><span data-i18n="Group">Group</span>: <strong id="modal-group-name" style="color:#0f172a;"></strong></p>
+          </div>
+        </div>
+        <button type="button" class="btn-close-panel" onclick="toggleAddStudentsModal(true)" title="Close" data-i18n-title="Close">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+
+      <input type="hidden" id="modal-group-id">
+
+      <div class="field-group">
+        <label class="field-label" data-i18n="Search & Select Students">Search & Select Students:</label>
+        <input type="text" id="modal-student-search" class="form-control" style="margin-bottom:10px;" data-i18n-placeholder="Search students..." placeholder="Search students...">
+        <div id="modal-student-list" class="stu-list-box" style="max-height:240px;">
+          <p class="text-muted text-center" style="padding:20px;" data-i18n="Loading...">Loading...</p>
         </div>
       </div>
-      <div id="backend-groups-status" class="alert" style="display:none"></div>
-      <div id="backend-groups-list"><p class="text-muted text-center">Loading groups...</p></div>
+
+      <div class="panel-actions">
+        <button type="button" class="btn-cancel-modal" onclick="toggleAddStudentsModal(true)">
+          <i class="fa fa-times"></i>
+          <span data-i18n="Cancel">Cancel</span>
+        </button>
+        <button type="button" id="btn-save-group-students" class="btn-save-group" onclick="saveStudentsToGroupModal()">
+          <i class="fa fa-save"></i>
+          <span data-i18n="Add Selected Students">Add Selected Students</span>
+        </button>
+      </div>
     </div>
   </div>
 </div>
 
 <div id="footer-placeholder"></div>
 </div></div>
+
+<script>
+  function toggleCreateGroupModal(forceClose) {
+    var overlay = document.getElementById('create-group-overlay');
+    if (!overlay) return;
+    var isOpen = overlay.classList.contains('open');
+    if (forceClose === true || isOpen) {
+      overlay.classList.remove('open');
+    } else {
+      overlay.classList.add('open');
+      setTimeout(function () {
+        var input = document.getElementById('group-name-input');
+        if (input) input.focus();
+      }, 150);
+    }
+  }
+
+  function toggleAddStudentsModal(forceClose) {
+    var overlay = document.getElementById('add-students-modal-overlay');
+    if (!overlay) return;
+    var isOpen = overlay.classList.contains('open');
+    if (forceClose === true || isOpen) {
+      overlay.classList.remove('open');
+    } else {
+      overlay.classList.add('open');
+    }
+  }
+
+  // Close on Escape key
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' || e.keyCode === 27) {
+      toggleCreateGroupModal(true);
+      toggleAddStudentsModal(true);
+    }
+  });
+</script>
+
 <script src="js/vendor/jquery-1.12.4.min.js"></script>
 <script src="js/bootstrap.min.js"></script>
 <script src="js/components.js"></script>

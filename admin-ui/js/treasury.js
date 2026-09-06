@@ -66,6 +66,7 @@
     if (opts.type)      params.append('type',       opts.type);
 
     var url = '/api/treasury' + (params.toString() ? '?' + params.toString() : '');
+    if (typeof getSchoolInfo === 'function') getSchoolInfo();
 
     request(url).then(function (p) {
       allTransactions = p.data || [];
@@ -363,82 +364,198 @@
   /* ═══════════════════════════════════════════════════════════════════════
      INIT
   ═══════════════════════════════════════════════════════════════════════ */
-  window.printReceipt = function(transaction) {
-    var iframe = document.getElementById('print-receipt-iframe');
-    if (!iframe) {
-      iframe = document.createElement('iframe');
-      iframe.id = 'print-receipt-iframe';
-      iframe.style.position = 'absolute';
-      iframe.style.width = '0';
-      iframe.style.height = '0';
-      iframe.style.border = 'none';
-      document.body.appendChild(iframe);
+    var cachedSchool = null;
+  function getSchoolInfo() {
+    if (cachedSchool) return Promise.resolve(cachedSchool);
+    if (window._ctx && window._ctx.school) {
+      cachedSchool = window._ctx.school;
+      return Promise.resolve(cachedSchool);
     }
-    
-    // Format date in GMT+1
-    var dateObj = new Date(transaction.transaction_date);
-    var dateString = isNaN(dateObj.getTime()) ? transaction.transaction_date : dateObj.toLocaleString('en-GB', {
-        timeZone: 'Africa/Algiers',
-        year: 'numeric', month: '2-digit', day: '2-digit', 
-        hour: '2-digit', minute: '2-digit', hour12: false
+    return request('/api/school-setup/settings').then(function (res) {
+      if (res && res.school) cachedSchool = res.school;
+      return cachedSchool;
+    }).catch(function () {
+      return null;
     });
-    
-    var personLine = transaction.person_name ? `<div><strong>الاسم (Name):</strong> ${esc(transaction.person_name)}</div>` : '';
+  }
 
-    var html = `
-      <html>
-        <head>
-          <title>Receipt - ${transaction.id || 'New'}</title>
-          <style>
-            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 40px; text-align: center; direction: rtl; }
-            .receipt-container { border: 2px solid #333; padding: 30px; max-width: 400px; margin: 0 auto; border-radius: 8px; }
-            h2 { color: #333; margin-bottom: 5px; font-size: 24px; }
-            .header { border-bottom: 2px dashed #ccc; padding-bottom: 15px; margin-bottom: 25px; }
-            .details { text-align: right; line-height: 2; margin-bottom: 25px; font-size: 16px; }
-            .amount { font-size: 28px; font-weight: bold; margin-bottom: 25px; padding: 10px; background: #f9f9f9; border: 1px solid #ddd; }
-            .footer { font-size: 14px; color: #555; border-top: 2px dashed #ccc; padding-top: 15px; }
-            @media print {
-              body { padding: 0; }
-              .receipt-container { border: none; }
-            }
-          </style>
-        </head>
-        <body>
-          <div class="receipt-container">
-            <div class="header">
-              <h2>وصل الدفع (Payment Receipt)</h2>
-              <p>التاريخ (Date & Time GMT+1): ${dateString}</p>
-            </div>
-            <div class="details">
-              <div><strong>نوع المعاملة:</strong> ${transaction.type === 'income' ? 'مداخيل (Income)' : 'مصاريف (Expense)'}</div>
-              ${personLine}
-              <div><strong>التصنيف (Category):</strong> ${esc(transaction.category || '-')}</div>
-              <div><strong>ملاحظات (Notes):</strong> ${esc(transaction.notes || '-')}</div>
-            </div>
-            <div class="amount">
-              المبلغ: ${fmtMoney(transaction.amount)} DZD
-            </div>
-            <div class="footer">
-              <p>المسجل: ${esc(transaction.recorded_by_name || '')} ${esc(transaction.recorded_by_last || '')}</p>
-              <p>شكرا لكم</p>
-            </div>
-          </div>
-          <script>
-            window.onload = function() { 
-              setTimeout(function() { 
-                window.print(); 
-              }, 200); 
-            }
-          </script>
-        </body>
-      </html>
-    `;
-    
-    var doc = iframe.contentWindow || iframe.contentDocument;
-    if (doc.document) doc = doc.document;
-    doc.open();
-    doc.write(html);
-    doc.close();
+  function doPrintReceipt(transaction, school) {
+    school = school || cachedSchool || (window._ctx && window._ctx.school) || {};
+
+    var fallbackName = document.querySelector('#backend-school-name')
+      ? document.querySelector('#backend-school-name').textContent.trim()
+      : '';
+    var fallbackLogo = document.querySelector('#sb-school-logo')
+      ? document.querySelector('#sb-school-logo').src
+      : '';
+
+    var schoolName = (school && school.name && school.name.trim())
+      ? school.name.trim()
+      : (fallbackName || 'School System');
+
+    var schoolLogoUrl = (school && school.logo && school.logo.trim())
+      ? school.logo.trim()
+      : '';
+    if (!schoolLogoUrl && fallbackLogo && fallbackLogo.indexOf('loremflickr') === -1) {
+      schoolLogoUrl = fallbackLogo;
+    }
+    if (!schoolLogoUrl) {
+      schoolLogoUrl = 'img/logo/school-manager-logo.png';
+    }
+
+    // Zero-pad the id to 9 digits: e.g. TXN-000000003
+    var rawId = String(transaction.id || '0');
+    var paddedId = 'TXN-' + ('000000000' + rawId).slice(-9);
+
+    // Format date (Algeria GMT+1)
+    var dateObj = new Date(transaction.transaction_date);
+    var dateString = isNaN(dateObj.getTime())
+      ? String(transaction.transaction_date)
+      : dateObj.toLocaleString('en-GB', {
+          timeZone: 'Africa/Algiers',
+          year: 'numeric', month: '2-digit', day: '2-digit',
+          hour: '2-digit', minute: '2-digit', hour12: false
+        });
+
+    // QR payload encodes key payment fields
+    var qrPayload = JSON.stringify({
+      id:       paddedId,
+      school:   schoolName,
+      type:     transaction.type,
+      category: transaction.category || '',
+      amount:   transaction.amount,
+      date:     dateString,
+      person:   transaction.person_name || '',
+      notes:    transaction.notes || '',
+      by:       (transaction.recorded_by_name || '') + ' ' + (transaction.recorded_by_last || '')
+    });
+
+    function writeAndPrint(qrDataUrl) {
+      var personLine = transaction.person_name
+        ? '<div><strong>الاسم (Name):</strong> ' + esc(transaction.person_name) + '</div>'
+        : '';
+
+      var isIncome = transaction.type === 'income';
+      var typeBadge = isIncome
+        ? '<span style="display:inline-block;padding:3px 14px;border-radius:20px;background:#d4edda;color:#155724;font-size:13px;font-weight:600;">&darr; مداخيل &mdash; Income</span>'
+        : '<span style="display:inline-block;padding:3px 14px;border-radius:20px;background:#f8d7da;color:#721c24;font-size:13px;font-weight:600;">&uarr; مصاريف &mdash; Expense</span>';
+
+      var logoHtml = schoolLogoUrl
+        ? '<div style="margin-bottom:8px;"><img src="' + esc(schoolLogoUrl) + '" alt="Logo" style="max-height:65px;max-width:160px;object-fit:contain;border-radius:4px;" onerror="this.style.display=\'none\';"></div>'
+        : '';
+
+      var nameHtml = schoolName
+        ? '<h1 style="margin:0 0 6px;font-size:19px;font-weight:700;color:#1a252f;line-height:1.3;">' + esc(schoolName) + '</h1>'
+        : '';
+
+      var qrSection = qrDataUrl
+        ? '<div style="margin:0 auto 16px;text-align:center;">'
+          + '<img src="' + qrDataUrl + '" width="120" height="120" alt="QR" style="border:1px solid #eee;border-radius:6px;display:inline-block;">'
+          + '<p style="font-size:10px;color:#aaa;margin:4px 0 0;">امسح لقراءة بيانات الوصل</p>'
+          + '</div>'
+        : '';
+
+      var html = [
+        '<!DOCTYPE html><html><head>',
+        '<meta charset="utf-8">',
+        '<title>' + paddedId + '</title>',
+        '<style>',
+        'body{font-family:"Segoe UI",Tahoma,sans-serif;padding:30px;text-align:center;direction:rtl;background:#fff;}',
+        '.rc{border:2px solid #2c3e50;padding:26px 30px;max-width:420px;margin:0 auto;border-radius:10px;}',
+        '.hdr{border-bottom:2px dashed #ccc;padding-bottom:14px;margin-bottom:18px;}',
+        '.subhdr{color:#2c3e50;margin:0 0 4px;font-size:16px;font-weight:700;}',
+        '.txn{font-size:11px;color:#888;letter-spacing:1.5px;font-family:monospace;margin:4px 0 8px;}',
+        '.det{text-align:right;line-height:2.1;margin-bottom:18px;font-size:15px;}',
+        '.det strong{color:#2c3e50;}',
+        '.amt{font-size:30px;font-weight:700;margin-bottom:18px;padding:12px;background:#f4f8fb;border:2px solid #2c3e50;border-radius:8px;color:#1a252f;}',
+        '.ftr{font-size:13px;color:#666;border-top:2px dashed #ccc;padding-top:12px;}',
+        '@media print{body{padding:0;}@page{margin:10mm;}.rc{border:none;}}',
+        '</style></head><body><div class="rc">',
+        '<div class="hdr">',
+        logoHtml,
+        nameHtml,
+        '<div class="subhdr">🏦 وصل الدفع &mdash; Payment Receipt</div>',
+        '<div class="txn">' + paddedId + '</div>',
+        '<div style="font-size:13px;">التاريخ / Date: <strong>' + dateString + '</strong></div>',
+        '</div>',
+        '<div style="margin-bottom:14px;">' + typeBadge + '</div>',
+        '<div class="det">',
+        personLine,
+        '<div><strong>التصنيف (Category):</strong> ' + esc(transaction.category || '-') + '</div>',
+        '<div><strong>ملاحظات (Notes):</strong> ' + esc(transaction.notes || '-') + '</div>',
+        '</div>',
+        '<div class="amt">' + fmtMoney(transaction.amount) + ' <span style="font-size:18px;color:#555;">DZD</span></div>',
+        qrSection,
+        '<div class="ftr">',
+        '<div>المسجّل: <strong>' + esc(transaction.recorded_by_name || '') + ' ' + esc(transaction.recorded_by_last || '') + '</strong></div>',
+        '<div style="margin-top:6px;font-size:10px;color:#bbb;">' + paddedId + '</div>',
+        '<div style="margin-top:6px;">شكراً لكم &middot; Merci &middot; Thank you</div>',
+        '</div></div>',
+        '<scr' + 'ipt>window.onload=function(){setTimeout(function(){window.print();},400);};</scr' + 'ipt>',
+        '</body></html>'
+      ].join('');
+
+      var iframe = document.getElementById('print-receipt-iframe');
+      if (!iframe) {
+        iframe = document.createElement('iframe');
+        iframe.id = 'print-receipt-iframe';
+        iframe.style.cssText = 'position:absolute;width:0;height:0;border:none;left:-9999px;';
+        document.body.appendChild(iframe);
+      }
+      var doc = iframe.contentWindow || iframe.contentDocument;
+      if (doc.document) doc = doc.document;
+      doc.open();
+      doc.write(html);
+      doc.close();
+
+      setTimeout(function() {
+        try {
+          if (iframe.contentWindow) {
+            iframe.contentWindow.focus();
+            iframe.contentWindow.print();
+          }
+        } catch(e) {}
+      }, 700);
+    }
+
+    // Generate QR via qrcodejs (loaded on the page), fall back gracefully
+    try {
+      var tempDiv = document.createElement('div');
+      tempDiv.style.cssText = 'position:fixed;left:-9999px;top:-9999px;width:120px;height:120px;';
+      document.body.appendChild(tempDiv);
+      new QRCode(tempDiv, {
+        text: qrPayload,
+        width: 120,
+        height: 120,
+        colorDark: '#1a252f',
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.M
+      });
+      setTimeout(function() {
+        var canvas = tempDiv.querySelector('canvas');
+        var img = tempDiv.querySelector('img');
+        var qrDataUrl = null;
+        try {
+          if (canvas && canvas.toDataURL) {
+            qrDataUrl = canvas.toDataURL('image/png');
+          }
+        } catch (err) {}
+        if (!qrDataUrl && img && img.src && img.src.indexOf('data:') === 0) {
+          qrDataUrl = img.src;
+        }
+        if (tempDiv.parentNode) tempDiv.parentNode.removeChild(tempDiv);
+        writeAndPrint(qrDataUrl);
+      }, 100);
+    } catch (e) {
+      console.error('QR generation error:', e);
+      writeAndPrint(null);
+    }
+  }
+
+  window.printReceipt = function(transaction) {
+    getSchoolInfo().then(function(school) {
+      doPrintReceipt(transaction, school);
+    });
   };
 
   document.addEventListener('DOMContentLoaded', function () {

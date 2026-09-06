@@ -642,13 +642,33 @@
         '<td style="max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + esc(r.notes || '-') + '</td>' +
         '<td>' + esc(by) + '</td>' +
         '<td style="white-space: nowrap;">' +
-          '<button class="btn btn-xs btn-info" data-view-student="' + r.student_id + '" title="Enter Payment" style="margin-right:4px">' +
-            '<i class="fa fa-dollar"></i></button>' +
-          '<button class="btn btn-xs btn-danger" data-del-ph="' + r.id + '" title="Delete"><i class="fa fa-trash"></i></button>' +
+          '<button class="btn btn-xs btn-success" data-print-ph="' + r.id + '" title="Print Receipt" style="margin-right:3px"><i class="fa fa-print"></i></button>' +
+          '<button class="btn btn-xs btn-warning" data-edit-ph="' + r.id + '" title="Edit" style="margin-right:3px"><i class="fa fa-edit"></i></button>' +
+          '<button class="btn btn-xs btn-info" data-view-student="' + r.student_id + '" title="Enter Payment" style="margin-right:3px">' +
+            '<i class="fa fa-plus"></i></button>' +
+          '<button class="btn btn-xs btn-danger" data-del-ph="' + r.id + '" title="Delete" style="margin-right:3px"><i class="fa fa-trash"></i></button>' +
         '</td>' +
         '</tr>';
     }).join('');
     tr(tbody);
+
+    // Bind print buttons
+    tbody.querySelectorAll('[data-print-ph]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var id = this.getAttribute('data-print-ph');
+        var row = allHistory.find(function (r) { return String(r.id) === String(id); });
+        if (row) printPaymentReceipt(row);
+      });
+    });
+
+    // Bind edit buttons
+    tbody.querySelectorAll('[data-edit-ph]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var id = this.getAttribute('data-edit-ph');
+        var row = allHistory.find(function (r) { return String(r.id) === String(id); });
+        if (row) openEditPaymentModal(row);
+      });
+    });
 
     // Bind delete buttons
     tbody.querySelectorAll('[data-del-ph]').forEach(function (btn) {
@@ -714,6 +734,220 @@
   }
 
   /* ══════════════════════════════════════════════════════════════════════
+     PRINT PAYMENT RECEIPT
+  ══════════════════════════════════════════════════════════════════════ */
+  var _cachedPaySchool = null;
+  function getSchoolInfoForPayments() {
+    if (_cachedPaySchool) return Promise.resolve(_cachedPaySchool);
+    if (window._ctx && window._ctx.school) {
+      _cachedPaySchool = window._ctx.school;
+      return Promise.resolve(_cachedPaySchool);
+    }
+    return request('/api/school-setup/settings').then(function (res) {
+      if (res && res.school) _cachedPaySchool = res.school;
+      return _cachedPaySchool;
+    }).catch(function () { return null; });
+  }
+
+  function printPaymentReceipt(row) {
+    getSchoolInfoForPayments().then(function (school) {
+      school = school || {};
+      var fallbackName = document.querySelector('#backend-school-name')
+        ? document.querySelector('#backend-school-name').textContent.trim() : '';
+      var fallbackLogo = document.querySelector('#sb-school-logo')
+        ? document.querySelector('#sb-school-logo').src : '';
+
+      var schoolName = (school.name && school.name.trim())
+        ? school.name.trim() : (fallbackName || 'School System');
+      var schoolLogoUrl = (school.logo && school.logo.trim()) ? school.logo.trim() : '';
+      if (!schoolLogoUrl && fallbackLogo && fallbackLogo.indexOf('loremflickr') === -1) schoolLogoUrl = fallbackLogo;
+      if (!schoolLogoUrl) schoolLogoUrl = 'img/logo/school-manager-logo.png';
+
+      var rawId = String(row.id || '0');
+      var paddedId = 'PAY-' + ('000000000' + rawId).slice(-9);
+      var studentName = [row.first_name, row.last_name].filter(Boolean).join(' ') || '-';
+      var dateStr = row.payment_date ? String(row.payment_date).split('T')[0] : '-';
+      var byName = [row.recorded_by_name, row.recorded_by_last].filter(Boolean).join(' ') || '-';
+
+      var qrPayload = JSON.stringify({
+        id: paddedId,
+        school: schoolName,
+        student: studentName,
+        reg: row.registration_number || '',
+        formation: row.formation_title || '',
+        amount: row.amount,
+        date: dateStr,
+        method: row.payment_method || '',
+        notes: row.notes || '',
+        by: byName
+      });
+
+      function writeAndPrint(qrDataUrl) {
+        var logoHtml = schoolLogoUrl
+          ? '<div style="margin-bottom:8px;"><img src="' + esc(schoolLogoUrl) + '" alt="Logo" style="max-height:65px;max-width:160px;object-fit:contain;border-radius:4px;" onerror="this.style.display=\'none\';"></div>'
+          : '';
+        var nameHtml = schoolName
+          ? '<h1 style="margin:0 0 6px;font-size:19px;font-weight:700;color:#1a252f;line-height:1.3;">' + esc(schoolName) + '</h1>'
+          : '';
+        var qrSection = qrDataUrl
+          ? '<div style="margin:0 auto 16px;text-align:center;">' +
+              '<img src="' + qrDataUrl + '" width="120" height="120" alt="QR" style="border:1px solid #eee;border-radius:6px;display:inline-block;">' +
+              '<p style="font-size:10px;color:#aaa;margin:4px 0 0;">امسح لقراءة بيانات الوصل</p>' +
+            '</div>'
+          : '';
+        var methodLabels = { cash: 'نقدًا / Cash', bank_transfer: 'تحويل بنكي / Bank Transfer', card: 'بطاقة / Card', other: 'أخرى / Other' };
+        var methodLabel = methodLabels[row.payment_method] || (row.payment_method || '-');
+
+        var html = [
+          '<!DOCTYPE html><html><head>',
+          '<meta charset="utf-8">',
+          '<title>' + paddedId + '</title>',
+          '<style>',
+          'body{font-family:"Segoe UI",Tahoma,sans-serif;padding:30px;text-align:center;direction:rtl;background:#fff;}',
+          '.rc{border:2px solid #2c3e50;padding:26px 30px;max-width:420px;margin:0 auto;border-radius:10px;}',
+          '.hdr{border-bottom:2px dashed #ccc;padding-bottom:14px;margin-bottom:18px;}',
+          '.subhdr{color:#2c3e50;margin:0 0 4px;font-size:16px;font-weight:700;}',
+          '.txn{font-size:11px;color:#888;letter-spacing:1.5px;font-family:monospace;margin:4px 0 8px;}',
+          '.det{text-align:right;line-height:2.1;margin-bottom:18px;font-size:15px;}',
+          '.det strong{color:#2c3e50;}',
+          '.amt{font-size:30px;font-weight:700;margin-bottom:18px;padding:12px;background:#f4f8fb;border:2px solid #2c3e50;border-radius:8px;color:#1a252f;}',
+          '.ftr{font-size:13px;color:#666;border-top:2px dashed #ccc;padding-top:12px;}',
+          '@media print{body{padding:0;}@page{margin:10mm;}.rc{border:none;}}',
+          '</style></head><body><div class="rc">',
+          '<div class="hdr">',
+          logoHtml,
+          nameHtml,
+          '<div class="subhdr">📋 وصل الدفع — Payment Receipt</div>',
+          '<div class="txn">' + paddedId + '</div>',
+          '<div style="font-size:13px;">التاريخ / Date: <strong>' + esc(dateStr) + '</strong></div>',
+          '</div>',
+          '<div class="det">',
+          '<div><strong>الطالب (Student):</strong> ' + esc(studentName) + '</div>',
+          '<div><strong>رقم التسجيل (Reg#):</strong> ' + esc(row.registration_number || '-') + '</div>',
+          '<div><strong>التكوين (Formation):</strong> ' + esc(row.formation_title || '-') + '</div>',
+          '<div><strong>طريقة الدفع (Method):</strong> ' + esc(methodLabel) + '</div>',
+          '<div><strong>ملاحظات (Notes):</strong> ' + esc(row.notes || '-') + '</div>',
+          '</div>',
+          '<div class="amt">' + fmtMoney(row.amount) + ' <span style="font-size:18px;color:#555;">DZD</span></div>',
+          qrSection,
+          '<div class="ftr">',
+          '<div>المسجّل: <strong>' + esc(byName) + '</strong></div>',
+          '<div style="margin-top:6px;font-size:10px;color:#bbb;">' + paddedId + '</div>',
+          '<div style="margin-top:6px;">شكراً لكم · Merci · Thank you</div>',
+          '</div></div>',
+          '<scr' + 'ipt>window.onload=function(){setTimeout(function(){window.print();},400);};</scr' + 'ipt>',
+          '</body></html>'
+        ].join('');
+
+        var iframe = document.getElementById('pay-print-receipt-iframe');
+        if (!iframe) {
+          iframe = document.createElement('iframe');
+          iframe.id = 'pay-print-receipt-iframe';
+          iframe.style.cssText = 'position:absolute;width:0;height:0;border:none;left:-9999px;';
+          document.body.appendChild(iframe);
+        }
+        var doc = iframe.contentWindow || iframe.contentDocument;
+        if (doc.document) doc = doc.document;
+        doc.open(); doc.write(html); doc.close();
+        setTimeout(function () {
+          try { if (iframe.contentWindow) { iframe.contentWindow.focus(); iframe.contentWindow.print(); } } catch (e) {}
+        }, 700);
+      }
+
+      try {
+        var tempDiv = document.createElement('div');
+        tempDiv.style.cssText = 'position:fixed;left:-9999px;top:-9999px;width:120px;height:120px;';
+        document.body.appendChild(tempDiv);
+        new QRCode(tempDiv, { text: qrPayload, width: 120, height: 120, colorDark: '#1a252f', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M });
+        setTimeout(function () {
+          var canvas = tempDiv.querySelector('canvas');
+          var img = tempDiv.querySelector('img');
+          var qrDataUrl = null;
+          try { if (canvas && canvas.toDataURL) qrDataUrl = canvas.toDataURL('image/png'); } catch (e) {}
+          if (!qrDataUrl && img && img.src && img.src.indexOf('data:') === 0) qrDataUrl = img.src;
+          if (tempDiv.parentNode) tempDiv.parentNode.removeChild(tempDiv);
+          writeAndPrint(qrDataUrl);
+        }, 100);
+      } catch (e) {
+        console.error('QR error:', e);
+        writeAndPrint(null);
+      }
+    });
+  }
+
+  /* ══════════════════════════════════════════════════════════════════════
+     EDIT PAYMENT MODAL
+  ══════════════════════════════════════════════════════════════════════ */
+  var _editPayRow = null;
+
+  function openEditPaymentModal(row) {
+    _editPayRow = row;
+    var studentName = [row.first_name, row.last_name].filter(Boolean).join(' ') || '-';
+    var nameEl   = document.getElementById('edit-pay-student-name');
+    var amtEl    = document.getElementById('edit-pay-amount');
+    var dateEl   = document.getElementById('edit-pay-date');
+    var methodEl = document.getElementById('edit-pay-method');
+    var notesEl  = document.getElementById('edit-pay-notes');
+    var statusEl = document.getElementById('edit-payment-status');
+    if (nameEl)   nameEl.value   = studentName;
+    if (amtEl)    amtEl.value    = Number(row.amount || 0).toFixed(2);
+    if (dateEl)   dateEl.value   = (row.payment_date || '').split('T')[0];
+    if (methodEl) methodEl.value = row.payment_method || 'cash';
+    if (notesEl)  notesEl.value  = row.notes || '';
+    if (statusEl) statusEl.style.display = 'none';
+    if (window.jQuery) $('#edit-payment-modal').modal('show');
+  }
+
+  function bindEditPaymentModal() {
+    var form = document.getElementById('edit-payment-form');
+    if (!form) return;
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (!_editPayRow) return;
+      var statusEl = document.getElementById('edit-payment-status');
+      var saveBtn  = document.getElementById('btn-save-edit-payment');
+      var amount   = parseFloat(document.getElementById('edit-pay-amount').value);
+      var date     = document.getElementById('edit-pay-date').value;
+      var method   = document.getElementById('edit-pay-method').value;
+      var notes    = document.getElementById('edit-pay-notes').value.trim();
+
+      if (!amount || amount <= 0) { showAlert(statusEl, 'Valid amount required.', 'danger'); return; }
+      if (!date)                  { showAlert(statusEl, 'Date is required.', 'danger'); return; }
+
+      if (saveBtn) saveBtn.disabled = true;
+      hideAlert(statusEl);
+
+      request('/api/payment-history/' + _editPayRow.id, {
+        method: 'PUT',
+        body: JSON.stringify({ amount: amount, payment_date: date, payment_method: method, notes: notes || null })
+      }).then(function (res) {
+        if (window.jQuery) $('#edit-payment-modal').modal('hide');
+        // Update row in allHistory cache
+        var updated = res.data || {};
+        allHistory = allHistory.map(function (r) {
+          if (String(r.id) === String(_editPayRow.id)) {
+            return Object.assign({}, r, {
+              amount: updated.amount || amount,
+              payment_date: updated.payment_date || date,
+              payment_method: updated.payment_method || method,
+              notes: updated.notes !== undefined ? updated.notes : (notes || null)
+            });
+          }
+          return r;
+        });
+        var search = (document.getElementById('hist-search-input') || {}).value || '';
+        renderHistoryRows(allHistory, search);
+        loadStats();
+        _editPayRow = null;
+      }).catch(function (err) {
+        showAlert(statusEl, 'Error: ' + err.message, 'danger');
+      }).then(function () {
+        if (saveBtn) saveBtn.disabled = false;
+      });
+    });
+  }
+
+  /* ══════════════════════════════════════════════════════════════════════
      DELETE MODAL
   ══════════════════════════════════════════════════════════════════════ */
   var _deleteId = null, _deleteCallback = null;
@@ -765,6 +999,7 @@
     bindPaymentForm();
     bindHistoryFilters();
     bindDeleteModal();
+    bindEditPaymentModal();
     initDashboardTab();
 
     // Global hook for backend.js overview "Enter Payment" button

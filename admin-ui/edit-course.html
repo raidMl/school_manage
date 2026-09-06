@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <!-- Anti-FOUC & Preloader -->
@@ -6,16 +6,10 @@
     <script>
       (function() {
         var lang = localStorage.getItem('app_lang') || 'ar';
-        if(lang === 'ar') {
-          document.documentElement.dir = 'rtl';
-          document.documentElement.lang = 'ar';
-        } else {
-          document.documentElement.dir = 'ltr';
-          document.documentElement.lang = 'en';
-        }
+        if(lang === 'ar') { document.documentElement.dir = 'rtl'; document.documentElement.lang = 'ar'; }
+        else { document.documentElement.dir = 'ltr'; document.documentElement.lang = 'en'; }
       })();
     </script>
-
     <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Edit Formation | School System Admin</title>
     <link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico">
@@ -23,17 +17,37 @@
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/font-awesome.min.css">
     <link rel="stylesheet" href="css/sidebar.css">
-    <style>body{font-family:'Inter',sans-serif}.card-panel{background:#fff;border-radius:14px;padding:24px;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:20px;max-width:860px}</style>
-
+    <style>
+      body { font-family: 'Inter', sans-serif; }
+      .form-card { background: #fff; border-radius: 16px; box-shadow: 0 4px 24px rgba(0,0,0,.08); max-width: 900px; width: 100%; margin: 0 auto 24px auto; overflow: hidden; }
+      .sb-breadcrumb { max-width: 900px; margin: 0 auto 14px auto; }
+      .form-card-header { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); padding: 18px 26px; color: #fff; }
+      .form-card-header h3 { margin: 0; font-size: 17px; font-weight: 700; }
+      .form-card-header p { margin: 3px 0 0; font-size: 12px; opacity: .85; }
+      .form-card-body { padding: 20px 26px 22px; }
+      .sec-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #9ca3af; border-bottom: 1.5px solid #f0f4f8; padding-bottom: 5px; margin: 16px 0 10px; }
+      .sec-title:first-child { margin-top: 0; }
+      .form-group { margin-bottom: 10px; }
+      .form-group label { font-size: 12px; font-weight: 600; color: #374151; margin-bottom: 3px; display: block; }
+      .form-group .help-block { font-size: 11px; color: #9ca3af; margin-top: 3px; }
+      .form-control { height: 34px; font-size: 13px; border-radius: 8px; border: 1.5px solid #e5e7eb; padding: 4px 10px; transition: border-color .15s, box-shadow .15s; }
+      .form-control:focus { border-color: #4facfe; box-shadow: 0 0 0 3px rgba(79,172,254,.1); outline: none; }
+      textarea.form-control { height: auto; }
+      select.form-control { padding: 4px 8px; }
+      .row { margin-left: -7px; margin-right: -7px; }
+      .row > [class*="col-"] { padding-left: 7px; padding-right: 7px; }
+      .input-group .form-control { border-radius: 8px 0 0 8px; }
+      .input-group-btn .btn { border-radius: 0 8px 8px 0; height: 34px; padding: 0 12px; border: 1.5px solid #e5e7eb; border-left: none; background: #f9fafb; }
+      .btn-submit { background: linear-gradient(135deg, #4facfe, #00f2fe); border: none; color: #fff; font-weight: 600; padding: 8px 22px; border-radius: 8px; font-size: 14px; cursor: pointer; transition: opacity .2s; }
+      .btn-submit:hover { opacity: .88; }
+      .btn-back { background: #f3f4f6; border: 1.5px solid #e5e7eb; color: #374151; font-weight: 500; padding: 8px 18px; border-radius: 8px; font-size: 14px; margin-left: 8px; text-decoration: none; display: inline-block; }
+      .btn-back:hover { background: #e5e7eb; color: #111; text-decoration: none; }
+    </style>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#007bff">
     <link rel="apple-touch-icon" href="img/icon-512.jpg">
     <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('sw.js');
-        });
-      }
+      if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js'); }); }
     </script>
 </head>
 
@@ -42,112 +56,171 @@
 <div class="sb-main">
 <div id="header-placeholder"></div>
 <div class="sb-content">
-<div class="sb-breadcrumb"><i class="fa fa-home"></i> <a href="index.html" data-i18n="Home">Home</a> <span>/</span> <a href="all-courses.html" data-i18n="Formations">Formations</a> <span>/</span> <span data-i18n="Edit">Edit</span></div>
+<div class="sb-breadcrumb">
+  <i class="fa fa-home"></i>
+  <a href="index.html" data-i18n="Home">Home</a> <span>/</span>
+  <a href="all-courses.html" data-i18n="Formations">Formations</a> <span>/</span>
+  <span data-i18n="Edit">Edit</span>
+</div>
 
-<div class="card-panel">
-  <h3 style="margin:0 0 4px;font-size:17px;font-weight:700"><i class="fa fa-edit" style="color:#3498db"></i> <span data-i18n="Edit Formation">Edit Formation</span></h3>
-  <p style="color:#888;font-size:13px;margin:0 0 20px" data-i18n="Update formation details.">Update formation details.</p>
-  <div id="backend-form-status" class="alert" style="display:none"></div>
-  <form id="backend-edit-formation-form" novalidate>
-    <div class="form-group">
-      <label data-i18n="Title">Title <span class="text-danger">*</span></label>
-      <input type="text" name="title" class="form-control"
-             placeholder="e.g. Web Development Bootcamp"
-             data-i18n-ph="e.g. Web Development Bootcamp" required>
-    </div>
-    <div class="form-group">
-      <label data-i18n="Description">Description</label>
-      <textarea name="description" class="form-control" rows="3"
-                placeholder="Formation description..."
-                data-i18n-ph="Formation description..."></textarea>
-    </div>
-    <div class="row">
-      <div class="col-md-6">
-        <div class="form-group" id="teacher-group">
-          <label data-i18n="Assign Teacher">Assign Teacher <small class="text-muted" data-i18n="(optional)">(optional)</small></label>
-          <select id="formation-teacher-id" name="teacher_id" class="form-control">
-            <option value="" data-i18n="Loading...">Loading...</option>
-          </select>
-          <small class="help-block" data-i18n="Leave empty for subscriptions and assign later when creating a group.">Leave empty for subscriptions and assign later when creating a group.</small>
-        </div>
+<div class="form-card">
+  <div class="form-card-header">
+    <h3><i class="fa fa-edit"></i> <span data-i18n="Edit Formation">Edit Formation</span></h3>
+    <p data-i18n="Update formation details.">Update formation details.</p>
+  </div>
+  <div class="form-card-body">
+    <div id="backend-form-status" class="alert" style="display:none"></div>
+    <form id="backend-edit-formation-form" novalidate>
+
+      <div class="sec-title"><i class="fa fa-info-circle"></i> <span data-i18n="Basic Info">Basic Info</span></div>
+      <div class="form-group">
+        <label><span data-i18n="Title">Title</span> <span class="text-danger">*</span></label>
+        <input type="text" name="title" class="form-control"
+               placeholder="e.g. Web Development Bootcamp"
+               data-i18n-ph="e.g. Web Development Bootcamp" required>
       </div>
-      <div class="col-md-6">
-        <div class="form-group">
-          <label data-i18n="Image URL">Image URL</label>
-          <input type="url" name="image" class="form-control"
-                 placeholder="https://example.com/cover.jpg"
-                 data-i18n-ph="https://example.com/cover.jpg">
-        </div>
+      <div class="form-group">
+        <label data-i18n="Description">Description</label>
+        <textarea name="description" class="form-control" rows="2"
+                  placeholder="Formation description..."
+                  data-i18n-ph="Formation description..."></textarea>
       </div>
-    </div>
-    <div class="row">
-      <div class="col-md-4">
-        <div class="form-group">
-          <label data-i18n="Duration (hours)">Duration (hours)</label>
-          <input type="number" name="duration_hours" class="form-control"
-                 placeholder="e.g. 40" data-i18n-ph="e.g. 40">
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="form-group" id="formation-price-group">
-          <label data-i18n="Price (DA)">Price (DA)</label>
-          <input type="number" name="price" class="form-control" step="0.01">
-          <small class="help-block" data-i18n="Used for formations.">Used for formations.</small>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="form-group">
+
+      <div class="sec-title"><i class="fa fa-sliders"></i> <span data-i18n="Settings">Settings</span></div>
+      <div class="row">
+        <div class="col-md-4"><div class="form-group">
           <label data-i18n="Type">Type</label>
           <select name="type" class="form-control">
             <option value="formation" data-i18n="Formation">Formation</option>
             <option value="subscription" data-i18n="Subscription">Subscription</option>
           </select>
-        </div>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-md-4">
-        <div class="form-group">
+        </div></div>
+        <div class="col-md-4"><div class="form-group">
           <label data-i18n="Status">Status</label>
           <select name="status" class="form-control">
             <option value="open" data-i18n="Open">Open</option>
             <option value="closed" data-i18n="Closed">Closed</option>
           </select>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="form-group">
-          <label data-i18n="Niveau">Niveau</label>
-          <select name="niveau" class="form-control">
-            <option value="begin" data-i18n="Beginner">Beginner</option>
-            <option value="intermediate" data-i18n="Intermediate">Intermediate</option>
-            <option value="advanced" data-i18n="Advanced">Advanced</option>
-          </select>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="form-group">
+        </div></div>
+        <div class="col-md-4"><div class="form-group">
           <label data-i18n="Number of Places">Number of Places</label>
           <input type="number" name="places" class="form-control" min="0">
+        </div></div>
+      </div>
+      <div class="row">
+        <div class="col-md-4"><div class="form-group">
+          <label data-i18n="Duration (hours)">Duration (hours)</label>
+          <input type="number" name="duration_hours" class="form-control" placeholder="e.g. 40" data-i18n-ph="e.g. 40">
+        </div></div>
+        <div class="col-md-4"><div class="form-group" id="formation-price-group">
+          <label data-i18n="Price (DA)">Price (DA)</label>
+          <input type="number" name="price" class="form-control" step="0.01">
+          <small class="help-block" data-i18n="Used for formations.">Used for formations.</small>
+        </div></div>
+      </div>
+
+      <div id="subscription-prices-group" style="display:none">
+        <div class="row">
+          <div class="col-md-4"><div class="form-group">
+            <label data-i18n="Monthly Price (DA)">Monthly Price (DA)</label>
+            <input type="number" name="price_monthly" class="form-control" min="0" step="0.01">
+          </div></div>
+          <div class="col-md-4"><div class="form-group">
+            <label data-i18n="3-Month Price (DA)">3-Month Price (DA)</label>
+            <input type="number" name="price_3_months" class="form-control" min="0" step="0.01">
+          </div></div>
+          <div class="col-md-4"><div class="form-group">
+            <label data-i18n="Yearly Price (DA)">Yearly Price (DA)</label>
+            <input type="number" name="price_1_year" class="form-control" min="0" step="0.01">
+          </div></div>
         </div>
       </div>
-    </div>
-    <div id="subscription-prices-group" style="display:none">
+
+      <div class="sec-title"><i class="fa fa-calendar"></i> <span data-i18n="Schedule">Schedule</span></div>
       <div class="row">
-        <div class="col-md-4"><div class="form-group"><label data-i18n="Monthly Price (DA)">Monthly Price (DA)</label><input type="number" name="price_monthly" class="form-control" min="0" step="0.01"></div></div>
-        <div class="col-md-4"><div class="form-group"><label data-i18n="3-Month Price (DA)">3-Month Price (DA)</label><input type="number" name="price_3_months" class="form-control" min="0" step="0.01"></div></div>
-        <div class="col-md-4"><div class="form-group"><label data-i18n="Yearly Price (DA)">Yearly Price (DA)</label><input type="number" name="price_1_year" class="form-control" min="0" step="0.01"></div></div>
+        <div class="col-md-6"><div class="form-group">
+          <label data-i18n="Start Date">Start Date</label>
+          <input type="date" name="start_date" class="form-control">
+        </div></div>
+        <div class="col-md-6"><div class="form-group">
+          <label data-i18n="End Date">End Date</label>
+          <input type="date" name="end_date" class="form-control">
+        </div></div>
+      </div>
+
+      <div class="sec-title"><i class="fa fa-graduation-cap"></i> <span data-i18n="Academic Level">Academic Level</span></div>
+      <div class="row">
+        <div class="col-md-6"><div class="form-group">
+          <label data-i18n="Niveau">Niveau (المستوى)</label>
+          <div style="display:flex; gap:8px; margin-bottom:6px;">
+            <select id="niveau-type" class="form-control">
+              <option value="academic">أكاديمي</option>
+              <option value="general">عام</option>
+            </select>
+            <select id="niveau-select" class="form-control">
+              <!-- populated dynamically -->
+            </select>
+          </div>
+          <input type="text" id="niveau-other" class="form-control" style="display:none;" placeholder="Enter level (أدخل المستوى)">
+          <input type="hidden" name="niveau" id="niveau-final" value="">
+        </div></div>
+        <div class="col-md-6"><div class="form-group" id="teacher-group">
+          <label data-i18n="Assign Teacher">Assign Teacher <small class="text-muted" data-i18n="(optional)">(optional)</small></label>
+          <select id="formation-teacher-id" name="teacher_id" class="form-control">
+            <option value="" data-i18n="Loading...">Loading...</option>
+          </select>
+          <small class="help-block" data-i18n="Leave empty for subscriptions and assign later when creating a group.">Leave empty for subscriptions and assign later when creating a group.</small>
+        </div></div>
+      </div>
+
+      <div class="sec-title"><i class="fa fa-image"></i> <span data-i18n="Image">Image</span></div>
+      <div class="form-group">
+        <label data-i18n="Image URL">Image URL</label>
+        <div class="input-group">
+          <input type="url" name="image" class="form-control"
+                 placeholder="https://example.com/cover.jpg"
+                 data-i18n-ph="https://example.com/cover.jpg">
+          <span class="input-group-btn">
+            <label class="btn btn-default" title="Upload Image" data-i18n-title="Upload Image" style="margin:0; border-radius:0;">
+              <i class="fa fa-upload" id="icon-upload-course-edit"></i>
+              <input type="file" accept="image/*" style="display:none;" onchange="handleCloudinaryUpload(this, document.querySelector('#backend-edit-formation-form input[name=image]'), 'icon-upload-course-edit')">
+            </label>
+            <button class="btn btn-default" type="button" id="btn-search-web-image" title="Search Web" data-i18n-title="Search Web">
+              <i class="fa fa-search"></i>
+            </button>
+          </span>
+        </div>
+      </div>
+
+      <div style="margin-top:18px; display:flex; align-items:center; gap:10px;">
+        <button type="submit" class="btn-submit"><i class="fa fa-save"></i> <span data-i18n="Update Formation">Update Formation</span></button>
+        <a href="all-courses.html" class="btn-back"><i class="fa fa-arrow-left"></i> <span data-i18n="Back">Back</span></a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Web Image Search Modal -->
+<div class="modal fade" id="webImageModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content" style="border-radius:12px;">
+      <div class="modal-header" style="border-bottom:1px solid #f0f0f0">
+        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+        <h4 class="modal-title"><i class="fa fa-picture-o"></i> <span data-i18n="Search Web Images">Search Web Images</span></h4>
+      </div>
+      <div class="modal-body">
+        <div class="input-group" style="margin-bottom: 20px;">
+          <input type="text" id="web-image-search-input" class="form-control" placeholder="Search..." data-i18n-ph="Search...">
+          <span class="input-group-btn">
+            <button class="btn btn-primary" id="btn-trigger-web-search"><i class="fa fa-search"></i> <span data-i18n="Search">Search</span></button>
+          </span>
+        </div>
+        <div id="web-image-results" class="row" style="display:flex; flex-wrap:wrap;"></div>
+        <div id="web-image-loading" style="display:none; text-align:center; padding:40px;"><i class="fa fa-spinner fa-spin fa-2x" style="color:#4facfe"></i></div>
+        <div id="web-image-empty" style="display:none; text-align:center; padding:40px; color:#888;"><span data-i18n="No images found.">No images found.</span></div>
       </div>
     </div>
-    <div class="row">
-      <div class="col-md-6"><div class="form-group"><label data-i18n="Start Date">Start Date</label><input type="date" name="start_date" class="form-control"></div></div>
-      <div class="col-md-6"><div class="form-group"><label data-i18n="End Date">End Date</label><input type="date" name="end_date" class="form-control"></div></div>
-    </div>
-    <div class="form-group" style="margin-top:20px">
-      <button type="submit" class="btn btn-primary btn-lg"><i class="fa fa-save"></i> <span data-i18n="Update Formation">Update Formation</span></button>
-      <a href="all-courses.html" class="btn btn-default btn-lg" style="margin-left:10px"><i class="fa fa-arrow-left"></i> <span data-i18n="Back">Back</span></a>
-    </div>
-  </form>
+  </div>
 </div>
 
 <div id="footer-placeholder"></div>
@@ -157,4 +230,141 @@
 <script src="js/i18n.js"></script>
 <script src="js/components.js"></script>
 <script src="js/backend.js?v=3"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var imageInput = document.querySelector('input[name="image"]');
+  var titleInput = document.querySelector('input[name="title"]');
+  var btnSearch = document.getElementById('btn-search-web-image');
+  var modal = document.getElementById('webImageModal');
+  var searchInput = document.getElementById('web-image-search-input');
+  var btnTriggerSearch = document.getElementById('btn-trigger-web-search');
+  var resultsContainer = document.getElementById('web-image-results');
+  var loadingSpinner = document.getElementById('web-image-loading');
+  var emptyState = document.getElementById('web-image-empty');
+
+  function base() {
+    var l = window.location;
+    return (l.hostname === 'localhost' || l.hostname === '127.0.0.1') ? l.protocol + '//' + l.hostname + ':5000' : '';
+  }
+
+  function doSearch(query) {
+    if (!query) return;
+    resultsContainer.innerHTML = '';
+    emptyState.style.display = 'none';
+    loadingSpinner.style.display = 'block';
+    var token = localStorage.getItem('school_system_token');
+    fetch(base() + '/api/image-search?q=' + encodeURIComponent(query), {
+      headers: token ? { 'Authorization': 'Bearer ' + token } : {}
+    }).then(function(r) { return r.json(); }).then(function(data) {
+      loadingSpinner.style.display = 'none';
+      var images = data.results || [];
+      if (images.length === 0) { emptyState.style.display = 'block'; return; }
+      images.forEach(function(img) {
+        var col = document.createElement('div');
+        col.className = 'col-md-4 col-sm-6';
+        col.style.marginBottom = '15px';
+        col.innerHTML = '<div class="web-img-result" data-url="' + img.image + '" style="cursor:pointer;border-radius:10px;overflow:hidden;border:2px solid transparent;transition:all 0.2s;box-shadow:0 2px 8px rgba(0,0,0,.08);">' +
+          '<div style="height:130px;background-image:url(' + img.thumbnail + ');background-size:cover;background-position:center;"></div>' +
+          '<div style="padding:6px 8px;font-size:11px;color:#555;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + img.title + '</div></div>';
+        resultsContainer.appendChild(col);
+      });
+      resultsContainer.querySelectorAll('.web-img-result').forEach(function(el) {
+        el.addEventListener('click', function() {
+          if (imageInput) imageInput.value = this.getAttribute('data-url');
+          $(modal).modal('hide');
+        });
+        el.addEventListener('mouseover', function() { this.style.borderColor = '#4facfe'; this.style.transform = 'translateY(-2px)'; });
+        el.addEventListener('mouseout', function() { this.style.borderColor = 'transparent'; this.style.transform = ''; });
+      });
+    }).catch(function() { loadingSpinner.style.display = 'none'; emptyState.style.display = 'block'; });
+  }
+
+  if (btnSearch) {
+    btnSearch.addEventListener('click', function() {
+      var query = titleInput ? titleInput.value.trim() : '';
+      if (searchInput) searchInput.value = query;
+      $(modal).modal('show');
+      if (query) doSearch(query);
+    });
+  }
+  if (btnTriggerSearch) btnTriggerSearch.addEventListener('click', function() { doSearch(searchInput.value.trim()); });
+  if (searchInput) searchInput.addEventListener('keyup', function(e) { if (e.key === 'Enter') doSearch(this.value.trim()); });
+
+  // Dynamic Niveau Logic
+  var niveauType = document.getElementById('niveau-type');
+  var niveauSelect = document.getElementById('niveau-select');
+  var niveauOther = document.getElementById('niveau-other');
+  var niveauFinal = document.getElementById('niveau-final');
+
+  var academicOptions = [
+    {val: 'تمهيدي', text: 'تمهيدي'}, {val: 'تحضيري', text: 'تحضيري'},
+    {val: '1 ابتدائي', text: '1 ابتدائي'}, {val: '2 ابتدائي', text: '2 ابتدائي'},
+    {val: '3 ابتدائي', text: '3 ابتدائي'}, {val: '4 ابتدائي', text: '4 ابتدائي'},
+    {val: '5 ابتدائي', text: '5 ابتدائي'}, {val: '1 متوسط', text: '1 متوسط'},
+    {val: '2 متوسط', text: '2 متوسط'}, {val: '3 متوسط', text: '3 متوسط'},
+    {val: '4 متوسط', text: '4 متوسط'}, {val: '1 ثانوي', text: '1 ثانوي'},
+    {val: '2 ثانوي', text: '2 ثانوي'}, {val: '3 ثانوي', text: '3 ثانوي'},
+    {val: 'جامعي', text: 'جامعي'}, {val: 'امي', text: 'امي'},
+    {val: 'كل المستويات', text: 'كل المستويات'}, {val: 'other', text: 'اخر (Other)'}
+  ];
+  var generalOptions = [
+    {val: 'متقدم', text: 'متقدم'}, {val: 'متوسط', text: 'متوسط'}, {val: 'للمبتدئين', text: 'للمبتدئين'}
+  ];
+
+  function populateNiveau(currentValue) {
+    var type = niveauType.value;
+    var opts = type === 'academic' ? academicOptions : generalOptions;
+    niveauSelect.innerHTML = '';
+    opts.forEach(function(o) {
+      var opt = document.createElement('option');
+      opt.value = o.val;
+      opt.textContent = o.text;
+      if (currentValue && o.val === currentValue) opt.selected = true;
+      niveauSelect.appendChild(opt);
+    });
+    checkOther();
+  }
+
+  function checkOther() {
+    if (niveauSelect.value === 'other') { niveauOther.style.display = 'block'; }
+    else { niveauOther.style.display = 'none'; niveauOther.value = ''; }
+    updateFinal();
+  }
+
+  function updateFinal() {
+    niveauFinal.value = niveauSelect.value === 'other' ? niveauOther.value.trim() : niveauSelect.value;
+  }
+
+  // Pre-select current niveau value when form data loads
+  window._niveauPreSelect = function(val) {
+    if (!val) return;
+    // Try academic first
+    var found = academicOptions.some(function(o) { return o.val === val; });
+    if (found) {
+      niveauType.value = 'academic';
+      populateNiveau(val);
+    } else {
+      var foundG = generalOptions.some(function(o) { return o.val === val; });
+      if (foundG) { niveauType.value = 'general'; populateNiveau(val); }
+      else {
+        // custom value
+        niveauType.value = 'academic';
+        populateNiveau('other');
+        niveauSelect.value = 'other';
+        niveauOther.style.display = 'block';
+        niveauOther.value = val;
+        niveauFinal.value = val;
+      }
+    }
+  };
+
+  if (niveauType && niveauSelect) {
+    niveauType.addEventListener('change', function() { populateNiveau(); });
+    niveauSelect.addEventListener('change', checkOther);
+    niveauOther.addEventListener('input', updateFinal);
+    populateNiveau();
+  }
+});
+</script>
 </body></html>
