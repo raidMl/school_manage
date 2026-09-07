@@ -1026,6 +1026,11 @@ window.AppI18n = {
     if (lbl) lbl.textContent = 'AR';
   },
 
+  // ── Get current language ──────────────────────────────────────────────────
+  getLang: function () {
+    return this.currentLang || localStorage.getItem('app_lang') || 'ar';
+  },
+
   // ── Save lang + reload ────────────────────────────────────────────────────
   setLang: function (lang) {
     localStorage.setItem('app_lang', lang);

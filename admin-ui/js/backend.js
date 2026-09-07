@@ -3446,13 +3446,21 @@
           if (e.teacher_name) details.push('<i class="fa fa-user"></i> ' + esc(e.teacher_name));
           var detailsHtml = details.length ? '<span class="entry-chip-group" style="font-size:9.5px; opacity: 0.9; margin-top:2px;">' + details.join(' | ') + '</span>' : '';
 
-          return '<div class="entry-chip" style="background:' + bg + '" data-entry-id="' + e.id + '">' +
+          var isArabic = (currentLang === 'ar') || (window.AppI18n && typeof window.AppI18n.getLang === 'function' && window.AppI18n.getLang() === 'ar');
+          var editTitle = isArabic ? 'انقر لتعديل الحصة' : 'Click to edit';
+          var editBtnTitle = isArabic ? 'تعديل' : 'Edit';
+          var delBtnTitle = isArabic ? 'حذف' : 'Remove';
+
+          return '<div class="entry-chip" style="background:' + bg + '; cursor:pointer;" data-entry-id="' + e.id + '" title="' + editTitle + '">' +
             '<div class="entry-chip-body">' +
             '<span class="entry-chip-subject">' + esc(e.subject_name) + '</span>' +
             '<span class="entry-chip-group">' + esc(e.group_name) + '</span>' +
             detailsHtml +
             '</div>' +
-            '<button class="entry-chip-del no-print" data-del-entry="' + e.id + '" title="Remove"><i class="fa fa-times"></i></button>' +
+            '<div class="entry-chip-btns no-print">' +
+            '<button class="entry-chip-edit no-print" data-edit-entry="' + e.id + '" title="' + editBtnTitle + '"><i class="fa fa-pencil"></i></button>' +
+            '<button class="entry-chip-del no-print" data-del-entry="' + e.id + '" title="' + delBtnTitle + '"><i class="fa fa-times"></i></button>' +
+            '</div>' +
             '</div>';
         }).join('');
 
@@ -3475,13 +3483,36 @@
     wrap.innerHTML = html;
     if (window.AppI18n) window.AppI18n.translateAll(wrap);
 
-    // Bind cell clicks (open entry modal)
+    // Bind cell clicks (open entry modal for ADDING)
     wrap.querySelectorAll('.tt-cell-inner').forEach(function (cell) {
       cell.addEventListener('click', function (e) {
-        if (e.target.closest('[data-del-entry]')) return; // handled below
+        if (e.target.closest('.entry-chip')) return; // Handled by entry-chip click
         var slotId = this.getAttribute('data-slot');
         var day = this.getAttribute('data-day');
-        openEntryModal(slotId, day);
+        openEntryModal(slotId, day, null);
+      });
+    });
+
+    // Bind entry chip clicks (open entry modal for EDITING)
+    wrap.querySelectorAll('.entry-chip').forEach(function (chip) {
+      chip.addEventListener('click', function (e) {
+        if (e.target.closest('[data-del-entry]')) return; // handled below
+        e.stopPropagation();
+        var entryId = this.getAttribute('data-entry-id');
+        var entry = (WP.current.entries || []).filter(function (it) { return String(it.id) === String(entryId); })[0];
+        if (!entry) return;
+        openEntryModal(entry.slot_id, entry.day_of_week, entry);
+      });
+    });
+
+    // Bind entry edit buttons
+    wrap.querySelectorAll('[data-edit-entry]').forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var entryId = this.getAttribute('data-edit-entry');
+        var entry = (WP.current.entries || []).filter(function (it) { return String(it.id) === String(entryId); })[0];
+        if (!entry) return;
+        openEntryModal(entry.slot_id, entry.day_of_week, entry);
       });
     });
 
@@ -3490,7 +3521,9 @@
       btn.addEventListener('click', function (e) {
         e.stopPropagation();
         var id = this.getAttribute('data-del-entry');
-        if (!confirm('Remove this entry?')) return;
+        var isArabic = (currentLang === 'ar') || (window.AppI18n && typeof window.AppI18n.getLang === 'function' && window.AppI18n.getLang() === 'ar');
+        var confirmMsg = isArabic ? 'هل أنت متأكد من حذف هذه الحصة؟' : 'Remove this entry?';
+        if (!confirm(confirmMsg)) return;
         request('/api/weekly-programs/' + WP.current.id + '/entries/' + id, { method: 'DELETE' })
           .then(function () { loadProgramDetail(WP.current.id); })
           .catch(function (err) { showAlert('#wp-global-alert', err.message, 'danger'); });
@@ -3520,19 +3553,35 @@
   }
 
   // ── Open entry modal (add or edit) ─────────────────────────────────────────
-  function openEntryModal(slotId, day) {
+  function openEntryModal(slotId, day, entry) {
     var slot = (WP.current.slots || []).filter(function (s) { return s.id == slotId; })[0];
     var dayName = WP.DAYS[parseInt(day) - 1] || ('Day ' + day);
-    document.getElementById('wp-entry-form-id').value = '';
+    var isEdit = !!entry;
+
+    document.getElementById('wp-entry-form-id').value = isEdit ? entry.id : '';
     document.getElementById('wp-entry-form-slot-id').value = slotId;
     document.getElementById('wp-entry-form-day').value = day;
-    document.getElementById('wp-entry-form-subject').value = '';
-    document.getElementById('wp-entry-form-group').value = '';
-    document.getElementById('wp-entry-form-classroom').value = '';
-    setEntryColor('#4f6eff');
+    document.getElementById('wp-entry-form-subject').value = isEdit ? (entry.subject_name || '') : '';
+    document.getElementById('wp-entry-form-group').value = isEdit ? (entry.group_id || '') : '';
+    document.getElementById('wp-entry-form-classroom').value = isEdit ? (entry.classroom_id || '') : '';
+    setEntryColor(isEdit && entry.color ? entry.color : '#4f6eff');
+
+    var dayTranslated = (window.AppI18n && window.AppI18n.t) ? window.AppI18n.t(dayName) : dayName;
     document.getElementById('wp-entry-slot-info').textContent =
-      (slot ? slot.label : '') + '  —  ' + dayName;
-    document.getElementById('modalEntryTitle').textContent = 'Add Schedule Entry';
+      (slot ? slot.label : '') + '  —  ' + dayTranslated;
+
+    var titleEl = document.getElementById('modalEntryTitle');
+    var submitBtn = document.getElementById('wp-entry-form-submit') || document.querySelector('#wp-entry-form button[type="submit"]');
+
+    var isArabic = (currentLang === 'ar') || (window.AppI18n && typeof window.AppI18n.getLang === 'function' && window.AppI18n.getLang() === 'ar');
+    if (isEdit) {
+      if (titleEl) titleEl.textContent = isArabic ? 'تعديل الحصة' : 'Edit Schedule Entry';
+      if (submitBtn) submitBtn.textContent = isArabic ? 'حفظ التعديلات' : 'Save Changes';
+    } else {
+      if (titleEl) titleEl.textContent = isArabic ? 'إضافة حصة جديدة' : 'Add Schedule Entry';
+      if (submitBtn) submitBtn.textContent = isArabic ? 'إضافة الحصة' : 'Save Entry';
+    }
+
     document.getElementById('wp-entry-form-alert').style.display = 'none';
     $('#modalEntry').modal('show');
   }
@@ -3704,7 +3753,7 @@
       if (!gridWrap || !ttTable || !WP.current) { callback(null); return; }
 
       var school = (window._ctx && window._ctx.school) ? window._ctx.school : { name: '' };
-      var isRtl = document.documentElement.dir === 'rtl' || (window.AppI18n && window.AppI18n.getLang && window.AppI18n.getLang() === 'ar');
+      var isRtl = document.documentElement.dir === 'rtl' || (currentLang === 'ar') || (window.AppI18n && typeof window.AppI18n.getLang === 'function' && window.AppI18n.getLang() === 'ar');
 
       // Create an isolated export container with fixed width of 1450px so all 7 days fit completely
       var exportWrapper = document.createElement('div');
