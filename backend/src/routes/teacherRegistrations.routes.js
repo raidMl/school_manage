@@ -16,6 +16,8 @@ const SELECT_TEACHER = `
     teachers.specialization,
     teachers.speciality,
     teachers.diploma,
+    teachers.national_id,
+    teachers.social_security_number,
     teachers.hire_date,
     teachers.monthly_salary,
     teachers.ccp_rib,
@@ -85,6 +87,8 @@ router.post(
       employee_number: employeeNumber,
       speciality = null,
       diploma = null,
+      national_id: nationalId = null,
+      social_security_number: socialSecurityNumber = null,
       hire_date: hireDate = null,
     } = req.body;
 
@@ -110,9 +114,9 @@ router.post(
       const userId = userResult.insertId;
 
       await connection.execute(
-        `INSERT INTO teachers (user_id, school_id, employee_number, speciality, diploma, hire_date)
-         VALUES (?, ?, ?, ?, ?, ?)`,
-        [userId, schoolId, employeeNumber, speciality, diploma, hireDate]
+        `INSERT INTO teachers (user_id, school_id, employee_number, speciality, diploma, national_id, social_security_number, hire_date)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [userId, schoolId, employeeNumber, speciality, diploma, nationalId, socialSecurityNumber, hireDate]
       );
 
       // Link user to school_users for permission/count queries
@@ -159,6 +163,8 @@ router.put(
       employee_number: employeeNumber,
       speciality,
       diploma,
+      national_id: nationalId,
+      social_security_number: socialSecurityNumber,
       hire_date: hireDate,
     } = req.body;
 
@@ -187,6 +193,8 @@ router.put(
       if (employeeNumber !== undefined) { tUpdates.push('employee_number = ?'); tValues.push(employeeNumber); }
       if (speciality !== undefined)     { tUpdates.push('speciality = ?');      tValues.push(speciality); }
       if (diploma !== undefined)        { tUpdates.push('diploma = ?');         tValues.push(diploma); }
+      if (nationalId !== undefined)     { tUpdates.push('national_id = ?');     tValues.push(nationalId); }
+      if (socialSecurityNumber !== undefined) { tUpdates.push('social_security_number = ?'); tValues.push(socialSecurityNumber); }
       if (hireDate !== undefined)       { tUpdates.push('hire_date = ?');       tValues.push(hireDate); }
 
       if (tUpdates.length) {

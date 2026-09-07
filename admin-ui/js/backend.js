@@ -745,7 +745,7 @@
     tb.innerHTML = rows.map(function (r) {
       var name = [r.first_name, r.last_name].filter(Boolean).join(' ');
       var img = '<img src="' + esc(avatarUrl(r.photo, name, 'student', r.gender)) + '" style="width:32px;height:32px;border-radius:50%;object-fit:cover" onerror="this.src=\'' + avatarUrl('', name, 'student', typeof r !== 'undefined' ? r.gender : (typeof s !== 'undefined' ? s.gender : null)) + '\'">';
-      return '<tr><td>' + img + '</td><td>' + esc(r.registration_number) + '</td><td>' + esc(name) + '</td><td>' + esc(r.email) + '</td><td>' + esc(r.enrollment_date || '-') + '</td></tr>';
+      return '<tr><td>' + img + '</td><td>' + esc(r.registration_number) + '</td><td>' + esc(name) + '</td><td>' + esc(r.email) + '</td><td>' + esc(fmtDate(r.enrollment_date)) + '</td></tr>';
     }).join('');
   }
 
@@ -755,7 +755,7 @@
     tb.innerHTML = rows.map(function (r) {
       var name = [r.first_name, r.last_name].filter(Boolean).join(' ');
       var img = '<img src="' + esc(avatarUrl(r.photo, name, 'teacher', r.gender)) + '" style="width:32px;height:32px;border-radius:50%;object-fit:cover">';
-      return '<tr><td>' + img + '</td><td>' + esc(r.employee_number) + '</td><td>' + esc(name) + '</td><td>' + esc(r.speciality || '-') + '</td><td>' + esc(r.hire_date || '-') + '</td></tr>';
+      return '<tr><td>' + img + '</td><td>' + esc(r.employee_number) + '</td><td>' + esc(name) + '</td><td>' + esc(r.speciality || '-') + '</td><td>' + esc(fmtDate(r.hire_date)) + '</td></tr>';
     }).join('');
   }
 
@@ -1340,6 +1340,7 @@
           guardian_name: fd.get('guardian_name') || null,
           guardian_relationship: fd.get('guardian_relationship') || null,
           guardian_id_number: fd.get('guardian_id_number') || null,
+          parent_id_number: fd.get('parent_id_number') || null,
           health_notes: fd.get('health_notes') || null,
           parents_status: fd.get('parents_status') || null,
           enrollment_date: fd.get('enrollment_date') || null,
@@ -1379,7 +1380,7 @@
     setupPromoCodeSelect(form);
     request('/api/student-registrations/' + id).then(function (p) {
       var s = p.data;
-      ['first_name', 'last_name', 'email', 'gender', 'birth_date', 'photo', 'blood_type', 'formation_id', 'registration_number', 'parent_name', 'parent_phone', 'parent_phone2', 'guardian_name', 'guardian_relationship', 'guardian_id_number', 'health_notes', 'parents_status', 'enrollment_date', 'payment_status', 'subscription_plan'].forEach(function (f) {
+      ['first_name', 'last_name', 'email', 'gender', 'birth_date', 'photo', 'blood_type', 'formation_id', 'registration_number', 'parent_name', 'parent_phone', 'parent_phone2', 'guardian_name', 'guardian_relationship', 'guardian_id_number', 'parent_id_number', 'health_notes', 'parents_status', 'enrollment_date', 'payment_status', 'subscription_plan'].forEach(function (f) {
         var el = form.querySelector('[name="' + f + '"]'); if (el && s[f] != null) el.value = s[f];
       });
       // checkboxes
@@ -1405,7 +1406,7 @@
     }).catch(function (err) { showAlert('#backend-form-status', err.message); });
     form.addEventListener('submit', function (e) {
       e.preventDefault(); var fd = new FormData(form); var payload = {};
-      ['first_name', 'last_name', 'email', 'gender', 'birth_date', 'photo', 'blood_type', 'formation_id', 'registration_number', 'parent_name', 'parent_phone', 'parent_phone2', 'guardian_name', 'guardian_relationship', 'guardian_id_number', 'health_notes', 'parents_status', 'enrollment_date', 'payment_status', 'subscription_plan', 'promo_code'].forEach(function (f) {
+      ['first_name', 'last_name', 'email', 'gender', 'birth_date', 'photo', 'blood_type', 'formation_id', 'registration_number', 'parent_name', 'parent_phone', 'parent_phone2', 'guardian_name', 'guardian_relationship', 'guardian_id_number', 'parent_id_number', 'health_notes', 'parents_status', 'enrollment_date', 'payment_status', 'subscription_plan', 'promo_code'].forEach(function (f) {
         var v = fd.get(f); if (v !== null) payload[f] = v || null;
       });
       // boolean app checkboxes
@@ -1588,7 +1589,7 @@
       var img = '<img src="' + esc(avatarUrl(r.photo, [r.first_name, r.last_name].join(' '), 'teacher', r.gender)) + '" style="width:36px;height:36px;border-radius:50%;object-fit:cover">';
       var chk = '<input type="checkbox" class="row-checkbox" value="' + r.id + '" data-type="teacher" data-name="' + name + '" data-reg="' + esc(r.employee_number || '') + '" data-photo="' + esc(avatarUrl(r.photo, name, 'teacher', r.gender)) + '" data-speciality="' + esc(r.speciality || r.specialization || '') + '" data-hire-date="' + esc(r.hire_date || '') + '" data-birth-date="' + esc(r.birth_date || '') + '" data-gender="' + esc(r.gender || '') + '" data-diploma="' + esc(r.diploma || '') + '">';
       var statusBadge = r.is_active ? '<span class="label label-success">Active</span>' : '<span class="label label-danger">Inactive</span>';
-      return '<tr><td>' + chk + '</td><td>' + img + '</td><td>' + esc(r.employee_number) + '</td><td>' + name + '</td><td>' + esc(r.email) + '</td><td>' + statusBadge + '</td><td>' + esc(r.speciality || '-') + '</td><td>' + esc(r.hire_date || '-') + '</td>' +
+      return '<tr><td>' + chk + '</td><td>' + img + '</td><td>' + esc(r.employee_number) + '</td><td>' + name + '</td><td>' + esc(r.email) + '</td><td>' + statusBadge + '</td><td>' + esc(r.speciality || '-') + '</td><td>' + esc(fmtDate(r.hire_date)) + '</td>' +
         '<td><a href="professor-profile.html?id=' + r.id + '" class="btn btn-xs btn-success" title="View Details"><i class="fa fa-eye"></i></a> ' +
         '<a href="edit-professor.html?id=' + r.id + '" class="btn btn-xs btn-info" title="Edit"><i class="fa fa-pencil"></i></a> ' +
         '<button class="btn btn-xs btn-danger" data-del-teacher="' + r.id + '" title="Delete"><i class="fa fa-trash"></i></button></td></tr>';
@@ -1612,6 +1613,8 @@
           blood_type: fd.get('blood_type') || null,
           employee_number: Math.floor(1000000000 + Math.random() * 9000000000).toString(), speciality: fd.get('speciality') || null,
           diploma: fd.get('diploma') || null, hire_date: fd.get('hire_date') || null,
+          national_id: fd.get('national_id') || null,
+          social_security_number: fd.get('social_security_number') || null,
         })
       }).then(function () { showAlert('#backend-form-status', t('Teacher created successfully'), 'success'); form.reset(); if (btn) btn.disabled = false; })
         .catch(function (err) { showAlert('#backend-form-status', err.message); if (btn) btn.disabled = false; });
@@ -1622,7 +1625,7 @@
     var id = urlParam('id'); if (!id) { showAlert('#backend-form-status', 'No teacher ID in URL'); return; }
     request('/api/teacher-registrations/' + id).then(function (p) {
       var tc = p.data;
-      ['first_name', 'last_name', 'email', 'gender', 'birth_date', 'photo', 'blood_type', 'employee_number', 'speciality', 'diploma', 'hire_date'].forEach(function (f) {
+      ['first_name', 'last_name', 'email', 'gender', 'birth_date', 'photo', 'blood_type', 'employee_number', 'speciality', 'diploma', 'hire_date', 'national_id', 'social_security_number'].forEach(function (f) {
         var el = form.querySelector('[name="' + f + '"]'); if (el && tc[f] != null) el.value = tc[f];
       });
       var statusEl = form.querySelector('[name="is_active"]');
@@ -1634,7 +1637,7 @@
     }).catch(function (err) { showAlert('#backend-form-status', err.message); });
     form.addEventListener('submit', function (e) {
       e.preventDefault(); var fd = new FormData(form); var payload = {};
-      ['first_name', 'last_name', 'email', 'gender', 'birth_date', 'photo', 'blood_type', 'employee_number', 'speciality', 'diploma', 'hire_date'].forEach(function (f) {
+      ['first_name', 'last_name', 'email', 'gender', 'birth_date', 'photo', 'blood_type', 'employee_number', 'speciality', 'diploma', 'hire_date', 'national_id', 'social_security_number'].forEach(function (f) {
         var v = fd.get(f); if (v !== null) payload[f] = v || null;
       });
       var isActive = fd.get('is_active');
@@ -2260,14 +2263,14 @@
       document.getElementById('sp-email').textContent = tc.email || '-';
 
       document.getElementById('sp-gender').textContent = tc.gender ? t(tc.gender) : '-';
-      document.getElementById('sp-birth-date').textContent = tc.birth_date || '-';
+      document.getElementById('sp-birth-date').textContent = fmtDate(tc.birth_date);
       document.getElementById('sp-blood-type').textContent = tc.blood_type || '-';
       
-      document.getElementById('sp-enrollment-date').textContent = tc.enrollment_date || '-';
+      document.getElementById('sp-enrollment-date').textContent = fmtDate(tc.enrollment_date);
       document.getElementById('sp-formation').textContent = tc.formation_title || '-';
       document.getElementById('sp-subscription-plan').textContent = formatSubscriptionPlan(tc.subscription_plan);
       document.getElementById('sp-payment-status').innerHTML = formatPaymentStatus(tc.payment_status);
-      document.getElementById('sp-next-payment-date').textContent = tc.next_payment_date || '-';
+      document.getElementById('sp-next-payment-date').textContent = fmtDate(tc.next_payment_date);
       document.getElementById('sp-status').innerHTML = tc.is_active ? '<span class="label label-success">' + t('Active') + '</span>' : '<span class="label label-danger">' + t('Inactive') + '</span>';
 
       document.getElementById('sp-parent-name').textContent = tc.parent_name || '-';
@@ -2325,12 +2328,12 @@
       // Professional
       document.getElementById('tp-speciality').textContent = tc.speciality || '-';
       document.getElementById('tp-diploma').textContent = tc.diploma || '-';
-      var hireDate = tc.hire_date ? tc.hire_date.toString().slice(0, 10) : '-';
+      var hireDate = fmtDate(tc.hire_date);
       document.getElementById('tp-hire-date').textContent = hireDate;
 
       // Personal
       document.getElementById('tp-gender').textContent = tc.gender ? t(tc.gender) : '-';
-      document.getElementById('tp-birth-date').textContent = tc.birth_date || '-';
+      document.getElementById('tp-birth-date').textContent = fmtDate(tc.birth_date);
       var phoneEl = document.getElementById('tp-phone');
       if (phoneEl) phoneEl.textContent = tc.phone || tc.parent_phone || '-';
 

@@ -190,61 +190,56 @@
 
     <!-- Parent / Guardian Contact -->
     <div class="sec-title"><i class="fa fa-phone"></i> <span data-i18n="Parent / Guardian Contact">Parent / Guardian Contact</span></div>
-
     <div class="row">
       <div class="col-md-6"><div class="form-group">
         <label data-i18n="Parent Name">Parent Name</label>
-        <input type="text" name="parent_name" class="form-control"
-          placeholder="Full name of parent" data-i18n-ph="Full name of parent">
+        <input type="text" name="parent_name" class="form-control" placeholder="Full name" data-i18n-ph="Full name">
       </div></div>
       <div class="col-md-6"><div class="form-group">
-        <label><span data-i18n="Phone 1">Phone 1</span> <small class="text-muted">(<span data-i18n="Primary">Primary</span>)</small></label>
+        <label data-i18n="رقم بطاقة التعريف">رقم بطاقة التعريف</label>
+        <input type="text" name="parent_id_number" class="form-control" dir="rtl">
+      </div></div>
+    </div>
+    <div class="row">
+      <div class="col-md-6"><div class="form-group">
+        <label><span data-i18n="Phone 1">Phone 1</span></label>
         <input type="tel" name="parent_phone" id="phone1-input" class="form-control" placeholder="+213...">
         <input type="hidden" name="phone1_has_whatsapp" id="phone1_has_whatsapp" value="0">
         <input type="hidden" name="phone1_has_viber" id="phone1_has_viber" value="0">
         <input type="hidden" name="phone1_has_telegram" id="phone1_has_telegram" value="0">
-        <div class="app-checks" id="phone1-apps" style="display:none; margin-top:8px;">
-          <span class="app-check-btn" data-target="phone1_has_whatsapp" data-active="active-wa" onclick="toggleApp(this)"><span class="dot"></span> WhatsApp</span>
-          <span class="app-check-btn" data-target="phone1_has_viber" data-active="active-vb" onclick="toggleApp(this)"><span class="dot"></span> Viber</span>
-          <span class="app-check-btn" data-target="phone1_has_telegram" data-active="active-tg" onclick="toggleApp(this)"><span class="dot"></span> Telegram</span>
+        <div class="app-checks" id="phone1-apps" style="display:none; margin-top:4px;">
+          <span class="app-check-btn" data-target="phone1_has_whatsapp" data-active="active-wa" onclick="toggleApp(this)"><span class="dot"></span> WA</span>
+          <span class="app-check-btn" data-target="phone1_has_viber" data-active="active-vb" onclick="toggleApp(this)"><span class="dot"></span> VB</span>
+          <span class="app-check-btn" data-target="phone1_has_telegram" data-active="active-tg" onclick="toggleApp(this)"><span class="dot"></span> TG</span>
         </div>
       </div></div>
-    </div>
-
-    <div class="row">
-      <div class="col-md-6"></div>
       <div class="col-md-6"><div class="form-group">
-        <label><span data-i18n="Phone 2">Phone 2</span> <small class="text-muted">(<span data-i18n="Optional">Optional</span>)</small></label>
+        <label><span data-i18n="Phone 2">Phone 2</span></label>
         <input type="tel" name="parent_phone2" id="phone2-input" class="form-control" placeholder="+213...">
         <input type="hidden" name="phone2_has_whatsapp" id="phone2_has_whatsapp" value="0">
         <input type="hidden" name="phone2_has_viber" id="phone2_has_viber" value="0">
         <input type="hidden" name="phone2_has_telegram" id="phone2_has_telegram" value="0">
-        <div class="app-checks" id="phone2-apps" style="display:none; margin-top:8px;">
-          <span class="app-check-btn" data-target="phone2_has_whatsapp" data-active="active-wa" onclick="toggleApp(this)"><span class="dot"></span> WhatsApp</span>
-          <span class="app-check-btn" data-target="phone2_has_viber" data-active="active-vb" onclick="toggleApp(this)"><span class="dot"></span> Viber</span>
-          <span class="app-check-btn" data-target="phone2_has_telegram" data-active="active-tg" onclick="toggleApp(this)"><span class="dot"></span> Telegram</span>
+        <div class="app-checks" id="phone2-apps" style="display:none; margin-top:4px;">
+          <span class="app-check-btn" data-target="phone2_has_whatsapp" data-active="active-wa" onclick="toggleApp(this)"><span class="dot"></span> WA</span>
+          <span class="app-check-btn" data-target="phone2_has_viber" data-active="active-vb" onclick="toggleApp(this)"><span class="dot"></span> VB</span>
+          <span class="app-check-btn" data-target="phone2_has_telegram" data-active="active-tg" onclick="toggleApp(this)"><span class="dot"></span> TG</span>
         </div>
       </div></div>
     </div>
-
     <div class="row">
       <div class="col-md-5"><div class="form-group">
         <label><span data-i18n="Guardian Name">Guardian Name</span></label>
-        <input type="text" name="guardian_name" class="form-control"
-          placeholder="First & Last name" data-i18n-ph="First & Last name">
+        <input type="text" name="guardian_name" class="form-control">
       </div></div>
       <div class="col-md-4"><div class="form-group">
         <label><span data-i18n="Relationship">Relationship</span></label>
-        <input type="text" name="guardian_relationship" class="form-control"
-          placeholder="e.g. Uncle, Aunt..." data-i18n-ph="e.g. Uncle, Aunt...">
+        <input type="text" name="guardian_relationship" class="form-control">
       </div></div>
       <div class="col-md-3"><div class="form-group">
         <label><span data-i18n="Guardian ID #">Guardian ID #</span></label>
-        <input type="text" name="guardian_id_number" class="form-control"
-          placeholder="National ID" data-i18n-ph="National ID">
+        <input type="text" name="guardian_id_number" class="form-control">
       </div></div>
     </div>
-
     <div class="row">
       <div class="col-md-6"><div class="form-group">
         <label><span data-i18n="Parents Status">Parents Status</span></label>
@@ -261,10 +256,7 @@
     </div>
 
     <!-- Health Status -->
-    <div class="sec-title">
-      <i class="fa fa-heartbeat"></i>
-      <span data-i18n="Health Status">Health Status</span>
-    </div>
+    <div class="sec-title"><i class="fa fa-heartbeat"></i> <span data-i18n="Health Status">Health Status</span></div>
     <div class="row">
       <div class="col-md-12"><div class="form-group">
         <label>

@@ -75,6 +75,8 @@ async function bootstrapDatabase() {
       // teachers table additions
       await safeAlter(connection, `ALTER TABLE teachers ADD COLUMN speciality VARCHAR(255) NULL AFTER specialization`);
       await safeAlter(connection, `ALTER TABLE teachers ADD COLUMN diploma VARCHAR(255) NULL AFTER speciality`);
+      await safeAlter(connection, `ALTER TABLE teachers ADD COLUMN national_id VARCHAR(50) NULL AFTER diploma`);
+      await safeAlter(connection, `ALTER TABLE teachers ADD COLUMN social_security_number VARCHAR(50) NULL AFTER national_id`);
       // Make school_id nullable if it exists as NOT NULL
       await safeAlter(connection, `ALTER TABLE teachers MODIFY COLUMN school_id BIGINT UNSIGNED NULL`);
       await safeAlter(connection, `ALTER TABLE teachers ADD COLUMN school_id BIGINT UNSIGNED NULL AFTER user_id`);
@@ -95,6 +97,7 @@ async function bootstrapDatabase() {
       await safeAlter(connection, `ALTER TABLE students ADD COLUMN discount_percent DECIMAL(5,2) DEFAULT 0 AFTER promo_code`);
 
       // students extended fields v2
+      await safeAlter(connection, `ALTER TABLE students ADD COLUMN parent_id_number VARCHAR(50) NULL AFTER parent_name`);
       await safeAlter(connection, `ALTER TABLE students ADD COLUMN parent_phone2 VARCHAR(30) NULL AFTER parent_phone`);
       await safeAlter(connection, `ALTER TABLE students ADD COLUMN phone1_has_whatsapp TINYINT(1) DEFAULT 0 AFTER parent_phone`);
       await safeAlter(connection, `ALTER TABLE students ADD COLUMN phone1_has_viber TINYINT(1) DEFAULT 0 AFTER phone1_has_whatsapp`);

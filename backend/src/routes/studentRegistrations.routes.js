@@ -25,6 +25,7 @@ const SELECT_STUDENT = `
     students.formation_id,
     students.registration_number,
     students.parent_name,
+    students.parent_id_number,
     students.parent_phone,
     students.phone1_has_whatsapp,
     students.phone1_has_viber,
@@ -291,6 +292,7 @@ router.post(
       formation_id: formationId,
       registration_number: registrationNumber,
       parent_name: parentName = null,
+      parent_id_number: parentIdNumber = null,
       parent_phone: parentPhone = null,
       phone1_has_whatsapp: phone1Whatsapp = 0,
       phone1_has_viber: phone1Viber = 0,
@@ -346,9 +348,9 @@ router.post(
       const userId = userResult.insertId;
 
       await connection.execute(
-        `INSERT INTO students (user_id, school_id, formation_id, registration_number, parent_name, parent_phone, phone1_has_whatsapp, phone1_has_viber, phone1_has_telegram, parent_phone2, phone2_has_whatsapp, phone2_has_viber, phone2_has_telegram, guardian_name, guardian_relationship, guardian_id_number, health_notes, parents_status, enrollment_date, payment_status, subscription_plan, next_payment_date, promo_code, discount_percent)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [userId, schoolId, formationId, registrationNumber, parentName, parentPhone, phone1Whatsapp ? 1 : 0, phone1Viber ? 1 : 0, phone1Telegram ? 1 : 0, parentPhone2, phone2Whatsapp ? 1 : 0, phone2Viber ? 1 : 0, phone2Telegram ? 1 : 0, guardianName, guardianRelationship, guardianIdNumber, healthNotes, parentsStatus, enrollmentDate, paymentStatus, subscriptionPlan, computeNextPaymentDate(enrollmentDate, subscriptionPlan, paymentStatus), appliedPromoCode, appliedDiscountPercent]
+        `INSERT INTO students (user_id, school_id, formation_id, registration_number, parent_name, parent_id_number, parent_phone, phone1_has_whatsapp, phone1_has_viber, phone1_has_telegram, parent_phone2, phone2_has_whatsapp, phone2_has_viber, phone2_has_telegram, guardian_name, guardian_relationship, guardian_id_number, health_notes, parents_status, enrollment_date, payment_status, subscription_plan, next_payment_date, promo_code, discount_percent)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [userId, schoolId, formationId, registrationNumber, parentName, parentIdNumber, parentPhone, phone1Whatsapp ? 1 : 0, phone1Viber ? 1 : 0, phone1Telegram ? 1 : 0, parentPhone2, phone2Whatsapp ? 1 : 0, phone2Viber ? 1 : 0, phone2Telegram ? 1 : 0, guardianName, guardianRelationship, guardianIdNumber, healthNotes, parentsStatus, enrollmentDate, paymentStatus, subscriptionPlan, computeNextPaymentDate(enrollmentDate, subscriptionPlan, paymentStatus), appliedPromoCode, appliedDiscountPercent]
       );
 
       await connection.commit();
@@ -385,6 +387,7 @@ router.put(
       formation_id: formationId,
       registration_number: registrationNumber,
       parent_name: parentName,
+      parent_id_number: parentIdNumber,
       parent_phone: parentPhone,
       phone1_has_whatsapp: phone1Whatsapp,
       phone1_has_viber: phone1Viber,
@@ -455,6 +458,7 @@ router.put(
       if (formationId !== undefined)        { stuUpdates.push('formation_id = ?');        stuValues.push(formationId); }
       if (registrationNumber !== undefined) { stuUpdates.push('registration_number = ?'); stuValues.push(registrationNumber); }
       if (parentName !== undefined)         { stuUpdates.push('parent_name = ?');         stuValues.push(parentName); }
+      if (parentIdNumber !== undefined)     { stuUpdates.push('parent_id_number = ?');    stuValues.push(parentIdNumber); }
       if (parentPhone !== undefined)        { stuUpdates.push('parent_phone = ?');        stuValues.push(parentPhone); }
       if (phone1Whatsapp !== undefined)     { stuUpdates.push('phone1_has_whatsapp = ?'); stuValues.push(phone1Whatsapp ? 1 : 0); }
       if (phone1Viber !== undefined)        { stuUpdates.push('phone1_has_viber = ?');    stuValues.push(phone1Viber ? 1 : 0); }
