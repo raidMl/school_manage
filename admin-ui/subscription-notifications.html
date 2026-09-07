@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Anti-FOUC & Preloader -->
+    <style id="fouc-style">body { opacity: 0; visibility: hidden; }</style>
+    <script>
+      (function() {
+        var lang = localStorage.getItem('app_lang') || 'ar';
+        if(lang === 'ar') {
+          document.documentElement.dir = 'rtl';
+          document.documentElement.lang = 'ar';
+        } else {
+          document.documentElement.dir = 'ltr';
+          document.documentElement.lang = 'en';
+        }
+      })();
+    </script>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Subscription Payment Alerts | School System Admin</title>
+    <link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/sidebar.css">
+    <style>
+        body {
+            font-family: 'Cairo', 'Inter', sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+        }
+
+        .page-header {
+            margin: 0 0 24px 0;
+            padding: 0;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .page-title {
+            font-size: 22px;
+            font-weight: 800;
+            color: #0f172a;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .page-subtitle {
+            font-size: 13px;
+            color: #64748b;
+            margin: 4px 0 0 0;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            border: 1px solid #edf2f7;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: transform .2s, box-shadow .2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        }
+
+        .stat-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+
+        .stat-icon.blue { background: #eff6ff; color: #3b82f6; }
+        .stat-icon.red { background: #fef2f2; color: #ef4444; }
+        .stat-icon.yellow { background: #fffbeb; color: #f59e0b; }
+
+        .stat-info h4 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 800;
+            color: #0f172a;
+            line-height: 1.2;
+        }
+
+        .stat-info p {
+            margin: 4px 0 0 0;
+            font-size: 13px;
+            font-weight: 600;
+            color: #64748b;
+        }
+
+        /* Main Panel */
+        .card-panel {
+            background: #fff;
+            border-radius: 18px;
+            padding: 24px;
+            box-shadow: 0 4px 24px rgba(0,0,0,.04);
+            border: 1px solid #edf2f7;
+            margin-bottom: 24px;
+        }
+
+        /* Tabs & Controls Bar */
+        .controls-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .filter-tab {
+            padding: 8px 16px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            background: #fff;
+            color: #475569;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all .2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-tab:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+            color: #1e293b;
+        }
+
+        .filter-tab.active {
+            background: #4f6eff;
+            border-color: #4f6eff;
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(79, 110, 255, 0.25);
+        }
+
+        .tab-badge {
+            font-size: 11px;
+            padding: 2px 7px;
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.08);
+        }
+
+        .filter-tab.active .tab-badge {
+            background: rgba(255, 255, 255, 0.25);
+            color: #fff;
+        }
+
+        .search-box {
+            position: relative;
+            min-width: 260px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 8px 14px 8px 36px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            font-size: 13px;
+            background: #f8fafc;
+            transition: all .2s;
+        }
+
+        html[dir="rtl"] .search-box input {
+            padding: 8px 36px 8px 14px;
+        }
+
+        .search-box input:focus {
+            background: #fff;
+            border-color: #4f6eff;
+            box-shadow: 0 0 0 3px rgba(79, 110, 255, 0.12);
+            outline: none;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 14px;
+            pointer-events: none;
+        }
+
+        html[dir="rtl"] .search-box i {
+            left: auto;
+            right: 12px;
+        }
+
+        /* Table Styling */
+        .alerts-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .alerts-table th {
+            background: #f8fafc;
+            color: #475569;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 14px 16px;
+            border-bottom: 2px solid #edf2f7;
+            white-space: nowrap;
+        }
+
+        .alerts-table td {
+            padding: 14px 16px;
+            vertical-align: middle;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 13px;
+        }
+
+        .alerts-table tr:hover td {
+            background: #fbfcfe;
+        }
+
+        .student-cell {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .student-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid #e2e8f0;
+            flex-shrink: 0;
+        }
+
+        .student-name {
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 2px;
+        }
+
+        .student-reg {
+            font-size: 11px;
+            color: #64748b;
+            font-family: monospace;
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .status-pill.pill-red {
+            background: #fee2e2;
+            color: #b91c1c;
+            border: 1px solid #fca5a5;
+        }
+
+        .status-pill.pill-yellow {
+            background: #fef3c7;
+            color: #b45309;
+            border: 1px solid #fde68a;
+        }
+
+        .plan-tag {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .btn-act {
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            text-decoration: none !important;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all .2s;
+            border: 1px solid transparent;
+        }
+
+        .btn-act.btn-pay {
+            background: #10b981;
+            color: #fff;
+        }
+        .btn-act.btn-pay:hover {
+            background: #059669;
+            color: #fff;
+        }
+
+        .btn-act.btn-profile {
+            background: #f1f5f9;
+            color: #334155;
+            border-color: #cbd5e1;
+        }
+        .btn-act.btn-profile:hover {
+            background: #e2e8f0;
+            color: #0f172a;
+        }
+
+        .btn-act.btn-wa {
+            background: #25d366;
+            color: #fff;
+        }
+        .btn-act.btn-wa:hover {
+            background: #1ebd5a;
+            color: #fff;
+        }
+    </style>
+
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#007bff">
+</head>
+
+<body data-page="subscription-notifications">
+    <div id="sidebar-placeholder"></div>
+    <div class="sb-main">
+        <div id="header-placeholder"></div>
+        <div class="sb-content">
+            <div class="sb-breadcrumb">
+                <i class="fa fa-home"></i>
+                <a href="index.html" data-i18n="Home">Home</a>
+                <span>/</span>
+                <a href="all-students.html" data-i18n="Students">Students</a>
+                <span>/</span>
+                <span id="bc-title">Subscription Alerts</span>
+            </div>
+
+            <!-- Page Header -->
+            <div class="page-header">
+                <div>
+                    <h2 class="page-title">
+                        <i class="fa fa-bell" style="color: #4f6eff;"></i>
+                        <span id="heading-title">Subscription Payment Alerts</span>
+                    </h2>
+                    <p class="page-subtitle" id="heading-subtitle">Track and manage upcoming and overdue student subscriptions.</p>
+                </div>
+                <div style="display:flex; gap:10px;">
+                    <a href="payments.html" class="btn btn-primary" style="border-radius: 10px; font-weight: 700; font-size: 13px;">
+                        <i class="fa fa-credit-card"></i> <span id="btn-goto-payments">Record Payment</span>
+                    </a>
+                    <button id="btn-refresh" class="btn btn-default" style="border-radius: 10px; font-weight: 700; font-size: 13px;">
+                        <i class="fa fa-refresh"></i> <span id="btn-refresh-text">Refresh</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Overview Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon blue">
+                        <i class="fa fa-bell-o"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h4 id="stat-total">0</h4>
+                        <p id="label-stat-total">Total Alerts</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon red">
+                        <span class="notif-item-dot dot-red" style="width: 14px; height: 14px;"></span>
+                    </div>
+                    <div class="stat-info">
+                        <h4 id="stat-urgent" style="color: #ef4444;">0</h4>
+                        <p id="label-stat-urgent">Due in ≤ 1 Day / Overdue</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon yellow">
+                        <span class="notif-item-dot dot-yellow" style="width: 14px; height: 14px;"></span>
+                    </div>
+                    <div class="stat-info">
+                        <h4 id="stat-warning" style="color: #f59e0b;">0</h4>
+                        <p id="label-stat-warning">Due within 1 Week</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Panel -->
+            <div class="card-panel">
+                <!-- Filter Bar -->
+                <div class="controls-bar">
+                    <div class="filter-tabs">
+                        <button class="filter-tab active" data-filter="all">
+                            <span id="tab-all-text">All Alerts</span>
+                            <span class="tab-badge" id="tab-badge-all">0</span>
+                        </button>
+                        <button class="filter-tab" data-filter="urgent">
+                            <span class="notif-item-dot dot-red"></span>
+                            <span id="tab-urgent-text">≤ 1 Day / Overdue</span>
+                            <span class="tab-badge" id="tab-badge-urgent">0</span>
+                        </button>
+                        <button class="filter-tab" data-filter="warning">
+                            <span class="notif-item-dot dot-yellow"></span>
+                            <span id="tab-warning-text">Within 1 Week</span>
+                            <span class="tab-badge" id="tab-badge-warning">0</span>
+                        </button>
+                    </div>
+
+                    <div class="search-box">
+                        <i class="fa fa-search"></i>
+                        <input type="text" id="alerts-search" placeholder="Search by student, reg # or course...">
+                    </div>
+                </div>
+
+                <!-- Table Container -->
+                <div class="table-responsive">
+                    <table class="alerts-table" id="alerts-table">
+                        <thead>
+                            <tr>
+                                <th width="30" style="text-align:center;">#</th>
+                                <th id="th-student">Student</th>
+                                <th id="th-course">Course / Plan</th>
+                                <th id="th-due">Next Payment Date</th>
+                                <th id="th-status">Due Status</th>
+                                <th id="th-parent">Parent / Contact</th>
+                                <th id="th-actions" width="180" style="text-align:center;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="alerts-tbody">
+                            <tr>
+                                <td colspan="7" style="text-align:center; padding: 40px 20px; color: #94a3b8;">
+                                    <i class="fa fa-spinner fa-spin fa-2x" style="margin-bottom: 8px;"></i>
+                                    <div>Loading payment alerts...</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="footer-placeholder"></div>
+        </div>
+    </div>
+
+    <script src="js/vendor/jquery-1.12.4.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/components.js"></script>
+    <script src="js/backend.js?v=4"></script>
+    <script>
+    (function () {
+        var currentFilter = 'all';
+        var allAlerts = [];
+        var lang = localStorage.getItem('app_lang') || (document.documentElement.lang || 'ar');
+
+        // Local avatar helper — uses local default images when no photo is uploaded
+        function avatarUrl(photo, name, type, gender) {
+            if (photo) {
+                var base = (typeof CONFIG !== 'undefined' && CONFIG.API_BASE_URL)
+                    ? CONFIG.API_BASE_URL.replace('/api', '')
+                    : 'http://127.0.0.1:5000';
+                return base + '/uploads/' + photo;
+            }
+            // Use local standard icons based on gender
+            return (gender === 'female')
+                ? 'img/\u0637\u0627\u0644\u0628\u0629 \u0645\u0633\u0644\u0645\u0629.webp'
+                : 'img/\u0637\u0627\u0644\u0628.webp';
+        }
+
+        var I18N_PAGE = {
+            ar: {
+                bcTitle: 'تنبيهات الاشتراكات',
+                headingTitle: 'تنبيهات دفع الاشتراكات',
+                headingSubtitle: 'متابعة الاشتراكات المستحقة للدفع خلال أسبوع أو يوم أو المتأخرة لتسوية الحسابات.',
+                btnGotoPayments: 'تسجيل دفع جديد',
+                btnRefresh: 'تحديث البيانات',
+                statTotal: 'إجمالي التنبيهات',
+                statUrgent: 'عاجل: خلال يوم أو متأخر',
+                statWarning: 'خلال أسبوع (2 إلى 7 أيام)',
+                tabAll: 'جميع التنبيهات',
+                tabUrgent: 'عاجل (يوم أو متأخر)',
+                tabWarning: 'خلال أسبوع',
+                searchPlaceholder: 'بحث باسم الطالب أو رقم التسجيل أو الدورة...',
+                thStudent: 'الطالب',
+                thCourse: 'الدورة / الخطة',
+                thDue: 'تاريخ الاستحقاق',
+                thStatus: 'حالة الاستحقاق',
+                thParent: 'ولي الأمر / الهاتف',
+                thActions: 'الإجراءات',
+                loading: 'جاري تحميل تنبيهات الدفع...',
+                noAlerts: 'رائع! لا توجد اشتراكات مستحقة أو متأخرة حالياً.',
+                noResults: 'لا توجد نتائج مطابقة لبحثك.',
+                btnPay: 'دفع',
+                btnProfile: 'الملف',
+                overduePrefix: 'متأخر منذ ',
+                days: ' أيام',
+                day: ' يوم',
+                dueToday: 'مستحق اليوم',
+                dueTomorrow: 'مستحق غداً',
+                dueIn: 'مستحق خلال '
+            },
+            en: {
+                bcTitle: 'Subscription Alerts',
+                headingTitle: 'Subscription Payment Alerts',
+                headingSubtitle: 'Track and manage student subscriptions due within 1 week, 1 day, or overdue.',
+                btnGotoPayments: 'Record Payment',
+                btnRefresh: 'Refresh',
+                statTotal: 'Total Alerts',
+                statUrgent: 'Due in ≤ 1 Day / Overdue',
+                statWarning: 'Due within 1 Week',
+                tabAll: 'All Alerts',
+                tabUrgent: '≤ 1 Day / Overdue',
+                tabWarning: 'Within 1 Week',
+                searchPlaceholder: 'Search by student, reg # or course...',
+                thStudent: 'Student',
+                thCourse: 'Course / Plan',
+                thDue: 'Next Payment Date',
+                thStatus: 'Due Status',
+                thParent: 'Parent / Contact',
+                thActions: 'Actions',
+                loading: 'Loading payment alerts...',
+                noAlerts: 'Great! No subscription payments due or overdue.',
+                noResults: 'No alerts match your search.',
+                btnPay: 'Pay',
+                btnProfile: 'Profile',
+                overduePrefix: 'Overdue by ',
+                days: ' days',
+                day: ' day',
+                dueToday: 'Due today',
+                dueTomorrow: 'Due tomorrow',
+                dueIn: 'Due in '
+            }
+        };
+
+        var T = I18N_PAGE[lang] || I18N_PAGE.ar;
+
+        function applyPageTranslations() {
+            document.getElementById('bc-title').textContent = T.bcTitle;
+            document.getElementById('heading-title').textContent = T.headingTitle;
+            document.getElementById('heading-subtitle').textContent = T.headingSubtitle;
+            document.getElementById('btn-goto-payments').textContent = T.btnGotoPayments;
+            document.getElementById('btn-refresh-text').textContent = T.btnRefresh;
+            document.getElementById('label-stat-total').textContent = T.statTotal;
+            document.getElementById('label-stat-urgent').textContent = T.statUrgent;
+            document.getElementById('label-stat-warning').textContent = T.statWarning;
+            document.getElementById('tab-all-text').textContent = T.tabAll;
+            document.getElementById('tab-urgent-text').textContent = T.tabUrgent;
+            document.getElementById('tab-warning-text').textContent = T.tabWarning;
+            document.getElementById('alerts-search').placeholder = T.searchPlaceholder;
+            document.getElementById('th-student').textContent = T.thStudent;
+            document.getElementById('th-course').textContent = T.thCourse;
+            document.getElementById('th-due').textContent = T.thDue;
+            document.getElementById('th-status').textContent = T.thStatus;
+            document.getElementById('th-parent').textContent = T.thParent;
+            document.getElementById('th-actions').textContent = T.thActions;
+        }
+
+        function loadAlerts() {
+            var tbody = document.getElementById('alerts-tbody');
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 40px 20px; color: #94a3b8;">' +
+                '<i class="fa fa-spinner fa-spin fa-2x" style="margin-bottom: 8px;"></i>' +
+                '<div>' + T.loading + '</div></td></tr>';
+
+            var apiBase = (typeof CONFIG !== 'undefined' && CONFIG.API_BASE_URL)
+                ? CONFIG.API_BASE_URL
+                : 'http://127.0.0.1:5000/api';
+
+            var token = localStorage.getItem('school_system_token') || '';
+            var headers = { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' };
+
+            fetch(apiBase + '/student-registrations/payment-alerts', { headers: headers })
+                .then(function (res) {
+                    if (!res.ok) throw new Error('HTTP ' + res.status);
+                    return res.json();
+                })
+                .then(function (res) {
+                    allAlerts = res.data || [];
+                    var summary = res.summary || { total: 0, urgent: 0, warning: 0 };
+
+                    // Update stats
+                    document.getElementById('stat-total').textContent = summary.total;
+                    document.getElementById('stat-urgent').textContent = summary.urgent;
+                    document.getElementById('stat-warning').textContent = summary.warning;
+
+                    document.getElementById('tab-badge-all').textContent = summary.total;
+                    document.getElementById('tab-badge-urgent').textContent = summary.urgent;
+                    document.getElementById('tab-badge-warning').textContent = summary.warning;
+
+                    renderTable();
+                })
+                .catch(function (err) {
+                    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 30px; color: #ef4444;">' +
+                        '<i class="fa fa-exclamation-triangle fa-2x" style="margin-bottom: 8px;"></i>' +
+                        '<div>' + (err.message || 'Failed to load alerts') + '</div></td></tr>';
+                });
+        }
+
+        function renderTable() {
+            var tbody = document.getElementById('alerts-tbody');
+            var search = (document.getElementById('alerts-search').value || '').trim().toLowerCase();
+
+            var filtered = allAlerts.filter(function (item) {
+                // Filter tab
+                if (currentFilter === 'urgent' && item.urgency !== 'urgent' && item.urgency !== 'overdue') return false;
+                if (currentFilter === 'warning' && item.urgency !== 'warning') return false;
+
+                // Search query
+                if (search) {
+                    var name = [item.first_name, item.last_name].filter(Boolean).join(' ').toLowerCase();
+                    var reg = (item.registration_number || '').toLowerCase();
+                    var course = (item.formation_title || '').toLowerCase();
+                    var parent = (item.parent_name || '').toLowerCase();
+                    var phone = (item.parent_phone || '').toLowerCase();
+                    if (name.indexOf(search) === -1 && reg.indexOf(search) === -1 && course.indexOf(search) === -1 && parent.indexOf(search) === -1 && phone.indexOf(search) === -1) {
+                        return false;
+                    }
+                }
+                return true;
+            });
+
+            if (filtered.length === 0) {
+                var emptyMsg = (allAlerts.length === 0) ? T.noAlerts : T.noResults;
+                var emptyIcon = (allAlerts.length === 0) ? 'fa-check-circle-o' : 'fa-search';
+                var iconColor = (allAlerts.length === 0) ? '#10b981' : '#cbd5e1';
+
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 60px 20px; color: #64748b;">' +
+                    '<i class="fa ' + emptyIcon + '" style="font-size: 40px; color: ' + iconColor + '; display: block; margin-bottom: 12px;"></i>' +
+                    '<div style="font-size: 15px; font-weight: 700; color: #1e293b;">' + emptyMsg + '</div>' +
+                    '</td></tr>';
+                return;
+            }
+
+            var html = filtered.map(function (s, index) {
+                var name = [s.first_name, s.last_name].filter(Boolean).join(' ');
+                var img = avatarUrl(s.photo, name, 'student', s.gender);
+                var isRed = s.urgency === 'overdue' || s.urgency === 'urgent';
+                var dotClass = isRed ? 'dot-red' : 'dot-yellow';
+                var pillClass = isRed ? 'pill-red' : 'pill-yellow';
+                var days = Number(s.days_left);
+
+                var statusLabel = '';
+                if (days < 0) {
+                    var abs = Math.abs(days);
+                    statusLabel = T.overduePrefix + abs + (abs === 1 ? T.day : T.days);
+                } else if (days === 0) {
+                    statusLabel = T.dueToday;
+                } else if (days === 1) {
+                    statusLabel = T.dueTomorrow;
+                } else {
+                    statusLabel = T.dueIn + days + (days === 1 ? T.day : T.days);
+                }
+
+                // Plan label
+                var planLabel = s.subscription_plan === '1_month' ? (lang === 'ar' ? 'شهري' : 'Monthly') :
+                                s.subscription_plan === '3_months' ? (lang === 'ar' ? '3 أشهر' : '3 Months') :
+                                s.subscription_plan === '1_year' ? (lang === 'ar' ? 'سنوي' : 'Yearly') :
+                                (s.subscription_plan || (lang === 'ar' ? 'اشتراك' : 'Plan'));
+
+                // WhatsApp clean number
+                var waPhone = (s.parent_phone || '').replace(/[^0-9]/g, '');
+
+                return '<tr>' +
+                    '<td style="text-align:center; color: #94a3b8; font-weight: 600;">' + (index + 1) + '</td>' +
+                    '<td>' +
+                        '<div class="student-cell">' +
+                            '<div style="position: relative;">' +
+                                '<img src="' + img + '" class="student-avatar" onerror="this.src=\'' + avatarUrl('', name, 'student', s.gender) + '\'">' +
+                                '<span class="notif-item-dot ' + dotClass + '" style="position: absolute; bottom: -2px; right: -2px; border: 2px solid #fff;"></span>' +
+                            '</div>' +
+                            '<div>' +
+                                '<a href="student-profile.html?id=' + s.id + '" class="student-name" style="text-decoration:none;">' + name + '</a>' +
+                                '<div class="student-reg">' + (s.registration_number || 'STU-' + s.id) + '</div>' +
+                            '</div>' +
+                        '</div>' +
+                    '</td>' +
+                    '<td>' +
+                        '<div style="font-weight: 700; color: #1e293b;">' + (s.formation_title || '—') + '</div>' +
+                        '<span class="plan-tag"><i class="fa fa-clock-o" style="margin-right: 3px;"></i>' + planLabel + '</span>' +
+                    '</td>' +
+                    '<td>' +
+                        '<div style="font-weight: 700; font-family: monospace; font-size: 13px; color: #334155;">' + (s.next_payment_date || '—') + '</div>' +
+                    '</td>' +
+                    '<td>' +
+                        '<span class="status-pill ' + pillClass + '">' +
+                            '<span class="notif-item-dot ' + dotClass + '"></span>' +
+                            statusLabel +
+                        '</span>' +
+                    '</td>' +
+                    '<td>' +
+                        '<div style="font-weight: 600; color: #334155;">' + (s.parent_name || '—') + '</div>' +
+                        '<div style="font-size: 12px; color: #64748b; font-family: monospace;">' + (s.parent_phone || '—') + '</div>' +
+                    '</td>' +
+                    '<td style="text-align:center;">' +
+                        '<div class="action-btns" style="justify-content:center;">' +
+                            '<a href="payments.html?student_id=' + s.id + '" class="btn-act btn-pay" title="' + T.btnPay + '">' +
+                                '<i class="fa fa-credit-card"></i> <span>' + T.btnPay + '</span>' +
+                            '</a>' +
+                            '<a href="student-profile.html?id=' + s.id + '" class="btn-act btn-profile" title="' + T.btnProfile + '">' +
+                                '<i class="fa fa-user"></i>' +
+                            '</a>' +
+                            (waPhone ? '<a href="https://wa.me/' + waPhone + '" target="_blank" rel="noopener" class="btn-act btn-wa" title="WhatsApp"><i class="fa fa-whatsapp"></i></a>' : '') +
+                        '</div>' +
+                    '</td>' +
+                '</tr>';
+            }).join('');
+
+            tbody.innerHTML = html;
+        }
+
+        // Tab click handlers
+        document.querySelectorAll('.filter-tab').forEach(function (tab) {
+            tab.addEventListener('click', function () {
+                document.querySelectorAll('.filter-tab').forEach(function (t) { t.classList.remove('active'); });
+                this.classList.add('active');
+                currentFilter = this.getAttribute('data-filter');
+                renderTable();
+            });
+        });
+
+        // Search input handler
+        document.getElementById('alerts-search').addEventListener('input', function () {
+            renderTable();
+        });
+
+        // Refresh button
+        document.getElementById('btn-refresh').addEventListener('click', function () {
+            loadAlerts();
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            applyPageTranslations();
+            loadAlerts();
+        });
+    })();
+    </script>
+</body>
+</html>

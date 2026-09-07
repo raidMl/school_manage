@@ -117,6 +117,8 @@ router.get(
       conditions.push('students.next_payment_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 7 DAY)');
     } else if (paymentDue === 'tomorrow') {
       conditions.push('students.next_payment_date = DATE_ADD(CURDATE(), INTERVAL 1 DAY)');
+    } else if (paymentDue === 'day') {
+      conditions.push('students.next_payment_date <= DATE_ADD(CURDATE(), INTERVAL 1 DAY)');
     } else if (paymentDue === 'overdue') {
       conditions.push('students.next_payment_date < CURDATE()');
     }
@@ -189,6 +191,63 @@ router.get(
     );
 
     res.json({ data: rows, summary: summaryRows[0] || { total_revenue: 0, student_count: 0 } });
+  })
+);
+
+// GET payment subscription alerts (urgent <= 1 day/overdue, warning <= 7 days)
+router.get(
+  '/payment-alerts',
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    const schoolId = await getSchoolId(req.auth.userId);
+
+    const rows = await query(
+      `SELECT
+        students.id,
+        students.user_id,
+        students.formation_id,
+        students.registration_number,
+        students.parent_name,
+        students.parent_phone,
+        students.enrollment_date,
+        students.payment_status,
+        students.subscription_plan,
+        DATE_FORMAT(students.next_payment_date, '%Y-%m-%d') AS next_payment_date,
+        DATEDIFF(students.next_payment_date, CURDATE()) AS days_left,
+        users.first_name,
+        users.last_name,
+        users.email,
+        users.photo,
+        f.title AS formation_title,
+        f.type AS formation_type,
+        CASE
+          WHEN students.next_payment_date < CURDATE() THEN 'overdue'
+          WHEN DATEDIFF(students.next_payment_date, CURDATE()) <= 1 THEN 'urgent'
+          ELSE 'warning'
+        END AS urgency
+      FROM students
+      INNER JOIN users ON users.id = students.user_id
+      LEFT JOIN formations f ON f.id = students.formation_id
+      WHERE students.school_id = ?
+        AND students.next_payment_date IS NOT NULL
+        AND students.next_payment_date <= DATE_ADD(CURDATE(), INTERVAL 7 DAY)
+      ORDER BY students.next_payment_date ASC, students.id DESC`,
+      [schoolId]
+    );
+
+    const urgentCount = rows.filter(r => r.urgency === 'overdue' || r.urgency === 'urgent').length;
+    const warningCount = rows.filter(r => r.urgency === 'warning').length;
+
+    res.json({
+      data: rows,
+      summary: {
+        total: rows.length,
+        urgent: urgentCount,
+        warning: warningCount,
+        has_red: urgentCount > 0,
+        has_yellow: warningCount > 0
+      }
+    });
   })
 );
 

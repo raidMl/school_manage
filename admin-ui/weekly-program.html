@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <!-- Anti-FOUC & Preloader -->
@@ -21,7 +21,7 @@
     <title>Weekly Program | School System Admin</title>
     <meta name="description" content="Manage weekly schedule programs — assign groups and subjects to time slots">
     <link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/font-awesome.min.css">
     <link rel="stylesheet" href="css/sidebar.css">
@@ -29,6 +29,9 @@
     <style>
     /* ── Base ─────────────────────────────────────────────────────────────── */
     body { font-family: 'Inter', sans-serif; background: #f0f2f8; }
+    html[dir="rtl"] body, html[dir="rtl"] .tt-table, html[dir="rtl"] input, html[dir="rtl"] select, html[dir="rtl"] button {
+        font-family: 'Cairo', 'Inter', sans-serif;
+    }
 
     /* ── Cards ────────────────────────────────────────────────────────────── */
     .wp-card {
@@ -310,7 +313,10 @@
                                 <i class="fa fa-clock-o"></i> Add Time Slot
                             </button>
                             <button id="wp-btn-pdf" class="btn btn-default btn-sm no-print">
-                                <i class="fa fa-file-pdf-o"></i> Download PDF
+                                <i class="fa fa-file-pdf-o"></i> تنزيل PDF
+                            </button>
+                            <button id="wp-btn-img" class="btn btn-default btn-sm no-print">
+                                <i class="fa fa-picture-o"></i> تنزيل صورة
                             </button>
                             <button id="wp-btn-delete" class="btn btn-danger btn-sm no-print">
                                 <i class="fa fa-trash"></i>
@@ -471,7 +477,8 @@
 <script src="js/vendor/jquery-1.12.4.min.js"></script>
 <script src="js/bootstrap.min.js"></script>
 <script src="js/components.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="js/backend.js?v=3"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="js/backend.js?v=6"></script>
 </body>
 </html>

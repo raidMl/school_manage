@@ -16,6 +16,8 @@ router.get('/me', asyncHandler(async (req, res) => {
   // Get student info
   const studentInfo = await query(`
     SELECT s.id as student_id, s.registration_number, s.enrollment_date, s.payment_status, 
+           s.subscription_plan, DATE_FORMAT(s.next_payment_date, '%Y-%m-%d') AS next_payment_date,
+           DATEDIFF(s.next_payment_date, CURDATE()) AS days_left,
            u.first_name, u.last_name, u.email, u.phone, u.photo,
            f.title as formation_title, f.type as formation_type
     FROM students s

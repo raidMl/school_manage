@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style id="fouc-style">body { opacity: 0; visibility: hidden; }</style>
+    <script>
+      (function() {
+        var lang = localStorage.getItem('app_lang') || 'ar';
+        document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+        document.documentElement.lang = lang;
+      })();
+    </script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>رواتب الأساتذة | School System Admin</title>
+    <link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/sidebar.css">
+    <style>
+    :root {
+        --primary:       #4f6eff;
+        --primary-light: #eef1ff;
+        --success:       #10b981;
+        --warning:       #f59e0b;
+        --danger:        #ef4444;
+        --surface:       #ffffff;
+        --bg:            #f1f5f9;
+        --border:        #e2e8f0;
+        --text:          #1e293b;
+        --muted:         #64748b;
+        --radius:        14px;
+        --shadow:        0 2px 16px rgba(0,0,0,.07);
+    }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); }
+
+    /* ── Page header ── */
+    .page-header {
+        background: linear-gradient(135deg,#1e293b 0%,#334155 50%,#1e3a5f 100%);
+        color:#fff; padding:28px 32px; border-radius:var(--radius);
+        margin-bottom:24px; position:relative; overflow:hidden;
+    }
+    .page-header::before {
+        content:''; position:absolute; top:-40px; inset-inline-end:-40px;
+        width:200px; height:200px;
+        background:radial-gradient(circle,rgba(79,110,255,.35) 0%,transparent 70%);
+        border-radius:50%;
+    }
+    .page-header h2 { font-size:22px; font-weight:800; margin:0 0 4px; }
+    .page-header p  { font-size:13px; opacity:.7; margin:0; }
+
+    /* ── Stat cards ── */
+    .stats-row {
+        display:grid;
+        grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+        gap:12px; margin-bottom:24px;
+    }
+    .stat-card {
+        background:var(--surface); border-radius:var(--radius);
+        padding:16px 14px; box-shadow:var(--shadow);
+        border-inline-start:4px solid var(--primary);
+        display:flex; align-items:center; gap:12px; transition:transform .2s;
+        min-width:0; overflow:hidden;
+    }
+    .stat-card:hover { transform:translateY(-2px); }
+    .stat-card.green  { border-inline-start-color:var(--success); }
+    .stat-card.orange { border-inline-start-color:var(--warning); }
+    .stat-card.red    { border-inline-start-color:var(--danger); }
+    .stat-card.purple { border-inline-start-color:#8b5cf6; }
+    .stat-icon {
+        width:42px; height:42px; border-radius:10px; flex-shrink:0;
+        display:flex; align-items:center; justify-content:center;
+        font-size:17px; background:var(--primary-light); color:var(--primary);
+    }
+    .stat-card.green  .stat-icon { background:#d1fae5; color:var(--success); }
+    .stat-card.orange .stat-icon { background:#fef3c7; color:var(--warning); }
+    .stat-card.red    .stat-icon { background:#fee2e2; color:var(--danger); }
+    .stat-card.purple .stat-icon { background:#ede9fe; color:#8b5cf6; }
+    .stat-info { flex:1; min-width:0; }
+    .stat-info h4 {
+        font-size:18px; font-weight:800; margin:0 0 2px; line-height:1.2;
+        white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    }
+    .stat-info p { font-size:11px; color:var(--muted); margin:0; font-weight:500; line-height:1.3; }
+
+    /* ── Tabs ── */
+    .tab-bar {
+        display:flex; gap:4px; background:var(--surface);
+        border-radius:var(--radius); padding:6px;
+        box-shadow:var(--shadow); margin-bottom:22px;
+    }
+    .tab-btn {
+        flex:1; padding:10px 12px; border:none; border-radius:10px; cursor:pointer;
+        font-size:13px; font-weight:600; color:var(--muted);
+        background:transparent; transition:all .2s;
+        display:flex; align-items:center; justify-content:center; gap:6px;
+        white-space:nowrap;
+    }
+    .tab-btn:hover { background:var(--bg); color:var(--text); }
+    .tab-btn.active { background:var(--primary); color:#fff; box-shadow:0 4px 12px rgba(79,110,255,.35); }
+    .tab-btn .badge {
+        background:rgba(255,255,255,.25); font-size:10px; padding:1px 6px;
+        border-radius:20px; font-weight:700; min-width:18px; text-align:center;
+    }
+    .tab-btn:not(.active) .badge { background:var(--primary-light); color:var(--primary); }
+
+    /* ── Panel ── */
+    .panel { background:var(--surface); border-radius:var(--radius); box-shadow:var(--shadow); padding:24px; }
+    .panel-header {
+        display:flex; align-items:center; justify-content:space-between;
+        margin-bottom:20px; flex-wrap:wrap; gap:10px;
+    }
+    .panel-title { font-size:16px; font-weight:700; margin:0; }
+
+    /* ── Table ── */
+    .table-wrap { overflow-x:auto; border-radius:10px; border:1px solid var(--border); }
+    .data-table { width:100%; border-collapse:collapse; }
+    .data-table th {
+        background:#f8fafc; padding:11px 14px; font-size:11px;
+        font-weight:700; text-transform:uppercase; letter-spacing:.5px;
+        color:var(--muted); border-bottom:2px solid var(--border);
+        white-space:nowrap;
+    }
+    .data-table td { padding:11px 14px; border-bottom:1px solid #f1f5f9; font-size:13px; vertical-align:middle; }
+    .data-table tr:last-child td { border-bottom:none; }
+    .data-table tr:hover td { background:#f8fafc; }
+
+    /* ── Teacher avatar cell ── */
+    .t-cell { display:flex; align-items:center; gap:10px; }
+    .t-avatar { width:36px; height:36px; border-radius:50%; object-fit:cover; flex-shrink:0; border:2px solid var(--border); }
+    .t-name { font-weight:700; font-size:13px; color:var(--text); }
+    .t-sub  { font-size:11px; color:var(--muted); }
+
+    /* ── Salary inline inputs ── */
+    .salary-input {
+        border:1.5px solid var(--border); border-radius:8px; padding:6px 10px;
+        font-size:13px; width:100px; font-family:inherit; outline:none;
+        transition:border-color .2s; text-align:center;
+    }
+    .salary-input:focus { border-color:var(--primary); }
+    .rib-input {
+        border:1.5px solid var(--border); border-radius:8px; padding:6px 10px;
+        font-size:12px; width:140px; font-family:monospace; outline:none;
+        transition:border-color .2s;
+    }
+    .rib-input:focus { border-color:var(--primary); }
+    .method-select {
+        border:1.5px solid var(--border); border-radius:8px; padding:6px 10px;
+        font-size:12.5px; font-family:inherit; outline:none; cursor:pointer;
+    }
+
+    /* ── Pills ── */
+    .pill {
+        display:inline-flex; align-items:center; gap:5px;
+        padding:4px 10px; border-radius:20px; font-size:11px; font-weight:700;
+    }
+    .pill-paid   { background:#d1fae5; color:#065f46; }
+    .pill-unpaid { background:#fee2e2; color:#7f1d1d; }
+    .pill-dot    { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+    .pill-paid   .pill-dot { background:var(--success); }
+    .pill-unpaid .pill-dot { background:var(--danger); animation:pulse-red 1.5s infinite; }
+    @keyframes pulse-red {
+        0%,100% { opacity:1; transform:scale(1); }
+        50%      { opacity:.4; transform:scale(.7); }
+    }
+
+    /* ── Checkbox ── */
+    .pay-checkbox { width:17px; height:17px; cursor:pointer; accent-color:var(--primary); }
+
+    /* ── Icon buttons ── */
+    .btn-icon {
+        width:32px; height:32px; border-radius:8px; border:none; cursor:pointer;
+        display:inline-flex; align-items:center; justify-content:center;
+        font-size:13px; transition:all .2s;
+    }
+    .btn-icon.edit   { background:var(--primary-light); color:var(--primary); }
+    .btn-icon.delete { background:#fee2e2; color:var(--danger); }
+    .btn-icon.print  { background:#f0fdf4; color:var(--success); }
+    .btn-icon:hover  { transform:scale(1.12); filter:brightness(.9); }
+
+    /* ── Save row button ── */
+    .btn-save-row {
+        padding:5px 12px; border:none; border-radius:8px; cursor:pointer;
+        background:var(--primary); color:#fff; font-size:12px; font-weight:600;
+        transition:all .2s; white-space:nowrap;
+    }
+    .btn-save-row:hover { background:#3a56d4; }
+    .btn-save-row.saved { background:var(--success); }
+
+    /* ── Primary / outline buttons ── */
+    .btn-primary {
+        display:inline-flex; align-items:center; gap:8px;
+        padding:10px 20px; border-radius:10px; border:none; cursor:pointer;
+        background:var(--primary); color:#ffffff !important; font-size:13.5px; font-weight:600;
+        transition:all .2s; box-shadow:0 4px 12px rgba(79,110,255,.3);
+    }
+    .btn-primary *, .btn-primary:hover, .btn-primary:hover *, .btn-primary:focus, .btn-primary:focus * {
+        color:#ffffff !important;
+    }
+    .btn-primary:hover { background:#3a56d4; transform:translateY(-1px); }
+    .btn-primary:disabled { opacity:.6; cursor:not-allowed; transform:none; color:#ffffff !important; }
+    .btn-primary:disabled * { color:#ffffff !important; }
+    .btn-outline {
+        display:inline-flex; align-items:center; gap:8px;
+        padding:9px 18px; border-radius:10px; border:2px solid var(--border);
+        cursor:pointer; background:transparent; color:var(--text);
+        font-size:13px; font-weight:600; transition:all .2s;
+    }
+    .btn-outline:hover { border-color:var(--primary); color:var(--primary); }
+
+    /* ── Period selects ── */
+    .period-row { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+    .period-select {
+        border:1.5px solid var(--border); border-radius:10px; padding:8px 12px;
+        font-size:13px; font-family:inherit; outline:none; cursor:pointer;
+        background:var(--surface); transition:border-color .2s; font-weight:600;
+    }
+    .period-select:focus { border-color:var(--primary); }
+
+    /* ── Bulk bar ── */
+    .bulk-bar {
+        display:flex; align-items:center; justify-content:space-between;
+        background:var(--primary-light); border-radius:10px; padding:10px 16px;
+        margin-bottom:14px; flex-wrap:wrap; gap:8px;
+    }
+    .bulk-bar span { font-size:13px; font-weight:600; color:var(--primary); }
+
+    /* ── Modal ── */
+    .modal-backdrop {
+        position:fixed !important;
+        top:0 !important; left:0 !important; right:0 !important; bottom:0 !important;
+        width:100vw !important; height:100vh !important;
+        background:rgba(15,23,42,0.6) !important;
+        backdrop-filter:blur(3px);
+        -webkit-backdrop-filter:blur(3px);
+        z-index:99999 !important;
+        display:none;
+        align-items:center !important;
+        justify-content:center !important;
+        padding:20px;
+        margin:0 !important;
+        box-sizing:border-box !important;
+    }
+    .modal-backdrop.show { display:flex !important; }
+    .modal-box {
+        background:var(--surface); border-radius:18px; width:100%; max-width:500px;
+        box-shadow:0 25px 60px rgba(0,0,0,.3); overflow:hidden;
+        animation:slideUp .25s ease;
+        margin:auto !important;
+        position:relative;
+        z-index:100000;
+    }
+    @keyframes slideUp {
+        from { transform:translateY(30px); opacity:0; }
+        to   { transform:translateY(0);    opacity:1; }
+    }
+    .modal-header {
+        padding:20px 24px; border-bottom:1px solid var(--border);
+        display:flex; align-items:center; justify-content:space-between;
+        background:linear-gradient(135deg,var(--primary) 0%,#667eea 100%); color:#fff;
+    }
+    .modal-header h4 { margin:0; font-size:16px; font-weight:700; }
+    .modal-close {
+        width:32px; height:32px; border-radius:50%; border:none; cursor:pointer;
+        background:rgba(255,255,255,.2); color:#fff; font-size:18px; line-height:1;
+        display:flex; align-items:center; justify-content:center; transition:all .2s;
+    }
+    .modal-close:hover { background:rgba(255,255,255,.35); }
+    .modal-body   { padding:24px; }
+    .modal-footer { padding:16px 24px; border-top:1px solid var(--border); display:flex; justify-content:flex-end; gap:10px; }
+
+    /* ── Form ── */
+    .form-group  { margin-bottom:16px; }
+    .form-label  { display:block; font-size:12px; font-weight:700; color:var(--muted); margin-bottom:6px; text-transform:uppercase; letter-spacing:.4px; }
+    .form-control {
+        width:100%; border:1.5px solid var(--border); border-radius:10px;
+        padding:9px 14px; font-size:13.5px; font-family:inherit; outline:none;
+        transition:border-color .2s;
+    }
+    .form-control:focus { border-color:var(--primary); }
+
+    /* ── Pay list rows ── */
+    .pay-row {
+        display:flex; align-items:center; gap:12px; padding:12px 14px;
+        border-radius:10px; border:1.5px solid var(--border);
+        margin-bottom:10px; transition:all .2s;
+        background:var(--surface);
+    }
+    .pay-row.clickable { cursor:pointer; }
+    .pay-row.clickable:hover { border-color:var(--primary); background:var(--primary-light); }
+    .pay-row.paid     { border-color:var(--success); background:#f0fdf4; }
+    .pay-row.selected { border-color:var(--primary); background:var(--primary-light); }
+    .pay-row-info   { flex:1; min-width:0; }
+    .pay-row-amount { font-size:15px; font-weight:800; color:var(--primary); white-space:nowrap; }
+    .pay-row-amount.paid-amt { color:var(--success); }
+
+    /* ── Filters ── */
+    .filters-row { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:18px; align-items:center; }
+    .filter-select {
+        border:1.5px solid var(--border); border-radius:10px; padding:8px 12px;
+        font-size:13px; font-family:inherit; outline:none; cursor:pointer;
+        background:var(--surface); transition:border-color .2s;
+    }
+    .filter-select:focus { border-color:var(--primary); }
+    .search-input {
+        border:1.5px solid var(--border); border-radius:10px; padding:8px 14px;
+        font-size:13px; font-family:inherit; outline:none; flex:1; min-width:180px;
+        transition:border-color .2s;
+    }
+    .search-input:focus { border-color:var(--primary); }
+
+    /* ── Method badge ── */
+    .method-badge {
+        display:inline-flex; align-items:center; gap:5px;
+        padding:3px 9px; border-radius:6px; font-size:11px; font-weight:700;
+    }
+    .method-badge.cash { background:#ecfdf5; color:#065f46; }
+    .method-badge.ccp  { background:#eff6ff; color:#1e40af; }
+
+    /* ── Empty / loading ── */
+    .empty-state { text-align:center; padding:60px 20px; color:var(--muted); }
+    .empty-state i { font-size:48px; display:block; margin-bottom:12px; opacity:.3; }
+    .empty-state h4 { font-size:15px; font-weight:700; color:var(--text); margin-bottom:4px; }
+    .spinner {
+        width:36px; height:36px; border:3px solid var(--border);
+        border-top-color:var(--primary); border-radius:50%;
+        animation:spin .7s linear infinite; margin:40px auto;
+    }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    /* ── Print slip ── */
+    #print-area { display:none; position:fixed; inset:0; background:#fff; padding:40px; z-index:9999; overflow:auto; }
+    .slip-row { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #f1f5f9; font-size:13.5px; }
+    .slip-sign { margin-top:40px; display:flex; justify-content:space-around; }
+    .slip-sign-box { text-align:center; width:140px; }
+    .slip-sign-box .line { border-bottom:2px solid var(--text); margin-bottom:6px; height:40px; }
+    .slip-sign-box span { font-size:11.5px; color:var(--muted); font-weight:600; }
+    @media print {
+        body * { visibility:hidden; }
+        #print-area, #print-area * { visibility:visible; }
+        #print-area { position:fixed; inset:0; }
+        .no-print { display:none !important; }
+    }
+
+    .section-hidden { display:none; }
+    </style>
+</head>
+<body data-page="professors">
+<div id="sidebar-placeholder"></div>
+<div class="sb-main">
+  <div id="header-placeholder"></div>
+  <div class="sb-content">
+
+    <!-- Breadcrumb -->
+    <div class="sb-breadcrumb no-print">
+      <i class="fa fa-home"></i>
+      <a href="index.html" data-i18n="Home">Home</a>
+      <span>/</span>
+      <a href="all-professors.html" data-i18n="Teachers">Teachers</a>
+      <span>/</span>
+      <span id="lbl-bc-title">رواتب الأساتذة</span>
+    </div>
+
+    <!-- Page Header -->
+    <div class="page-header no-print">
+      <div style="position:relative;z-index:1">
+        <h2><i class="fa fa-money" style="margin-inline-end:10px;opacity:.8"></i><span id="lbl-page-title">رواتب الأساتذة</span></h2>
+        <p id="lbl-page-sub">إدارة الرواتب الشهرية وسجلات المدفوعات وطباعة وصولات الأساتذة</p>
+      </div>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="stats-row no-print">
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fa fa-users"></i></div>
+        <div class="stat-info"><h4 id="st-total">—</h4><p id="lbl-total">إجمالي الأساتذة</p></div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-icon"><i class="fa fa-check-circle"></i></div>
+        <div class="stat-info"><h4 id="st-paid">—</h4><p id="lbl-paid">مدفوع هذا الشهر</p></div>
+      </div>
+      <div class="stat-card red">
+        <div class="stat-icon"><i class="fa fa-clock-o"></i></div>
+        <div class="stat-info"><h4 id="st-unpaid">—</h4><p id="lbl-unpaid">غير مدفوع</p></div>
+      </div>
+      <div class="stat-card orange">
+        <div class="stat-icon"><i class="fa fa-money"></i></div>
+        <div class="stat-info"><h4 id="st-mass">—</h4><p id="lbl-mass">الكتلة الشهرية (دج)</p></div>
+      </div>
+      <div class="stat-card purple">
+        <div class="stat-icon"><i class="fa fa-bar-chart"></i></div>
+        <div class="stat-info"><h4 id="st-ytd">—</h4><p id="lbl-ytd">المدفوع هذه السنة</p></div>
+      </div>
+    </div>
+
+    <!-- Tab Bar -->
+    <div class="tab-bar no-print">
+      <button class="tab-btn active" onclick="switchTab('salary')" id="tab-salary">
+        <i class="fa fa-user-circle-o"></i> <span id="lbl-tab-salary">معلومات الراتب</span>
+      </button>
+      <button class="tab-btn" onclick="switchTab('pay')" id="tab-pay">
+        <i class="fa fa-credit-card"></i> <span id="lbl-tab-pay">تسديد هذا الشهر</span>
+        <span class="badge" id="tab-pay-badge">0</span>
+      </button>
+      <button class="tab-btn" onclick="switchTab('archive')" id="tab-archive">
+        <i class="fa fa-archive"></i> <span id="lbl-tab-archive">أرشيف المدفوعات</span>
+      </button>
+    </div>
+
+    <!-- ══════════ TAB 1: Salary Info ══════════ -->
+    <div id="section-salary" class="panel no-print">
+      <div class="panel-header">
+        <h3 class="panel-title"><i class="fa fa-user-circle-o" style="color:var(--primary);margin-inline-end:8px"></i><span id="lbl-salary-title">معلومات رواتب الأساتذة</span></h3>
+      </div>
+      <p style="font-size:13px;color:var(--muted);margin:-10px 0 18px" id="lbl-salary-desc">
+        أدخل الراتب الشهري ورقم CCP/RIB وطريقة الدفع المفضلة لكل أستاذ.
+      </p>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width:40px">#</th>
+              <th id="th-teacher">الأستاذ</th>
+              <th id="th-salary">الراتب الشهري (دج)</th>
+              <th id="th-rib">CCP / RIB</th>
+              <th id="th-method">طريقة الدفع</th>
+              <th id="th-action">حفظ</th>
+            </tr>
+          </thead>
+          <tbody id="salary-tbody">
+            <tr><td colspan="6"><div class="spinner"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══════════ TAB 2: Pay This Month ══════════ -->
+    <div id="section-pay" class="panel section-hidden no-print">
+      <div class="panel-header">
+        <h3 class="panel-title"><i class="fa fa-credit-card" style="color:var(--primary);margin-inline-end:8px"></i><span id="lbl-pay-title">تسديد رواتب الأساتذة</span></h3>
+        <div class="period-row">
+          <select class="period-select" id="pay-month">
+            <option value="1">جانفي</option><option value="2">فيفري</option>
+            <option value="3">مارس</option><option value="4">أفريل</option>
+            <option value="5">ماي</option><option value="6">جوان</option>
+            <option value="7">جويلية</option><option value="8">أوت</option>
+            <option value="9">سبتمبر</option><option value="10">أكتوبر</option>
+            <option value="11">نوفمبر</option><option value="12">ديسمبر</option>
+          </select>
+          <select class="period-select" id="pay-year"></select>
+          <button class="btn-outline" onclick="loadPayPeriod()"><i class="fa fa-refresh"></i> تحميل</button>
+        </div>
+      </div>
+
+      <div class="bulk-bar" id="bulk-bar" style="display:none">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+          <input type="checkbox" id="chk-all" onchange="toggleAll(this)" class="pay-checkbox">
+          <span id="lbl-select-all">تحديد الكل غير المدفوعين</span>
+        </label>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span id="selected-count" style="font-size:13px;color:var(--muted)">0 محدد</span>
+          <button class="btn-primary" onclick="openPayModal()" id="btn-pay-selected" disabled>
+            <i class="fa fa-check-circle"></i> <span id="lbl-btn-pay" style="color:white;">تسديد المحددين</span>
+          </button>
+        </div>
+      </div>
+
+      <div id="pay-list"><div class="spinner"></div></div>
+    </div>
+
+    <!-- ══════════ TAB 3: Archive ══════════ -->
+    <div id="section-archive" class="panel section-hidden no-print">
+      <div class="panel-header">
+        <h3 class="panel-title"><i class="fa fa-archive" style="color:var(--primary);margin-inline-end:8px"></i><span id="lbl-archive-title">أرشيف المدفوعات</span></h3>
+      </div>
+      <div class="filters-row">
+        <select class="filter-select" id="arc-month" onchange="loadArchive()">
+          <option value="">كل الأشهر</option>
+          <option value="1">جانفي</option><option value="2">فيفري</option>
+          <option value="3">مارس</option><option value="4">أفريل</option>
+          <option value="5">ماي</option><option value="6">جوان</option>
+          <option value="7">جويلية</option><option value="8">أوت</option>
+          <option value="9">سبتمبر</option><option value="10">أكتوبر</option>
+          <option value="11">نوفمبر</option><option value="12">ديسمبر</option>
+        </select>
+        <select class="filter-select" id="arc-year" onchange="loadArchive()"></select>
+        <select class="filter-select" id="arc-method" onchange="loadArchive()">
+          <option value="">كل الطرق</option>
+          <option value="cash">نقداً</option>
+          <option value="ccp">CCP</option>
+        </select>
+        <input type="text" class="search-input" id="arc-search" placeholder="ابحث عن أستاذ..." oninput="filterArchive()">
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width:40px">#</th>
+              <th>الأستاذ</th>
+              <th>الفترة</th>
+              <th>المبلغ (دج)</th>
+              <th>طريقة الدفع</th>
+              <th>تاريخ التسديد</th>
+              <th>ملاحظات</th>
+              <th>الإجراءات</th>
+            </tr>
+          </thead>
+          <tbody id="archive-tbody">
+            <tr><td colspan="8"><div class="spinner"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- /sb-content -->
+</div><!-- /sb-main -->
+
+<!-- ══ PAYMENT CONFIRM MODAL ══ -->
+<div class="modal-backdrop" id="pay-modal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h4><i class="fa fa-check-circle" style="margin-inline-end:8px"></i>تأكيد التسديد</h4>
+      <button class="modal-close" onclick="closeModal('pay-modal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div id="pay-modal-summary" style="background:var(--primary-light);border-radius:10px;padding:14px;margin-bottom:18px;font-size:13.5px;font-weight:600;color:var(--primary)"></div>
+      <div class="form-group">
+        <label class="form-label">تاريخ التسديد</label>
+        <input type="date" class="form-control" id="pm-date">
+      </div>
+      <div class="form-group">
+        <label class="form-label">طريقة الدفع</label>
+        <select class="form-control" id="pm-method">
+          <option value="cash">💵 نقداً (Cash)</option>
+          <option value="ccp">🏦 CCP / تحويل بنكي</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">ملاحظات (اختياري)</label>
+        <textarea class="form-control" id="pm-notes" rows="2" placeholder="أي ملاحظات..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline" onclick="closeModal('pay-modal')">إلغاء</button>
+      <button class="btn-primary" onclick="submitPayment()" id="btn-confirm-pay">
+        <i class="fa fa-money"></i> تأكيد وتسديد
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ EDIT PAYMENT MODAL ══ -->
+<div class="modal-backdrop" id="edit-modal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h4><i class="fa fa-pencil" style="margin-inline-end:8px"></i>تعديل الدفعة</h4>
+      <button class="modal-close" onclick="closeModal('edit-modal')">×</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="edit-id">
+      <div class="form-group">
+        <label class="form-label">المبلغ (دج)</label>
+        <input type="number" class="form-control" id="edit-amount" min="0" step="0.01">
+      </div>
+      <div class="form-group">
+        <label class="form-label">تاريخ التسديد</label>
+        <input type="date" class="form-control" id="edit-date">
+      </div>
+      <div class="form-group">
+        <label class="form-label">طريقة الدفع</label>
+        <select class="form-control" id="edit-method">
+          <option value="cash">💵 نقداً</option>
+          <option value="ccp">🏦 CCP</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">ملاحظات</label>
+        <textarea class="form-control" id="edit-notes" rows="2"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline" onclick="closeModal('edit-modal')">إلغاء</button>
+      <button class="btn-primary" onclick="submitEdit()"><i class="fa fa-save"></i> حفظ التغييرات</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PRINT SLIP AREA ══ -->
+<div id="print-area">
+  <div style="max-width:580px;margin:0 auto">
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:16px" class="no-print">
+      <button onclick="document.getElementById('print-area').style.display='none'" class="btn-outline">
+        <i class="fa fa-times"></i> إغلاق
+      </button>
+      <button onclick="window.print()" class="btn-primary">
+        <i class="fa fa-print"></i> طباعة
+      </button>
+    </div>
+    <div id="slip-content"></div>
+  </div>
+</div>
+
+<script src="js/vendor/jquery-1.12.4.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/components.js"></script>
+<script src="js/backend.js?v=6"></script>
+<script>
+(function() {
+
+  var API = (typeof CONFIG !== 'undefined' && CONFIG.API_BASE_URL) ? CONFIG.API_BASE_URL : 'http://127.0.0.1:5000/api';
+  var schoolName = '';
+  var schoolLogo = '';
+  var teachersData = [];
+  var payPeriodData = [];
+  var archiveData = [];
+
+  // ─── i18n ─────────────────────────────────────────────────────────────────
+  var MONTHS_AR = ['','جانفي','فيفري','مارس','أفريل','ماي','جوان','جويلية','أوت','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+  var MONTHS_EN = ['','January','February','March','April','May','June','July','August','September','October','November','December'];
+  var lang = localStorage.getItem('app_lang') || 'ar';
+  function monthName(m) { return (lang === 'ar' ? MONTHS_AR : MONTHS_EN)[m] || m; }
+
+  // ─── helpers ──────────────────────────────────────────────────────────────
+  function token()    { return localStorage.getItem('school_system_token') || ''; }
+  function hdrs()     { return { 'Authorization': 'Bearer ' + token(), 'Content-Type': 'application/json' }; }
+  function esc(s)     { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function fmt(n)     { return Number(n||0).toLocaleString('fr-DZ',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+  function avatar(photo, gender) {
+    if (photo) return API.replace('/api','') + '/uploads/' + photo;
+    return (gender === 'female') ? 'img/\u0637\u0627\u0644\u0628\u0629 \u0645\u0633\u0644\u0645\u0629.webp' : 'img/\u0637\u0627\u0644\u0628.webp';
+  }
+  function apiGet(p)       { return fetch(API+p,{headers:hdrs()}).then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); }); }
+  function apiPost(p,b)    { return fetch(API+p,{method:'POST',headers:hdrs(),body:JSON.stringify(b)}).then(function(r){ if(!r.ok) return r.json().then(function(d){throw new Error(d.message||'Error');}); return r.json(); }); }
+  function apiPut(p,b)     { return fetch(API+p,{method:'PUT', headers:hdrs(),body:JSON.stringify(b)}).then(function(r){ if(!r.ok) return r.json().then(function(d){throw new Error(d.message||'Error');}); return r.json(); }); }
+  function apiDel(p)       { return fetch(API+p,{method:'DELETE',headers:hdrs()}).then(function(r){ if(!r.ok) return r.json().then(function(d){throw new Error(d.message||'Error');}); return r.json(); }); }
+
+  // ─── tab switch ───────────────────────────────────────────────────────────
+  window.switchTab = function(tab) {
+    ['salary','pay','archive'].forEach(function(t) {
+      document.getElementById('section-'+t).classList.toggle('section-hidden', t !== tab);
+      document.getElementById('tab-'+t).classList.toggle('active', t === tab);
+    });
+    if (tab === 'salary')  loadSalaryTab();
+    if (tab === 'pay')     loadPayPeriod();
+    if (tab === 'archive') loadArchive();
+    loadStats();
+  };
+
+  // ─── stats ────────────────────────────────────────────────────────────────
+  function loadStats() {
+    var mEl = document.getElementById('pay-month');
+    var yEl = document.getElementById('pay-year');
+    var qs = (mEl && yEl && mEl.value && yEl.value) ? ('?month=' + mEl.value + '&year=' + yEl.value) : '';
+    apiGet('/teacher-payments/stats' + qs).then(function(d) {
+      document.getElementById('st-total').textContent  = d.total_teachers;
+      document.getElementById('st-paid').textContent   = d.paid_this_month;
+      document.getElementById('st-unpaid').textContent = d.unpaid_this_month;
+      document.getElementById('st-mass').textContent   = fmt(d.salary_mass);
+      document.getElementById('st-ytd').textContent    = fmt(d.ytd_total);
+      document.getElementById('tab-pay-badge').textContent = d.unpaid_this_month;
+    }).catch(function(){});
+  }
+
+  // ══ TAB 1: Salary Info ══════════════════════════════════════════════════
+  function loadSalaryTab() {
+    document.getElementById('salary-tbody').innerHTML = '<tr><td colspan="6"><div class="spinner"></div></td></tr>';
+    apiGet('/teacher-registrations').then(function(res) {
+      teachersData = res.data || [];
+      renderSalaryTable();
+    }).catch(function(e) {
+      document.getElementById('salary-tbody').innerHTML =
+        '<tr><td colspan="6" style="text-align:center;color:var(--danger);padding:30px">' + esc(e.message) + '</td></tr>';
+    });
+  }
+
+  function renderSalaryTable() {
+    var tbody = document.getElementById('salary-tbody');
+    if (!teachersData.length) {
+      tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><i class="fa fa-user-md"></i><h4>لا يوجد أساتذة</h4><p>أضف أساتذة من قسم الأساتذة أولاً.</p></div></td></tr>';
+      return;
+    }
+    tbody.innerHTML = teachersData.map(function(t, i) {
+      var name = [t.first_name, t.last_name].filter(Boolean).join(' ');
+      var img  = avatar(t.photo, t.gender);
+      return '<tr>' +
+        '<td style="color:var(--muted);font-weight:700;text-align:center">' + (i+1) + '</td>' +
+        '<td><div class="t-cell">' +
+          '<img src="' + esc(img) + '" class="t-avatar" onerror="this.src=\'img/\u0637\u0627\u0644\u0628.webp\'">' +
+          '<div><div class="t-name">' + esc(name) + '</div>' +
+          '<div class="t-sub">' + esc(t.employee_number||'') + (t.speciality ? ' · ' + esc(t.speciality) : '') + '</div></div>' +
+        '</div></td>' +
+        '<td><input type="number" class="salary-input" id="sal-' + t.id + '" value="' + (t.monthly_salary != null && t.monthly_salary !== '' ? parseFloat(t.monthly_salary) : '') + '" placeholder="0.00" min="0" step="100" onchange="markDirty(' + t.id + ')"></td>' +
+        '<td><input type="text" class="rib-input" id="rib-' + t.id + '" value="' + esc(t.ccp_rib||'') + '" placeholder="00000000000 00" onchange="markDirty(' + t.id + ')"></td>' +
+        '<td><select class="method-select" id="meth-' + t.id + '" onchange="markDirty(' + t.id + ')">' +
+          '<option value="cash"' + (t.preferred_pay_method==='cash'||!t.preferred_pay_method?' selected':'') + '>💵 نقداً</option>' +
+          '<option value="ccp"'  + (t.preferred_pay_method==='ccp'?' selected':'') + '>🏦 CCP</option>' +
+        '</select></td>' +
+        '<td><button class="btn-save-row" id="savebtn-' + t.id + '" onclick="saveSalary(' + t.id + ')">' +
+          '<i class="fa fa-save"></i> حفظ</button></td>' +
+      '</tr>';
+    }).join('');
+  }
+
+  window.markDirty = function(id) {
+    var btn = document.getElementById('savebtn-'+id);
+    if (btn) { btn.classList.remove('saved'); btn.innerHTML = '<i class="fa fa-save"></i> حفظ'; }
+  };
+
+  window.saveSalary = function(tid) {
+    var btn    = document.getElementById('savebtn-'+tid);
+    var salary = document.getElementById('sal-'+tid).value;
+    var rib    = document.getElementById('rib-'+tid).value;
+    var method = document.getElementById('meth-'+tid).value;
+    btn.disabled = true; btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
+    var parsedSalary = (salary !== '' && !isNaN(salary)) ? parseFloat(salary) : null;
+    apiPut('/teacher-payments/salary/'+tid, {
+      monthly_salary: parsedSalary,
+      ccp_rib: rib.trim() || null,
+      preferred_pay_method: method
+    }).then(function() {
+      btn.disabled = false; btn.classList.add('saved');
+      btn.innerHTML = '<i class="fa fa-check"></i> تم!';
+      var t = teachersData.find(function(x){return x.id===tid;});
+      if (t) {
+        t.monthly_salary = parsedSalary;
+        t.ccp_rib = rib.trim() || null;
+        t.preferred_pay_method = method;
+      }
+      loadStats();
+      loadPayPeriod();
+      setTimeout(function() {
+        btn.classList.remove('saved'); btn.innerHTML = '<i class="fa fa-save"></i> حفظ';
+      }, 2500);
+    }).catch(function(e) {
+      btn.disabled = false; btn.innerHTML = '<i class="fa fa-save"></i> حفظ';
+      alert('خطأ: ' + e.message);
+    });
+  };
+
+  // ══ TAB 2: Pay This Month ════════════════════════════════════════════════
+  function initPayPeriod() {
+    var now = new Date();
+    // Default to PREVIOUS month
+    var prev = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    var defMonth = prev.getMonth() + 1;
+    var defYear  = prev.getFullYear();
+
+    document.getElementById('pay-month').value = defMonth;
+    var ySel = document.getElementById('pay-year');
+    ySel.innerHTML = '';
+    var yr = now.getFullYear();
+    for (var y = yr + 1; y >= yr - 4; y--) {
+      var o = document.createElement('option');
+      o.value = y; o.textContent = y;
+      if (y === defYear) o.selected = true;
+      ySel.appendChild(o);
+    }
+    document.getElementById('pay-month').addEventListener('change', function() {
+      loadPayPeriod();
+      loadStats();
+    });
+    document.getElementById('pay-year').addEventListener('change', function() {
+      loadPayPeriod();
+      loadStats();
+    });
+    loadPayPeriod();
+  }
+
+  window.loadPayPeriod = function() {
+    var month = document.getElementById('pay-month').value;
+    var year  = document.getElementById('pay-year').value;
+    document.getElementById('pay-list').innerHTML = '<div class="spinner"></div>';
+    document.getElementById('bulk-bar').style.display = 'none';
+    apiGet('/teacher-payments/summary/'+year+'/'+month).then(function(res) {
+      payPeriodData = res.data || [];
+      renderPayList();
+      document.getElementById('bulk-bar').style.display = '';
+    }).catch(function(e) {
+      document.getElementById('pay-list').innerHTML =
+        '<div class="empty-state"><i class="fa fa-exclamation-triangle"></i><h4>' + esc(e.message) + '</h4></div>';
+    });
+  };
+
+  function renderPayList() {
+    var list = document.getElementById('pay-list');
+    if (!payPeriodData.length) {
+      list.innerHTML = '<div class="empty-state"><i class="fa fa-user-md"></i><h4>لا يوجد أساتذة</h4></div>';
+      return;
+    }
+    list.innerHTML = payPeriodData.map(function(t) {
+      var name   = [t.first_name, t.last_name].filter(Boolean).join(' ');
+      var img    = avatar(t.photo, t.gender);
+      var isPaid = !!t.payment_id;
+      var amount = isPaid ? t.paid_amount : t.monthly_salary;
+      var amtLabel = amount ? fmt(amount) + ' دج' : '<span style="color:var(--muted)">لم يُحدد الراتب</span>';
+      var clickable = !isPaid && t.monthly_salary ? ' clickable" onclick="toggleRow(this,' + t.teacher_id + ')' : '';
+
+      return '<div class="pay-row ' + (isPaid?'paid':'') + clickable + '" id="payrow-' + t.teacher_id + '">' +
+        (!isPaid ? '<input type="checkbox" class="pay-checkbox" id="chk-'+t.teacher_id+'" ' +
+          'data-id="'+t.teacher_id+'" data-amount="'+(t.monthly_salary||0)+'" data-method="'+(t.preferred_pay_method||'cash')+'" ' +
+          'onchange="updateSelectedCount()">' : '') +
+        '<img src="' + esc(img) + '" class="t-avatar" onerror="this.src=\'img/\u0637\u0627\u0644\u0628.webp\'">' +
+        '<div class="pay-row-info">' +
+          '<div class="t-name">' + esc(name) + '</div>' +
+          '<div class="t-sub">' + esc(t.speciality || t.employee_number || '') + '</div>' +
+        '</div>' +
+        '<div style="text-align:center">' +
+          '<div class="pay-row-amount' + (isPaid?' paid-amt':'') + '">' + amtLabel + '</div>' +
+          (isPaid ? '<div style="font-size:11px;color:var(--muted)">' + esc(t.payment_date?String(t.payment_date).split('T')[0]:'') + '</div>' : '') +
+        '</div>' +
+        (isPaid
+          ? '<span class="pill pill-paid"><span class="pill-dot"></span>مدفوع</span>'
+          : '<span class="pill pill-unpaid"><span class="pill-dot"></span>غير مدفوع</span>'
+        ) +
+      '</div>';
+    }).join('');
+    updateSelectedCount();
+  }
+
+  window.toggleRow = function(row, id) {
+    var chk = document.getElementById('chk-'+id);
+    if (!chk) return;
+    chk.checked = !chk.checked;
+    row.classList.toggle('selected', chk.checked);
+    updateSelectedCount();
+  };
+
+  window.toggleAll = function(master) {
+    document.querySelectorAll('.pay-checkbox[data-id]').forEach(function(c) {
+      c.checked = master.checked;
+      var row = document.getElementById('payrow-'+c.dataset.id);
+      if (row) row.classList.toggle('selected', master.checked);
+    });
+    updateSelectedCount();
+  };
+
+  window.updateSelectedCount = function() {
+    var sel = document.querySelectorAll('.pay-checkbox[data-id]:checked');
+    var tot = Array.from(sel).reduce(function(s,c){ return s + parseFloat(c.dataset.amount||0); }, 0);
+    document.getElementById('selected-count').textContent = sel.length + ' محدد — ' + fmt(tot) + ' دج';
+    document.getElementById('btn-pay-selected').disabled = sel.length === 0;
+  };
+
+  window.openPayModal = function() {
+    var sel  = document.querySelectorAll('.pay-checkbox[data-id]:checked');
+    var tot  = Array.from(sel).reduce(function(s,c){ return s + parseFloat(c.dataset.amount||0); }, 0);
+    var mon  = document.getElementById('pay-month').value;
+    var yr   = document.getElementById('pay-year').value;
+    document.getElementById('pay-modal-summary').innerHTML =
+      '<i class="fa fa-info-circle" style="margin-inline-end:8px"></i>' +
+      '<strong>' + sel.length + '</strong> أستاذ · <strong>' + fmt(tot) + ' دج</strong> إجمالي · ' +
+      monthName(parseInt(mon)) + ' ' + yr;
+    document.getElementById('pm-date').value = new Date().toISOString().split('T')[0];
+    document.getElementById('pm-method').value = 'cash';
+    document.getElementById('pm-notes').value  = '';
+    document.getElementById('pay-modal').classList.add('show');
+  };
+
+  window.submitPayment = function() {
+    var sel    = Array.from(document.querySelectorAll('.pay-checkbox[data-id]:checked'));
+    var month  = parseInt(document.getElementById('pay-month').value);
+    var year   = parseInt(document.getElementById('pay-year').value);
+    var date   = document.getElementById('pm-date').value;
+    var method = document.getElementById('pm-method').value;
+    var notes  = document.getElementById('pm-notes').value.trim();
+    var btn    = document.getElementById('btn-confirm-pay');
+    if (!date) { alert('يرجى تحديد تاريخ التسديد'); return; }
+    var payments = sel.map(function(c) {
+      return { teacher_id: parseInt(c.dataset.id), amount: parseFloat(c.dataset.amount), method: method, notes: notes||null };
+    });
+    btn.disabled = true; btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> جاري التسديد...';
+    apiPost('/teacher-payments', { payments: payments, pay_month: month, pay_year: year, payment_date: date })
+      .then(function() {
+        closeModal('pay-modal');
+        loadPayPeriod();
+        loadSalaryTab();
+        loadStats();
+        if (typeof loadArchive === 'function') loadArchive();
+        alert('✅ تم تسجيل الرواتب بنجاح!');
+      })
+      .catch(function(e) { alert('خطأ: ' + e.message); })
+      .finally(function() {
+        btn.disabled = false; btn.innerHTML = '<i class="fa fa-money"></i> تأكيد وتسديد';
+      });
+  };
+
+  // ══ TAB 3: Archive ════════════════════════════════════════════════════════
+  function initArchiveYears() {
+    var yr  = new Date().getFullYear();
+    var sel = document.getElementById('arc-year');
+    var o0  = document.createElement('option'); o0.value=''; o0.textContent='كل السنوات'; sel.appendChild(o0);
+    for (var y = yr; y >= yr-5; y--) {
+      var o = document.createElement('option'); o.value=y; o.textContent=y;
+      if (y===yr) o.selected=true;
+      sel.appendChild(o);
+    }
+  }
+
+  window.loadArchive = function() {
+    var month  = document.getElementById('arc-month').value;
+    var year   = document.getElementById('arc-year').value;
+    var method = document.getElementById('arc-method').value;
+    var tbody  = document.getElementById('archive-tbody');
+    tbody.innerHTML = '<tr><td colspan="8"><div class="spinner"></div></td></tr>';
+    var qs = [];
+    if (month)  qs.push('month='+month);
+    if (year)   qs.push('year='+year);
+    if (method) qs.push('method='+method);
+    apiGet('/teacher-payments'+(qs.length?'?'+qs.join('&'):'')).then(function(res) {
+      archiveData = res.data || [];
+      filterArchive();
+    }).catch(function(e) {
+      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--danger);padding:30px">' + esc(e.message) + '</td></tr>';
+    });
+  };
+
+  window.filterArchive = function() {
+    var q = (document.getElementById('arc-search').value||'').toLowerCase();
+    renderArchiveTable(archiveData.filter(function(r) {
+      return !q || [r.first_name, r.last_name].join(' ').toLowerCase().indexOf(q) !== -1;
+    }));
+  };
+
+  function renderArchiveTable(data) {
+    var tbody = document.getElementById('archive-tbody');
+    if (!data.length) {
+      tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><i class="fa fa-archive"></i><h4>لا توجد سجلات مدفوعات</h4></div></td></tr>';
+      return;
+    }
+    tbody.innerHTML = data.map(function(r, i) {
+      var name  = [r.first_name, r.last_name].filter(Boolean).join(' ');
+      var img   = avatar(r.photo, r.gender);
+      var mBadge = r.method === 'ccp'
+        ? '<span class="method-badge ccp"><i class="fa fa-university"></i> CCP</span>'
+        : '<span class="method-badge cash"><i class="fa fa-money"></i> نقداً</span>';
+      return '<tr>' +
+        '<td style="color:var(--muted);font-weight:700;text-align:center">' + (i+1) + '</td>' +
+        '<td><div class="t-cell">' +
+          '<img src="' + esc(img) + '" class="t-avatar" onerror="this.src=\'img/\u0637\u0627\u0644\u0628.webp\'">' +
+          '<div><div class="t-name">' + esc(name) + '</div><div class="t-sub">' + esc(r.employee_number||'') + '</div></div>' +
+        '</div></td>' +
+        '<td style="font-weight:700">' + monthName(r.pay_month) + ' ' + r.pay_year + '</td>' +
+        '<td style="font-weight:800;color:var(--primary)">' + fmt(r.amount) + ' دج</td>' +
+        '<td>' + mBadge + '</td>' +
+        '<td style="font-size:12.5px">' + esc(r.payment_date ? String(r.payment_date).split('T')[0] : '—') + '</td>' +
+        '<td style="font-size:12px;color:var(--muted)">' + esc(r.notes||'—') + '</td>' +
+        '<td style="white-space:nowrap">' +
+          '<button class="btn-icon edit"   onclick="openEdit('+r.id+')"          title="تعديل"><i class="fa fa-pencil"></i></button> ' +
+          '<button class="btn-icon print"  onclick="printSlip('+r.id+')"         title="طباعة وصل"><i class="fa fa-print"></i></button> ' +
+          '<button class="btn-icon delete" onclick="deletePayment('+r.id+',\''+esc(name)+'\')" title="حذف"><i class="fa fa-trash"></i></button>' +
+        '</td>' +
+      '</tr>';
+    }).join('');
+  }
+
+  window.openEdit = function(id) {
+    var r = archiveData.find(function(x){return x.id===id;});
+    if (!r) return;
+    document.getElementById('edit-id').value     = id;
+    document.getElementById('edit-amount').value = r.amount;
+    document.getElementById('edit-date').value   = r.payment_date ? String(r.payment_date).split('T')[0] : '';
+    document.getElementById('edit-method').value = r.method || 'cash';
+    document.getElementById('edit-notes').value  = r.notes || '';
+    document.getElementById('edit-modal').classList.add('show');
+  };
+
+  window.submitEdit = function() {
+    var id     = document.getElementById('edit-id').value;
+    var amount = document.getElementById('edit-amount').value;
+    var date   = document.getElementById('edit-date').value;
+    var method = document.getElementById('edit-method').value;
+    var notes  = document.getElementById('edit-notes').value.trim();
+    apiPut('/teacher-payments/'+id, { amount:parseFloat(amount), payment_date:date, method:method, notes:notes||null })
+      .then(function() {
+        closeModal('edit-modal');
+        loadArchive();
+        loadPayPeriod();
+        loadSalaryTab();
+        loadStats();
+      })
+      .catch(function(e) { alert('خطأ: ' + e.message); });
+  };
+
+  window.deletePayment = function(id, name) {
+    if (!confirm('حذف دفعة ' + name + '؟\nسيتم إلغاء السجل من الخزينة أيضاً.')) return;
+    apiDel('/teacher-payments/'+id)
+      .then(function() {
+        loadArchive();
+        loadPayPeriod();
+        loadSalaryTab();
+        loadStats();
+      })
+      .catch(function(e) { alert('خطأ: ' + e.message); });
+  };
+
+  // ─── School info & logo helpers ───────────────────────────────────────────
+  function resolveSchoolLogo(logo, name) {
+    if (!logo) {
+      var sbLogo = document.getElementById('sb-school-logo');
+      if (sbLogo && sbLogo.src && sbLogo.src.indexOf('ui-avatars') === -1) return sbLogo.src;
+      return '';
+    }
+    if (logo.indexOf('http') === 0 || logo.indexOf('data:') === 0) return logo;
+    return API.replace('/api', '') + (logo.indexOf('/') === 0 ? '' : '/uploads/') + logo;
+  }
+
+  function loadSchoolInfo() {
+    apiGet('/school-setup').then(function(res) {
+      if (res && res.school) {
+        schoolName = res.school.name || '';
+        schoolLogo = res.school.logo || res.school.logo2 || '';
+      }
+    }).catch(function() {
+      try {
+        var sd = JSON.parse(localStorage.getItem('school_data') || '{}');
+        schoolName = sd.name || sd.school_name || '';
+        schoolLogo = sd.logo || sd.logo_url || '';
+      } catch(e) {}
+    });
+  }
+
+  // ─── Print pay slip ────────────────────────────────────────────────────────
+  window.printSlip = function(id) {
+    var r = archiveData.find(function(x){return x.id===id;});
+    if (!r) return;
+    var name = [r.first_name, r.last_name].filter(Boolean).join(' ');
+    var tc   = teachersData.find(function(t){return t.id===r.teacher_id;});
+    var rib  = tc ? (tc.ccp_rib||'—') : '—';
+    var methodLabel = r.method==='ccp' ? 'CCP / تحويل بنكي' : 'نقداً (Cash)';
+
+    var activeSchoolName = schoolName ||
+      (document.getElementById('backend-school-name') && document.getElementById('backend-school-name').textContent.trim()) ||
+      (document.getElementById('sb-school-name') && document.getElementById('sb-school-name').textContent.trim()) || 'المؤسسة التعليمية';
+    var logoUrl = resolveSchoolLogo(schoolLogo, activeSchoolName);
+
+    document.getElementById('slip-content').innerHTML =
+      '<div style="border: 2px solid #0f172a; border-radius: 12px; padding: 28px 32px; background: #fff; direction: rtl; font-family: \'Cairo\', \'Inter\', sans-serif;">' +
+        '<!-- Header with School Name & Logo -->' +
+        '<div style="display:flex; align-items:center; justify-content:space-between; border-bottom: 2px solid #0f172a; padding-bottom: 16px; margin-bottom: 20px;">' +
+          '<div>' +
+            '<h2 style="font-size:22px; font-weight:800; color:#0f172a; margin:0 0 6px;">' + esc(activeSchoolName) + '</h2>' +
+            '<div style="font-size:13px; font-weight:700; color:var(--primary); background:var(--primary-light); display:inline-block; padding:4px 12px; border-radius:6px;">وصل تسليم راتب أستاذ</div>' +
+          '</div>' +
+          (logoUrl ? '<img src="' + esc(logoUrl) + '" style="max-height:75px; max-width:150px; object-fit:contain;" alt="شعار المؤسسة">' : '') +
+        '</div>' +
+
+        '<!-- Details Rows -->' +
+        '<div class="slip-row"><span>اسم الأستاذ</span><strong>' + esc(name) + '</strong></div>' +
+        '<div class="slip-row"><span>رقم الموظف</span><strong>' + esc(r.employee_number||'—') + '</strong></div>' +
+        (tc && tc.speciality ? '<div class="slip-row"><span>التخصص / المادة</span><strong>' + esc(tc.speciality) + '</strong></div>' : '') +
+        '<div class="slip-row"><span>فترة الراتب</span><strong>' + monthName(r.pay_month) + ' ' + r.pay_year + '</strong></div>' +
+        '<div class="slip-row"><span>تاريخ التسديد</span><strong>' + esc(r.payment_date ? String(r.payment_date).split('T')[0] : '—') + '</strong></div>' +
+        '<div class="slip-row"><span>طريقة الدفع</span><strong>' + esc(methodLabel) + '</strong></div>' +
+        (rib && rib !== '—' ? '<div class="slip-row"><span>رقم CCP / RIB</span><strong style="font-family:monospace">' + esc(rib) + '</strong></div>' : '') +
+        (r.notes ? '<div class="slip-row"><span>ملاحظات</span><span>' + esc(r.notes) + '</span></div>' : '') +
+        '<div class="slip-row" style="background:#f8fafc; padding:12px; border-radius:8px; margin-top:10px; border-bottom:none;">' +
+          '<span style="font-size:15px; font-weight:700;">المبلغ الصافي المدفوع:</span>' +
+          '<strong style="color:var(--primary); font-size:21px; font-weight:800;">' + fmt(r.amount) + ' دج</strong>' +
+        '</div>' +
+
+        '<!-- Signature Area (Administration only) -->' +
+        '<div style="display:flex; justify-content:flex-end; margin-top:40px; padding-inline-end:20px;">' +
+          '<div style="text-align:center; width:200px;">' +
+            '<div style="font-size:13px; font-weight:700; color:#1e293b; margin-bottom:45px;">ختم وتوقيع الإدارة</div>' +
+            '<div style="border-bottom:2px dashed #94a3b8; width:100%;"></div>' +
+          '</div>' +
+        '</div>' +
+
+        '<div style="display:flex; justify-content:space-between; font-size:11px; color:#64748b; margin-top:35px; border-top:1px solid #e2e8f0; padding-top:10px;">' +
+          '<span>تاريخ الإصدار: ' + new Date().toLocaleDateString('ar-DZ') + '</span>' +
+          '<span>وصل رسمي صادر عن نظام إدارة المؤسسة</span>' +
+        '</div>' +
+      '</div>';
+
+    document.getElementById('print-area').style.display = 'block';
+  };
+
+  // ─── modals ───────────────────────────────────────────────────────────────
+  window.closeModal = function(id) { document.getElementById(id).classList.remove('show'); };
+  document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('modal-backdrop')) closeModal(e.target.id);
+  });
+
+  // ─── init ─────────────────────────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', function() {
+    loadSchoolInfo();
+    loadStats();
+    loadSalaryTab();
+    initPayPeriod();
+    initArchiveYears();
+  });
+
+})();
+</script>
+</body>
+</html>

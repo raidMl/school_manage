@@ -9,7 +9,7 @@
   var AR = {
     'selected': 'محدد',
     'Home': 'الرئيسية', 'Dashboard': 'لوحة التحكم', 'Teachers': 'الأساتذة',
-    'All Teachers': 'جميع الأساتذة', 'Add Teacher': 'إضافة أستاذ',
+    'All Teachers': 'جميع الأساتذة', 'Add Teacher': 'إضافة أستاذ', 'Salaries & Payments': 'رواتب الأساتذة',
     'Students': 'الطلاب', 'All Students': 'جميع الطلاب', 'Add Student': 'إضافة طالب',
     'Formations': 'الدورات', 'All Formations': 'جميع الدورات', 'Add Formation': 'إضافة دورة',
     'Classrooms': 'الأقسام', 'Groups': 'الأفواج', 'School Settings': 'إعدادات المدرسة',
@@ -17,7 +17,7 @@
     'Classroom updated successfully': 'تم تحديث القسم بنجاح',
     'Delete this classroom?': 'هل تريد حذف هذا القسم؟',
     'Delete': 'حذف', 'Edit': 'تعديل', 'Name': 'الاسم', 'Capacity': 'السعة', 'Description': 'الوصف',
-    'Notifications': 'الإشعارات', 'Log Out': 'تسجيل الخروج',
+    'Notifications': 'الإشعارات', 'Subscription Alerts': 'تنبيهات الاشتراكات', 'Log Out': 'تسجيل الخروج',
     'Certificate': 'الشهادة', 'Generate Certificate': 'إصدار شهادة',
     'Generate': 'إصدار', 'Print / Download': 'طباعة / تحميل',
     'No records found': 'لا توجد سجلات', 'Loading...': 'جاري التحميل...',
@@ -611,33 +611,107 @@
   // ── Notifications ────────────────────────────────────────────────────────────
   function loadNotifications() {
     var notifBadge = document.getElementById('notif-badge');
-    var notifCountText = document.getElementById('notif-count-text');
     var notifList = document.getElementById('notif-list');
+    var badgeUrgent = document.getElementById('notif-badge-urgent');
+    var badgeWarning = document.getElementById('notif-badge-warning');
+    var countUrgent = document.getElementById('notif-count-urgent');
+    var countWarning = document.getElementById('notif-count-warning');
     var notifBtn = document.querySelector('#topbar-notif-menu .topbar-icon-btn');
     if (!notifBadge || !notifList) return;
 
-    request('/api/student-registrations/payments?payment_due=overdue').then(function (p) {
-      var rows = p.data || [];
-      if (rows.length > 0) {
+    request('/api/student-registrations/payment-alerts').then(function (res) {
+      var alerts = res.data || [];
+      var summary = res.summary || { total: 0, urgent: 0, warning: 0, has_red: false, has_yellow: false };
+
+      if (summary.total > 0) {
         notifBadge.style.display = 'block';
-        if (notifCountText) {
-          notifCountText.style.display = 'inline-block';
-          notifCountText.textContent = rows.length;
+        if (summary.has_red) {
+          notifBadge.className = 'topbar-badge badge-red';
+          notifBadge.title = (currentLang === 'ar' ? 'تنبيه عاجل: اشتراكات مستحقة اليوم أو غداً أو متأخرة' : 'Urgent: Payment due in ≤ 1 day or overdue');
+        } else {
+          notifBadge.className = 'topbar-badge badge-yellow';
+          notifBadge.title = (currentLang === 'ar' ? 'تنبيه: اشتراكات مستحقة خلال أسبوع' : 'Warning: Payment due within 1 week');
         }
-        if (notifBtn) notifBtn.style.pointerEvents = 'auto'; // enable click to open dropdown
-        notifList.innerHTML = rows.map(function (r) {
-          var name = esc([r.first_name, r.last_name].filter(Boolean).join(' '));
-          var img = avatarUrl(r.photo, name, 'student', r.gender);
-          return '<a href="student-profile.html?id=' + r.id + '" style="display: flex; align-items: center; padding: 12px; border-bottom: 1px solid #eee; text-decoration: none; color: #333;">' +
-            '<img src="' + esc(img) + '" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; margin-right: 12px; flex-shrink: 0;" onerror="this.src=\'' + avatarUrl('', name, 'student', typeof r !== 'undefined' ? r.gender : (typeof s !== 'undefined' ? s.gender : null)) + '\'">' +
-            '<div><div style="font-weight: 600; font-size: 13px;">' + name + '</div>' +
-            '<div style="font-size: 11px; color: #e74c3c;">Payment Overdue</div></div></a>';
+
+        if (badgeUrgent && countUrgent) {
+          if (summary.urgent > 0) {
+            badgeUrgent.style.display = 'inline-flex';
+            countUrgent.textContent = summary.urgent;
+          } else {
+            badgeUrgent.style.display = 'none';
+          }
+        }
+
+        if (badgeWarning && countWarning) {
+          if (summary.warning > 0) {
+            badgeWarning.style.display = 'inline-flex';
+            countWarning.textContent = summary.warning;
+          } else {
+            badgeWarning.style.display = 'none';
+          }
+        }
+
+        if (notifBtn) notifBtn.style.pointerEvents = 'auto';
+
+        var html = alerts.slice(0, 8).map(function (s) {
+          var name = esc([s.first_name, s.last_name].filter(Boolean).join(' '));
+          var img = avatarUrl(s.photo, name, 'student', s.gender);
+          var isRed = s.urgency === 'overdue' || s.urgency === 'urgent';
+          var dotClass = isRed ? 'dot-red' : 'dot-yellow';
+          var days = Number(s.days_left);
+
+          var statusText = '';
+          var badgeBg = '';
+          var badgeColor = '';
+          if (days < 0) {
+            var absDays = Math.abs(days);
+            statusText = currentLang === 'ar' ? ('متأخر منذ ' + absDays + ' يوم') : ('Overdue by ' + absDays + (absDays === 1 ? ' day' : ' days'));
+            badgeBg = '#fee2e2';
+            badgeColor = '#b91c1c';
+          } else if (days === 0) {
+            statusText = currentLang === 'ar' ? 'مستحق اليوم' : 'Due today';
+            badgeBg = '#fee2e2';
+            badgeColor = '#dc2626';
+          } else if (days === 1) {
+            statusText = currentLang === 'ar' ? 'مستحق غداً' : 'Due tomorrow';
+            badgeBg = '#fee2e2';
+            badgeColor = '#dc2626';
+          } else {
+            statusText = currentLang === 'ar' ? ('مستحق خلال ' + days + ' أيام') : ('Due in ' + days + ' days');
+            badgeBg = '#fef3c7';
+            badgeColor = '#b45309';
+          }
+
+          var courseText = esc(s.formation_title || (currentLang === 'ar' ? 'اشتراك دراسي' : 'Subscription'));
+
+          return '<a href="student-profile.html?id=' + s.id + '" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid #f1f5f9; text-decoration: none; color: #1e293b; transition: background .15s;" onmouseover="this.style.background=\'#f8fafc\'" onmouseout="this.style.background=\'transparent\'">' +
+            '<div style="position: relative; flex-shrink: 0;">' +
+              '<img src="' + esc(img) + '" style="width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 1px solid #e2e8f0;" onerror="this.src=\'' + avatarUrl('', name, 'student', s.gender) + '\'">' +
+              '<span class="notif-item-dot ' + dotClass + '" style="position: absolute; bottom: 0; right: 0; border: 2px solid #fff;"></span>' +
+            '</div>' +
+            '<div style="flex: 1; min-width: 0;">' +
+              '<div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2px;">' +
+                '<div style="font-weight: 600; font-size: 13px; color: #0f172a; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">' + name + '</div>' +
+                '<span style="font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 12px; background:' + badgeBg + '; color:' + badgeColor + '; flex-shrink: 0;">' + statusText + '</span>' +
+              '</div>' +
+              '<div style="font-size: 11px; color: #64748b; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">' +
+                '<i class="fa fa-graduation-cap" style="margin-right: 4px;"></i>' + courseText +
+                (s.next_payment_date ? ' &bull; <span style="font-family: monospace;">' + s.next_payment_date + '</span>' : '') +
+              '</div>' +
+            '</div>' +
+          '</a>';
         }).join('');
+
+        notifList.innerHTML = html;
       } else {
         notifBadge.style.display = 'none';
-        if (notifCountText) notifCountText.style.display = 'none';
+        if (badgeUrgent) badgeUrgent.style.display = 'none';
+        if (badgeWarning) badgeWarning.style.display = 'none';
         if (notifBtn) notifBtn.style.pointerEvents = 'auto';
-        notifList.innerHTML = '<div style="padding: 20px; text-align: center; color: #999; font-size: 13px;">No notifications</div>';
+        notifList.innerHTML = '<div style="padding: 30px 20px; text-align: center; color: #94a3b8; font-size: 13px;">' +
+          '<i class="fa fa-check-circle-o" style="font-size: 28px; color: #cbd5e1; display: block; margin-bottom: 8px;"></i>' +
+          '<span>' + (currentLang === 'ar' ? 'لا توجد اشتراكات مستحقة' : 'No upcoming payment alerts') + '</span>' +
+        '</div>';
       }
     }).catch(function (err) {
       console.error('Failed to load notifications', err);
@@ -1508,11 +1582,11 @@
   }
   function renderTeacherRows(rows) {
     var tbody = document.querySelector('#backend-teachers-table tbody'); if (!tbody) return;
-    if (!rows.length) { tbody.innerHTML = '<tr><td colspan="7" class="text-center">' + t('No records found') + '</td></tr>'; return; }
+    if (!rows.length) { tbody.innerHTML = '<tr><td colspan="9" class="text-center">' + t('No records found') + '</td></tr>'; return; }
     tbody.innerHTML = rows.map(function (r) {
       var name = esc([r.first_name, r.last_name].filter(Boolean).join(' '));
       var img = '<img src="' + esc(avatarUrl(r.photo, [r.first_name, r.last_name].join(' '), 'teacher', r.gender)) + '" style="width:36px;height:36px;border-radius:50%;object-fit:cover">';
-      var chk = '<input type="checkbox" class="row-checkbox" value="' + r.id + '" data-type="teacher" data-name="' + name + '" data-reg="' + esc(r.employee_number) + '" data-photo="' + esc(avatarUrl(r.photo, name, 'teacher', r.gender)) + '" data-speciality="' + esc(r.speciality || '') + '">';
+      var chk = '<input type="checkbox" class="row-checkbox" value="' + r.id + '" data-type="teacher" data-name="' + name + '" data-reg="' + esc(r.employee_number || '') + '" data-photo="' + esc(avatarUrl(r.photo, name, 'teacher', r.gender)) + '" data-speciality="' + esc(r.speciality || r.specialization || '') + '" data-hire-date="' + esc(r.hire_date || '') + '" data-birth-date="' + esc(r.birth_date || '') + '" data-gender="' + esc(r.gender || '') + '" data-diploma="' + esc(r.diploma || '') + '">';
       var statusBadge = r.is_active ? '<span class="label label-success">Active</span>' : '<span class="label label-danger">Inactive</span>';
       return '<tr><td>' + chk + '</td><td>' + img + '</td><td>' + esc(r.employee_number) + '</td><td>' + name + '</td><td>' + esc(r.email) + '</td><td>' + statusBadge + '</td><td>' + esc(r.speciality || '-') + '</td><td>' + esc(r.hire_date || '-') + '</td>' +
         '<td><a href="professor-profile.html?id=' + r.id + '" class="btn btn-xs btn-success" title="View Details"><i class="fa fa-eye"></i></a> ' +
@@ -3621,94 +3695,221 @@
         }).catch(function (err) { showAlert('#wp-global-alert', err.message, 'danger'); });
     });
 
-    // PDF / Print
+    // ── Shared: capture full timetable grid as canvas ──────────────────────────
+    // Uses an isolated off-screen export container to ensure all 7 days fit perfectly
+    // with no overflow clipping, native connected Arabic text, clean headers, and no UI clutter.
+    function captureGridCanvas(callback) {
+      var gridWrap = document.getElementById('wp-grid-wrap');
+      var ttTable = gridWrap ? gridWrap.querySelector('.tt-table') : null;
+      if (!gridWrap || !ttTable || !WP.current) { callback(null); return; }
+
+      var school = (window._ctx && window._ctx.school) ? window._ctx.school : { name: '' };
+      var isRtl = document.documentElement.dir === 'rtl' || (window.AppI18n && window.AppI18n.getLang && window.AppI18n.getLang() === 'ar');
+
+      // Create an isolated export container with fixed width of 1450px so all 7 days fit completely
+      var exportWrapper = document.createElement('div');
+      exportWrapper.id = 'wp-export-container';
+      exportWrapper.style.position = 'fixed';
+      exportWrapper.style.top = '0';
+      exportWrapper.style.left = '0';
+      exportWrapper.style.width = '1450px';
+      exportWrapper.style.padding = '30px 35px';
+      exportWrapper.style.backgroundColor = '#ffffff';
+      exportWrapper.style.zIndex = '-99999';
+      exportWrapper.style.direction = isRtl ? 'rtl' : 'ltr';
+      exportWrapper.style.fontFamily = "'Cairo', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+      exportWrapper.style.boxSizing = 'border-box';
+      exportWrapper.style.color = '#1a1f37';
+
+      // Header with School, Program Title, and Date
+      var todayFormatted = new Date().toLocaleDateString(isRtl ? 'ar-DZ' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+      var headerHtml = '<div style="display:flex; justify-content:space-between; align-items:flex-end; border-bottom:3px solid #4f6eff; padding-bottom:14px; margin-bottom:20px;">' +
+        '<div>' +
+          '<div style="font-size:24px; font-weight:800; color:#1a1f37; line-height:1.2;">' + esc(WP.current.name) + '</div>' +
+          (WP.current.description ? '<div style="font-size:13px; color:#6b7280; margin-top:5px;">' + esc(WP.current.description) + '</div>' : '') +
+        '</div>' +
+        '<div style="text-align:' + (isRtl ? 'left' : 'right') + ';">' +
+          '<div style="font-size:20px; font-weight:800; color:#4f6eff;">' + esc(school.name || '') + '</div>' +
+          '<div style="font-size:12px; color:#8d92a4; margin-top:4px; font-weight:600;"><i class="fa fa-calendar-check-o"></i> ' + todayFormatted + '</div>' +
+        '</div>' +
+      '</div>';
+      exportWrapper.innerHTML = headerHtml;
+
+      // Clone table and remove non-printable / interactive UI elements
+      var tableClone = ttTable.cloneNode(true);
+      tableClone.querySelectorAll('.no-print, .entry-chip-del, .slot-actions, .add-hint').forEach(function (el) {
+        el.remove();
+      });
+
+      tableClone.style.width = '100%';
+      tableClone.style.minWidth = '100%';
+      tableClone.style.tableLayout = 'fixed';
+      tableClone.style.borderCollapse = 'separate';
+      tableClone.style.borderSpacing = '6px';
+      tableClone.style.background = 'transparent';
+
+      // Distribute column widths: Time column gets 120px, the 7 day columns share the remaining width evenly
+      var ths = tableClone.querySelectorAll('thead th');
+      if (ths.length > 0) {
+        ths[0].style.width = '120px';
+        ths[0].style.textAlign = 'center';
+        ths[0].style.padding = '12px 6px';
+        ths[0].style.fontSize = '14px';
+        ths[0].style.fontWeight = '700';
+        ths[0].style.backgroundColor = '#eef2ff';
+        ths[0].style.color = '#374151';
+        ths[0].style.borderRadius = '8px';
+        for (var i = 1; i < ths.length; i++) {
+          ths[i].style.width = 'auto';
+          ths[i].style.fontSize = '14px';
+          ths[i].style.fontWeight = '700';
+          ths[i].style.padding = '12px 6px';
+          ths[i].style.backgroundColor = '#f1f5f9';
+          ths[i].style.color = '#1e293b';
+          ths[i].style.borderRadius = '8px';
+          ths[i].style.textAlign = 'center';
+        }
+      }
+
+      // Format time slots and day cells
+      tableClone.querySelectorAll('tbody tr').forEach(function (row) {
+        var cells = row.querySelectorAll('td');
+        if (cells.length > 0) {
+          cells[0].style.padding = '10px 4px';
+          cells[0].style.textAlign = 'center';
+          cells[0].style.backgroundColor = '#f8fafc';
+          cells[0].style.borderRadius = '8px';
+          cells[0].style.verticalAlign = 'middle';
+          cells[0].style.border = '1px solid #e2e8f0';
+
+          for (var j = 1; j < cells.length; j++) {
+            cells[j].style.padding = '4px';
+            cells[j].style.verticalAlign = 'top';
+            cells[j].style.minHeight = '65px';
+            var inner = cells[j].querySelector('.tt-cell-inner');
+            if (inner) {
+              inner.style.border = '1px solid #e2e8f0';
+              inner.style.background = '#fdfdfd';
+              inner.style.borderRadius = '8px';
+              inner.style.minHeight = '60px';
+              inner.style.padding = '6px';
+            }
+          }
+        }
+      });
+
+      // Format chips
+      tableClone.querySelectorAll('.entry-chip').forEach(function (chip) {
+        chip.style.margin = '4px 0';
+        chip.style.padding = '6px 8px';
+        chip.style.borderRadius = '6px';
+        chip.style.boxShadow = 'none';
+        chip.style.border = '1px solid rgba(0,0,0,0.08)';
+        var sub = chip.querySelector('.entry-chip-subject');
+        if (sub) {
+          sub.style.fontSize = '12px';
+          sub.style.fontWeight = '700';
+          sub.style.whiteSpace = 'normal';
+          sub.style.wordBreak = 'break-word';
+        }
+        var grp = chip.querySelector('.entry-chip-group');
+        if (grp) {
+          grp.style.fontSize = '11px';
+          grp.style.opacity = '0.9';
+          grp.style.whiteSpace = 'normal';
+          grp.style.wordBreak = 'break-word';
+        }
+      });
+
+      exportWrapper.appendChild(tableClone);
+      document.body.appendChild(exportWrapper);
+
+      html2canvas(exportWrapper, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        logging: false,
+        width: 1450,
+        windowWidth: 1450,
+        scrollX: 0,
+        scrollY: 0
+      }).then(function (canvas) {
+        if (exportWrapper.parentNode) exportWrapper.parentNode.removeChild(exportWrapper);
+        callback(canvas);
+      }).catch(function (err) {
+        console.error('html2canvas export error:', err);
+        if (exportWrapper.parentNode) exportWrapper.parentNode.removeChild(exportWrapper);
+        callback(null);
+      });
+    }
+
+    // ── PDF button ────────────────────────────────────────────────────────────
     var pdfBtn = document.getElementById('wp-btn-pdf');
     if (pdfBtn) pdfBtn.addEventListener('click', function () {
       if (!WP.current) return;
+      if (typeof html2canvas === 'undefined') { window.print(); return; }
 
-      var gridWrap = document.getElementById('wp-grid-wrap');
-      if (!gridWrap) return;
+      var origText = pdfBtn.innerHTML;
+      pdfBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
+      pdfBtn.disabled = true;
 
-      if (typeof html2pdf === 'undefined') { window.print(); return; }
+      captureGridCanvas(function (canvas) {
+        pdfBtn.innerHTML = origText;
+        pdfBtn.disabled  = false;
+        if (!canvas) { alert('فشل إنشاء PDF.'); return; }
 
-      // Build a complete self-contained HTML string.
-      // This bypasses ALL html2canvas DOM/scroll/coordinate bugs because
-      // html2pdf renders the HTML in its own hidden iframe — not from a live DOM element.
-      var school = (window._ctx && window._ctx.school) ? window._ctx.school : { name: 'Our School' };
-      var currentYear = new Date().getFullYear();
-      var academicYear = currentYear + ' - ' + (currentYear + 1);
+        var jsPDFLib = window.jspdf && window.jspdf.jsPDF ? window.jspdf.jsPDF : (window.jsPDF || null);
+        if (!jsPDFLib) { alert('jsPDF library not loaded.'); return; }
 
-      // Extract the existing CSS from the page's <style> blocks for the timetable
-      var existingCss = '';
-      document.querySelectorAll('style').forEach(function (s) { existingCss += s.innerHTML; });
+        var imgData  = canvas.toDataURL('image/jpeg', 0.95);
+        var pdfW     = 297; // A4 landscape width mm
+        var pdfH     = 210; // A4 landscape height mm
+        var margin   = 8;   // mm
+        var availW   = pdfW - margin * 2;
+        var availH   = pdfH - margin * 2;
 
-      // Get the current grid HTML, clean it up
-      var gridClone = gridWrap.cloneNode(true);
-      gridClone.querySelectorAll('.no-print, .add-hint, .entry-chip-del').forEach(function (el) { el.remove(); });
-      var gridHtml = gridClone.outerHTML;
+        var canvasAR = canvas.width / canvas.height;
+        var imgW, imgH;
+        if (canvasAR > availW / availH) {
+          imgW = availW;
+          imgH = availW / canvasAR;
+        } else {
+          imgH = availH;
+          imgW = availH * canvasAR;
+        }
 
-      var isRtl = document.documentElement.dir === 'rtl';
-      var dirAttr = isRtl ? ' dir="rtl"' : '';
-      var bodyPadding = isRtl ? '40px 35px 40px 40px' : '40px 60px 40px 15px';
+        var doc = new jsPDFLib({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+        var posX = margin + (availW - imgW) / 2;
+        var posY = margin + (availH - imgH) / 2;
+        doc.addImage(imgData, 'JPEG', posX, posY, imgW, imgH);
+        doc.save('timetable-' + WP.current.name.replace(/\s+/g, '-') + '.pdf');
+      });
+    });
 
-      var htmlContent = '<!DOCTYPE html><html' + dirAttr + '><head><meta charset="utf-8">' +
-        '<style>' +
-        'body { margin: 0px; padding: ' + bodyPadding + '; background: #fff; font-family: "Tajawal", "Inter", Arial, sans-serif; box-sizing: border-box; width: 1280px; }' +
-        '.pdf-header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 3px solid #1a1f37; padding-bottom: 14px; margin-bottom: 24px; padding-left: 10px; padding-right: 10px; }' +
-        '.pdf-school-name { margin:0; font-weight:800; font-size:24px; color:#1a1f37; text-transform:uppercase; }' +
-        '.pdf-school-year { margin:4px 0 0; font-size:14px; color:#555; font-weight:600; }' +
-        '.pdf-prog-name { margin:0; font-weight:800; font-size:24px; color:#4f6eff; text-transform:uppercase; }' +
-        '.pdf-gen-date { margin:4px 0 0; font-size:14px; color:#555; }' +
-        '.pdf-footer { margin-top: 40px; display: flex; justify-content: ' + (isRtl ? 'flex-start' : 'flex-end') + '; padding-right: 120px; padding-left: 20px; }' +
-        '.pdf-stamp { width:80px; height:80px; border-radius:50%; border:3px solid #1a1f37; display:flex; align-items:center; justify-content:center; text-align:center; opacity:.75; }' +
-        '.pdf-stamp-text { font-weight:800; font-size:11px; color:#1a1f37; line-height:1.2; }' +
-        '.pdf-stamp-school { font-size:8px; font-weight:600; display:block; margin-top:2px; text-transform:uppercase; }' +
-        existingCss +
-        '.tt-table { width:100% !important; min-width:100% !important; table-layout:fixed !important; border-collapse:collapse; margin: 10px 20px 0 20px; }' +
-        '.tt-table th { border: 1px solid #ddd; background: #f5f7ff; padding: 12px 8px; font-size: 14px; }' +
-        '.tt-table td { border: 1px solid #ddd; vertical-align: top; }' +
-        '.tt-th-time { width: 85px !important; }' +
-        '.tt-slot-label { font-size:12px; padding:8px; text-align:center; background:#f8f9fd; }' +
-        '.tt-cell, .tt-header { word-wrap:break-word; overflow-wrap:break-word; padding:4px; }' +
-        '.tt-cell-inner { border:1px solid transparent !important; box-shadow:0 1px 4px rgba(0,0,0,0.05); min-height: 60px; margin: 2px; }' +
-        '.entry-chip { margin-bottom: 4px; padding: 6px; box-shadow: none; border-radius: 6px; }' +
-        '.entry-chip-subject { font-size:12px; font-weight:bold; white-space:normal; overflow:visible; }' +
-        '.entry-chip-group { font-size:11px; white-space:normal; overflow:visible; }' +
-        '.wp-card { box-shadow:none !important; border:none !important; padding:0 !important; background:transparent !important; }' +
-        '.wp-card-title { display:none !important; }' +
-        '</style>' +
-        '</head><body>' +
-        '<div class="pdf-header">' +
-        '<div style="text-align:' + (isRtl ? 'right' : 'left') + '; position: relative; left: -30px;">' +
-        '<p class="pdf-school-name">' + esc(school.name) + '</p>' +
-        '<p class="pdf-school-year">Academic Year: ' + academicYear + '</p>' +
-        '</div>' +
-        '<div style="text-align:' + (isRtl ? 'left' : 'right') + '">' +
-        '<p class="pdf-prog-name">' + esc(WP.current.name) + '</p>' +
-        '<p class="pdf-gen-date">Generated on ' + new Date().toLocaleDateString() + '</p>' +
-        '</div>' +
-        '</div>' +
-        gridHtml +
-        '<div class="pdf-footer">' +
-        '<div class="pdf-stamp">' +
-        '<div class="pdf-stamp-text">OFFICIAL<br>STAMP<span class="pdf-stamp-school">' + esc(school.name) + '</span></div>' +
-        '</div>' +
-        '</div>' +
-        '</body></html>';
+    // ── Download as Image button ───────────────────────────────────────────────
+    var imgBtn = document.getElementById('wp-btn-img');
+    if (imgBtn) imgBtn.addEventListener('click', function () {
+      if (!WP.current) return;
+      if (typeof html2canvas === 'undefined') { alert('html2canvas library not loaded.'); return; }
 
-      var opt = {
-        margin: 8,
-        filename: 'timetable-' + WP.current.name.replace(/\\s+/g, '-') + '.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, windowWidth: 1400 },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'l' }
-      };
+      var origText = imgBtn.innerHTML;
+      imgBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
+      imgBtn.disabled = true;
 
-      html2pdf().set(opt).from(htmlContent, 'string').save();
+      captureGridCanvas(function (canvas) {
+        imgBtn.innerHTML = origText;
+        imgBtn.disabled  = false;
+        if (!canvas) { alert('فشل تصدير الصورة.'); return; }
+        var link = document.createElement('a');
+        link.download = 'timetable-' + WP.current.name.replace(/\s+/g, '-') + '.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      });
     });
   }
 
   // ── Bind form submissions ──────────────────────────────────────────────────
+
   function bindWpForms() {
     // Auto-select classroom when group changes
     var grpSelect = document.getElementById('wp-entry-form-group');
@@ -4239,17 +4440,25 @@
   function initSchoolCards() {
     var table = document.querySelector('#backend-students-table') || document.querySelector('#backend-teachers-table');
     var btnCards = document.getElementById('btn-generate-cards');
-    if (!table || !btnCards) return;
+    var btnWorkCert = document.getElementById('btn-generate-work-cert');
+    if (!table || (!btnCards && !btnWorkCert)) return;
 
     var selectAll = table.querySelector('.select-all');
 
     function updateBtn() {
       var checked = table.querySelectorAll('.row-checkbox:checked');
       if (checked.length > 0) {
-        btnCards.style.display = 'inline-block';
-        btnCards.innerHTML = '<i class="fa fa-id-card"></i> \u0625\u0646\u0634\u0627\u0621 ' + checked.length + ' \u0628\u0637\u0627\u0642\u0629';
+        if (btnCards) {
+          btnCards.style.display = 'inline-block';
+          btnCards.innerHTML = '<i class="fa fa-id-card"></i> إنشاء ' + checked.length + ' بطاقة';
+        }
+        if (btnWorkCert) {
+          btnWorkCert.style.display = 'inline-block';
+          btnWorkCert.innerHTML = '<i class="fa fa-file-text-o"></i> ' + (checked.length === 1 ? 'شهادة عمل (1)' : 'شهادات عمل (' + checked.length + ')');
+        }
       } else {
-        btnCards.style.display = 'none';
+        if (btnCards) btnCards.style.display = 'none';
+        if (btnWorkCert) btnWorkCert.style.display = 'none';
       }
     }
 
@@ -4261,205 +4470,395 @@
       updateBtn();
     });
 
-    btnCards.addEventListener('click', async function () {
-      var checked = table.querySelectorAll('.row-checkbox:checked');
-      if (checked.length === 0) return;
+    if (btnCards) {
+      btnCards.addEventListener('click', async function () {
+        var checked = table.querySelectorAll('.row-checkbox:checked');
+        if (checked.length === 0) return;
 
-      btnCards.disabled = true;
-      var originalHtml = btnCards.innerHTML;
-      btnCards.innerHTML = '<i class="fa fa-spinner fa-spin"></i> \u062c\u0627\u0631\u064a \u0627\u0644\u0625\u0646\u0634\u0627\u0621...';
+        btnCards.disabled = true;
+        var originalHtml = btnCards.innerHTML;
+        btnCards.innerHTML = '<i class="fa fa-spinner fa-spin"></i> \u062c\u0627\u0631\u064a \u0627\u0644\u0625\u0646\u0634\u0627\u0621...';
 
-      try {
-        // --- Pre-load Cairo Arabic font explicitly ---
-        // This guarantees Arabic letters render as connected glyphs in html2canvas
         try {
-          // Wait for all fonts (including Cairo loaded via <link>) to be ready
-          await document.fonts.ready;
-          // Check if Cairo is loaded; if not, force-load it
-          var cairoLoaded = false;
-          document.fonts.forEach(function (f) {
-            if (f.family.indexOf('Cairo') !== -1 && f.status === 'loaded') cairoLoaded = true;
-          });
-          if (!cairoLoaded) {
-            // Force load by using check() which triggers loading
-            await document.fonts.load('700 16px Cairo');
-            await document.fonts.load('400 16px Cairo');
+          // --- Pre-load Cairo Arabic font explicitly ---
+          // This guarantees Arabic letters render as connected glyphs in html2canvas
+          try {
+            // Wait for all fonts (including Cairo loaded via <link>) to be ready
             await document.fonts.ready;
+            // Check if Cairo is loaded; if not, force-load it
+            var cairoLoaded = false;
+            document.fonts.forEach(function (f) {
+              if (f.family.indexOf('Cairo') !== -1 && f.status === 'loaded') cairoLoaded = true;
+            });
+            if (!cairoLoaded) {
+              // Force load by using check() which triggers loading
+              await document.fonts.load('700 16px Cairo');
+              await document.fonts.load('400 16px Cairo');
+              await document.fonts.ready;
+            }
+          } catch (fontErr) {
+            await new Promise(function (r) { setTimeout(r, 500); });
           }
-        } catch (fontErr) {
-          await new Promise(function (r) { setTimeout(r, 500); });
-        }
 
-        // --- Fetch real school name & logo ---
-        var schoolName = '\u0645\u062f\u0631\u0633\u062a\u064a';
-        var schoolLogo = '';
+          // --- Fetch real school name & logo ---
+          var schoolName = '\u0645\u062f\u0631\u0633\u062a\u064a';
+          var schoolLogo = '';
+          try {
+            var schoolData = await request('/api/school-setup/settings');
+            if (schoolData && schoolData.school) {
+              schoolName = schoolData.school.name || schoolName;
+              schoolLogo = schoolData.school.logo || '';
+            }
+          } catch (e) { /* use defaults */ }
+
+          var zip = new JSZip();
+          var jspdfObj = window.jspdf.jsPDF;
+
+          var templateContainer = document.getElementById('school-card-template-container');
+          var template = document.getElementById('school-card-template');
+
+          // Bring template into rendering zone (off-screen but rendered)
+          templateContainer.style.position = 'fixed';
+          templateContainer.style.left = '-2000px';
+          templateContainer.style.top = '0';
+          templateContainer.style.zIndex = '1';
+          templateContainer.style.opacity = '1';
+
+          // Force a text render to "warm up" the Arabic shaper
+          var warmupEl = document.getElementById('card-student-name');
+          warmupEl.textContent = 'الاختبار';
+          void template.offsetHeight; // force layout reflow
+          await new Promise(function (r) { setTimeout(r, 80); });
+
+
+          for (var i = 0; i < checked.length; i++) {
+            var cb = checked[i];
+            var studentName = cb.getAttribute('data-name') || cb.closest('tr').cells[3].innerText;
+            var reg = cb.getAttribute('data-reg') || cb.closest('tr').cells[2].innerText;
+            var formation = cb.getAttribute('data-formation') || cb.getAttribute('data-speciality') || '';
+            var photoSrc = cb.getAttribute('data-photo') || '';
+
+            // --- Populate card ---
+            document.getElementById('card-school-name').textContent = schoolName;
+            document.getElementById('card-student-name').textContent = studentName;
+            document.getElementById('card-student-formation').textContent = formation
+              ? '\u0627\u0644\u062f\u0648\u0631\u0629: ' + formation
+              : '\u0637\u0627\u0644\u0628';
+
+            // --- Generate QR code for registration number ---
+            var qrContainer = document.getElementById('card-qr-code');
+            qrContainer.innerHTML = ''; // clear previous
+            new QRCode(qrContainer, {
+              text: String(reg),
+              width: 88,
+              height: 88,
+              colorDark: '#0d1f3c',
+              colorLight: '#ffffff',
+              correctLevel: QRCode.CorrectLevel.M
+            });
+            document.getElementById('card-qr-reg').textContent = reg;
+
+            var year = new Date().getFullYear();
+            document.getElementById('card-year').textContent = year + '/' + (year + 1);
+
+            var logoEl = document.getElementById('card-school-logo');
+            logoEl.crossOrigin = 'anonymous';
+            logoEl.src = schoolLogo ? schoolLogo : schoolImg('', schoolName);
+
+            var photoEl = document.getElementById('card-student-photo');
+            photoEl.crossOrigin = 'anonymous';
+            photoEl.src = photoSrc;
+
+            // Wait for images to load
+            await new Promise(function (resolve) {
+              var pending = 2;
+              function done() { if (--pending <= 0) resolve(); }
+              if (logoEl.complete) done(); else { logoEl.onload = done; logoEl.onerror = done; }
+              if (photoEl.complete) done(); else { photoEl.onload = done; photoEl.onerror = done; }
+            });
+
+            await new Promise(function (r) { setTimeout(r, 300); });
+
+            // Scale 3x for print-quality output
+            var canvas = await html2canvas(template, {
+              scale: 3,
+              useCORS: true,
+              allowTaint: false,
+              logging: false
+            });
+
+            var imgData = canvas.toDataURL('image/jpeg', 0.98);
+
+            // Output at exact business card dimensions: 85mm x 54mm (landscape)
+            var pdf = new jspdfObj({
+              orientation: 'landscape',
+              unit: 'mm',
+              format: [85, 54]
+            });
+            pdf.addImage(imgData, 'JPEG', 0, 0, 85, 54);
+            var pdfBlob = pdf.output('blob');
+
+            var safeName = studentName.replace(/[^\u0600-\u06FFa-z0-9]/gi, '_');
+            zip.file('\u0628\u0637\u0627\u0642\u0629_' + safeName + '_' + reg + '.pdf', pdfBlob);
+          }
+
+          // Hide template again
+          templateContainer.style.position = 'absolute';
+          templateContainer.style.left = '-9999px';
+
+          var zipBlob = await zip.generateAsync({ type: 'blob' });
+          saveAs(zipBlob, '\u0628\u0637\u0627\u0642\u0627\u062a_\u0627\u0644\u0645\u062f\u0631\u0633\u0629.zip');
+
+        } catch (err) {
+          alert('\u0641\u0634\u0644 \u0625\u0646\u0634\u0627\u0621 \u0627\u0644\u0628\u0637\u0627\u0642\u0627\u062a: ' + err.message);
+          console.error(err);
+        } finally {
+          btnCards.disabled = false;
+          btnCards.innerHTML = originalHtml;
+          table.querySelectorAll('.row-checkbox').forEach(function (cb) { cb.checked = false; });
+          if (selectAll) selectAll.checked = false;
+          updateBtn();
+        }
+      });
+    }
+
+    // --- Work Certificate Button Logic ---
+    if (btnWorkCert) {
+      btnWorkCert.addEventListener('click', async function () {
+        var checked = table.querySelectorAll('.row-checkbox:checked');
+        if (checked.length === 0) return;
+
+        btnWorkCert.disabled = true;
+        var originalHtml = btnWorkCert.innerHTML;
+        btnWorkCert.innerHTML = '<i class="fa fa-spinner fa-spin"></i> جاري التحضير...';
+
         try {
-          var schoolData = await request('/api/school-setup/settings');
-          if (schoolData && schoolData.school) {
-            schoolName = schoolData.school.name || schoolName;
-            schoolLogo = schoolData.school.logo || '';
+          // Preload Cairo font for crisp Arabic glyphs
+          try {
+            await document.fonts.ready;
+            var cairoLoaded = false;
+            document.fonts.forEach(function (f) {
+              if (f.family.indexOf('Cairo') !== -1 && f.status === 'loaded') cairoLoaded = true;
+            });
+            if (!cairoLoaded) {
+              await document.fonts.load('700 16px Cairo');
+              await document.fonts.load('400 16px Cairo');
+              await document.fonts.ready;
+            }
+          } catch (fontErr) {
+            await new Promise(function (r) { setTimeout(r, 400); });
           }
-        } catch (e) { /* use defaults */ }
 
-        var zip = new JSZip();
-        var jspdfObj = window.jspdf.jsPDF;
+          // Fetch school data
+          var schoolName = 'المدرسة';
+          var schoolLogo = '';
+          var schoolAddress = 'الجزائر';
+          var schoolPhone = '';
+          try {
+            var schoolData = await request('/api/school-setup/settings');
+            if (schoolData && schoolData.school) {
+              schoolName = schoolData.school.name || schoolName;
+              schoolLogo = schoolData.school.logo || '';
+              schoolAddress = [schoolData.school.address, schoolData.school.municipality, schoolData.school.state].filter(Boolean).join(' - ') || schoolAddress;
+              schoolPhone = schoolData.school.phone_1 || schoolData.school.phone_landline || '';
+            }
+          } catch (e) {
+            try {
+              var sRes = await request('/api/school-setup');
+              if (sRes && sRes.school) {
+                schoolName = sRes.school.name || schoolName;
+                schoolLogo = sRes.school.logo || '';
+                schoolAddress = [sRes.school.address, sRes.school.municipality, sRes.school.state].filter(Boolean).join(' - ') || schoolAddress;
+                schoolPhone = sRes.school.phone_1 || sRes.school.phone_landline || '';
+              }
+            } catch (e2) {}
+          }
 
-        var templateContainer = document.getElementById('school-card-template-container');
-        var template = document.getElementById('school-card-template');
+          var zip = new JSZip();
+          var jspdfObj = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : jsPDF;
 
-        // Bring template into rendering zone (off-screen but rendered)
-        templateContainer.style.position = 'fixed';
-        templateContainer.style.left = '-2000px';
-        templateContainer.style.top = '0';
-        templateContainer.style.zIndex = '1';
-        templateContainer.style.opacity = '1';
+          var templateContainer = document.getElementById('work-cert-template-container');
+          var template = document.getElementById('work-cert-template');
+          if (!templateContainer || !template) {
+            throw new Error('قالب شهادة العمل غير متوفر في الصفحة.');
+          }
 
-        // Force a text render to "warm up" the Arabic shaper
-        var warmupEl = document.getElementById('card-student-name');
-        warmupEl.textContent = 'الاختبار';
-        void template.offsetHeight; // force layout reflow
-        await new Promise(function (r) { setTimeout(r, 80); });
+          // Bring template into rendering zone (off-screen but rendered)
+          templateContainer.style.position = 'fixed';
+          templateContainer.style.left = '-3000px';
+          templateContainer.style.top = '0';
+          templateContainer.style.zIndex = '1';
+          templateContainer.style.opacity = '1';
 
+          var AR_MONTHS = ['جانفي', 'فيفري', 'مارس', 'أفريل', 'ماي', 'جوان', 'جويلية', 'أوت', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+          var now = new Date();
+          var todayFormatted = String(now.getDate()).padStart(2, '0') + ' ' + AR_MONTHS[now.getMonth()] + ' ' + now.getFullYear();
+          var todayNumeric = String(now.getDate()).padStart(2, '0') + '/' + String(now.getMonth() + 1).padStart(2, '0') + '/' + now.getFullYear();
 
-        for (var i = 0; i < checked.length; i++) {
-          var cb = checked[i];
-          var studentName = cb.getAttribute('data-name') || cb.closest('tr').cells[3].innerText;
-          var reg = cb.getAttribute('data-reg') || cb.closest('tr').cells[2].innerText;
-          var formation = cb.getAttribute('data-formation') || cb.getAttribute('data-speciality') || '';
-          var photoSrc = cb.getAttribute('data-photo') || '';
+          function formatArDate(dStr) {
+            if (!dStr || dStr === '-' || dStr === 'null') return 'غير محدد';
+            var d = new Date(dStr);
+            if (isNaN(d.getTime())) return dStr;
+            return String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + '/' + d.getFullYear();
+          }
 
-          // --- Populate card ---
-          document.getElementById('card-school-name').textContent = schoolName;
-          document.getElementById('card-student-name').textContent = studentName;
-          document.getElementById('card-student-formation').textContent = formation
-            ? '\u0627\u0644\u062f\u0648\u0631\u0629: ' + formation
-            : '\u0637\u0627\u0644\u0628';
+          for (var i = 0; i < checked.length; i++) {
+            var cb = checked[i];
+            var tr = cb.closest('tr');
+            var teacherName = cb.getAttribute('data-name') || (tr && tr.cells[3] ? tr.cells[3].innerText.trim() : 'الأستاذ');
+            var reg = cb.getAttribute('data-reg') || (tr && tr.cells[2] ? tr.cells[2].innerText.trim() : '');
+            var speciality = cb.getAttribute('data-speciality') || (tr && tr.cells[6] ? tr.cells[6].innerText.trim() : '');
+            if (speciality === '-') speciality = '';
+            var hireDate = cb.getAttribute('data-hire-date') || (tr && tr.cells[7] ? tr.cells[7].innerText.trim() : '');
+            if (hireDate === '-') hireDate = '';
+            var birthDate = cb.getAttribute('data-birth-date') || '';
+            var gender = (cb.getAttribute('data-gender') || '').toLowerCase();
+            var isFemale = gender === 'female' || gender === 'f' || gender === 'أنثى';
+            var diploma = cb.getAttribute('data-diploma') || '';
 
-          // --- Generate QR code for registration number ---
-          var qrContainer = document.getElementById('card-qr-code');
-          qrContainer.innerHTML = ''; // clear previous
-          new QRCode(qrContainer, {
-            text: String(reg),
-            width: 88,
-            height: 88,
-            colorDark: '#0d1f3c',
-            colorLight: '#ffffff',
-            correctLevel: QRCode.CorrectLevel.M
-          });
-          document.getElementById('card-qr-reg').textContent = reg;
+            var formattedHireDate = formatArDate(hireDate);
+            var formattedBirthDate = formatArDate(birthDate);
 
-          var year = new Date().getFullYear();
-          document.getElementById('card-year').textContent = year + '/' + (year + 1);
+            // Populate School Info
+            document.getElementById('cert-school-title').textContent = schoolName;
+            document.getElementById('cert-body-school-name').textContent = schoolName;
+            document.getElementById('cert-school-address').textContent = schoolAddress ? ('العنوان: ' + schoolAddress) : 'الجمهورية الجزائرية';
+            var phoneEl = document.getElementById('cert-school-phone');
+            if (phoneEl) {
+              phoneEl.textContent = schoolPhone ? ('الهاتف: ' + schoolPhone) : '';
+            }
 
-          var logoEl = document.getElementById('card-school-logo');
-          logoEl.crossOrigin = 'anonymous';
-          logoEl.src = schoolLogo ? schoolLogo : schoolImg('', schoolName);
+            // Reference & Date
+            var refYear = now.getFullYear();
+            var docRef = 'CERT/' + refYear + '/' + (reg ? reg.slice(-4) : String(i + 1).padStart(3, '0'));
+            document.getElementById('cert-doc-ref').textContent = docRef;
+            document.getElementById('cert-doc-date-ltr').textContent = todayNumeric;
+            document.getElementById('cert-teacher-ref-no').textContent = reg || '-';
 
-          var photoEl = document.getElementById('card-student-photo');
-          photoEl.crossOrigin = 'anonymous';
-          photoEl.src = photoSrc;
+            // School Logo
+            var logoEl = document.getElementById('cert-school-logo-img');
+            var watermarkEl = document.getElementById('cert-watermark-logo');
+            var stampEl = document.getElementById('cert-stamp-logo');
+            var effectiveLogo = schoolLogo ? schoolLogo : schoolImg('', schoolName);
+            logoEl.crossOrigin = 'anonymous';
+            logoEl.src = effectiveLogo;
+            if (watermarkEl) {
+              watermarkEl.crossOrigin = 'anonymous';
+              watermarkEl.src = effectiveLogo;
+            }
+            if (stampEl) {
+              stampEl.crossOrigin = 'anonymous';
+              stampEl.src = effectiveLogo;
+            }
 
-          // Wait for images to load
-          await new Promise(function (resolve) {
-            var pending = 2;
-            function done() { if (--pending <= 0) resolve(); }
-            if (logoEl.complete) done(); else { logoEl.onload = done; logoEl.onerror = done; }
-            if (photoEl.complete) done(); else { photoEl.onload = done; photoEl.onerror = done; }
-          });
+            // Teacher data
+            document.getElementById('cert-teacher-honorific').textContent = isFemale ? 'السيّدة:' : 'السيّد:';
+            document.getElementById('cert-teacher-fullname').textContent = teacherName;
+            document.getElementById('cert-teacher-birthlabel').textContent = isFemale ? 'المولودة بتاريخ:' : 'المولود بتاريخ:';
+            document.getElementById('cert-teacher-birthdate').textContent = formattedBirthDate;
+            document.getElementById('cert-teacher-emplabel').textContent = isFemale ? 'الحاملة لرقم التعريف:' : 'الحامل لرقم التعريف:';
+            document.getElementById('cert-teacher-empno').textContent = reg || '-';
+            document.getElementById('cert-teacher-diploma').textContent = diploma ? diploma : (speciality ? ('شهادة في ' + speciality) : 'شهادة جامعية في التخصص');
+            
+            var jobTitle = (isFemale ? 'أستاذة' : 'أستاذ') + (speciality ? (' في مادة ' + speciality) : ' في التعليم والتكوين');
+            document.getElementById('cert-teacher-job').textContent = jobTitle;
 
-          await new Promise(function (r) { setTimeout(r, 300); });
+            // Dynamic paragraphs
+            var pWorks = (isFemale ? 'تعمل' : 'يعمل') + ' بالمؤسسة ابتداءً من تاريخ: <strong style="color:#1a365d;">' + formattedHireDate + '</strong> إلى غاية يومنا هذا، ' + (isFemale ? 'وهي' : 'وهو') + ' في حالة نشاط دائم ومستمر.';
+            document.getElementById('cert-p-works').innerHTML = pWorks;
 
-          // Scale 3x for print-quality output
-          var canvas = await html2canvas(template, {
-            scale: 3,
-            useCORS: true,
-            allowTaint: false,
-            logging: false
-          });
+            var pConduct = 'وطيلة مدة عمل' + (isFemale ? 'ها' : 'ه') + ' بالمؤسسة اتصف' + (isFemale ? 'ت' : '') + ' بالانضباط والجدية والكفاءة في أداء مهام' + (isFemale ? 'ها' : 'ه') + ' التربوية والتعليمية، ولم يصدر عن' + (isFemale ? 'ها' : 'ه') + ' ما يخل بالسير الحسن للمؤسسة.';
+            document.getElementById('cert-p-conduct').textContent = pConduct;
 
-          var imgData = canvas.toDataURL('image/jpeg', 0.98);
+            var pDelivery = 'سُلمت ' + (isFemale ? 'لها' : 'له') + ' هذه الشهادة بطلب من' + (isFemale ? 'ها' : 'ه') + ' لاستعمالها والإدلاء بها في حدود ما يسمح به القانون والتشريع الساري المفعول.';
+            document.getElementById('cert-p-delivery').textContent = pDelivery;
 
-          // Output at exact business card dimensions: 85mm x 54mm (landscape)
-          var pdf = new jspdfObj({
-            orientation: 'landscape',
-            unit: 'mm',
-            format: [85, 54]
-          });
-          pdf.addImage(imgData, 'JPEG', 0, 0, 85, 54);
-          var pdfBlob = pdf.output('blob');
+            // Issue Date & City
+            var city = (schoolAddress.split('-')[0] || 'الجزائر').trim();
+            document.getElementById('cert-issue-city').textContent = city || 'الجزائر';
+            document.getElementById('cert-issue-date').textContent = todayFormatted;
 
-          var safeName = studentName.replace(/[^\u0600-\u06FFa-z0-9]/gi, '_');
-          zip.file('\u0628\u0637\u0627\u0642\u0629_' + safeName + '_' + reg + '.pdf', pdfBlob);
+            // Wait for logo images to load (header logo + stamp logo)
+            await new Promise(function (resolve) {
+              var pending = stampEl ? 2 : 1;
+              function done() { if (--pending <= 0) resolve(); }
+              if (logoEl.complete) done(); else { logoEl.onload = done; logoEl.onerror = done; }
+              if (stampEl) {
+                if (stampEl.complete) done(); else { stampEl.onload = done; stampEl.onerror = done; }
+              }
+            });
+
+            await new Promise(function (r) { setTimeout(r, 120); });
+
+            btnWorkCert.innerHTML = '<i class="fa fa-spinner fa-spin"></i> جاري إنشاء (' + (i + 1) + '/' + checked.length + ')...';
+
+            // Capture via html2canvas
+            var canvas = await html2canvas(template, {
+              scale: 2,
+              useCORS: true,
+              allowTaint: false,
+              logging: false,
+              backgroundColor: '#ffffff'
+            });
+
+            var imgData = canvas.toDataURL('image/jpeg', 0.98);
+
+            // A4 Portrait: 210mm x 297mm
+            var pdf = new jspdfObj({
+              orientation: 'portrait',
+              unit: 'mm',
+              format: 'a4'
+            });
+            pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297);
+            var pdfBlob = pdf.output('blob');
+
+            var safeName = teacherName.replace(/[^\u0600-\u06FFa-zA-Z0-9]/g, '_');
+            var fileName = 'شهادة_عمل_' + safeName + '_' + (reg || (i + 1)) + '.pdf';
+            zip.file(fileName, pdfBlob);
+          }
+
+          // Hide template
+          templateContainer.style.position = 'absolute';
+          templateContainer.style.left = '-9999px';
+
+          // Download ZIP
+          var zipBlob = await zip.generateAsync({ type: 'blob' });
+          saveAs(zipBlob, 'شهادات_عمل_الأساتذة.zip');
+
+        } catch (err) {
+          alert('فشل إنشاء شهادة العمل: ' + err.message);
+          console.error(err);
+        } finally {
+          btnWorkCert.disabled = false;
+          btnWorkCert.innerHTML = originalHtml;
+          table.querySelectorAll('.row-checkbox').forEach(function (cb) { cb.checked = false; });
+          if (selectAll) selectAll.checked = false;
+          updateBtn();
         }
-
-        // Hide template again
-        templateContainer.style.position = 'absolute';
-        templateContainer.style.left = '-9999px';
-
-        var zipBlob = await zip.generateAsync({ type: 'blob' });
-        saveAs(zipBlob, '\u0628\u0637\u0627\u0642\u0627\u062a_\u0627\u0644\u0645\u062f\u0631\u0633\u0629.zip');
-
-      } catch (err) {
-        alert('\u0641\u0634\u0644 \u0625\u0646\u0634\u0627\u0621 \u0627\u0644\u0628\u0637\u0627\u0642\u0627\u062a: ' + err.message);
-        console.error(err);
-      } finally {
-        btnCards.disabled = false;
-        btnCards.innerHTML = originalHtml;
-        table.querySelectorAll('.row-checkbox').forEach(function (cb) { cb.checked = false; });
-        if (selectAll) selectAll.checked = false;
-        updateBtn();
-      }
-    });
+      });
+    }
   }
 
   document.addEventListener('DOMContentLoaded', initWeeklyProgram);
   document.addEventListener('DOMContentLoaded', initAttendance);
   document.addEventListener('DOMContentLoaded', initSchoolCards);
 
-  function loadNotifications() {
-    request('/api/student-registrations/payments?payment_due=overdue')
-      .then(function (res) {
-        var notifBadge = document.getElementById('notif-badge');
-        var notifList = document.getElementById('notif-list');
-        var notifCountText = document.getElementById('notif-count-text');
-
-        var overdueStudents = res.students || [];
-
-        if (overdueStudents.length > 0) {
-          if (notifBadge) {
-            notifBadge.style.display = 'inline-block';
-            notifBadge.textContent = overdueStudents.length > 9 ? '9+' : overdueStudents.length;
-          }
-          if (notifCountText) {
-            notifCountText.style.display = 'inline-block';
-            notifCountText.textContent = overdueStudents.length;
-          }
-          if (notifList) {
-            var html = overdueStudents.map(function (s) {
-              var name = [s.first_name, s.last_name].filter(Boolean).join(' ');
-              return '<a href="course-payment.html" style="display:block; padding: 12px 15px; border-bottom: 1px solid #f5f5f5; text-decoration: none;">' +
-                '<div style="font-size: 13px; color: #333; font-weight: 600;">' + esc(name) + '</div>' +
-                '<div style="font-size: 11px; color: #e74c3c; margin-top: 4px;">Payment overdue since ' + esc(s.next_payment_date) + '</div>' +
-                '</a>';
-            }).join('');
-            notifList.innerHTML = html;
-          }
-        } else {
-          if (notifBadge) notifBadge.style.display = 'none';
-          if (notifCountText) notifCountText.style.display = 'none';
-          if (notifList) notifList.innerHTML = '<div style="padding: 20px; text-align: center; color: #999; font-size: 13px;">No notifications</div>';
-        }
-      })
-      .catch(function (err) {
-        console.error('Error loading notifications:', err);
-      });
-  }
-
   window.SchoolBackend = window.SchoolBackend || {};
+  var origAfterPartialLoad = window.SchoolBackend.afterPartialLoad;
   window.SchoolBackend.afterPartialLoad = function (name) {
-    if (name === 'header') {
+    if (typeof origAfterPartialLoad === 'function') {
+      origAfterPartialLoad(name);
+    } else {
       populateAuthUI();
-      loadNotifications();
+      if (name === 'header') {
+        bindLogout();
+        initLanguageSwitcher();
+        applyTranslations(document.getElementById('header-placeholder'));
+        loadNotifications();
+      }
+      if (name === 'sidebar') {
+        applyTranslations(document.getElementById('sidebar-placeholder'));
+      }
     }
   };
 

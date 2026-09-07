@@ -25,13 +25,16 @@
                 <i class="fa fa-bell"></i>
                 <span class="topbar-badge" id="notif-badge" style="display:none;"></span>
             </button>
-            <div class="topbar-dropdown" id="notif-dropdown" style="width: 320px; max-height: 400px; overflow-y: auto; right: -10px; top: 100%;">
-                <div style="padding: 10px; border-bottom: 1px solid #eee; font-weight: 600; display:flex; justify-content:space-between;">
-                    <span>Notifications</span>
-                    <a href="#" id="notif-read-all" style="font-size:12px; color:#4f6eff; text-decoration:none;">Mark all read</a>
+            <div class="topbar-dropdown" id="notif-dropdown" style="width: 340px; max-height: 420px; overflow: hidden; right: -10px; top: 100%; padding: 0; border-radius: 14px; box-shadow: 0 12px 36px rgba(0,0,0,0.16); border: 1px solid rgba(0,0,0,0.06);">
+                <div style="padding: 12px 16px; background: #fafbfe; border-bottom: 1px solid #edf0f7; font-weight: 700; display:flex; justify-content:space-between; align-items: center;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <i class="fa fa-bell-o" style="color: #4f6eff; font-size: 14px;"></i>
+                        <span id="notif-title" style="color: #1e293b; font-size: 14px;">Notifications</span>
+                    </div>
+                    <a href="#" id="notif-read-all" style="font-size:12px; color:#4f6eff; text-decoration:none; font-weight: 500;">Mark all read</a>
                 </div>
-                <div id="notif-list">
-                    <div style="padding: 10px; text-align: center; color: #888;">No new notifications</div>
+                <div id="notif-list" style="max-height: 300px; overflow-y: auto;">
+                    <div style="padding: 24px; text-align: center; color: #888; font-size: 13px;">No new notifications</div>
                 </div>
             </div>
         </div>

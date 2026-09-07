@@ -141,17 +141,74 @@
 
     request('/api/notifications').then(function(res) {
       var notifs = res.notifications || [];
-      if (notifs.length > 0) {
-        badge.textContent = notifs.length;
-        badge.style.display = 'inline-block';
-        list.innerHTML = notifs.map(function(n) {
-          return '<div class="notif-item" data-id="' + n.id + '" style="padding: 10px; border-bottom: 1px solid #eee; cursor:pointer;">' +
-                 '<div style="font-size:13px;">' + n.message + '</div>' +
-                 '<div style="font-size:11px; color:#888; margin-top:4px;">' + new Date(n.created_at).toLocaleString() + '</div>' +
-                 '</div>';
-        }).join('');
+      var paymentAlert = res.paymentAlert || null;
+      var totalCount = notifs.length + (paymentAlert ? 1 : 0);
 
-        // Bind clicks to mark as read
+      if (totalCount > 0) {
+        badge.style.display = 'block';
+
+        if (paymentAlert) {
+          if (paymentAlert.urgency === 'urgent' || paymentAlert.urgency === 'overdue') {
+            badge.className = 'topbar-badge badge-red';
+          } else {
+            badge.className = 'topbar-badge badge-yellow';
+          }
+        } else {
+          badge.className = 'topbar-badge badge-red';
+        }
+
+        var html = '';
+
+        // Add payment subscription alert item at top if exists
+        if (paymentAlert) {
+          var isRed = paymentAlert.urgency === 'urgent' || paymentAlert.urgency === 'overdue';
+          var dotClass = isRed ? 'dot-red' : 'dot-yellow';
+          var days = Number(paymentAlert.days_left);
+          var alertTitle = '';
+          var alertSub = '';
+          var badgeBg = isRed ? '#fee2e2' : '#fef3c7';
+          var badgeColor = isRed ? '#dc2626' : '#b45309';
+
+          if (days < 0) {
+            var absDays = Math.abs(days);
+            alertTitle = currentLang === 'ar' ? 'اشتراكك متأخر بالدفع' : 'Subscription Payment Overdue';
+            alertSub = currentLang === 'ar' ? ('متأخر منذ ' + absDays + ' يوم &bull; ' + (paymentAlert.formation_title || 'اشتراك دورة')) : ('Overdue by ' + absDays + ' days &bull; ' + (paymentAlert.formation_title || 'Course'));
+          } else if (days === 0) {
+            alertTitle = currentLang === 'ar' ? 'موعد دفع الاشتراك اليوم' : 'Subscription Payment Due Today';
+            alertSub = currentLang === 'ar' ? ('تاريخ الاستحقاق اليوم &bull; ' + (paymentAlert.formation_title || 'اشتراك دورة')) : ('Due today &bull; ' + (paymentAlert.formation_title || 'Course'));
+          } else if (days === 1) {
+            alertTitle = currentLang === 'ar' ? 'موعد دفع الاشتراك غداً' : 'Subscription Payment Due Tomorrow';
+            alertSub = currentLang === 'ar' ? ('متبقي يوم واحد &bull; ' + (paymentAlert.formation_title || 'اشتراك دورة')) : ('1 day remaining &bull; ' + (paymentAlert.formation_title || 'Course'));
+          } else {
+            alertTitle = currentLang === 'ar' ? ('موعد دفع الاشتراك بعد ' + days + ' أيام') : ('Subscription Due in ' + days + ' Days');
+            alertSub = currentLang === 'ar' ? ('الاستحقاق في: ' + paymentAlert.next_payment_date + ' &bull; ' + (paymentAlert.formation_title || 'اشتراك دورة')) : ('Due date: ' + paymentAlert.next_payment_date + ' &bull; ' + (paymentAlert.formation_title || 'Course'));
+          }
+
+          html += '<div style="padding: 12px 14px; background: ' + (isRed ? '#fff5f5' : '#fffbeb') + '; border-bottom: 1px solid #edf0f7; border-left: 3px solid ' + (isRed ? '#ef4444' : '#f59e0b') + ';">' +
+            '<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 3px;">' +
+              '<div style="display: flex; align-items: center; gap: 8px;">' +
+                '<span class="notif-item-dot ' + dotClass + '"></span>' +
+                '<span style="font-weight: 700; font-size: 13px; color: #1e293b;">' + esc(alertTitle) + '</span>' +
+              '</div>' +
+              '<span style="font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 10px; background:' + badgeBg + '; color:' + badgeColor + ';">' + (isRed ? (currentLang === 'ar' ? 'عاجل' : 'Urgent') : (currentLang === 'ar' ? 'تنبيه' : 'Notice')) + '</span>' +
+            '</div>' +
+            '<div style="font-size: 11px; color: #64748b; margin-top: 4px;">' + alertSub + '</div>' +
+          '</div>';
+        }
+
+        // Add regular notifications
+        if (notifs.length > 0) {
+          html += notifs.map(function(n) {
+            return '<div class="notif-item" data-id="' + n.id + '" style="padding: 10px 14px; border-bottom: 1px solid #eee; cursor:pointer; transition: background .15s;" onmouseover="this.style.background=\'#f8fafc\'" onmouseout="this.style.background=\'transparent\'">' +
+                   '<div style="font-size:13px; color: #1e293b;">' + esc(n.message) + '</div>' +
+                   '<div style="font-size:11px; color:#888; margin-top:4px;">' + new Date(n.created_at).toLocaleString() + '</div>' +
+                   '</div>';
+          }).join('');
+        }
+
+        list.innerHTML = html;
+
+        // Bind clicks to mark regular notifications as read
         list.querySelectorAll('.notif-item').forEach(function(el) {
           el.addEventListener('click', function(e) {
             e.stopPropagation();
@@ -163,7 +220,10 @@
         });
       } else {
         badge.style.display = 'none';
-        list.innerHTML = '<div style="padding: 10px; text-align: center; color: #888;">No new notifications</div>';
+        list.innerHTML = '<div style="padding: 24px; text-align: center; color: #888; font-size: 13px;">' +
+          '<i class="fa fa-bell-slash-o" style="font-size: 24px; color: #cbd5e1; display: block; margin-bottom: 6px;"></i>' +
+          '<span>' + (currentLang === 'ar' ? 'لا توجد إشعارات جديدة' : 'No new notifications') + '</span>' +
+        '</div>';
       }
     }).catch(function(err) {
       console.error('Failed to fetch notifications', err);

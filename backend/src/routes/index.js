@@ -25,6 +25,7 @@ const paymentHistoryRoutes = require('./paymentHistory.routes');
 const treasuryRoutes = require('./treasury.routes');
 const imageSearchRoutes = require('./imageSearch.routes');
 const cloudinaryRoutes  = require('./cloudinary.routes');
+const teacherPaymentsRoutes = require('./teacherPayments.routes');
 
 const router = express.Router();
 
@@ -50,6 +51,7 @@ router.use('/teacher-space', teacherSpaceRoutes);
 router.use('/notifications', notificationsRoutes);
 router.use('/payment-history', paymentHistoryRoutes);
 router.use('/treasury', treasuryRoutes);
+router.use('/teacher-payments', teacherPaymentsRoutes);
 router.use('/image-search', imageSearchRoutes);
 router.use('/cloudinary',   cloudinaryRoutes);
 router.use('/', classroomsGroupsRoutes);
