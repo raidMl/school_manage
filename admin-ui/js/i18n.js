@@ -170,10 +170,25 @@ window.AppI18n = {
     "Group": "الفوج",
     "Search by name, reg #...": "البحث بالاسم أو رقم التسجيل...",
     "Reset Filters": "إعادة ضبط التصفية",
+    "Total Students": "إجمالي الطلاب",
+    "Active Students": "الطلاب النشطون",
+    "Unpaid Fees": "غير مسددين",
+    "Students Directory": "دليل الطلاب",
+    "Generate School Cards": "إنشاء بطاقات مدرسية",
 
     // ── All Teachers page ──
     "Teachers List": "قائمة الأساتذة",
+    "Teachers Directory": "دليل الأساتذة",
     "All registered teachers from the database.": "جميع الأساتذة المسجلين في قاعدة البيانات.",
+    "Total Teachers": "إجمالي الأساتذة",
+    "Active Teachers": "الأساتذة النشطون",
+    "Specialties": "التخصصات",
+    "Speciality": "التخصص",
+    "System Status": "حالة النظام",
+    "Operational": "مستقر ونشط",
+    "Work Certificate": "شهادة عمل",
+    "Hire Date": "تاريخ التوظيف",
+    "Emp #": "رقم الموظف",
 
     // ── All Formations page ──
     "Formations List": "قائمة الدورات",

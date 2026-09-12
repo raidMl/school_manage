@@ -20,30 +20,451 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>All Teachers | School System Admin</title>
     <link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/font-awesome.min.css">
     <link rel="stylesheet" href="css/sidebar.css">
     <style>
-      body{font-family:'Inter',sans-serif}
-      .card-panel{background:#fff;border-radius:14px;padding:20px;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:20px}
-      .teacher-search-wrap{
-        position:relative;margin-bottom:14px;
-      }
-      .teacher-search-wrap .fa{
-        position:absolute;top:50%;transform:translateY(-50%);color:#94a3b8;font-size:13px;
-      }
-      [dir="ltr"] .teacher-search-wrap .fa{ left:12px; }
-      [dir="rtl"] .teacher-search-wrap .fa{ right:12px; }
-      #teacher-search{
-        width:100%;max-width:380px;height:38px;border:1px solid #dde3ec;border-radius:8px;
-        font-size:13px;background:#fff;color:#1e293b;transition:border .18s;
-      }
-      [dir="ltr"] #teacher-search{ padding:0 12px 0 34px; }
-      [dir="rtl"] #teacher-search{ padding:0 34px 0 12px; }
-      #teacher-search:focus{ border-color:#4f8ef7;outline:none;box-shadow:0 0 0 3px rgba(79,142,247,.12); }
-      .filter-count{ font-size:12px;color:#64748b;margin-bottom:10px; }
-      .filter-count strong{ color:#1e293b; }
+        body { font-family: 'Inter', 'Cairo', sans-serif; background: #f8fafc; color: #1e293b; }
+
+        /* ── Hero Banner (Purple Graphic Chart) ── */
+        .page-hero-card {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 45%, #4338ca 100%);
+            border-radius: 20px;
+            padding: 32px 36px;
+            color: #ffffff;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 12px 35px -8px rgba(49, 46, 129, 0.4);
+            margin-bottom: 24px;
+        }
+
+        .page-hero-card::before {
+            content: '';
+            position: absolute;
+            top: -60px;
+            right: -60px;
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.35) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .page-hero-card::after {
+            content: '';
+            position: absolute;
+            bottom: -50px;
+            left: 20%;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.25) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero-top-row {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-info-area {
+            display: flex;
+            align-items: center;
+            gap: 22px;
+            flex-wrap: wrap;
+        }
+
+        .page-avatar-badge {
+            width: 76px;
+            height: 76px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: #ffffff;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            flex-shrink: 0;
+        }
+
+        .page-avatar-badge:hover {
+            transform: scale(1.05) rotate(-3deg);
+        }
+
+        .hero-text h2 {
+            margin: 0 0 8px;
+            font-size: 26px;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -0.02em;
+        }
+
+        .hero-badges-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .hero-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            background: rgba(255, 255, 255, 0.14);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 5px 14px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #f1f5f9;
+        }
+
+        .hero-pill i {
+            color: #a5b4fc;
+        }
+
+        .hero-action-btns {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            flex-shrink: 0;
+        }
+
+        .btn-hero-primary {
+            background: #ffffff;
+            color: #4338ca;
+            border-radius: 12px;
+            padding: 9px 20px;
+            font-size: 13.5px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: none;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+            transition: all 0.2s;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .btn-hero-primary:hover {
+            background: #f8fafc;
+            color: #312e81;
+            text-decoration: none;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
+        }
+
+        .btn-hero-glass {
+            background: rgba(255, 255, 255, 0.16);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #ffffff;
+            border-radius: 12px;
+            padding: 9px 18px;
+            font-size: 13.5px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .btn-hero-glass:hover {
+            background: #ffffff;
+            color: #4338ca;
+            text-decoration: none;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+        }
+
+        /* ── Metric Cards Grid ── */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .metric-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 20px 22px;
+            border: 1px solid #f1f5f9;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+        }
+
+        .metric-icon-wrap {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 19px;
+            flex-shrink: 0;
+        }
+
+        .metric-icon-blue   { background: #eff6ff; color: #2563eb; }
+        .metric-icon-purple { background: #faf5ff; color: #9333ea; }
+        .metric-icon-green  { background: #f0fdf4; color: #16a34a; }
+        .metric-icon-amber  { background: #fffbeb; color: #d97706; }
+
+        .metric-info label {
+            margin: 0 0 2px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            display: block;
+        }
+
+        .metric-info .val {
+            font-size: 18px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        /* ── Main Card Panel ── */
+        .card-panel {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 28px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            margin-bottom: 24px;
+            border: 1px solid #f1f5f9;
+        }
+
+        .section-header-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 22px;
+            padding-bottom: 18px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .section-title h3 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 700;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title p {
+            margin: 4px 0 0;
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        /* ── Modern Search & Controls ── */
+        .controls-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .teacher-search-wrap {
+            position: relative;
+            min-width: 280px;
+            flex: 1;
+        }
+
+        .teacher-search-wrap .search-icon {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 13px;
+            pointer-events: none;
+        }
+
+        [dir="ltr"] .teacher-search-wrap .search-icon { left: 14px; right: auto; }
+        [dir="ltr"] #teacher-search { padding: 0 14px 0 36px; }
+        [dir="rtl"] .teacher-search-wrap .search-icon { right: 14px; left: auto; }
+        [dir="rtl"] #teacher-search { padding: 0 36px 0 14px; }
+
+        #teacher-search {
+            width: 100%;
+            height: 40px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 10px;
+            font-size: 13px;
+            background: #f8fafc;
+            color: #1e293b;
+            transition: all 0.18s;
+        }
+
+        #teacher-search:focus {
+            background: #ffffff;
+            border-color: #6366f1;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+        }
+
+        /* ── Modern Table Styling ── */
+        .modern-table {
+            margin-bottom: 0;
+            border-collapse: separate;
+            border-spacing: 0;
+            width: 100%;
+        }
+
+        .modern-table thead th {
+            background: #f8fafc;
+            color: #475569;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-top: none;
+            border-bottom: 2px solid #e2e8f0;
+            padding: 14px 16px;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+        .modern-table tbody tr {
+            transition: background 0.15s ease;
+        }
+
+        .modern-table tbody tr:hover {
+            background: #f8faff;
+        }
+
+        .modern-table td {
+            vertical-align: middle;
+            font-size: 13.5px;
+            color: #334155;
+            padding: 13px 16px;
+            border-top: 1px solid #f1f5f9;
+            border-bottom: none;
+        }
+
+        .modern-table td:last-child {
+            white-space: nowrap !important;
+            min-width: 130px;
+        }
+
+        .modern-table .row-checkbox,
+        .modern-table .select-all {
+            cursor: pointer;
+            width: 17px;
+            height: 17px;
+            accent-color: #4338ca;
+            vertical-align: middle;
+        }
+
+        .modern-table .label {
+            border-radius: 20px;
+            padding: 4px 11px;
+            font-size: 11.5px;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            display: inline-block;
+        }
+
+        .modern-table .label-success {
+            background: #dcfce7;
+            color: #15803d;
+            border: 1px solid #bbf7d0;
+        }
+
+        .modern-table .label-danger {
+            background: #fee2e2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+        }
+
+        /* ── Action Buttons ── */
+        .modern-table .btn-xs {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            font-size: 12px;
+            transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+            margin: 0 2px;
+            text-decoration: none;
+            padding: 0;
+            border: 1px solid transparent;
+        }
+
+        .modern-table .btn-xs:hover {
+            transform: translateY(-1.5px);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+        }
+
+        .modern-table .btn-xs.btn-success {
+            background: #eff6ff;
+            border-color: #bfdbfe;
+            color: #2563eb;
+        }
+
+        .modern-table .btn-xs.btn-success:hover {
+            background: #2563eb;
+            border-color: #2563eb;
+            color: #ffffff;
+        }
+
+        .modern-table .btn-xs.btn-info {
+            background: #f5f3ff;
+            border-color: #ddd6fe;
+            color: #7c3aed;
+        }
+
+        .modern-table .btn-xs.btn-info:hover {
+            background: #7c3aed;
+            border-color: #7c3aed;
+            color: #ffffff;
+        }
+
+        .modern-table .btn-xs.btn-danger {
+            background: #fef2f2;
+            border-color: #fecaca;
+            color: #dc2626;
+        }
+
+        .modern-table .btn-xs.btn-danger:hover {
+            background: #dc2626;
+            border-color: #dc2626;
+            color: #ffffff;
+        }
     </style>
 
     <link rel="manifest" href="manifest.json">
@@ -65,45 +486,133 @@
         <div class="sb-content">
             <div class="sb-breadcrumb">
                 <i class="fa fa-home"></i>
-                <a href="index.html">Home</a>
+                <a href="index.html" data-i18n="Home">Home</a>
                 <span>/</span>
-                <span>Teachers</span>
+                <span data-i18n="Teachers">Teachers</span>
             </div>
-        <div class="card-panel">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-                <div>
-                    <h3 style="margin:0;font-size:16px;font-weight:700">Teachers List</h3>
-                    <p style="margin:4px 0 0;color:#888;font-size:13px">All registered teachers from the database.</p>
-                </div>
-                <div>
-                    <button id="btn-generate-cards" class="btn btn-secondary btn-sm" style="display:none;margin-right:10px;"><i class="fa fa-id-card"></i> Generate School Cards</button>
-                    <button id="btn-generate-work-cert" class="btn btn-info btn-sm" style="display:none;margin-right:10px;font-weight:600;"><i class="fa fa-file-text-o"></i> شهادة عمل</button>
-                    <a href="add-professor.html" class="btn btn-success btn-sm"><i class="fa fa-plus"></i> Add Teacher</a>
-                </div>
-            </div>
-            <div id="backend-teachers-status" class="alert" style="display:none"></div>
 
-            <!-- Search -->
-            <div class="teacher-search-wrap">
-              <i class="fa fa-search"></i>
-              <input type="text" id="teacher-search" placeholder="Search by name, email, emp#, speciality..." autocomplete="off">
+            <!-- Hero Banner -->
+            <div class="page-hero-card">
+                <div class="hero-top-row">
+                    <div class="hero-info-area">
+                        <div class="page-avatar-badge">
+                            <i class="fa fa-user-tie"></i>
+                        </div>
+                        <div class="hero-text">
+                            <h2 data-i18n="Teachers List">Teachers List</h2>
+                            <div class="hero-badges-row">
+                                <span class="hero-pill">
+                                    <i class="fa fa-users"></i>
+                                    <span id="hero-total-teachers">0</span> <span data-i18n="Teachers">Teachers</span>
+                                </span>
+                                <span class="hero-pill">
+                                    <i class="fa fa-check-circle"></i>
+                                    <span id="hero-active-teachers">0</span> <span data-i18n="Active">Active</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="hero-action-btns">
+                        <button id="btn-generate-cards" class="btn-hero-glass" style="display:none;">
+                            <i class="fa fa-id-card"></i> <span data-i18n="Generate School Cards">Generate School Cards</span>
+                        </button>
+                        <button id="btn-generate-work-cert" class="btn-hero-glass" style="display:none; font-weight:600;">
+                            <i class="fa fa-file-text-o"></i> <span data-i18n="Work Certificate">شهادة عمل</span>
+                        </button>
+                        <a href="add-professor.html" class="btn-hero-primary">
+                            <i class="fa fa-plus"></i> <span data-i18n="Add Teacher">Add Teacher</span>
+                        </a>
+                    </div>
+                </div>
             </div>
-            <div class="filter-count" id="teacher-filter-count" style="display:none"></div>
 
-            <div class="table-responsive">
-                <table id="backend-teachers-table" class="table table-striped table-hover table-bordered">
-                    <thead><tr>
-                        <th width="40"><input type="checkbox" class="select-all"></th>
-                        <th width="50">Photo</th><th>Emp #</th><th>Name</th>
-                        <th>Email</th><th>Status</th><th>Speciality</th><th>Hire Date</th><th width="140">Actions</th>
-                    </tr></thead>
-                    <tbody><tr><td colspan="9" class="text-center">Loading...</td></tr></tbody>
-                </table>
+            <!-- Metrics Grid -->
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-icon-wrap metric-icon-blue">
+                        <i class="fa fa-user-tie"></i>
+                    </div>
+                    <div class="metric-info">
+                        <label data-i18n="Total Teachers">Total Teachers</label>
+                        <div class="val" id="stat-total-teachers">0</div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon-wrap metric-icon-green">
+                        <i class="fa fa-check-circle"></i>
+                    </div>
+                    <div class="metric-info">
+                        <label data-i18n="Active Teachers">Active Teachers</label>
+                        <div class="val" id="stat-active-teachers">0</div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon-wrap metric-icon-purple">
+                        <i class="fa fa-book"></i>
+                    </div>
+                    <div class="metric-info">
+                        <label data-i18n="Specialties">Specialties</label>
+                        <div class="val" id="stat-total-specialities">0</div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon-wrap metric-icon-amber">
+                        <i class="fa fa-calendar-check-o"></i>
+                    </div>
+                    <div class="metric-info">
+                        <label data-i18n="System Status">System Status</label>
+                        <div class="val" id="stat-teachers-status" data-i18n="Operational">Operational</div>
+                    </div>
+                </div>
             </div>
-        </div>
+
+            <!-- Main Teachers Table Panel -->
+            <div class="card-panel">
+                <div class="section-header-bar">
+                    <div class="section-title">
+                        <h3>
+                            <i class="fa fa-address-book-o" style="color:#6366f1;"></i>
+                            <span data-i18n="Teachers Directory">Teachers Directory</span>
+                        </h3>
+                        <p data-i18n="All registered teachers from the database.">All registered teachers from the database.</p>
+                    </div>
+
+                    <!-- Search Controls -->
+                    <div class="controls-toolbar">
+                        <div class="teacher-search-wrap">
+                            <i class="fa fa-search search-icon"></i>
+                            <input type="text" id="teacher-search" class="form-control" placeholder="Search by name, email, emp#, speciality..." data-i18n-placeholder="Search by name, email, emp#, speciality..." autocomplete="off">
+                        </div>
+                        <span class="filter-count badge" id="teacher-filter-count" style="background:#4338ca; font-size:12px; padding:8px 12px; font-weight:600; border-radius:8px; display:none;"></span>
+                    </div>
+                </div>
+
+                <div id="backend-teachers-status" class="alert" style="display:none"></div>
+
+                <div class="table-responsive">
+                    <table id="backend-teachers-table" class="table modern-table">
+                        <thead>
+                            <tr>
+                                <th width="40"><input type="checkbox" class="select-all"></th>
+                                <th width="50" data-i18n="Photo">Photo</th>
+                                <th data-i18n="Emp #">Emp #</th>
+                                <th data-i18n="Name">Name</th>
+                                <th data-i18n="Email">Email</th>
+                                <th data-i18n="Status">Status</th>
+                                <th data-i18n="Speciality">Speciality</th>
+                                <th data-i18n="Hire Date">Hire Date</th>
+                                <th width="140" data-i18n="Actions">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody><tr><td colspan="9" class="text-center" data-i18n="Loading...">Loading...</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+
             <div id="footer-placeholder"></div>
         </div>
     </div>
+
     <!-- Arabic font fix for html2canvas -->
     <style>
       #school-card-template, #school-card-template *,
@@ -124,6 +633,7 @@
         font-family: 'Cairo', sans-serif !important;
       }
     </style>
+
     <!-- Hidden Teacher Card Template (Business Card: 85mm x 54mm ratio = 630x400px) -->
     <div id="school-card-template-container" style="position: absolute; left: -9999px; top: -9999px;">
         <div id="school-card-template" style="width:630px;height:400px;background:#0d1f3c;border-radius:10px;color:#fff;font-family:'Cairo',sans-serif;direction:rtl;display:flex;flex-direction:row;overflow:hidden;box-sizing:border-box;position:relative;">
@@ -178,65 +688,69 @@
     <!-- Hidden Work Certificate Template Container (A4 Portrait: 794px x 1123px) -->
     <div id="work-cert-template-container" style="position: absolute; left: -9999px; top: -9999px;">
         <div id="work-cert-template" style="width:794px;min-height:1123px;background:#ffffff;color:#1e293b;font-family:'Cairo',sans-serif;direction:rtl;text-align:right;box-sizing:border-box;padding:45px 50px;position:relative;display:flex;flex-direction:column;justify-content:space-between;border:10px double #1a365d;outline:2px solid #c5a059;outline-offset:-6px;">
-            
-            <!-- Watermark Background Seal -->
-            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);opacity:0.035;width:400px;height:400px;pointer-events:none;z-index:0;display:flex;align-items:center;justify-content:center;">
-                <img id="cert-watermark-logo" src="" alt="" style="width:100%;height:100%;object-fit:contain;">
+            <!-- Subtle Watermark -->
+            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:320px;height:320px;opacity:0.04;pointer-events:none;z-index:0;">
+                <img id="cert-watermark-logo" src="" alt="Watermark" style="width:100%;height:100%;object-fit:contain;">
             </div>
 
+            <!-- Top Header -->
             <div style="position:relative;z-index:1;">
-                <!-- Official Header -->
-                <div style="text-align:center;margin-bottom:20px;">
-                    <div style="font-size:16px;font-weight:700;color:#1a365d;margin-bottom:3px;letter-spacing:0.5px;">الجمهورية الجزائرية الديمقراطية الشعبية</div>
-                    <div style="font-size:13px;font-weight:600;color:#475569;margin-bottom:12px;">وزارة التربية الوطنية</div>
-                    
-                    <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #e2e8f0;padding-bottom:12px;margin-top:8px;">
-                        <!-- Right: School Info -->
-                        <div style="text-align:right;flex:1.2;">
-                            <div id="cert-school-title" style="font-size:17px;font-weight:800;color:#1a365d;">المدرسة النموذجية</div>
-                            <div id="cert-school-address" style="font-size:12px;color:#64748b;margin-top:3px;">العنوان: الجزائر</div>
-                            <div id="cert-school-phone" style="font-size:12px;color:#64748b;margin-top:2px;"></div>
+                <!-- Association & Republic Line -->
+                <div style="text-align:center;border-bottom:2px solid #1a365d;padding-bottom:12px;margin-bottom:16px;">
+                    <div style="font-size:13px;font-weight:700;color:#1a365d;letter-spacing:0.5px;">الجمهورية الجزائرية الديمقراطية الشعبية</div>
+                    <div style="font-size:12px;font-weight:600;color:#64748b;margin-top:2px;">وزارة التربية الوطنية &bull; قطاع التعليم الخاص</div>
+                </div>
+
+                <!-- Main School Header (Logos + Name) -->
+                <div style="display:flex;align-items:center;justify-content:space-between;padding-bottom:16px;border-bottom:1px solid #e2e8f0;">
+                    <!-- Logo 1 (Association / School) -->
+                    <div style="flex-shrink:0;width:75px;height:75px;border-radius:10px;overflow:hidden;border:1.5px solid #c5a059;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(0,0,0,0.08);">
+                        <img id="cert-logo-1" src="" alt="Logo" style="width:100%;height:100%;object-fit:contain;display:block;">
+                    </div>
+
+                    <!-- Center Titles -->
+                    <div style="flex:1;text-align:center;padding:0 15px;">
+                        <h2 id="cert-school-name" style="margin:0;font-size:20px;font-weight:800;color:#1a365d;line-height:1.3;">مدرسة الريان لعلوم القرآن</h2>
+                        <div id="cert-association-name" style="font-size:12px;font-weight:600;color:#64748b;margin-top:3px;">جمعية العلماء المسلمين الجزائريين - شعبة حي قجال</div>
+                        <div style="font-size:11px;color:#94a3b8;margin-top:4px;display:flex;justify-content:center;gap:12px;flex-wrap:wrap;">
+                            <span>العنوان: <strong id="cert-school-address" style="color:#475569;">قجال - سطيف</strong></span>
+                            <span>&bull;</span>
+                            <span>الهاتف: <strong id="cert-school-phone" style="color:#475569;direction:ltr;display:inline-block;">-</strong></span>
                         </div>
-                        
-                        <!-- Center: School Logo -->
-                        <div style="width:85px;height:85px;flex-shrink:0;display:flex;align-items:center;justify-content:center;border:2px solid #c5a059;border-radius:50%;padding:3px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
-                            <img id="cert-school-logo-img" src="" alt="Logo" style="width:100%;height:100%;object-fit:contain;border-radius:50%;">
-                        </div>
-                        
-                        <!-- Left: Reference & Date Info -->
-                        <div style="text-align:left;flex:1.2;direction:ltr;">
-                            <div style="font-size:12px;color:#64748b;"><b style="color:#1e293b;">Réf:</b> <span id="cert-doc-ref" style="font-weight:700;color:#1a365d;">CERT/2026/001</span></div>
-                            <div style="font-size:12px;color:#64748b;margin-top:3px;"><b style="color:#1e293b;">Date:</b> <span id="cert-doc-date-ltr" style="font-weight:600;">07/09/2026</span></div>
-                        </div>
+                    </div>
+
+                    <!-- Logo 2 (Branch / Institution) -->
+                    <div style="flex-shrink:0;width:75px;height:75px;border-radius:10px;overflow:hidden;border:1.5px solid #c5a059;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(0,0,0,0.08);">
+                        <img id="cert-logo-2" src="" alt="Logo" style="width:100%;height:100%;object-fit:contain;display:block;">
                     </div>
                 </div>
 
-                <!-- Title Banner -->
-                <div style="text-align:center;margin:28px 0 24px;">
-                    <div style="display:block;width:100%;padding:16px 20px;background:linear-gradient(135deg,#1a365d 0%,#2a4365 100%);border-radius:8px;box-shadow:0 4px 14px rgba(26,54,93,0.32);border:2px solid #c5a059;text-align:center;box-sizing:border-box;">
-                        <h1 style="margin:0;font-size:34px;font-weight:800;color:#ffffff !important;line-height:1.2;text-align:center;">شهادة عمل</h1>
-                        <div style="font-size:13px;color:#ffffff !important;margin-top:5px;font-weight:600;letter-spacing:3px;opacity:0.8;text-align:center;">ATTESTATION DE TRAVAIL</div>
+                <!-- Document Title Badge -->
+                <div style="text-align:center;margin-top:24px;margin-bottom:20px;">
+                    <div style="display:inline-block;border:2px solid #1a365d;padding:8px 38px;border-radius:4px;background:#f8fafc;box-shadow:0 4px 12px rgba(26,54,93,0.08);">
+                        <h1 style="margin:0;font-size:25px;font-weight:800;color:#1a365d;letter-spacing:1px;">شــهــادة عــمــل</h1>
+                        <div style="font-size:11px;font-weight:700;color:#c5a059;letter-spacing:1.5px;margin-top:2px;">ATTESTATION DE TRAVAIL</div>
                     </div>
-                    <div style="margin-top:8px;font-size:13px;color:#64748b;font-weight:600;">
-                        رقم التعريف الوظيفي: <span id="cert-teacher-ref-no" style="color:#1a365d;font-weight:700;font-family:monospace;letter-spacing:0.5px;">-</span>
+                    <div style="margin-top:8px;font-size:12px;color:#64748b;">
+                        الرقم المرجعي: <span id="cert-ref-number" style="font-weight:700;color:#1a365d;font-family:monospace;">-</span>
                     </div>
                 </div>
 
-                <!-- Body Statement -->
-                <div style="padding:4px 10px;font-size:15px;line-height:2.1;color:#334155;text-align:justify;">
-                    <p style="margin:0 0 14px;font-size:15.5px;">
-                        يشهد السيّد(ة) مدير مؤسسة <strong id="cert-body-school-name" style="color:#1a365d;">المدرسة</strong>، الموقّع أسفله، بأنّ:
+                <!-- Attestation Body -->
+                <div style="font-size:15.5px;line-height:2.1;color:#1e293b;padding:0 8px;">
+                    <p style="margin:0 0 16px;">
+                        يشهد <strong id="cert-director-title">مدير(ة) المؤسسة</strong> الموقع(ة) أسفله، بأن:
                     </p>
 
-                    <!-- Teacher Information Card -->
-                    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-right:4px solid #1a365d;border-radius:6px;padding:15px 22px;margin-bottom:18px;">
+                    <!-- Teacher Data Table -->
+                    <div style="background:#f8fafc;border:1.5px solid #cbd5e1;border-radius:8px;padding:14px 20px;margin-bottom:18px;">
                         <table style="width:100%;border-collapse:collapse;font-size:14.5px;">
                             <tr style="height:32px;">
-                                <td style="width:28%;color:#64748b;font-weight:600;" id="cert-teacher-honorific">السيّد:</td>
-                                <td style="width:72%;"><strong id="cert-teacher-fullname" style="font-size:16px;color:#1a365d;">-</strong></td>
+                                <td style="width:170px;color:#64748b;font-weight:600;" id="cert-teacher-namelabel">السيد(ة):</td>
+                                <td><strong id="cert-teacher-fullname" style="color:#1a365d;font-size:16px;">-</strong></td>
                             </tr>
                             <tr style="height:32px;">
-                                <td style="color:#64748b;font-weight:600;" id="cert-teacher-birthlabel">المولود بتاريخ:</td>
+                                <td style="color:#64748b;font-weight:600;">المولود(ة) بتاريخ:</td>
                                 <td><strong id="cert-teacher-birthdate" style="color:#1e293b;">-</strong></td>
                             </tr>
                             <tr style="height:32px;">
@@ -296,6 +810,7 @@
             </div>
         </div>
     </div>
+
     <script src="js/vendor/jquery-1.12.4.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/components.js"></script>
@@ -304,6 +819,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="js/backend.js?v=3"></script>
+    <script src="js/backend.js?v=6"></script>
 </body>
 </html>

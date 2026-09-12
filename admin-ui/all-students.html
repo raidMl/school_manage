@@ -20,21 +20,480 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>All Students | School System Admin</title>
     <link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/font-awesome.min.css">
     <link rel="stylesheet" href="css/sidebar.css">
     <style>
-      body{font-family:'Inter',sans-serif}.card-panel{background:#fff;border-radius:14px;padding:20px;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:20px}
-      .student-filters-bar { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:16px; background:#f8fafc; padding:12px 16px; border-radius:10px; border:1px solid #e2e8f0; }
-      .student-filters-bar .search-input-wrapper { position:relative; flex:1; min-width:200px; }
-      .student-filters-bar .search-icon { position:absolute; top:50%; transform:translateY(-50%); color:#94a3b8; pointer-events:none; }
-      html[dir="rtl"] .student-filters-bar .search-icon { right: 12px; left: auto; }
-      html[dir="rtl"] .student-filters-bar #student-search-input { padding-right: 34px; padding-left: 12px; }
-      html[dir="ltr"] .student-filters-bar .search-icon { left: 12px; right: auto; }
-      html[dir="ltr"] .student-filters-bar #student-search-input { padding-left: 34px; padding-right: 12px; }
-      .student-filters-bar select, .student-filters-bar input { border-radius:8px; border:1px solid #cbd5e1; height:38px; }
-      .student-filters-bar select:focus, .student-filters-bar input:focus { border-color:#3b82f6; box-shadow:0 0 0 2px rgba(59,130,246,0.15); outline:none; }
+        body { font-family: 'Inter', 'Cairo', sans-serif; background: #f8fafc; color: #1e293b; }
+
+        /* ── Hero Banner (Purple Graphic Chart) ── */
+        .page-hero-card {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 45%, #4338ca 100%);
+            border-radius: 20px;
+            padding: 32px 36px;
+            color: #ffffff;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 12px 35px -8px rgba(49, 46, 129, 0.4);
+            margin-bottom: 24px;
+        }
+
+        .page-hero-card::before {
+            content: '';
+            position: absolute;
+            top: -60px;
+            right: -60px;
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.35) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .page-hero-card::after {
+            content: '';
+            position: absolute;
+            bottom: -50px;
+            left: 20%;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.25) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero-top-row {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-info-area {
+            display: flex;
+            align-items: center;
+            gap: 22px;
+            flex-wrap: wrap;
+        }
+
+        .page-avatar-badge {
+            width: 76px;
+            height: 76px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: #ffffff;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            flex-shrink: 0;
+        }
+
+        .page-avatar-badge:hover {
+            transform: scale(1.05) rotate(-3deg);
+        }
+
+        .hero-text h2 {
+            margin: 0 0 8px;
+            font-size: 26px;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -0.02em;
+        }
+
+        .hero-badges-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .hero-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            background: rgba(255, 255, 255, 0.14);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 5px 14px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #f1f5f9;
+        }
+
+        .hero-pill i {
+            color: #a5b4fc;
+        }
+
+        .hero-action-btns {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            flex-shrink: 0;
+        }
+
+        .btn-hero-primary {
+            background: #ffffff;
+            color: #4338ca;
+            border-radius: 12px;
+            padding: 9px 20px;
+            font-size: 13.5px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: none;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+            transition: all 0.2s;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .btn-hero-primary:hover {
+            background: #f8fafc;
+            color: #312e81;
+            text-decoration: none;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
+        }
+
+        .btn-hero-glass {
+            background: rgba(255, 255, 255, 0.16);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #ffffff;
+            border-radius: 12px;
+            padding: 9px 18px;
+            font-size: 13.5px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .btn-hero-glass:hover {
+            background: #ffffff;
+            color: #4338ca;
+            text-decoration: none;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+        }
+
+        /* ── Metric Cards Grid ── */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .metric-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 20px 22px;
+            border: 1px solid #f1f5f9;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+        }
+
+        .metric-icon-wrap {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 19px;
+            flex-shrink: 0;
+        }
+
+        .metric-icon-blue   { background: #eff6ff; color: #2563eb; }
+        .metric-icon-purple { background: #faf5ff; color: #9333ea; }
+        .metric-icon-green  { background: #f0fdf4; color: #16a34a; }
+        .metric-icon-amber  { background: #fffbeb; color: #d97706; }
+
+        .metric-info label {
+            margin: 0 0 2px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            display: block;
+        }
+
+        .metric-info .val {
+            font-size: 18px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        /* ── Main Card Panel ── */
+        .card-panel {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 28px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            margin-bottom: 24px;
+            border: 1px solid #f1f5f9;
+        }
+
+        .section-header-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 22px;
+            padding-bottom: 18px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .section-title h3 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 700;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title p {
+            margin: 4px 0 0;
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        /* ── Modern Controls & Filters Toolbar ── */
+        .controls-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .controls-toolbar .form-control {
+            border-radius: 10px;
+            border: 1.5px solid #cbd5e1;
+            font-size: 13px;
+            background: #f8fafc;
+            transition: all 0.18s;
+            height: 40px;
+        }
+
+        .controls-toolbar .form-control:focus {
+            background: #ffffff;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+            outline: none;
+        }
+
+        .search-input-wrapper {
+            position: relative;
+            min-width: 220px;
+            flex: 1;
+        }
+
+        .search-input-wrapper .search-icon {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            pointer-events: none;
+            font-size: 13px;
+        }
+
+        html[dir="rtl"] .search-input-wrapper .search-icon { right: 14px; left: auto; }
+        html[dir="rtl"] .search-input-wrapper input { padding-right: 36px; padding-left: 12px; }
+        html[dir="ltr"] .search-input-wrapper .search-icon { left: 14px; right: auto; }
+        html[dir="ltr"] .search-input-wrapper input { padding-left: 36px; padding-right: 12px; }
+
+        .btn-filter-reset {
+            border-radius: 10px;
+            height: 40px;
+            padding: 0 14px;
+            border: 1.5px solid #cbd5e1;
+            background: #f8fafc;
+            color: #475569;
+            transition: all 0.18s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-filter-reset:hover {
+            background: #ffffff;
+            border-color: #94a3b8;
+            color: #1e293b;
+        }
+
+        /* ── Modern Table Styling ── */
+        .modern-table {
+            margin-bottom: 0;
+            border-collapse: separate;
+            border-spacing: 0;
+            width: 100%;
+        }
+
+        .modern-table thead th {
+            background: #f8fafc;
+            color: #475569;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-top: none;
+            border-bottom: 2px solid #e2e8f0;
+            padding: 14px 16px;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+        .modern-table tbody tr {
+            transition: background 0.15s ease;
+        }
+
+        .modern-table tbody tr:hover {
+            background: #f8faff;
+        }
+
+        .modern-table td {
+            vertical-align: middle;
+            font-size: 13.5px;
+            color: #334155;
+            padding: 13px 16px;
+            border-top: 1px solid #f1f5f9;
+            border-bottom: none;
+        }
+
+        .modern-table td:last-child {
+            white-space: nowrap !important;
+            min-width: 130px;
+        }
+
+        .modern-table .row-checkbox,
+        .modern-table .select-all {
+            cursor: pointer;
+            width: 17px;
+            height: 17px;
+            accent-color: #4338ca;
+            vertical-align: middle;
+        }
+
+        .modern-table .label {
+            border-radius: 20px;
+            padding: 4px 11px;
+            font-size: 11.5px;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            display: inline-block;
+        }
+
+        .modern-table .label-success {
+            background: #dcfce7;
+            color: #15803d;
+            border: 1px solid #bbf7d0;
+        }
+
+        .modern-table .label-danger {
+            background: #fee2e2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+        }
+
+        .modern-table .label-primary {
+            background: #ede9fe;
+            color: #6d28d9;
+            border: 1px solid #ddd6fe;
+        }
+
+        .modern-table .label-info {
+            background: #e0f2fe;
+            color: #0369a1;
+            border: 1px solid #bae6fd;
+        }
+
+        /* ── Modern Table Action Buttons ── */
+        .modern-table .btn-xs {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            font-size: 12px;
+            transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+            margin: 0 2px;
+            text-decoration: none;
+            padding: 0;
+            border: 1px solid transparent;
+        }
+
+        .modern-table .btn-xs:hover {
+            transform: translateY(-1.5px);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+        }
+
+        .modern-table .btn-xs.btn-success {
+            background: #eff6ff;
+            border-color: #bfdbfe;
+            color: #2563eb;
+        }
+
+        .modern-table .btn-xs.btn-success:hover {
+            background: #2563eb;
+            border-color: #2563eb;
+            color: #ffffff;
+        }
+
+        .modern-table .btn-xs.btn-info {
+            background: #f5f3ff;
+            border-color: #ddd6fe;
+            color: #7c3aed;
+        }
+
+        .modern-table .btn-xs.btn-info:hover {
+            background: #7c3aed;
+            border-color: #7c3aed;
+            color: #ffffff;
+        }
+
+        .modern-table .btn-xs.btn-danger {
+            background: #fef2f2;
+            border-color: #fecaca;
+            color: #dc2626;
+        }
+
+        .modern-table .btn-xs.btn-danger:hover {
+            background: #dc2626;
+            border-color: #dc2626;
+            color: #ffffff;
+        }
     </style>
 
     <link rel="manifest" href="manifest.json">
@@ -60,116 +519,204 @@
                 <span>/</span>
                 <span data-i18n="Students">Students</span>
             </div>
-        <div class="card-panel">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-                <div>
-                    <h3 style="margin:0;font-size:16px;font-weight:700" data-i18n="Students List">Students List</h3>
-                    <p style="margin:4px 0 0;color:#888;font-size:13px" data-i18n="All registered students from the database.">All registered students from the database.</p>
-                </div>
-                <div style="display:flex; gap:8px;">
-                    <button id="btn-generate-cards" class="btn btn-secondary btn-sm" style="display:none;"><i class="fa fa-id-card"></i> <span data-i18n="Generate School Cards">Generate School Cards</span></button>
-                    <button id="btn-import-excel-modal" class="btn btn-success btn-sm" data-toggle="modal" data-target="#importExcelModal"><i class="fa fa-file-excel-o"></i> <span data-i18n="Import Excel">Import Excel</span></button>
-                    <a href="add-student.html" class="btn btn-primary btn-sm"><i class="fa fa-plus"></i> <span data-i18n="Add Student">Add Student</span></a>
+
+            <!-- Hero Banner -->
+            <div class="page-hero-card">
+                <div class="hero-top-row">
+                    <div class="hero-info-area">
+                        <div class="page-avatar-badge">
+                            <i class="fa fa-graduation-cap"></i>
+                        </div>
+                        <div class="hero-text">
+                            <h2 data-i18n="All Students">All Students</h2>
+                            <div class="hero-badges-row">
+                                <span class="hero-pill">
+                                    <i class="fa fa-users"></i>
+                                    <span id="hero-total-students">0</span> <span data-i18n="Students">Students</span>
+                                </span>
+                                <span class="hero-pill">
+                                    <i class="fa fa-check-circle"></i>
+                                    <span id="hero-active-students">0</span> <span data-i18n="Active">Active</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="hero-action-btns">
+                        <button id="btn-generate-cards" class="btn-hero-glass" style="display:none;">
+                            <i class="fa fa-id-card"></i> <span data-i18n="Generate School Cards">Generate School Cards</span>
+                        </button>
+                        <button id="btn-import-excel-modal" class="btn-hero-glass" data-toggle="modal" data-target="#importExcelModal">
+                            <i class="fa fa-file-excel-o"></i> <span data-i18n="Import Excel">Import Excel</span>
+                        </button>
+                        <a href="add-student.html" class="btn-hero-primary">
+                            <i class="fa fa-plus"></i> <span data-i18n="Add Student">Add Student</span>
+                        </a>
+                    </div>
                 </div>
             </div>
 
-            <!-- Search & Filter Controls -->
-            <div class="student-filters-bar">
-                <div class="search-input-wrapper">
-                    <i class="fa fa-search search-icon"></i>
-                    <input type="text" id="student-search-input" class="form-control" placeholder="Search by name, reg #..." data-i18n-placeholder="Search by name, reg #...">
+            <!-- Metrics Grid -->
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-icon-wrap metric-icon-blue">
+                        <i class="fa fa-users"></i>
+                    </div>
+                    <div class="metric-info">
+                        <label data-i18n="Total Students">Total Students</label>
+                        <div class="val" id="stat-total-students">0</div>
+                    </div>
                 </div>
-                <div style="min-width:180px; flex:0 1 200px;">
-                    <select id="student-filter-formation" class="form-control">
-                        <option value="" data-i18n="All Formations">All Formations</option>
-                    </select>
+                <div class="metric-card">
+                    <div class="metric-icon-wrap metric-icon-green">
+                        <i class="fa fa-check-circle"></i>
+                    </div>
+                    <div class="metric-info">
+                        <label data-i18n="Active Students">Active Students</label>
+                        <div class="val" id="stat-active-students">0</div>
+                    </div>
                 </div>
-                <div style="min-width:180px; flex:0 1 200px;">
-                    <select id="student-filter-group" class="form-control">
-                        <option value="" data-i18n="All Groups">All Groups</option>
-                    </select>
+                <div class="metric-card">
+                    <div class="metric-icon-wrap metric-icon-amber">
+                        <i class="fa fa-credit-card"></i>
+                    </div>
+                    <div class="metric-info">
+                        <label data-i18n="Unpaid Fees">Unpaid Fees</label>
+                        <div class="val" id="stat-unpaid-students">0</div>
+                    </div>
                 </div>
-                <div style="display:flex; align-items:center; gap:8px;">
-                    <button type="button" id="btn-reset-student-filters" class="btn btn-default" title="Reset Filters" style="border-radius:8px; height:38px; padding:0 12px; border-color:#cbd5e1;">
-                        <i class="fa fa-refresh"></i>
-                    </button>
-                    <span id="student-filter-count" class="badge" style="background:#475569; font-size:12px; padding:6px 10px; font-weight:600; border-radius:6px; display:none;"></span>
+                <div class="metric-card">
+                    <div class="metric-icon-wrap metric-icon-purple">
+                        <i class="fa fa-book"></i>
+                    </div>
+                    <div class="metric-info">
+                        <label data-i18n="Formations">Formations</label>
+                        <div class="val" id="stat-total-formations">0</div>
+                    </div>
                 </div>
             </div>
 
-            <div id="backend-students-status" class="alert" style="display:none"></div>
-            <div class="table-responsive">
-                <table id="backend-students-table" class="table table-striped table-hover table-bordered">
-                    <thead><tr>
-                        <th width="40"><input type="checkbox" class="select-all"></th>
-                        <th width="50" data-i18n="Photo">Photo</th>
-                        <th data-i18n="Reg #">Reg #</th>
-                        <th data-i18n="Name">Name</th>
-                        <th data-i18n="Formation">Formation</th>
-                        <th data-i18n="Groupe">Groupe</th>
-                        <th data-i18n="Status">Status</th>
-                        <th data-i18n="Enrolled">Enrolled</th>
-                        <th data-i18n="Payment">Payment</th>
-                        <th width="140" data-i18n="Actions">Actions</th>
-                    </tr></thead>
-                    <tbody><tr><td colspan="10" class="text-center" data-i18n="Loading...">Loading...</td></tr></tbody>
-                </table>
+            <!-- Students Table Panel -->
+            <div class="card-panel">
+                <div class="section-header-bar">
+                    <div class="section-title">
+                        <h3>
+                            <i class="fa fa-list-alt" style="color:#6366f1;"></i>
+                            <span data-i18n="Students List">Students List</span>
+                        </h3>
+                        <p data-i18n="All registered students from the database.">All registered students from the database.</p>
+                    </div>
+
+                    <!-- Search & Filter Controls -->
+                    <div class="controls-toolbar">
+                        <div class="search-input-wrapper">
+                            <i class="fa fa-search search-icon"></i>
+                            <input type="text" id="student-search-input" class="form-control" placeholder="Search by name, reg #..." data-i18n-placeholder="Search by name, reg #...">
+                        </div>
+                        <div style="min-width:180px; flex:0 1 200px;">
+                            <select id="student-filter-formation" class="form-control">
+                                <option value="" data-i18n="All Formations">All Formations</option>
+                            </select>
+                        </div>
+                        <div style="min-width:180px; flex:0 1 200px;">
+                            <select id="student-filter-group" class="form-control">
+                                <option value="" data-i18n="All Groups">All Groups</option>
+                            </select>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <button type="button" id="btn-reset-student-filters" class="btn btn-filter-reset" title="Reset Filters">
+                                <i class="fa fa-refresh"></i>
+                            </button>
+                            <span id="student-filter-count" class="badge" style="background:#4338ca; font-size:12px; padding:7px 12px; font-weight:600; border-radius:8px; display:none;"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="backend-students-status" class="alert" style="display:none"></div>
+                <div class="table-responsive">
+                    <table id="backend-students-table" class="table modern-table">
+                        <thead>
+                            <tr>
+                                <th width="40"><input type="checkbox" class="select-all"></th>
+                                <th width="50" data-i18n="Photo">Photo</th>
+                                <th data-i18n="Reg #">Reg #</th>
+                                <th data-i18n="Name">Name</th>
+                                <th data-i18n="Formation">Formation</th>
+                                <th data-i18n="Groupe">Groupe</th>
+                                <th data-i18n="Status">Status</th>
+                                <th data-i18n="Enrolled">Enrolled</th>
+                                <th data-i18n="Payment">Payment</th>
+                                <th width="140" data-i18n="Actions">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody><tr><td colspan="10" class="text-center" data-i18n="Loading...">Loading...</td></tr></tbody>
+                    </table>
+                </div>
             </div>
-        </div>
+
             <div id="footer-placeholder"></div>
         </div>
     </div>
 
     <!-- Import Excel Modal -->
     <div id="importExcelModal" class="modal fade" tabindex="-1" role="dialog">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            <h4 class="modal-title"><i class="fa fa-file-excel-o"></i> <span data-i18n="Import Students from Excel">Import Students from Excel</span></h4>
+      <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 520px; margin: 50px auto;">
+        <div class="modal-content" style="border-radius: 18px; overflow: hidden; border: none; box-shadow: 0 20px 40px rgba(0,0,0,0.18);">
+          <div class="modal-header" style="background: linear-gradient(135deg, #1e1b4b, #312e81); color: #fff; padding: 18px 24px; border-bottom: none; display:flex; align-items:center; justify-content:space-between;">
+            <h4 class="modal-title" style="margin:0; font-weight:700; font-size:17px; display:flex; align-items:center; gap:8px;">
+                <i class="fa fa-file-excel-o" style="color:#38bdf8;"></i>
+                <span data-i18n="Import Students from Excel">Import Students from Excel</span>
+            </h4>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color:#fff; opacity:0.8; font-size:24px; margin:0; padding:0; line-height:1; background:none; border:none;">
+                <span aria-hidden="true">&times;</span>
+            </button>
           </div>
-          <div class="modal-body">
-            <p class="text-muted" style="font-size:12px;">
-              <strong>Required columns:</strong> <code>الاسم</code>, <code>اللقب</code>, <code>البريد الالكتروني</code><br>
-              <strong>Optional columns:</strong> <code>تاريخ الميلاد</code>, <code>الجنس</code>, <code>اسم الاب</code>, <code>رقم الهاتف</code>, <code>الزمرة الدموية</code><br>
-              Default password: <code>123456789</code>
-            </p>
+          <div class="modal-body" style="padding: 24px;">
+            <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:12px 16px; margin-bottom:18px;">
+                <p class="text-muted" style="margin:0; font-size:12.5px; line-height:1.6;">
+                  <strong>Required columns:</strong> <code style="color:#4338ca; background:#ede9fe;">الاسم</code>, <code style="color:#4338ca; background:#ede9fe;">اللقب</code>, <code style="color:#4338ca; background:#ede9fe;">البريد الالكتروني</code><br>
+                  <strong>Optional columns:</strong> <code style="color:#0284c7; background:#e0f2fe;">تاريخ الميلاد</code>, <code style="color:#0284c7; background:#e0f2fe;">الجنس</code>, <code style="color:#0284c7; background:#e0f2fe;">اسم الاب</code>, <code style="color:#0284c7; background:#e0f2fe;">رقم الهاتف</code>, <code style="color:#0284c7; background:#e0f2fe;">الزمرة الدموية</code><br>
+                  Default password: <code style="background:#f1f5f9; color:#334155;">123456789</code>
+                </p>
+            </div>
             <div id="import-excel-status" class="alert" style="display:none"></div>
-            <div class="form-group">
-                <label><span data-i18n="Select Formation for these students">Select Formation for these students</span> <span class="text-danger">*</span></label>
-                <select id="import-formation-id" class="form-control">
+            <div class="form-group" style="margin-bottom:14px;">
+                <label style="font-weight:600; font-size:13px; color:#334155; margin-bottom:6px;"><span data-i18n="Select Formation for these students">Select Formation for these students</span> <span class="text-danger">*</span></label>
+                <select id="import-formation-id" class="form-control" style="border-radius:10px; height:42px; border:1.5px solid #cbd5e1;">
                     <option value="" data-i18n="Loading formations...">Loading formations...</option>
                 </select>
             </div>
-            <div class="form-group" style="margin-top: 15px;">
-                <label>
-                  <i class="fa fa-users" style="color:#6c7a8d;margin-right:4px;"></i>
+            <div class="form-group" style="margin-bottom:14px;">
+                <label style="font-weight:600; font-size:13px; color:#334155; margin-bottom:6px;">
+                  <i class="fa fa-users" style="color:#6366f1; margin-right:4px;"></i>
                   <span data-i18n="Assign to Group">Assign to Group</span>
                   <small class="text-muted" style="font-weight:400;"> &mdash; <span data-i18n="Optional">Optional</span></small>
                 </label>
-                <select id="import-group-id" class="form-control">
+                <select id="import-group-id" class="form-control" style="border-radius:10px; height:42px; border:1.5px solid #cbd5e1;">
                     <option value="" data-i18n="Select Formation first">— Select a Formation first —</option>
                 </select>
-                <small class="text-muted" style="font-size:11px;" data-i18n="Group is optional">You can assign the students to a group now or leave it empty.</small>
+                <small class="text-muted" style="font-size:11.5px; display:block; margin-top:4px;" data-i18n="Group is optional">You can assign the students to a group now or leave it empty.</small>
             </div>
-            <div class="form-group" style="margin-top: 15px;">
-                <label><span data-i18n="Excel File (.xlsx, .xls)">Excel File (.xlsx, .xls)</span> <span class="text-danger">*</span></label>
-                <input type="file" id="import-excel-file" class="form-control" accept=".xlsx, .xls">
+            <div class="form-group" style="margin-bottom:10px;">
+                <label style="font-weight:600; font-size:13px; color:#334155; margin-bottom:6px;"><span data-i18n="Excel File (.xlsx, .xls)">Excel File (.xlsx, .xls)</span> <span class="text-danger">*</span></label>
+                <input type="file" id="import-excel-file" class="form-control" accept=".xlsx, .xls" style="border-radius:10px; height:42px; padding:8px 12px; border:1.5px solid #cbd5e1;">
             </div>
             <div id="import-progress-container" style="display: none; margin-top: 15px;">
                 <p style="margin-bottom: 5px; font-size: 12px; text-align: center;" id="import-progress-text">Importing 0 / 0</p>
-                <div class="progress" style="height: 10px; margin-bottom: 0;">
-                  <div id="import-progress-bar" class="progress-bar progress-bar-success" role="progressbar" style="width: 0%;"></div>
+                <div class="progress" style="height: 10px; margin-bottom: 0; border-radius:6px; overflow:hidden;">
+                  <div id="import-progress-bar" class="progress-bar progress-bar-success" role="progressbar" style="width: 0%; background:linear-gradient(135deg, #10b981, #059669);"></div>
                 </div>
             </div>
           </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal" data-i18n="Close">Close</button>
-            <button type="button" class="btn btn-success" id="btn-do-import"><i class="fa fa-upload"></i> <span data-i18n="Import">Import</span></button>
+          <div class="modal-footer" style="padding: 14px 24px; background:#f8fafc; border-top: 1px solid #f1f5f9; display:flex; justify-content:space-between; align-items:center;">
+            <button type="button" class="btn btn-default" data-dismiss="modal" style="border-radius:10px; padding:8px 18px; font-weight:600; border:1px solid #cbd5e1;" data-i18n="Close">Close</button>
+            <button type="button" class="btn btn-success" id="btn-do-import" style="border-radius:10px; padding:8px 22px; font-weight:700; background:linear-gradient(135deg, #10b981, #059669); border:none; box-shadow:0 4px 12px rgba(16,185,129,0.3); display:inline-flex; align-items:center; gap:8px;">
+                <i class="fa fa-upload"></i> <span data-i18n="Import">Import</span>
+            </button>
           </div>
         </div>
       </div>
     </div>
+
     <!-- Arabic font fix for html2canvas -->
     <style>
       #school-card-template, #school-card-template * {
@@ -187,6 +734,7 @@
         font-family: 'Cairo', sans-serif !important;
       }
     </style>
+
     <!-- Hidden Student Card Template (Business Card: 85mm x 54mm ratio = 630x400px) -->
     <div id="school-card-template-container" style="position: absolute; left: -9999px; top: -9999px;">
         <div id="school-card-template" style="width:630px;height:400px;background:#0d1f3c;border-radius:10px;color:#fff;font-family:'Cairo',sans-serif;direction:rtl;display:flex;flex-direction:row;overflow:hidden;box-sizing:border-box;position:relative;">
@@ -237,6 +785,7 @@
             </div>
         </div>
     </div>
+
     <script src="js/vendor/jquery-1.12.4.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/components.js"></script>
@@ -246,6 +795,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="js/backend.js?v=3"></script>
+    <script src="js/backend.js?v=6"></script>
 </body>
 </html>

@@ -1093,11 +1093,33 @@
       _allStudentsCache = results[0].data || [];
       _allFormationsCache = results[1].data || [];
       _allGroupsCache = results[2].data || [];
+      updateStudentMetricStats();
       initStudentFilterControls();
       applyStudentFilters();
     }).catch(function (err) {
       showAlert('#backend-students-status', err.message);
     });
+  }
+
+  function updateStudentMetricStats() {
+    var total = _allStudentsCache.length;
+    var active = _allStudentsCache.filter(function (s) { return s.is_active; }).length;
+    var unpaid = _allStudentsCache.filter(function (s) { return s.payment_status !== 'paid'; }).length;
+    var formations = _allFormationsCache.length;
+
+    var elTotalHero = document.getElementById('hero-total-students');
+    if (elTotalHero) elTotalHero.textContent = total;
+    var elActiveHero = document.getElementById('hero-active-students');
+    if (elActiveHero) elActiveHero.textContent = active;
+
+    var elTotal = document.getElementById('stat-total-students');
+    if (elTotal) elTotal.textContent = total;
+    var elActive = document.getElementById('stat-active-students');
+    if (elActive) elActive.textContent = active;
+    var elUnpaid = document.getElementById('stat-unpaid-students');
+    if (elUnpaid) elUnpaid.textContent = unpaid;
+    var elFormations = document.getElementById('stat-total-formations');
+    if (elFormations) elFormations.textContent = formations;
   }
 
   function initStudentFilterControls() {
@@ -1643,9 +1665,33 @@
 
     request('/api/teacher-registrations').then(function (p) {
       _allTeacherRows = p.data || [];
+      updateTeacherMetricStats();
       applyTeacherFilters();
       bindTeacherFilters();
     }).catch(function (err) { showAlert('#backend-teachers-status', err.message); });
+  }
+
+  function updateTeacherMetricStats() {
+    var total = _allTeacherRows.length;
+    var active = _allTeacherRows.filter(function (t) { return t.is_active; }).length;
+    var specs = {};
+    _allTeacherRows.forEach(function (t) {
+      var s = (t.speciality || t.specialization || '').trim();
+      if (s) specs[s] = true;
+    });
+    var specsCount = Object.keys(specs).length;
+
+    var elTotalHero = document.getElementById('hero-total-teachers');
+    if (elTotalHero) elTotalHero.textContent = total;
+    var elActiveHero = document.getElementById('hero-active-teachers');
+    if (elActiveHero) elActiveHero.textContent = active;
+
+    var elTotal = document.getElementById('stat-total-teachers');
+    if (elTotal) elTotal.textContent = total;
+    var elActive = document.getElementById('stat-active-teachers');
+    if (elActive) elActive.textContent = active;
+    var elSpecs = document.getElementById('stat-total-specialities');
+    if (elSpecs) elSpecs.textContent = specsCount;
   }
 
   function bindTeacherFilters() {
