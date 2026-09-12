@@ -48,12 +48,18 @@
     'Beginner': 'للمبتدئين',
     'Intermediate': 'متوسط',
     'Advanced': 'متقدم',
+    'General': 'عام',
+    'Academic': 'اكاديمي',
+    'academic': 'اكاديمي',
 
     // ── Formation / Subscription labels ──────────────────────────────────────
     'Formation': 'دورة',
     'Subscription': 'اشتراك',
     'Open': 'مفتوح',
     'Closed': 'مغلق',
+    'students': 'طالب',
+    'students_plural': 'طلاب',
+    'No teacher': 'بدون أستاذ',
 
     // ── Add Student form ──────────────────────────────────────────────────────
     'New Student Registration': 'تسجيل طالب جديد',
@@ -64,13 +70,20 @@
     'Gender': 'الجنس', 'Birth Date': 'تاريخ الميلاد', 'Blood Type': 'فصيلة الدم',
     'Select gender': 'اختر الجنس', 'Male': 'ذكر', 'Female': 'أنثى',
     'Not specified': 'غير محدد',
-    'Academic': 'المعلومات الأكاديمية',
+    'Academic Information': 'المعلومات الأكاديمية',
     'Formation': 'الدورة التدريبية',
     'Loading formations...': 'جاري تحميل الدورات...',
     'Enrollment Date': 'تاريخ التسجيل',
-    'Payment Status': 'حالة الدفع', 'Not Paid': 'غير مدفوع', 'Paid': 'مدفوع',
+    'Payment Status': 'حالة الدفع', 'Not Paid': 'غير مدفوع', 'Paid': 'مدفوع', 'Unpaid': 'غير مدفوع',
     'Promo Code': 'رمز الترقية', 'No promo code': 'بدون رمز ترقية',
     'Subscription Plan': 'خطة الاشتراك', 'Select plan': 'اختر خطة',
+    '1 Month': 'شهر واحد',
+    '3 Months': '3 أشهر',
+    '1 Year': 'سنة واحدة',
+    '1_month': 'شهر واحد',
+    '3_months': '3 أشهر',
+    '1_year': 'سنة واحدة',
+    'Subscription': 'اشتراك',
     'Per Month (1 Month)': 'شهرياً (شهر واحد)',
     'Per 3 Months': 'كل 3 أشهر',
     'Per Year (12 Months)': 'سنوياً (12 شهراً)',
@@ -97,6 +110,11 @@
     'Photo URL': 'رابط الصورة',
     'Save Student': 'حفظ الطالب',
     'Back': 'رجوع',
+    'first_name, last_name, email, password, formation_id, and registration_number are required': 'الاسم، اللقب، البريد الإلكتروني، كلمة المرور، الدورة التدريبية، ورقم التسجيل مطلوبة',
+    'first_name, last_name, email, password, and employee_number are required': 'الاسم، اللقب، البريد الإلكتروني، كلمة المرور، ورقم الموظف مطلوبة',
+    'first_name, last_name, email, and password are required': 'الاسم، اللقب، البريد الإلكتروني، وكلمة المرور مطلوبة',
+    'Promo code is invalid for this formation': 'رمز التخفيض غير صالح لهذه الدورة',
+    'Student not found': 'لم يتم العثور على الطالب',
     // placeholders
     'Full name of parent': 'الاسم الكامل لولي الأمر',
     'First & Last name': 'الاسم واللقب',
@@ -241,7 +259,7 @@
     // ── Groups & Actions ──
     'Group': 'الفوج',
     'Groups': 'الأفواج',
-    'Groups & Classes': 'الأفواج والمجموعات',
+    'Groups & Classes': 'الأفواج',
     'Create Group': 'إنشاء فوج',
     'Add Group': 'إضافة فوج',
     'View Details': 'عرض التفاصيل',
@@ -325,13 +343,16 @@
     'cap': 'سعة'
   };
   function t(s) {
-    if (currentLang !== 'ar') return s;
-    if (AR[s] !== undefined) return AR[s];
-    if (window.AppI18n && window.AppI18n.dict && window.AppI18n.dict[s] !== undefined) return window.AppI18n.dict[s];
+    var lang = (window.AppI18n && window.AppI18n.getLang ? window.AppI18n.getLang() : (localStorage.getItem(LANG_KEY) || document.documentElement.lang || currentLang || 'ar'));
+    if (lang !== 'ar') return s;
+    var str = typeof s === 'string' ? s.trim() : s;
+    if (AR[str] !== undefined) return AR[str];
+    if (window.AppI18n && window.AppI18n.dict && window.AppI18n.dict[str] !== undefined) return window.AppI18n.dict[str];
     return s;
   }
   function applyTranslations(root) {
-    if (currentLang !== 'ar' || !root) return;
+    var lang = (window.AppI18n && window.AppI18n.getLang ? window.AppI18n.getLang() : (localStorage.getItem(LANG_KEY) || document.documentElement.lang || currentLang || 'ar'));
+    if (lang !== 'ar' || !root) return;
     function lookup(k) {
       if (!k) return null;
       return AR[k] || (window.AppI18n && window.AppI18n.dict && window.AppI18n.dict[k]);
@@ -526,7 +547,8 @@
   function showAlert(sel, msg, type) {
     var el = document.querySelector(sel); if (!el) return;
     el.className = 'alert alert-' + (type || 'danger');
-    el.textContent = msg; el.style.display = 'block';
+    var text = typeof t === 'function' ? t(msg) : msg;
+    el.textContent = text; el.style.display = 'block';
     el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 
@@ -727,6 +749,11 @@
       setText('#backend-school-name', s.name);
       setText('#backend-school-name-footer', s.name);
       setText('#backend-school-status', 'School: ' + s.name);
+      var teachersCount = Number((p.counts && p.counts.teachers != null) ? p.counts.teachers : 0);
+      var studentsCount = Number((p.counts && p.counts.students != null) ? p.counts.students : 0);
+      if (p.counts) {
+        p.counts.users = teachersCount + studentsCount;
+      }
       ['users', 'teachers', 'students', 'classrooms', 'formations', 'groups'].forEach(function (k) {
         setText('#backend-count-' + k, p.counts[k]);
       });
@@ -764,13 +791,16 @@
     if (!rows.length) { c.innerHTML = '<p class="text-muted col-lg-12">' + t('No records found') + '</p>'; return; }
     c.innerHTML = rows.map(function (f) {
       var img = formationImg(f.image, f.title);
-      return '<div class="col-lg-4 col-md-6" style="margin-bottom:15px">' +
-        '<div class="white-box" style="border-left:4px solid #e67e22;padding:15px;display:flex;gap:12px;align-items:center">' +
-        '<img src="' + esc(img) + '" style="width:56px;height:56px;border-radius:8px;object-fit:cover">' +
-        '<div><h5 style="margin:0 0 4px">' + esc(f.title) + '</h5>' +
-        '<small class="text-muted">' + esc(f.teacher_name || 'No teacher') + '</small><br>' +
-        '<span class="label label-success">' + f.enrolled_students + ' students</span>' +
-        (f.price > 0 ? ' <span class="label label-info">$' + esc(f.price) + '</span>' : '') + '</div></div></div>';
+      return '<div class="col-lg-4 col-md-6" style="margin-bottom:14px">' +
+        '<div class="card glass" style="display:flex;flex-direction:row;align-items:stretch;min-height:90px;overflow:hidden;border-radius:12px">' +
+        '<img src="' + esc(img) + '" style="width:30%;min-width:80px;max-width:110px;object-fit:cover;flex-shrink:0;border-radius:12px 0 0 12px;display:block">' +
+        '<div style="flex:1;padding:10px 12px;display:flex;flex-direction:column;justify-content:center;gap:5px;min-width:0">' +
+        '<h5 style="margin:0;font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#1a1a2e">' + esc(f.title) + '</h5>' +
+        '<small style="color:#64748b;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block">' + esc(f.teacher_name || t('No teacher')) + '</small>' +
+        '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:2px">' +
+        '<span class="badge badge-success" style="background:linear-gradient(135deg,#10b981,#059669) !important;color:#fff !important;font-weight:600;font-size:11px;padding:3px 9px;border-radius:12px;display:inline-block;">' + f.enrolled_students + ' ' + ((f.enrolled_students == 1) ? t('students') : t('students_plural')) + '</span>' +
+        (f.price > 0 ? '<span class="badge badge-info" style="background:linear-gradient(135deg,#0284c7,#0369a1) !important;color:#fff !important;font-weight:600;font-size:11px;padding:3px 9px;border-radius:12px;display:inline-block;">' + (currentLang === 'ar' ? (esc(f.price) + ' دج') : ('DA ' + esc(f.price))) + '</span>' : '') +
+        '</div></div></div></div>';
     }).join('');
   }
 
@@ -1047,45 +1077,221 @@
   }
 
   // ── Students ─────────────────────────────────────────────────────────────────
+  var _allStudentsCache = [];
+  var _allFormationsCache = [];
+  var _allGroupsCache = [];
+  var _studentFiltersInitialized = false;
+  var _studentTableDeleteBound = false;
+
   function loadStudents() {
     var tbl = document.querySelector('#backend-students-table'); if (!tbl) return;
-    request('/api/student-registrations').then(function (p) { renderStudentRows(p.data || []); })
-      .catch(function (err) { showAlert('#backend-students-status', err.message); });
+    Promise.all([
+      request('/api/student-registrations'),
+      request('/api/formations').catch(function () { return { data: [] }; }),
+      request('/api/groups').catch(function () { return { data: [] }; })
+    ]).then(function (results) {
+      _allStudentsCache = results[0].data || [];
+      _allFormationsCache = results[1].data || [];
+      _allGroupsCache = results[2].data || [];
+      initStudentFilterControls();
+      applyStudentFilters();
+    }).catch(function (err) {
+      showAlert('#backend-students-status', err.message);
+    });
   }
+
+  function initStudentFilterControls() {
+    var formationSel = document.getElementById('student-filter-formation');
+    var groupSel = document.getElementById('student-filter-group');
+    var searchInput = document.getElementById('student-search-input');
+    var resetBtn = document.getElementById('btn-reset-student-filters');
+
+    if (formationSel) {
+      var curFVal = formationSel.value;
+      formationSel.innerHTML = '<option value="" data-i18n="All Formations">' + t('All Formations') + '</option>' +
+        _allFormationsCache.map(function (f) {
+          return '<option value="' + f.id + '"' + (String(f.id) === curFVal ? ' selected' : '') + '>' + esc(f.title) + '</option>';
+        }).join('');
+    }
+
+    updateStudentGroupOptions();
+
+    if (!_studentFiltersInitialized) {
+      _studentFiltersInitialized = true;
+
+      if (formationSel) {
+        formationSel.addEventListener('change', function () {
+          updateStudentGroupOptions();
+          applyStudentFilters();
+        });
+      }
+
+      if (groupSel) {
+        groupSel.addEventListener('change', function () {
+          applyStudentFilters();
+        });
+      }
+
+      if (searchInput) {
+        searchInput.addEventListener('input', function () {
+          applyStudentFilters();
+        });
+      }
+
+      if (resetBtn) {
+        resetBtn.addEventListener('click', function () {
+          if (searchInput) searchInput.value = '';
+          if (formationSel) formationSel.value = '';
+          updateStudentGroupOptions();
+          applyStudentFilters();
+        });
+      }
+    }
+  }
+
+  function updateStudentGroupOptions() {
+    var formationSel = document.getElementById('student-filter-formation');
+    var groupSel = document.getElementById('student-filter-group');
+    if (!groupSel) return;
+
+    var selectedFormationId = formationSel ? formationSel.value : '';
+    var curGVal = groupSel.value;
+
+    var filteredGroups = _allGroupsCache;
+    if (selectedFormationId) {
+      filteredGroups = _allGroupsCache.filter(function (g) {
+        return String(g.formation_id) === String(selectedFormationId);
+      });
+    }
+
+    groupSel.innerHTML = '<option value="" data-i18n="All Groups">' + t('All Groups') + '</option>' +
+      filteredGroups.map(function (g) {
+        var isSel = String(g.id) === curGVal;
+        return '<option value="' + g.id + '"' + (isSel ? ' selected' : '') + '>' + esc(g.name) + '</option>';
+      }).join('');
+
+    if (curGVal && !filteredGroups.some(function (g) { return String(g.id) === curGVal; })) {
+      groupSel.value = '';
+    }
+  }
+
+  function applyStudentFilters() {
+    var searchInput = document.getElementById('student-search-input');
+    var formationSel = document.getElementById('student-filter-formation');
+    var groupSel = document.getElementById('student-filter-group');
+    var countBadge = document.getElementById('student-filter-count');
+
+    var query = (searchInput ? searchInput.value : '').trim().toLowerCase();
+    var formationId = formationSel ? formationSel.value : '';
+    var groupId = groupSel ? groupSel.value : '';
+
+    var filtered = _allStudentsCache.filter(function (s) {
+      if (formationId && String(s.formation_id) !== String(formationId)) {
+        return false;
+      }
+      if (groupId) {
+        var gIds = s.group_ids ? String(s.group_ids).split(',') : [];
+        if (gIds.indexOf(String(groupId)) === -1) {
+          return false;
+        }
+      }
+      if (query) {
+        var fullName = [s.first_name, s.last_name].filter(Boolean).join(' ').toLowerCase();
+        var reg = (s.registration_number || '').toLowerCase();
+        var email = (s.email || '').toLowerCase();
+        var formTitle = (s.formation_title || '').toLowerCase();
+        var grpNames = (s.group_names || '').toLowerCase();
+        var phone = (s.parent_phone || '').toLowerCase();
+        var parentName = (s.parent_name || '').toLowerCase();
+
+        var match = fullName.indexOf(query) !== -1 ||
+                    reg.indexOf(query) !== -1 ||
+                    email.indexOf(query) !== -1 ||
+                    formTitle.indexOf(query) !== -1 ||
+                    grpNames.indexOf(query) !== -1 ||
+                    phone.indexOf(query) !== -1 ||
+                    parentName.indexOf(query) !== -1;
+        if (!match) return false;
+      }
+      return true;
+    });
+
+    if (countBadge) {
+      if (query || formationId || groupId) {
+        countBadge.style.display = 'inline-block';
+        countBadge.textContent = filtered.length + ' / ' + _allStudentsCache.length;
+      } else {
+        countBadge.style.display = 'inline-block';
+        countBadge.textContent = _allStudentsCache.length + ' ' + (t('Students') || 'Students');
+      }
+    }
+
+    renderStudentRows(filtered);
+  }
+
   function formatPaymentStatus(status) {
-    return status === 'paid'
-      ? '<span class="label label-success">Paid</span>'
-      : '<span class="label label-danger">Unpaid</span>';
+    var isPaid = status === 'paid';
+    var label = isPaid ? t('Paid') : t('Unpaid');
+    return isPaid
+      ? '<span class="label label-success" data-i18n="Paid">' + label + '</span>'
+      : '<span class="label label-danger" data-i18n="Unpaid">' + label + '</span>';
   }
+
   function renderStudentRows(rows) {
     var tbody = document.querySelector('#backend-students-table tbody'); if (!tbody) return;
-    if (!rows.length) { tbody.innerHTML = '<tr><td colspan="8" class="text-center">' + t('No records found') + '</td></tr>'; return; }
+    if (!rows.length) { tbody.innerHTML = '<tr><td colspan="10" class="text-center" data-i18n="No records found">' + t('No records found') + '</td></tr>'; return; }
     tbody.innerHTML = rows.map(function (r) {
       var fullName = [r.first_name, r.last_name].filter(Boolean).join(' ');
       var chk = '<input type="checkbox" class="row-checkbox" value="' + r.id + '" data-type="student" data-name="' + esc(fullName) + '" data-reg="' + esc(r.registration_number) + '" data-photo="' + esc(avatarUrl(r.photo, fullName, 'student', r.gender)) + '" data-formation="' + esc(r.formation_title || '') + '">';
       var name = esc(fullName);
       var img = '<img src="' + esc(avatarUrl(r.photo, fullName, 'student', r.gender)) + '" style="width:36px;height:36px;border-radius:50%;object-fit:cover" onerror="this.src=\'https://ui-avatars.com/api/?name=S&background=27ae60&color=fff&size=36\'">';
-      var payStatus = r.payment_status === 'paid'
-        ? '<span class="label label-success">Paid</span>'
-        : '<span class="label label-danger">Unpaid</span>';
-      return '<tr><td>' + chk + '</td><td>' + img + '</td><td>' + esc(r.registration_number) + '</td><td>' + name + '</td><td>' + esc(r.email) + '</td><td>' + (r.is_active ? '<span class="label label-success">Active</span>' : '<span class="label label-danger">Inactive</span>') + '</td><td>' + esc(r.parent_name || '-') + '</td><td>' + esc(formatGmtPlusOneDate(r.enrollment_date)) + '</td><td>' + payStatus + '</td>' +
-        '<td><a href="student-profile.html?id=' + r.id + '" class="btn btn-xs btn-success" title="View Details"><i class="fa fa-eye"></i></a> ' +
-        '<a href="edit-student.html?id=' + r.id + '" class="btn btn-xs btn-info" title="Edit"><i class="fa fa-pencil"></i></a> ' +
-        '<button class="btn btn-xs btn-danger" data-del-student="' + r.id + '" title="Delete"><i class="fa fa-trash"></i></button></td></tr>';
+      var payStatus = formatPaymentStatus(r.payment_status);
+      var statusBadge = r.is_active
+        ? '<span class="label label-success" data-i18n="Active">' + t('Active') + '</span>'
+        : '<span class="label label-danger" data-i18n="Inactive">' + t('Inactive') + '</span>';
+      
+      var formationBadge = r.formation_title
+        ? '<span class="label label-primary" style="font-size:11px;font-weight:600;display:inline-block;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle;" title="' + esc(r.formation_title) + '">' + esc(r.formation_title) + '</span>'
+        : '<span class="text-muted">-</span>';
+
+      var groupBadge = r.group_names
+        ? '<span class="label label-info" style="font-size:11px;font-weight:600;display:inline-block;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle;" title="' + esc(r.group_names) + '">' + esc(r.group_names) + '</span>'
+        : '<span class="text-muted">-</span>';
+
+      return '<tr><td>' + chk + '</td><td>' + img + '</td><td>' + esc(r.registration_number) + '</td><td>' + name + '</td><td>' + formationBadge + '</td><td>' + groupBadge + '</td><td>' + statusBadge + '</td><td>' + esc(formatGmtPlusOneDate(r.enrollment_date)) + '</td><td>' + payStatus + '</td>' +
+        '<td><a href="student-profile.html?id=' + r.id + '" class="btn btn-xs btn-success" title="' + t('View Details') + '"><i class="fa fa-eye"></i></a> ' +
+        '<a href="edit-student.html?id=' + r.id + '" class="btn btn-xs btn-info" title="' + t('Edit') + '"><i class="fa fa-pencil"></i></a> ' +
+        '<button class="btn btn-xs btn-danger" data-del-student="' + r.id + '" title="' + t('Delete') + '"><i class="fa fa-trash"></i></button></td></tr>';
     }).join('');
-    document.querySelector('#backend-students-table').addEventListener('click', function (e) {
-      var btn = e.target.closest('[data-del-student]'); if (!btn) return;
-      if (!confirm('Delete this student?')) return;
-      request('/api/student-registrations/' + btn.getAttribute('data-del-student'), { method: 'DELETE' })
-        .then(loadStudents).catch(function (err) { showAlert('#backend-students-status', err.message); });
-    });
+    if (window.AppI18n && window.AppI18n.translateAll) {
+      window.AppI18n.translateAll(tbody);
+    } else {
+      applyTranslations(tbody);
+    }
+    if (!_studentTableDeleteBound) {
+      _studentTableDeleteBound = true;
+      document.querySelector('#backend-students-table').addEventListener('click', function (e) {
+        var btn = e.target.closest('[data-del-student]'); if (!btn) return;
+        if (!confirm('Delete this student?')) return;
+        request('/api/student-registrations/' + btn.getAttribute('data-del-student'), { method: 'DELETE' })
+          .then(loadStudents).catch(function (err) { showAlert('#backend-students-status', err.message); });
+      });
+    }
+
+    var selectAll = document.querySelector('#backend-students-table .select-all');
+    if (selectAll) selectAll.checked = false;
+    var btnCards = document.getElementById('btn-generate-cards');
+    if (btnCards) btnCards.style.display = 'none';
   }
 
   function formatSubscriptionPlan(plan) {
-    if (plan === '1_month') return '1 Month';
-    if (plan === '3_months') return '3 Months';
-    if (plan === '1_year') return '1 Year';
-    return plan ? plan.replace(/_/g, ' ') : '-';
+    if (!plan) return '-';
+    var isAr = (window.AppI18n && window.AppI18n.getLang ? window.AppI18n.getLang() : (localStorage.getItem(LANG_KEY) || document.documentElement.lang || currentLang || 'ar')) === 'ar';
+    if (plan === '1_month') return isAr ? 'شهر واحد' : '1 Month';
+    if (plan === '3_months') return isAr ? '3 أشهر' : '3 Months';
+    if (plan === '1_year') return isAr ? 'سنة واحدة' : '1 Year';
+    var clean = plan.replace(/_/g, ' ');
+    return t(clean) || clean;
   }
 
   var paymentsPageLoading = false;
@@ -1122,7 +1328,7 @@
 
   function renderPaymentRows(rows) {
     var tbody = document.querySelector('#backend-payments-table tbody'); if (!tbody) return;
-    if (!rows.length) { tbody.innerHTML = '<tr><td colspan="10" class="text-center">' + t('No records found') + '</td></tr>'; return; }
+    if (!rows.length) { tbody.innerHTML = '<tr><td colspan="10" class="text-center" data-i18n="No records found">' + t('No records found') + '</td></tr>'; return; }
     var today = formatGmtPlusOneDate(new Date());
     tbody.innerHTML = rows.map(function (r) {
       var name = esc([r.first_name, r.last_name].filter(Boolean).join(' '));
@@ -1146,6 +1352,12 @@
           '</td>' +
         '</tr>';
     }).join('');
+
+    if (window.AppI18n && window.AppI18n.translateAll) {
+      window.AppI18n.translateAll(tbody);
+    } else {
+      applyTranslations(tbody);
+    }
 
     // Bind enter-payment buttons: switch to tab-enter-payment and select student
     tbody.querySelectorAll('.btn-enter-payment').forEach(function (btn) {
@@ -1295,7 +1507,7 @@
     groupSel.innerHTML = '<option value="">' + t('Loading...') + '</option>';
     request('/api/groups?formation_id=' + encodeURIComponent(formationId)).then(function (p) {
       var list = (p.data || []).filter(function (g) { return !g.status || g.status === 'open'; });
-      groupSel.innerHTML = '<option value="">\u2014 ' + t('No Group') + ' (Optional) \u2014</option>' +
+      groupSel.innerHTML = '<option value="">\u2014 ' + t('No Group (Optional)') + ' \u2014</option>' +
         list.map(function (g) { return '<option value="' + g.id + '">' + esc(g.name) + '</option>'; }).join('');
     }).catch(function () {
       groupSel.innerHTML = '<option value="">\u2014 ' + t('No Group') + ' \u2014</option>';
@@ -1327,6 +1539,7 @@
           gender: fd.get('gender') || null, birth_date: fd.get('birth_date') || null, photo: fd.get('photo') || null,
           blood_type: fd.get('blood_type') || null,
           formation_id: fd.get('formation_id'),
+          group_id: selectedGroupId ? parseInt(selectedGroupId, 10) : null,
           registration_number: Math.floor(1000000000 + Math.random() * 9000000000).toString(),
           parent_name: fd.get('parent_name') || null,
           parent_phone: fd.get('parent_phone') || null,
@@ -1422,11 +1635,92 @@
     });
   }
 
+  // ── Teachers ─────────────────────────────────────────────────────────────────────────────────
+  var _allTeacherRows = []; // full cached dataset
+
+  function loadTeachers() {
+    var tbl = document.querySelector('#backend-teachers-table'); if (!tbl) return;
+
+    request('/api/teacher-registrations').then(function (p) {
+      _allTeacherRows = p.data || [];
+      applyTeacherFilters();
+      bindTeacherFilters();
+    }).catch(function (err) { showAlert('#backend-teachers-status', err.message); });
+  }
+
+  function bindTeacherFilters() {
+    var search = document.getElementById('teacher-search');
+    if (!search) return;
+    if (currentLang === 'ar') {
+      search.placeholder = 'بحث بالاسم، البريد، رقم الموظف، التخصص...';
+    }
+    if (search._bound) return;
+    search._bound = true;
+    search.addEventListener('input', applyTeacherFilters);
+  }
+
+
+  function applyTeacherFilters() {
+    var q = ((document.getElementById('teacher-search') || {}).value || '').trim().toLowerCase();
+
+    var filtered = q ? _allTeacherRows.filter(function (r) {
+      var haystack = [r.first_name, r.last_name, r.email, r.employee_number, r.speciality, r.specialization]
+        .filter(Boolean).join(' ').toLowerCase();
+      return haystack.indexOf(q) !== -1;
+    }) : _allTeacherRows;
+
+    renderTeacherRows(filtered);
+
+    var countEl = document.getElementById('teacher-filter-count');
+    if (countEl) {
+      countEl.style.display = q ? '' : 'none';
+      if (q) {
+        countEl.innerHTML = (currentLang === 'ar')
+          ? 'تم العثور على <strong>' + filtered.length + '</strong> من أصل ' + _allTeacherRows.length + ' أستاذ'
+          : 'Showing <strong>' + filtered.length + '</strong> of ' + _allTeacherRows.length + ' teachers';
+      }
+    }
+  }
+
+  function renderTeacherRows(rows) {
+    var tbody = document.querySelector('#backend-teachers-table tbody'); if (!tbody) return;
+    if (!rows.length) { tbody.innerHTML = '<tr><td colspan="9" class="text-center">' + t('No records found') + '</td></tr>'; return; }
+    tbody.innerHTML = rows.map(function (r) {
+      var name = esc([r.first_name, r.last_name].filter(Boolean).join(' '));
+      var img = '<img src="' + esc(avatarUrl(r.photo, [r.first_name, r.last_name].join(' '), 'teacher', r.gender)) + '" style="width:36px;height:36px;border-radius:50%;object-fit:cover">';
+      var chk = '<input type="checkbox" class="row-checkbox" value="' + r.id + '" data-type="teacher" data-name="' + name + '" data-reg="' + esc(r.employee_number || '') + '" data-photo="' + esc(avatarUrl(r.photo, name, 'teacher', r.gender)) + '" data-speciality="' + esc(r.speciality || r.specialization || '') + '" data-hire-date="' + esc(r.hire_date || '') + '" data-birth-date="' + esc(r.birth_date || '') + '" data-gender="' + esc(r.gender || '') + '" data-diploma="' + esc(r.diploma || '') + '">';
+      var statusBadge = r.is_active
+        ? '<span class="label label-success" data-i18n="Active">' + t('Active') + '</span>'
+        : '<span class="label label-danger" data-i18n="Inactive">' + t('Inactive') + '</span>';
+      return '<tr><td>' + chk + '</td><td>' + img + '</td><td>' + esc(r.employee_number) + '</td><td>' + name + '</td><td>' + esc(r.email) + '</td><td>' + statusBadge + '</td><td>' + esc(r.speciality || '-') + '</td><td>' + esc(fmtDate(r.hire_date)) + '</td>' +
+        '<td><a href="professor-profile.html?id=' + r.id + '" class="btn btn-xs btn-success" title="' + t('View Details') + '"><i class="fa fa-eye"></i></a> ' +
+        '<a href="edit-professor.html?id=' + r.id + '" class="btn btn-xs btn-info" title="' + t('Edit') + '"><i class="fa fa-pencil"></i></a> ' +
+        '<button class="btn btn-xs btn-danger" data-del-teacher="' + r.id + '" title="' + t('Delete') + '"><i class="fa fa-trash"></i></button></td></tr>';
+    }).join('');
+    if (window.AppI18n && window.AppI18n.translateAll) {
+      window.AppI18n.translateAll(tbody);
+    } else {
+      applyTranslations(tbody);
+    }
+    // Bind delete (once, guard against duplicate)
+    var tbl = document.querySelector('#backend-teachers-table');
+    if (tbl && !tbl._delBound) {
+      tbl._delBound = true;
+      tbl.addEventListener('click', function (e) {
+        var btn = e.target.closest('[data-del-teacher]'); if (!btn) return;
+        if (!confirm('Delete this teacher?')) return;
+        request('/api/teacher-registrations/' + btn.getAttribute('data-del-teacher'), { method: 'DELETE' })
+          .then(loadTeachers).catch(function (err) { showAlert('#backend-teachers-status', err.message); });
+      });
+    }
+  }
+
   function bindImportExcel() {
     var modal = document.getElementById('importExcelModal');
     var btnImport = document.getElementById('btn-do-import');
     var fileInput = document.getElementById('import-excel-file');
     var selectFormation = document.getElementById('import-formation-id');
+    var selectGroup = document.getElementById('import-group-id');
     var status = document.getElementById('import-excel-status');
     var progressContainer = document.getElementById('import-progress-container');
     var progressBar = document.getElementById('import-progress-bar');
@@ -1434,20 +1728,33 @@
 
     if (!modal || !btnImport) return;
 
+    if (selectFormation && selectGroup) {
+      selectFormation.addEventListener('change', function () {
+        populateGroupSelect(selectGroup, this.value);
+      });
+    }
+
     // Use jQuery event for Bootstrap modal
     if (window.jQuery) {
       $(modal).on('show.bs.modal', function () {
         populateFormationSelect(selectFormation);
+        if (selectGroup) {
+          selectGroup.innerHTML = '<option value="">' + t('Select Formation first') + '</option>';
+        }
         if (status) status.style.display = 'none';
         if (fileInput) fileInput.value = '';
         if (progressContainer) progressContainer.style.display = 'none';
         btnImport.disabled = false;
+        if (window.AppI18n && window.AppI18n.translateAll) {
+          window.AppI18n.translateAll(modal);
+        }
       });
     }
 
     btnImport.addEventListener('click', function () {
       var file = fileInput.files[0];
       var formationId = selectFormation.value;
+      var selectedGroupId = selectGroup && selectGroup.value ? selectGroup.value : null;
 
       if (!formationId) {
         showAlert('#import-excel-status', 'Please select a formation.');
@@ -1525,6 +1832,9 @@
               registration_number: Math.floor(1000000000 + Math.random() * 9000000000).toString(),
               payment_status: 'not_paid',
             };
+            if (selectedGroupId) {
+              payload.group_id = parseInt(selectedGroupId, 10);
+            }
             // Optional fields — only add if present in the row
             if (s.birth_date) payload.birth_date = String(s.birth_date);
             if (s.parent_name) payload.parent_name = String(s.parent_name);
@@ -1547,6 +1857,14 @@
             request('/api/student-registrations', {
               method: 'POST',
               body: JSON.stringify(payload)
+            }).then(function (resp) {
+              var newStudentId = resp && resp.data && resp.data.id;
+              if (selectedGroupId && newStudentId) {
+                return request('/api/student-groups', {
+                  method: 'POST',
+                  body: JSON.stringify({ student_id: newStudentId, group_id: parseInt(selectedGroupId, 10) })
+                }).catch(function () { /* safe fallback */ });
+              }
             }).then(function () {
               importedCount++;
             }).catch(function (err) {
@@ -1575,32 +1893,7 @@
   }
 
 
-  // ── Teachers ─────────────────────────────────────────────────────────────────
-  function loadTeachers() {
-    var tbl = document.querySelector('#backend-teachers-table'); if (!tbl) return;
-    request('/api/teacher-registrations').then(function (p) { renderTeacherRows(p.data || []); })
-      .catch(function (err) { showAlert('#backend-teachers-status', err.message); });
-  }
-  function renderTeacherRows(rows) {
-    var tbody = document.querySelector('#backend-teachers-table tbody'); if (!tbody) return;
-    if (!rows.length) { tbody.innerHTML = '<tr><td colspan="9" class="text-center">' + t('No records found') + '</td></tr>'; return; }
-    tbody.innerHTML = rows.map(function (r) {
-      var name = esc([r.first_name, r.last_name].filter(Boolean).join(' '));
-      var img = '<img src="' + esc(avatarUrl(r.photo, [r.first_name, r.last_name].join(' '), 'teacher', r.gender)) + '" style="width:36px;height:36px;border-radius:50%;object-fit:cover">';
-      var chk = '<input type="checkbox" class="row-checkbox" value="' + r.id + '" data-type="teacher" data-name="' + name + '" data-reg="' + esc(r.employee_number || '') + '" data-photo="' + esc(avatarUrl(r.photo, name, 'teacher', r.gender)) + '" data-speciality="' + esc(r.speciality || r.specialization || '') + '" data-hire-date="' + esc(r.hire_date || '') + '" data-birth-date="' + esc(r.birth_date || '') + '" data-gender="' + esc(r.gender || '') + '" data-diploma="' + esc(r.diploma || '') + '">';
-      var statusBadge = r.is_active ? '<span class="label label-success">Active</span>' : '<span class="label label-danger">Inactive</span>';
-      return '<tr><td>' + chk + '</td><td>' + img + '</td><td>' + esc(r.employee_number) + '</td><td>' + name + '</td><td>' + esc(r.email) + '</td><td>' + statusBadge + '</td><td>' + esc(r.speciality || '-') + '</td><td>' + esc(fmtDate(r.hire_date)) + '</td>' +
-        '<td><a href="professor-profile.html?id=' + r.id + '" class="btn btn-xs btn-success" title="View Details"><i class="fa fa-eye"></i></a> ' +
-        '<a href="edit-professor.html?id=' + r.id + '" class="btn btn-xs btn-info" title="Edit"><i class="fa fa-pencil"></i></a> ' +
-        '<button class="btn btn-xs btn-danger" data-del-teacher="' + r.id + '" title="Delete"><i class="fa fa-trash"></i></button></td></tr>';
-    }).join('');
-    document.querySelector('#backend-teachers-table').addEventListener('click', function (e) {
-      var btn = e.target.closest('[data-del-teacher]'); if (!btn) return;
-      if (!confirm('Delete this teacher?')) return;
-      request('/api/teacher-registrations/' + btn.getAttribute('data-del-teacher'), { method: 'DELETE' })
-        .then(loadTeachers).catch(function (err) { showAlert('#backend-teachers-status', err.message); });
-    });
-  }
+
   function bindAddTeacherForm() {
     var form = document.querySelector('#backend-add-teacher-form'); if (!form) return;
     form.addEventListener('submit', function (e) {
@@ -1655,6 +1948,35 @@
     request('/api/formations').then(function (p) { renderFormationRows(p.data || []); })
       .catch(function (err) { showAlert('#backend-formations-status', err.message); });
   }
+  function formatFormationNiveau(val) {
+    if (!val || val === '-') return '<span class="text-muted">-</span>';
+    var v = String(val).trim().toLowerCase();
+    var isGen = (
+      v === 'begin' || v === 'beginner' || val === 'للمبتدئين' ||
+      v === 'intermediate' || val === 'متوسط' ||
+      v === 'advanced' || val === 'متقدم'
+    );
+    var lang = (window._app_lang || localStorage.getItem('app_lang') || 'ar');
+    var isAr = (lang === 'ar');
+    if (isGen) {
+      var genKey = (v === 'begin' || v === 'beginner' || val === 'للمبتدئين') ? 'Beginner' :
+                   (v === 'intermediate' || val === 'متوسط') ? 'Intermediate' : 'Advanced';
+      var genText = t(genKey);
+      var genBadge = isAr ? 'عام' : t('General');
+      return '<span style="display:inline-flex; align-items:center; gap:6px;">' +
+        '<span class="badge" style="background-color:#fef3c7; color:#92400e; font-weight:600; font-size:11px; padding:2px 8px; border-radius:12px; border:1px solid #fde68a;">' + genBadge + '</span>' +
+        '<span style="font-weight:600; color:#1e293b;">' + esc(genText) + '</span>' +
+        '</span>';
+    } else {
+      var acadText = t(val) || val;
+      var acadBadge = isAr ? 'اكاديمي' : t('Academic');
+      return '<span style="display:inline-flex; align-items:center; gap:6px;">' +
+        '<span class="badge" style="background-color:#e0e7ff; color:#3730a3; font-weight:600; font-size:11px; padding:2px 8px; border-radius:12px; border:1px solid #c7d2fe;">' + acadBadge + '</span>' +
+        '<span style="font-weight:600; color:#1e293b;">' + esc(acadText) + '</span>' +
+        '</span>';
+    }
+  }
+
   function renderFormationRows(rows) {
     var tbody = document.querySelector('#backend-formations-table tbody'); if (!tbody) return;
     if (!rows.length) { tbody.innerHTML = '<tr><td colspan="11" class="text-center">' + t('No records found') + '</td></tr>'; return; }
@@ -1672,10 +1994,8 @@
         '<option value="open" ' + (r.status === 'open' ? 'selected' : '') + ' style="background:#fff; color:#333;">' + t('Open') + '</option>' +
         '<option value="closed" ' + (r.status === 'closed' ? 'selected' : '') + ' style="background:#fff; color:#333;">' + t('Closed') + '</option>' +
         '</select>';
-      var niveauKey = r.niveau === 'begin' ? 'Beginner' : (r.niveau === 'intermediate' ? 'Intermediate' : 'Advanced');
-      var niveauText = t(niveauKey);
       var placesText = r.places ? (r.registered_students || 0) + ' / ' + r.places : '-';
-      return '<tr><td>' + chk + '</td><td>' + img + '</td><td>' + esc(r.title) + '</td><td>' + esc(typeLabel) + '</td><td>' + statusSelect + '</td><td>' + esc(niveauText) + '</td><td>' + esc(placesText) + '</td><td>' + esc(fmtDate(r.start_date)) + '</td><td>' + esc(fmtDate(r.end_date)) + '</td><td>' + esc(priceValue || 0) + ' DA</td>' +
+      return '<tr><td>' + chk + '</td><td>' + img + '</td><td>' + esc(r.title) + '</td><td>' + esc(typeLabel) + '</td><td>' + statusSelect + '</td><td>' + formatFormationNiveau(r.niveau) + '</td><td>' + esc(placesText) + '</td><td>' + esc(fmtDate(r.start_date)) + '</td><td>' + esc(fmtDate(r.end_date)) + '</td><td>' + esc(priceValue || 0) + ' DA</td>' +
         '<td><a href="course-info.html?id=' + r.id + '" class="btn btn-xs btn-success" title="View Details"><i class="fa fa-eye"></i></a> ' +
         '<a href="edit-course.html?id=' + r.id + '" class="btn btn-xs btn-info" title="Edit"><i class="fa fa-pencil"></i></a> ' +
         '<button class="btn btn-xs btn-danger" data-del-formation="' + r.id + '" title="Delete"><i class="fa fa-trash"></i></button></td></tr>';
@@ -1763,8 +2083,8 @@
       ['price_monthly', 'price_3_months', 'price_1_year'].forEach(function (field) {
         var el = form.querySelector('[name="' + field + '"]'); if (el && f[field] != null) el.value = f[field];
       });
-      if (typeof window._niveauPreSelect === 'function' && f.niveau) {
-        window._niveauPreSelect(f.niveau);
+      if (typeof window._niveauPreSelect === 'function') {
+        window._niveauPreSelect(f.niveau || '');
       }
       if (f.image) { var pv = document.getElementById('formation-image-preview'); if (pv) pv.src = formationImg(f.image, f.title); }
       if (f.teacher_id && sel) setTimeout(function () { sel.value = f.teacher_id; }, 600);
@@ -1868,6 +2188,7 @@
 
   function loadGroupsPage() {
     if (!document.querySelector('#backend-groups-list')) return;
+    initGroupTableEvents();
     // Load formations, classrooms and students for selects
     Promise.all([
       request('/api/formations-list'),
@@ -1976,16 +2297,18 @@
           '<td style="vertical-align:middle;"><span class="room-info"><i class="fa fa-building" style="color:#10b981;"></i> ' + esc(g.classroom_name || t('No classroom')) + '</span></td>' +
           '<td style="vertical-align:middle;"><a href="group-info.html?id=' + g.id + '" class="student-count-badge" title="' + t('View Students') + '"><i class="fa fa-user"></i> <span id="group-count-' + g.id + '">' + (g.student_count || 0) + '</span> ' + t('students') + '</a></td>' +
           '<td style="vertical-align:middle;"><small class="text-muted" style="font-weight:500;">' + dates + '</small></td>' +
-          '<td class="text-center" style="vertical-align:middle; white-space:nowrap; min-width:180px;">' +
+          '<td class="text-center" style="vertical-align:middle; white-space:nowrap; min-width:210px;">' +
           '<div style="display:inline-flex; align-items:center; justify-content:center; gap:5px; white-space:nowrap;">' +
           '<a href="group-info.html?id=' + g.id + '" class="btn btn-default btn-sm" style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;padding:0;border-radius:8px;" title="' + t('View Details') + '"><i class="fa fa-eye text-info"></i></a>' +
           '<a href="edit-group.html?id=' + g.id + '" class="btn btn-default btn-sm" style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;padding:0;border-radius:8px;" title="' + t('Edit Group') + '"><i class="fa fa-pencil text-primary"></i></a>' +
           '<button type="button" class="btn btn-default btn-sm" style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;padding:0;border-radius:8px;" onclick="openAddStudentsModal(' + g.id + ', \'' + esc(g.name).replace(/'/g, "\\'") + '\')" title="' + t('Add Students') + '"><i class="fa fa-user-plus text-success"></i></button>' +
+          '<button type="button" class="btn btn-default btn-sm" style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;padding:0;border-radius:8px;background:#fff8ed;" onclick="downloadSingleGroupPdf(' + g.id + ', this)" title="تحميل PDF"><i class="fa fa-file-pdf-o" style="color:#d97706;"></i></button>' +
           '<button type="button" class="btn btn-default btn-sm" style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;padding:0;border-radius:8px;" data-del-group="' + g.id + '" title="' + t('Delete Group') + '"><i class="fa fa-trash text-danger"></i></button>' +
           '</div>' +
           '</td>' +
           '</tr>';
       }).join('');
+
     } else {
       c.innerHTML = filtered.map(function (g) {
         var chk = '<input type="checkbox" class="row-checkbox group-row-checkbox" value="' + g.id + '" data-type="group" style="transform:scale(1.3); cursor:pointer; margin:0;">';
@@ -2020,14 +2343,965 @@
       filtered.forEach(function (g) { loadGroupStudents(g.id); });
     }
     applyTranslations(c);
+    updateGroupSelectionUI();
+  }
 
-    // Delete group handler
-    c.onclick = function (e) {
-      var btn = e.target.closest('[data-del-group]'); if (!btn) return;
-      if (!confirm(t('Delete this group and remove all students from it?'))) return;
-      request('/api/groups/' + btn.getAttribute('data-del-group'), { method: 'DELETE' })
-        .then(loadGroups).catch(function (err) { showAlert('#backend-groups-status', err.message); });
+  // ── Groups Table Checkbox Selection & Action UI ───────────────────────────
+  function updateGroupSelectionUI() {
+    var tbl = document.getElementById('backend-groups-table');
+    var bulkBtn = document.getElementById('btn-download-groups-pdf');
+    var countEl = document.getElementById('selected-groups-count');
+    if (!tbl) return;
+
+    var allRows = tbl.querySelectorAll('tbody .group-row-checkbox');
+    var checked = tbl.querySelectorAll('tbody .group-row-checkbox:checked');
+    var selAll = tbl.querySelector('thead .select-all');
+
+    var count = checked.length;
+    if (countEl) countEl.textContent = count;
+
+    if (bulkBtn) {
+      bulkBtn.style.display = count > 0 ? 'inline-flex' : 'none';
+    }
+
+    if (selAll) {
+      selAll.checked = allRows.length > 0 && checked.length === allRows.length;
+      selAll.indeterminate = count > 0 && count < allRows.length;
+    }
+  }
+
+  // ── One-time event delegation for groups table (checkboxes + delete + pdf) ──────────────────
+  function initGroupTableEvents() {
+    var tbl = document.getElementById('backend-groups-table');
+    if (!tbl || tbl._eventsBound) return;
+    tbl._eventsBound = true;
+
+    tbl.addEventListener('change', function (e) {
+      var cb = e.target;
+      if (!cb.matches('.group-row-checkbox') && !cb.matches('.select-all')) return;
+      var selAll = tbl.querySelector('thead .select-all');
+      var allRows = tbl.querySelectorAll('tbody .group-row-checkbox');
+
+      if (cb.matches('.select-all')) {
+        // Header checkbox: check/uncheck all rows
+        allRows.forEach(function (r) { r.checked = cb.checked; });
+      } else {
+        // Row checkbox: update header state
+        var checked = tbl.querySelectorAll('tbody .group-row-checkbox:checked');
+        if (selAll) {
+          selAll.checked = allRows.length > 0 && allRows.length === checked.length;
+          selAll.indeterminate = checked.length > 0 && checked.length < allRows.length;
+        }
+      }
+      updateGroupSelectionUI();
+    });
+
+    tbl.addEventListener('click', function (e) {
+      var delBtn = e.target.closest('[data-del-group]');
+      if (delBtn) {
+        if (!confirm(t('Delete this group and remove all students from it?'))) return;
+        request('/api/groups/' + delBtn.getAttribute('data-del-group'), { method: 'DELETE' })
+          .then(loadGroups).catch(function (err) { showAlert('#backend-groups-status', err.message); });
+      }
+    });
+  }
+
+  // Bind immediately if DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initGroupTableEvents);
+  } else {
+    initGroupTableEvents();
+  }
+
+  // ── Groups PDF Export ─────────────────────────────────────────────────────
+
+  window.downloadCheckedGroupsPdf = function () {
+    var checked = document.querySelectorAll('#backend-groups-table tbody .group-row-checkbox:checked');
+    if (!checked.length) { alert('يرجى تحديد فوج واحد على الأقل.'); return; }
+    var ids = Array.prototype.map.call(checked, function (cb) { return Number(cb.value); });
+    var bulkBtn = document.getElementById('btn-download-groups-pdf');
+    generateGroupsPdf(ids, bulkBtn);
+  };
+
+  window.downloadSingleGroupPdf = function (groupId, triggerEl) {
+    generateGroupsPdf([Number(groupId)], triggerEl || null);
+  };
+
+  function generateGroupsPdf(groupIds, triggerBtn) {
+    if (!groupIds || !groupIds.length) return;
+
+    var jsPDFLib = window.jspdf && window.jspdf.jsPDF ? window.jspdf.jsPDF : (window.jsPDF || null);
+    if (!jsPDFLib || typeof html2canvas === 'undefined') {
+      alert('مكتبات PDF لم تُحمَّل بعد. يرجى الانتظار لحظة ثم المحاولة مجدداً.');
+      return;
+    }
+
+    // Show progress indicator on the triggering button
+    var btn = triggerBtn || document.getElementById('btn-download-groups-pdf');
+    var origHTML = btn ? btn.innerHTML : '';
+    var origDisabled = btn ? btn.disabled : false;
+    if (btn) { btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> جاري التجهيز...'; btn.disabled = true; }
+
+    function restoreBtn() {
+      if (btn) { btn.innerHTML = origHTML; btn.disabled = origDisabled; }
+    }
+
+    // Fetch school info + groups data in parallel
+    Promise.all([
+      request('/api/school-setup/settings'),
+      request('/api/groups/batch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ group_ids: groupIds })
+      })
+    ]).then(function (results) {
+      var schoolData = results[0];
+      var school = (schoolData && schoolData.school) ? schoolData.school : {};
+      var contactInfo = (schoolData && schoolData.contact_info) ? schoolData.contact_info : {};
+      var groups = results[1].data || [];
+
+      if (!groups.length) {
+        restoreBtn();
+        alert('لا توجد أفواج لتصديرها.');
+        return;
+      }
+
+      // Pre-load logos as base64 with fetch + canvas fallback and timeout safety (never throws)
+      function imgToBase64(url) {
+        return new Promise(function (resolve) {
+          if (!url) { resolve(''); return; }
+          var resolved = false;
+          function done(res) {
+            if (!resolved) {
+              resolved = true;
+              clearTimeout(timer);
+              resolve(res || '');
+            }
+          }
+          var timer = setTimeout(function () { done(''); }, 3500);
+
+          fetch(url, { mode: 'cors' })
+            .then(function (res) {
+              if (!res.ok) throw new Error('status ' + res.status);
+              return res.blob();
+            })
+            .then(function (blob) {
+              var reader = new FileReader();
+              reader.onloadend = function () { done(reader.result || ''); };
+              reader.onerror = function () { done(''); };
+              reader.readAsDataURL(blob);
+            })
+            .catch(function () {
+              try {
+                var img = new Image();
+                img.crossOrigin = 'anonymous';
+                img.onload = function () {
+                  try {
+                    var canvas = document.createElement('canvas');
+                    canvas.width = img.naturalWidth || img.width || 75;
+                    canvas.height = img.naturalHeight || img.height || 75;
+                    var ctx2 = canvas.getContext('2d');
+                    ctx2.drawImage(img, 0, 0);
+                    done(canvas.toDataURL('image/png'));
+                  } catch (e) {
+                    done('');
+                  }
+                };
+                img.onerror = function () { done(''); };
+                img.src = url;
+              } catch (e) {
+                done('');
+              }
+            });
+        });
+      }
+
+      Promise.all([imgToBase64(school.logo || ''), imgToBase64(school.logo2 || '')]).then(function (logos) {
+        var logo1B64 = logos[0];
+        var logo2B64 = logos[1];
+
+        // Build an off-screen container for rendering
+        var container = document.getElementById('groups-pdf-export-container');
+        if (!container) {
+          container = document.createElement('div');
+          container.id = 'groups-pdf-export-container';
+          container.style.cssText = 'position:fixed;left:-9999px;top:0;z-index:-1;background:#fff;';
+          document.body.appendChild(container);
+        }
+
+        var doc = new jsPDFLib({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+        var pageW = 210, pageH = 297;
+        var pageIndex = 0;
+
+        function renderGroupPage(gIdx) {
+          if (gIdx >= groups.length) {
+            // All pages rendered — save PDF
+            container.innerHTML = '';
+            restoreBtn();
+            var filename = groups.length === 1
+              ? 'group-' + (groups[0].name || 'unknown').replace(/[\s/\\]+/g, '-') + '.pdf'
+              : 'groups-' + groups.length + '-pages.pdf';
+            doc.save(filename);
+            return;
+          }
+
+          var g = groups[gIdx];
+          var students = g.students || [];
+
+          var schoolName = school.name || '';
+          var schoolType = school.type || '';
+          var schoolAddress = [school.municipality, school.district, school.state].filter(Boolean).join(' - ') || school.address || '';
+          var schoolEmail = school.email || '';
+          var schoolPhone = [school.phone_landline, school.phone_1, school.phone_2].filter(Boolean).join(' | ');
+
+          var males = students.filter(function (s) { return (s.gender || '').toUpperCase() === 'MALE'; }).length;
+          var females = students.filter(function (s) { return (s.gender || '').toUpperCase() === 'FEMALE'; }).length;
+          var total = students.length;
+
+          // Render A4 page HTML
+          container.innerHTML = buildGroupPageHtml({
+            school: school,
+            schoolName: schoolName,
+            schoolType: schoolType,
+            schoolAddress: schoolAddress,
+            schoolEmail: schoolEmail,
+            schoolPhone: schoolPhone,
+            logo1B64: logo1B64,
+            logo2B64: logo2B64,
+            group: g,
+            students: students,
+            males: males,
+            females: females,
+            total: total
+          });
+
+          var pageEl = container.querySelector('.group-pdf-page');
+          if (!pageEl) { renderGroupPage(gIdx + 1); return; }
+
+          // Wait for fonts to finish loading before capturing with html2canvas
+          var doCapture = function () {
+            html2canvas(pageEl, {
+              scale: 2,
+              useCORS: true,
+              allowTaint: false,
+              backgroundColor: '#ffffff',
+              logging: false
+            }).then(function (canvas) {
+              if (pageIndex > 0) doc.addPage();
+              var imgData = canvas.toDataURL('image/jpeg', 0.95);
+              var canvasAR = canvas.width / canvas.height;
+              var pageAR = pageW / pageH;
+              var imgW, imgH;
+              if (canvasAR > pageAR) {
+                imgW = pageW; imgH = pageW / canvasAR;
+              } else {
+                imgH = pageH; imgW = pageH * canvasAR;
+              }
+              var posX = (pageW - imgW) / 2;
+              var posY = (pageH - imgH) / 2;
+              doc.addImage(imgData, 'JPEG', posX, posY, imgW, imgH);
+              pageIndex++;
+              renderGroupPage(gIdx + 1);
+            }).catch(function () {
+              renderGroupPage(gIdx + 1);
+            });
+          };
+
+          if (document.fonts && document.fonts.ready) {
+            document.fonts.ready.then(function () {
+              setTimeout(doCapture, 150); // small delay to let glyphs paint
+            });
+          } else {
+            setTimeout(doCapture, 300);
+          }
+        }
+
+        renderGroupPage(0);
+      });
+    }).catch(function (err) {
+      restoreBtn();
+      alert('خطأ في تحميل البيانات: ' + (err.message || err));
+    });
+  }
+
+  function buildGroupPageHtml(ctx) {
+    var g = ctx.group;
+    var students = ctx.students;
+
+    // Translation map for formation niveau values (Arabic/English → Arabic display)
+    var niveauMap = {
+      'begin': 'مبتدئ',
+      'beginner': 'مبتدئ',
+      'intermediate': 'متوسط',
+      'advanced': 'متقدم',
+      'elementary': 'ابتدائي'
     };
+
+    function translateNiveau(val) {
+      if (!val || val === '-') return '-';
+      var lower = val.toLowerCase().trim();
+      return niveauMap[lower] || val;
+    }
+
+    function calcAge(birthDateStr) {
+      if (!birthDateStr) return '-';
+      var bd = new Date(birthDateStr);
+      if (isNaN(bd.getTime())) return '-';
+      var today = new Date();
+      var age = today.getFullYear() - bd.getFullYear();
+      var m = today.getMonth() - bd.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < bd.getDate())) age--;
+      return age >= 0 ? age : '-';
+    }
+
+    function fmtDate(dateStr) {
+      if (!dateStr) return '-';
+      var d = new Date(dateStr);
+      if (isNaN(d.getTime())) return '-';
+      var y = d.getFullYear();
+      var mo = String(d.getMonth() + 1).padStart(2, '0');
+      var dy = String(d.getDate()).padStart(2, '0');
+      return y + '/' + mo + '/' + dy;
+    }
+
+    function fmtGender(g) {
+      if (!g) return '-';
+      return g.toUpperCase() === 'MALE' ? 'ذكر' : 'أنثى';
+    }
+
+    var logoLeftHtml = ctx.logo1B64
+      ? '<img src="' + ctx.logo1B64 + '" style="width:75px;height:75px;object-fit:contain;">'
+      : '<div style="width:75px;height:75px;background:#e0e7ff;border-radius:10px;"></div>';
+    var logoRightHtml = ctx.logo2B64
+      ? '<img src="' + ctx.logo2B64 + '" style="width:75px;height:75px;object-fit:contain;">'
+      : '<div style="width:75px;height:75px;background:#f0fdf4;border-radius:10px;"></div>';
+
+    // Use the group-level niveau as common level (same for all students in group),
+    // but fall back to per-student niveau if available
+    var groupNiveau = translateNiveau(g.formation_niveau || '');
+
+    var rows = students.map(function (s, i) {
+      var fullName = [(s.last_name || '').trim(), (s.first_name || '').trim()].filter(Boolean).join(' ');
+      var phone = s.parent_phone || s.parent_phone2 || '-';
+      // Use student's own formation niveau first, then group's formation niveau
+      var rawNiveau = s.student_niveau || g.formation_niveau || '';
+      var niveau = translateNiveau(rawNiveau) || '-';
+      var rowBg = i % 2 === 0 ? '#ffffff' : '#f8fafc';
+      return '<tr style="background:' + rowBg + ';">' +
+        '<td style="border:1px solid #cbd5e1;padding:5px 8px;text-align:center;font-size:12px;color:#64748b;">' + (i + 1) + '</td>' +
+        '<td style="border:1px solid #cbd5e1;padding:5px 10px;font-size:13px;font-weight:600;color:#0f172a;">' + (fullName || '-') + '</td>' +
+        '<td style="border:1px solid #cbd5e1;padding:5px 8px;text-align:center;font-size:12px;">' + fmtGender(s.gender) + '</td>' +
+        '<td style="border:1px solid #cbd5e1;padding:5px 8px;text-align:center;font-size:12px;">' + fmtDate(s.birth_date) + '</td>' +
+        '<td style="border:1px solid #cbd5e1;padding:5px 8px;text-align:center;font-size:12px;">' + calcAge(s.birth_date) + '</td>' +
+        '<td style="border:1px solid #cbd5e1;padding:5px 8px;font-size:12px;">' + (s.parent_name || '-') + '</td>' +
+        '<td style="border:1px solid #cbd5e1;padding:5px 8px;font-size:12px;direction:ltr;text-align:center;">' + phone + '</td>' +
+        '<td style="border:1px solid #cbd5e1;padding:5px 8px;font-size:12px;">' + niveau + '</td>' +
+        '</tr>';
+    }).join('');
+
+    if (!students.length) {
+      rows = '<tr><td colspan="8" style="border:1px solid #cbd5e1;padding:16px;text-align:center;color:#94a3b8;">لا يوجد طلاب في هذا الفوج</td></tr>';
+    }
+
+    // Title text
+    var titleText = 'جدول معلومات التلاميذ';
+
+    return '<div class="group-pdf-page" style="' +
+      'width:794px;min-height:1123px;background:#fff;' +
+      'font-family:\'Cairo\',\'Segoe UI\',\'Tahoma\',\'Traditional Arabic\',\'Arial\',sans-serif;' +
+      'direction:rtl;position:relative;padding:0;box-sizing:border-box;' +
+      '">' +
+
+      // Embedded font style to ensure correct Arabic shaping (no letter-spacing that breaks cursive ligatures)
+      '<style>' +
+        '.group-pdf-page, .group-pdf-page * {' +
+        '  font-family: "Cairo", "Segoe UI", "Tahoma", "Traditional Arabic", "Arial", sans-serif !important;' +
+        '  letter-spacing: normal !important;' +
+        '  word-spacing: normal !important;' +
+        '}' +
+      '</style>' +
+
+      // ── Header ──
+      '<div style="display:flex;align-items:center;justify-content:space-between;padding:18px 24px 12px;border-bottom:3px solid #e2e8f0;">' +
+        '<div style="flex:0 0 80px;">' + logoLeftHtml + '</div>' +
+        '<div style="flex:1;text-align:center;padding:0 16px;">' +
+          '<div style="font-size:13px;color:#64748b;font-weight:700;margin-bottom:3px;">' + (ctx.schoolType || '') + '</div>' +
+          '<div style="font-size:20px;font-weight:700;color:#1e1b4b;margin-bottom:4px;">' + (ctx.schoolName || '') + '</div>' +
+          (ctx.schoolAddress ? '<div style="font-size:12px;color:#475569;margin-bottom:2px;">★ ' + ctx.schoolAddress + '</div>' : '') +
+          (ctx.schoolEmail ? '<div style="font-size:11px;color:#64748b;direction:ltr;margin-bottom:2px;">' + ctx.schoolEmail + '</div>' : '') +
+          (ctx.schoolPhone ? '<div style="font-size:11px;color:#64748b;direction:ltr;">' + ctx.schoolPhone + '</div>' : '') +
+        '</div>' +
+        '<div style="flex:0 0 80px;">' + logoRightHtml + '</div>' +
+      '</div>' +
+
+      // ── Group Meta ──
+      '<div style="display:flex;flex-wrap:wrap;gap:0;border-bottom:2px solid #e2e8f0;background:#f8fafc;">' +
+        '<div style="flex:1;padding:8px 16px;border-left:1px solid #e2e8f0;min-width:150px;">' +
+          '<div style="font-size:10px;color:#94a3b8;font-weight:700;margin-bottom:2px;">المعلم(ة)</div>' +
+          '<div style="font-size:13px;font-weight:700;color:#1e1b4b;">' + (g.teacher_name || '-') + '</div>' +
+        '</div>' +
+        '<div style="flex:1;padding:8px 16px;border-left:1px solid #e2e8f0;min-width:150px;">' +
+          '<div style="font-size:10px;color:#94a3b8;font-weight:700;margin-bottom:2px;">الدورة التعليمية</div>' +
+          '<div style="font-size:13px;font-weight:700;color:#1e1b4b;">' + (g.formation_title || '-') + '</div>' +
+        '</div>' +
+        '<div style="flex:1;padding:8px 16px;border-left:1px solid #e2e8f0;min-width:130px;">' +
+          '<div style="font-size:10px;color:#94a3b8;font-weight:700;margin-bottom:2px;">القسم</div>' +
+          '<div style="font-size:13px;font-weight:700;color:#1e1b4b;">' + (g.classroom_name || '-') + '</div>' +
+        '</div>' +
+        '<div style="flex:1;padding:8px 16px;min-width:130px;">' +
+          '<div style="font-size:10px;color:#94a3b8;font-weight:700;margin-bottom:2px;">الفوج</div>' +
+          '<div style="font-size:13px;font-weight:700;color:#1e1b4b;">' + (g.name || '-') + '</div>' +
+        '</div>' +
+      '</div>' +
+
+      // ── Title Banner ──
+      '<div style="background:linear-gradient(135deg,#0e7490,#0891b2);color:#fff;text-align:center;padding:11px 0;font-size:19px;font-weight:700;line-height:1.4;direction:rtl;letter-spacing:normal;">' +
+        titleText +
+      '</div>' +
+
+      // ── Students Table ──
+      '<div style="padding:0 12px;">' +
+        '<table style="width:100%;border-collapse:collapse;margin-top:0;">' +
+          '<thead>' +
+            '<tr style="background:#1e1b4b;color:#fff;">' +
+              '<th style="border:1px solid #cbd5e1;padding:7px 8px;font-size:12px;text-align:center;font-weight:700;width:40px;">رقم</th>' +
+              '<th style="border:1px solid #cbd5e1;padding:7px 10px;font-size:12px;font-weight:700;">اللقب والاسم</th>' +
+              '<th style="border:1px solid #cbd5e1;padding:7px 8px;font-size:12px;text-align:center;font-weight:700;width:55px;">الجنس</th>' +
+              '<th style="border:1px solid #cbd5e1;padding:7px 8px;font-size:12px;text-align:center;font-weight:700;width:95px;">تاريخ الميلاد</th>' +
+              '<th style="border:1px solid #cbd5e1;padding:7px 8px;font-size:12px;text-align:center;font-weight:700;width:45px;">العمر</th>' +
+              '<th style="border:1px solid #cbd5e1;padding:7px 8px;font-size:12px;font-weight:700;">اسم الأب</th>' +
+              '<th style="border:1px solid #cbd5e1;padding:7px 8px;font-size:12px;text-align:center;font-weight:700;width:105px;">الهاتف</th>' +
+              '<th style="border:1px solid #cbd5e1;padding:7px 8px;font-size:12px;font-weight:700;">المستوى الدراسي</th>' +
+            '</tr>' +
+          '</thead>' +
+          '<tbody>' + rows + '</tbody>' +
+        '</table>' +
+      '</div>' +
+
+      // ── Summary Box ──
+      '<div style="margin:18px 12px 0;border:2px solid #0e7490;border-radius:10px;overflow:hidden;">' +
+        '<div style="display:flex;">' +
+          '<div style="flex:1;padding:12px;text-align:center;border-left:1px solid #0e7490;background:#ecfeff;">' +
+            '<div style="font-size:11px;color:#0e7490;font-weight:700;margin-bottom:4px;">العدد الإجمالي</div>' +
+            '<div style="font-size:26px;font-weight:700;color:#0e7490;">' + ctx.total + '</div>' +
+          '</div>' +
+          '<div style="flex:1;padding:12px;text-align:center;border-left:1px solid #0e7490;background:#eff6ff;">' +
+            '<div style="font-size:11px;color:#1d4ed8;font-weight:700;margin-bottom:4px;">الذكور</div>' +
+            '<div style="font-size:26px;font-weight:700;color:#1d4ed8;">' + ctx.males + '</div>' +
+          '</div>' +
+          '<div style="flex:1;padding:12px;text-align:center;background:#fdf4ff;">' +
+            '<div style="font-size:11px;color:#9333ea;font-weight:700;margin-bottom:4px;">الإناث</div>' +
+            '<div style="font-size:26px;font-weight:700;color:#9333ea;">' + ctx.females + '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+
+      // ── Footer ──
+      '<div style="margin:14px 12px 0;padding-top:10px;border-top:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;">' +
+        '<div style="font-size:10px;color:#94a3b8;">تاريخ الطباعة: ' + new Date().toLocaleDateString('ar-DZ') + '</div>' +
+        '<div style="font-size:10px;color:#94a3b8;">' + (ctx.schoolName || '') + '</div>' +
+      '</div>' +
+
+    '</div>';
+  }
+
+  // ── Group Attendance Sheet PDF Export ──────────────────────────────────────
+
+  window.openAttendanceMonthModal = function () {
+    var monthInput = document.getElementById('att-sheet-month');
+    if (monthInput) {
+      var now = new Date();
+      var y = now.getFullYear();
+      var m = String(now.getMonth() + 1).padStart(2, '0');
+      monthInput.value = y + '-' + m;
+    }
+    if (window.$ && typeof $('#attendance-month-modal').modal === 'function') {
+      $('#attendance-month-modal').modal('show');
+    } else {
+      var mEl = document.getElementById('attendance-month-modal');
+      if (mEl) {
+        mEl.style.display = 'block';
+        mEl.classList.add('in');
+      }
+    }
+  };
+
+  window.confirmDownloadAttendancePdf = function () {
+    var monthInput = document.getElementById('att-sheet-month');
+    var val = monthInput ? monthInput.value : '';
+    var year, month;
+    if (val && val.indexOf('-') > -1) {
+      var parts = val.split('-');
+      year = parseInt(parts[0], 10);
+      month = parseInt(parts[1], 10);
+    } else {
+      var now = new Date();
+      year = now.getFullYear();
+      month = now.getMonth() + 1;
+    }
+
+    if (window.$ && typeof $('#attendance-month-modal').modal === 'function') {
+      $('#attendance-month-modal').modal('hide');
+    } else {
+      var mEl = document.getElementById('attendance-month-modal');
+      if (mEl) {
+        mEl.style.display = 'none';
+        mEl.classList.remove('in');
+      }
+    }
+
+    var groupId = urlParam('id');
+    downloadGroupAttendancePdf(groupId, year, month);
+  };
+
+  window.downloadGroupAttendancePdf = function (groupId, year, month) {
+    groupId = groupId || urlParam('id');
+    if (!groupId) {
+      alert('لم يتم تحديد معرف الفوج.');
+      return;
+    }
+
+    var now = new Date();
+    year = year || now.getFullYear();
+    month = month || (now.getMonth() + 1);
+
+    var jsPDFLib = window.jspdf && window.jspdf.jsPDF ? window.jspdf.jsPDF : (window.jsPDF || null);
+    if (!jsPDFLib || typeof html2canvas === 'undefined') {
+      alert('مكتبات PDF لم تُحمَّل بعد. يرجى الانتظار لحظة ثم المحاولة مجدداً.');
+      return;
+    }
+
+    var triggerBtns = [
+      document.getElementById('btn-attendance-pdf'),
+      document.getElementById('btn-attendance-toolbar'),
+      document.getElementById('btn-confirm-attendance-pdf')
+    ].filter(Boolean);
+
+    var origStates = triggerBtns.map(function (b) {
+      return { el: b, html: b.innerHTML, disabled: b.disabled };
+    });
+
+    triggerBtns.forEach(function (b) {
+      b.innerHTML = '<i class="fa fa-spinner fa-spin"></i> جاري التجهيز...';
+      b.disabled = true;
+    });
+
+    function restoreBtns() {
+      origStates.forEach(function (s) {
+        s.el.innerHTML = s.html;
+        s.el.disabled = s.disabled;
+      });
+    }
+
+    // Load school settings and group details
+    Promise.all([
+      request('/api/school-setup/settings'),
+      request('/api/groups/' + groupId)
+    ]).then(function (results) {
+      var schoolData = results[0];
+      var school = (schoolData && schoolData.school) ? schoolData.school : {};
+      var g = results[1].data;
+
+      if (!g) {
+        restoreBtns();
+        alert('لم يتم العثور على بيانات الفوج.');
+        return;
+      }
+
+      var defaultLogo1 = 'https://res.cloudinary.com/p0mhhcjg/image/upload/v1788176562/school_management/bgqqlyiwkzs7ja5zuxpt.png';
+      var defaultLogo2 = 'https://res.cloudinary.com/p0mhhcjg/image/upload/v1788176568/school_management/hxldtqlgokkrrgasqov8.png';
+
+      function imgToBase64(url) {
+        return new Promise(function (resolve) {
+          if (!url) { resolve(''); return; }
+          var resolved = false;
+          function done(res) {
+            if (!resolved) {
+              resolved = true;
+              clearTimeout(timer);
+              resolve(res || '');
+            }
+          }
+          var timer = setTimeout(function () { done(''); }, 3500);
+
+          fetch(url, { mode: 'cors' })
+            .then(function (res) {
+              if (!res.ok) throw new Error('status ' + res.status);
+              return res.blob();
+            })
+            .then(function (blob) {
+              var reader = new FileReader();
+              reader.onloadend = function () { done(reader.result || ''); };
+              reader.onerror = function () { done(''); };
+              reader.readAsDataURL(blob);
+            })
+            .catch(function () {
+              try {
+                var img = new Image();
+                img.crossOrigin = 'anonymous';
+                img.onload = function () {
+                  try {
+                    var canvas = document.createElement('canvas');
+                    canvas.width = img.naturalWidth || img.width || 75;
+                    canvas.height = img.naturalHeight || img.height || 75;
+                    var ctx2 = canvas.getContext('2d');
+                    ctx2.drawImage(img, 0, 0);
+                    done(canvas.toDataURL('image/png'));
+                  } catch (e) {
+                    done('');
+                  }
+                };
+                img.onerror = function () { done(''); };
+                img.src = url;
+              } catch (e) {
+                done('');
+              }
+            });
+        });
+      }
+
+      Promise.all([
+        imgToBase64(school.logo || defaultLogo1),
+        imgToBase64(school.logo2 || defaultLogo2)
+      ]).then(function (logos) {
+        var logo1B64 = logos[0] || defaultLogo1;
+        var logo2B64 = logos[1] || defaultLogo2;
+
+        var container = document.getElementById('attendance-pdf-export-container');
+        if (!container) {
+          container = document.createElement('div');
+          container.id = 'attendance-pdf-export-container';
+          container.style.cssText = 'position:fixed;left:-9999px;top:0;z-index:-1;background:#fff;';
+          document.body.appendChild(container);
+        }
+
+        // Arabic days mapping (0 = Sunday, 1 = Monday, 2 = Tuesday, 3 = Wednesday, 4 = Thursday, 5 = Friday, 6 = Saturday)
+        var ARABIC_DAYS = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+        var daysInMonth = new Date(year, month, 0).getDate();
+        var firstDayDate = new Date(year, month - 1, 1);
+        var lastDayDate = new Date(year, month - 1, daysInMonth);
+
+        var firstDayName = ARABIC_DAYS[firstDayDate.getDay()];
+        var lastDayName = ARABIC_DAYS[lastDayDate.getDay()];
+
+        var firstDayDateStr = year + '/' + String(month).padStart(2, '0') + '/01';
+        var lastDayDateStr = year + '/' + String(month).padStart(2, '0') + '/' + String(daysInMonth).padStart(2, '0');
+
+        // Always build 31 daily columns to maintain identical full table layout
+        var dayCols = [];
+        for (var d = 1; d <= 31; d++) {
+          if (d <= daysInMonth) {
+            var dObj = new Date(year, month - 1, d);
+            dayCols.push({
+              dayName: ARABIC_DAYS[dObj.getDay()],
+              dateStr: year + '/' + String(month).padStart(2, '0') + '/' + String(d).padStart(2, '0')
+            });
+          } else {
+            var nextD = new Date(year, month, d - daysInMonth);
+            dayCols.push({
+              dayName: ARABIC_DAYS[nextD.getDay()],
+              dateStr: nextD.getFullYear() + '/' + String(nextD.getMonth() + 1).padStart(2, '0') + '/' + String(nextD.getDate()).padStart(2, '0')
+            });
+          }
+        }
+
+        var allStudents = g.students || [];
+        var totalCount = allStudents.length;
+
+        // Paginate if more than 20 students per page
+        var pageSize = 20;
+        var pages = [];
+        if (allStudents.length <= pageSize) {
+          pages.push({ students: allStudents, startIndex: 0 });
+        } else {
+          for (var i = 0; i < allStudents.length; i += pageSize) {
+            pages.push({
+              students: allStudents.slice(i, i + pageSize),
+              startIndex: i
+            });
+          }
+        }
+
+        var doc = new jsPDFLib({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+        var pageW = 210, pageH = 297;
+        var pageIndex = 0;
+
+        function renderAttendancePage(pIdx) {
+          if (pIdx >= pages.length) {
+            container.innerHTML = '';
+            restoreBtns();
+            var filename = 'جدول-حضور-غياب-' + (g.name || 'فوج').replace(/[\s/\\]+/g, '-') + '-' + year + '-' + String(month).padStart(2, '0') + '.pdf';
+            doc.save(filename);
+            return;
+          }
+
+          var curPage = pages[pIdx];
+          container.innerHTML = buildAttendanceSheetPageHtml({
+            school: school,
+            logo1B64: logo1B64,
+            logo2B64: logo2B64,
+            group: g,
+            students: curPage.students,
+            startIndex: curPage.startIndex,
+            totalStudents: totalCount,
+            firstDayName: firstDayName,
+            lastDayName: lastDayName,
+            firstDayDateStr: firstDayDateStr,
+            lastDayDateStr: lastDayDateStr,
+            dayCols: dayCols
+          });
+
+          var pageEl = container.querySelector('.attendance-pdf-page');
+          if (!pageEl) { renderAttendancePage(pIdx + 1); return; }
+
+          var doCapture = function () {
+            html2canvas(pageEl, {
+              scale: 2,
+              useCORS: true,
+              allowTaint: false,
+              backgroundColor: '#ffffff',
+              logging: false
+            }).then(function (canvas) {
+              if (pageIndex > 0) doc.addPage();
+              var imgData = canvas.toDataURL('image/jpeg', 0.95);
+              var canvasAR = canvas.width / canvas.height;
+              var pageAR = pageW / pageH;
+              var imgW, imgH;
+              if (canvasAR > pageAR) {
+                imgW = pageW; imgH = pageW / canvasAR;
+              } else {
+                imgH = pageH; imgW = pageH * canvasAR;
+              }
+              var posX = (pageW - imgW) / 2;
+              var posY = (pageH - imgH) / 2;
+              doc.addImage(imgData, 'JPEG', posX, posY, imgW, imgH);
+              pageIndex++;
+              renderAttendancePage(pIdx + 1);
+            }).catch(function (err) {
+              console.error('html2canvas error:', err);
+              renderAttendancePage(pIdx + 1);
+            });
+          };
+
+          if (document.fonts && document.fonts.ready) {
+            document.fonts.ready.then(function () {
+              setTimeout(doCapture, 150);
+            });
+          } else {
+            setTimeout(doCapture, 300);
+          }
+        }
+
+        renderAttendancePage(0);
+      });
+    }).catch(function (err) {
+      restoreBtns();
+      alert('خطأ في تحميل البيانات: ' + (err.message || err));
+    });
+  };
+
+  function buildAttendanceSheetPageHtml(ctx) {
+    var s = ctx.school || {};
+    var g = ctx.group || {};
+    var students = ctx.students || [];
+    var startIndex = ctx.startIndex || 0;
+    var dayCols = ctx.dayCols || [];
+
+    var schoolName = s.name || 'مدرسة الريان لعلوم القرآن';
+    var associationName = 'جمعية العلماء المسلمين الجزائريين - شعبة حي قجال';
+    var schoolAddress = [s.municipality, s.district, s.state].filter(Boolean).join(' - ') || s.address || 'حي 117 مسكن قجال سطيف';
+    var schoolEmail = s.email || 'jomjguidjel02@gmail.com';
+    var phoneLandline = s.phone_landline || '036.53.91.17';
+    var phone2 = s.phone_2 || '0784.42.20.26';
+    var phone1 = s.phone_1 || '0791.41.97.68';
+
+    var logo1Html = ctx.logo1B64
+      ? '<img src="' + ctx.logo1B64 + '" style="width:78px;height:78px;object-fit:contain;display:block;">'
+      : '<div style="width:78px;height:78px;background:#f1f5f9;border-radius:10px;"></div>';
+    var logo2Html = ctx.logo2B64
+      ? '<img src="' + ctx.logo2B64 + '" style="width:78px;height:78px;object-fit:contain;display:block;">'
+      : '<div style="width:78px;height:78px;background:#f1f5f9;border-radius:10px;"></div>';
+
+    // Day name columns (Row 1 of thead)
+    var dayNameColsHtml = dayCols.map(function (col) {
+      return '<th style="border:1px solid #000;width:18.5px;height:55px;padding:0;text-align:center;vertical-align:middle;background:#fff;">' +
+        '<div style="display:flex;align-items:center;justify-content:center;width:18.5px;height:55px;overflow:visible;">' +
+          '<span style="display:inline-block;transform:rotate(-90deg);white-space:nowrap;font-size:9.5px;font-weight:700;line-height:1;color:#000;">' +
+            col.dayName +
+          '</span>' +
+        '</div>' +
+      '</th>';
+    }).join('');
+
+    // Date columns (Row 2 of thead)
+    var dateColsHtml = dayCols.map(function (col) {
+      return '<th style="border:1px solid #000;width:18.5px;height:65px;padding:0;text-align:center;vertical-align:middle;background:#fff;">' +
+        '<div style="display:flex;align-items:center;justify-content:center;width:18.5px;height:65px;overflow:visible;">' +
+          '<span style="display:inline-block;transform:rotate(-90deg);white-space:nowrap;font-size:9px;font-weight:700;line-height:1;direction:ltr;color:#000;">' +
+            col.dateStr +
+          '</span>' +
+        '</div>' +
+      '</th>';
+    }).join('');
+
+    // Student rows (or fill up to at least 15 rows if fewer)
+    var displayRows = [];
+    for (var i = 0; i < students.length; i++) {
+      var st = students[i];
+      var name = [(st.last_name || '').trim(), (st.first_name || '').trim()].filter(Boolean).join(' ');
+      displayRows.push({ num: startIndex + i + 1, name: name });
+    }
+    // If fewer than 15 rows on page 1, pad with empty numbered rows so it looks like a complete register sheet
+    if (startIndex === 0 && displayRows.length < 15) {
+      var currentLen = displayRows.length;
+      for (var k = currentLen; k < 15; k++) {
+        displayRows.push({ num: k + 1, name: '' });
+      }
+    }
+
+    var empty31Cells = '';
+    for (var c = 0; c < 31; c++) {
+      empty31Cells += '<td style="border:1px solid #000;padding:0;height:24px;"></td>';
+    }
+
+    var studentRowsHtml = displayRows.map(function (row) {
+      return '<tr style="height:25px;">' +
+        '<td style="border:1px solid #000;text-align:center;font-size:12px;font-weight:700;padding:0;color:#000;">' + row.num + '</td>' +
+        '<td style="border:1px solid #000;text-align:right;font-size:12.5px;font-weight:700;padding:2px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#000;">' + (row.name || '') + '</td>' +
+        empty31Cells +
+      '</tr>';
+    }).join('');
+
+    return '<div class="attendance-pdf-page" style="' +
+      'width:794px;min-height:1123px;background:#ffffff;padding:14px 16px;box-sizing:border-box;' +
+      'font-family:\'Cairo\',\'Segoe UI\',\'Tahoma\',\'Traditional Arabic\',\'Arial\',sans-serif;' +
+      'direction:rtl;position:relative;color:#000000;' +
+      '">' +
+
+      // Font style enforcement
+      '<style>' +
+        '.attendance-pdf-page, .attendance-pdf-page * {' +
+        '  font-family: "Cairo", "Segoe UI", "Tahoma", "Traditional Arabic", "Arial", sans-serif !important;' +
+        '  letter-spacing: normal !important;' +
+        '  word-spacing: normal !important;' +
+        '}' +
+      '</style>' +
+
+      // ── Outer Border Container ──
+      '<div style="border:1.5px solid #000000;padding:12px 14px;box-sizing:border-box;min-height:1095px;display:flex;flex-direction:column;justify-content:space-between;">' +
+
+        '<div>' +
+          // ── Header ──
+          '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">' +
+            '<div style="flex:0 0 85px;text-align:right;">' + logo2Html + '</div>' +
+            '<div style="flex:1;text-align:center;line-height:1.4;padding:0 6px;">' +
+              '<div style="font-size:15px;font-weight:700;margin-bottom:2px;color:#000;">' + associationName + '</div>' +
+              '<div style="font-size:15px;font-weight:700;margin-bottom:4px;color:#000;">' + schoolName + '</div>' +
+              '<div style="font-size:12px;font-weight:600;margin-bottom:2px;color:#000;">' +
+                '<span style="font-weight:700;">العنوان : </span><span>' + schoolAddress + '</span>' +
+              '</div>' +
+              '<div style="font-size:11.5px;font-weight:600;margin-bottom:2px;color:#000;">' +
+                '<span style="font-weight:700;">الايميل: </span><span style="direction:ltr;display:inline-block;">' + schoolEmail + '</span>' +
+              '</div>' +
+              '<div style="font-size:11.5px;font-weight:600;color:#000;">' +
+                '<span>الهاتف الثابت : </span><span style="direction:ltr;display:inline-block;">' + phoneLandline + '</span>' +
+                '&nbsp;&nbsp;&nbsp;&nbsp;' +
+                '<span>الهاتف 02 : </span><span style="direction:ltr;display:inline-block;">' + phone2 + '</span>' +
+                '&nbsp;&nbsp;&nbsp;&nbsp;' +
+                '<span>الهاتف 01 : </span><span style="direction:ltr;display:inline-block;">' + phone1 + '</span>' +
+              '</div>' +
+            '</div>' +
+            '<div style="flex:0 0 85px;text-align:left;">' + logo1Html + '</div>' +
+          '</div>' +
+
+          // ── Group Meta ──
+          '<div style="border:1px solid #64748b;border-radius:4px;padding:6px 14px;margin-bottom:8px;font-size:12.5px;font-weight:600;color:#000;">' +
+            '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">' +
+              '<div style="display:flex;gap:6px;width:52%;">' +
+                '<span style="font-weight:700;min-width:80px;">المعلم(ة) :</span>' +
+                '<span style="font-weight:600;">' + (g.teacher_name || '-') + '</span>' +
+              '</div>' +
+              '<div style="display:flex;gap:6px;width:48%;">' +
+                '<span style="font-weight:700;min-width:55px;">القسم :</span>' +
+                '<span style="font-weight:600;">' + (g.classroom_name || '-') + '</span>' +
+              '</div>' +
+            '</div>' +
+            '<div style="display:flex;justify-content:space-between;align-items:center;">' +
+              '<div style="display:flex;gap:6px;width:52%;">' +
+                '<span style="font-weight:700;min-width:80px;">الدورة التعليمية :</span>' +
+                '<span style="font-weight:600;">' + (g.formation_title || '-') + '</span>' +
+              '</div>' +
+              '<div style="display:flex;gap:6px;width:48%;">' +
+                '<span style="font-weight:700;min-width:55px;">الفوج :</span>' +
+                '<span style="font-weight:600;">' + (g.name || '-') + '</span>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+
+          // ── Title Banner ──
+          '<div style="border:1.5px solid #475569;border-radius:12px;background:#cbd5e1;text-align:center;padding:4px 0;font-size:16px;font-weight:700;margin-bottom:8px;color:#000;">' +
+            'جدول الحضور والغياب' +
+          '</div>' +
+
+          // ── Date Range ──
+          '<div style="display:flex;align-items:center;justify-content:flex-start;gap:0;margin-bottom:6px;font-size:12px;font-weight:700;color:#000;">' +
+            '<div style="border:1px solid #000;padding:3px 12px;background:#fff;">من :</div>' +
+            '<div style="border:1px solid #000;border-right:none;padding:3px 14px;background:#fff;">' + ctx.firstDayName + '</div>' +
+            '<div style="border:1px solid #000;border-right:none;padding:3px 14px;background:#fff;direction:ltr;">' + ctx.firstDayDateStr + '</div>' +
+            '<div style="width:24px;"></div>' +
+            '<div style="border:1px solid #000;padding:3px 12px;background:#fff;">الى :</div>' +
+            '<div style="border:1px solid #000;border-right:none;padding:3px 14px;background:#fff;">' + ctx.lastDayName + '</div>' +
+            '<div style="border:1px solid #000;border-right:none;padding:3px 14px;background:#fff;direction:ltr;">' + ctx.lastDayDateStr + '</div>' +
+          '</div>' +
+
+          // ── Table ──
+          '<table style="width:100%;border-collapse:collapse;table-layout:fixed;margin-bottom:0;">' +
+            '<thead>' +
+              '<tr>' +
+                '<th rowspan="2" style="border:1px solid #000;width:26px;height:120px;padding:0;text-align:center;vertical-align:middle;background:#fff;">' +
+                  '<div style="display:flex;align-items:center;justify-content:center;width:26px;height:120px;overflow:visible;">' +
+                    '<span style="display:inline-block;transform:rotate(-90deg);white-space:nowrap;font-size:11px;font-weight:700;color:#000;">الرقم</span>' +
+                  '</div>' +
+                '</th>' +
+                '<th rowspan="2" style="border:1px solid #000;width:146px;height:120px;padding:0 6px;text-align:center;vertical-align:middle;background:#fff;font-size:13px;font-weight:700;color:#000;">' +
+                  'اللقب والاسم' +
+                '</th>' +
+                dayNameColsHtml +
+              '</tr>' +
+              '<tr>' +
+                dateColsHtml +
+              '</tr>' +
+            '</thead>' +
+            '<tbody>' +
+              studentRowsHtml +
+            '</tbody>' +
+          '</table>' +
+        '</div>' +
+
+        // ── Footer ──
+        '<div style="border:1.5px solid #000;display:flex;align-items:center;justify-content:space-between;padding:4px 10px;margin-top:8px;font-size:12px;font-weight:700;background:#fff;color:#000;">' +
+          '<div style="display:flex;align-items:center;gap:14px;">' +
+            '<div style="display:flex;align-items:center;gap:6px;">' +
+              '<span style="border:1px solid #000;background:#86efac;color:#000;font-weight:700;font-size:11px;padding:1px 7px;border-radius:2px;">م</span>' +
+              '<span>مريض(ة)</span>' +
+            '</div>' +
+            '<div style="display:flex;align-items:center;gap:6px;">' +
+              '<span style="border:1px solid #000;background:#fca5a5;color:#000;font-weight:700;font-size:11px;padding:1px 7px;border-radius:2px;">غ</span>' +
+              '<span>غائب (ة)</span>' +
+            '</div>' +
+            '<div style="display:flex;align-items:center;gap:6px;">' +
+              '<span style="border:1px solid #000;background:#67e8f9;color:#000;font-weight:700;font-size:11px;padding:1px 7px;border-radius:2px;">ح</span>' +
+              '<span>حاضر(ة)</span>' +
+            '</div>' +
+          '</div>' +
+          '<div style="display:flex;align-items:center;border:1px solid #000;">' +
+            '<div style="padding:2px 14px;border-left:1px solid #000;font-size:12px;">' + (ctx.totalStudents || 0) + '</div>' +
+            '<div style="padding:2px 12px;font-size:12px;">العدد :</div>' +
+          '</div>' +
+        '</div>' +
+
+      '</div>' + // end inner box
+    '</div>'; // end attendance-pdf-page
   }
 
   window.openAddStudentsModal = function (groupId, groupName) {
@@ -2376,7 +3650,7 @@
       if (editBtn) editBtn.href = 'edit-course.html?id=' + tc.id;
 
       document.getElementById('cp-duration').textContent = tc.duration_hours ? tc.duration_hours + ' ' + t('hours') : '-';
-      document.getElementById('cp-niveau').textContent = t(tc.niveau === 'begin' ? 'Beginner' : (tc.niveau === 'intermediate' ? 'Intermediate' : 'Advanced'));
+      document.getElementById('cp-niveau').innerHTML = formatFormationNiveau(tc.niveau);
       document.getElementById('cp-places').textContent = tc.places || '-';
       document.getElementById('cp-registered').textContent = tc.registered_students || '0';
       document.getElementById('cp-price').textContent = tc.price ? tc.price + ' DA' : t('Free');

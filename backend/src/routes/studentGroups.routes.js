@@ -22,7 +22,7 @@ router.post(
       throw new HttpError(400, 'student_id and group_id are required');
     }
 
-    await query('INSERT INTO student_groups (student_id, group_id) VALUES (?, ?)', [studentId, groupId]);
+    await query('INSERT IGNORE INTO student_groups (student_id, group_id) VALUES (?, ?)', [studentId, groupId]);
     res.status(201).json({ message: 'Student linked to group successfully' });
   })
 );

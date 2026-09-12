@@ -24,6 +24,18 @@ document.write('<script src="js/i18n.js?v=' + new Date().getTime() + '"></script
 
   // Global toggle called by onclick in sidebar HTML
   window.sbToggleSidebar = function () {
+    var isMobile = window.innerWidth <= 991;
+    if (isMobile) {
+      // On mobile/tablet, always toggle overlay drawer
+      document.body.classList.toggle('sb-open');
+      var sbMainMobile = document.querySelector('.sb-main');
+      if (sbMainMobile) {
+        sbMainMobile.style.marginRight = '';
+        sbMainMobile.style.marginLeft = '';
+      }
+      return;
+    }
+
     var isRtl = document.documentElement.dir === 'rtl';
     if (document.body.classList.contains('sb-fixed')) {
       // Fixed Mode: toggle collapsed (icon-only) state
@@ -46,6 +58,17 @@ document.write('<script src="js/i18n.js?v=' + new Date().getTime() + '"></script
       document.body.classList.toggle('sb-open');
     }
   };
+
+  // Ensure inline margins are cleaned up when resizing to mobile
+  window.addEventListener('resize', function () {
+    if (window.innerWidth <= 991) {
+      var sbMain = document.querySelector('.sb-main');
+      if (sbMain) {
+        sbMain.style.marginRight = '';
+        sbMain.style.marginLeft = '';
+      }
+    }
+  });
 
   // Global toggle for submenu items
   window.sbToggle = function (linkEl) {

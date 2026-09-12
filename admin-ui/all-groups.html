@@ -18,8 +18,7 @@
 
     <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Groups | School System Admin</title>
-    <link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/font-awesome.min.css">
     <link rel="stylesheet" href="css/sidebar.css">
@@ -461,6 +460,10 @@
     <select id="filter-formation" class="form-control" style="width: auto; min-width: 170px;">
       <option value="" data-i18n="All Formations">All Formations</option>
     </select>
+    <button id="btn-download-groups-pdf" type="button" class="btn btn-warning" style="display:none; align-items:center; gap:8px; font-weight:600; border-radius:12px; padding:10px 18px; box-shadow:0 4px 14px rgba(217, 119, 6, 0.25); background:linear-gradient(135deg, #f59e0b, #d97706); border:none; color:#fff; transition:all 0.2s;" onclick="downloadCheckedGroupsPdf()">
+      <i class="fa fa-file-pdf-o"></i>
+      <span data-i18n="Download PDF">تحميل PDF للأفواج المحددة</span> (<span id="selected-groups-count">0</span>)
+    </button>
     <button id="btn-create-group" type="button" onclick="toggleCreateGroupModal(false)">
       <i class="fa fa-plus"></i>
       <span data-i18n="Create Group">Create Group</span>
@@ -678,5 +681,7 @@
 <script src="js/vendor/jquery-1.12.4.min.js"></script>
 <script src="js/bootstrap.min.js"></script>
 <script src="js/components.js"></script>
-<script src="js/backend.js?v=3"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="js/backend.js?v=6"></script>
 </body></html>

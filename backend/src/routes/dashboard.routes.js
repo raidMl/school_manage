@@ -44,12 +44,15 @@ router.get('/overview', requireAuth, asyncHandler(async (req, res) => {
     ),
   ]);
 
+  const teachersCount = Number(tc.n || 0);
+  const studentsCount = Number(sc.n || 0);
+
   res.json({
     school,
     counts: {
-      users:      Number(uc.n || 0),
-      teachers:   Number(tc.n || 0),
-      students:   Number(sc.n || 0),
+      users:      teachersCount + studentsCount,
+      teachers:   teachersCount,
+      students:   studentsCount,
       classrooms: Number(clc.n || 0),
       formations: Number(fc.n || 0),
       groups:     Number(gc.n || 0),

@@ -46,7 +46,8 @@
     var el = typeof sel === 'string' ? document.querySelector(sel) : sel;
     if (!el) return;
     el.className = 'alert alert-' + (type || 'danger');
-    el.textContent = msg; el.style.display = 'block';
+    var text = (window.AppI18n && typeof window.AppI18n.t === 'function') ? window.AppI18n.t(msg) : msg;
+    el.textContent = text; el.style.display = 'block';
   }
   function hideAlert(sel) {
     var el = typeof sel === 'string' ? document.querySelector(sel) : sel;
@@ -63,10 +64,16 @@
     return '<span class="method-badge ' + (cls[m] || 'method-other') + '">' + esc(lbl) + '</span>';
   }
   function planLabel(plan) {
-    if (plan === '1_month') return '1 Month';
-    if (plan === '3_months') return '3 Months';
-    if (plan === '1_year') return '1 Year';
-    return plan ? plan.replace(/_/g, ' ') : '-';
+    if (!plan) return '-';
+    var isAr = (localStorage.getItem('app_lang') || document.documentElement.lang || 'ar') === 'ar';
+    if (plan === '1_month') return isAr ? 'شهر واحد' : '1 Month';
+    if (plan === '3_months') return isAr ? '3 أشهر' : '3 Months';
+    if (plan === '1_year') return isAr ? 'سنة واحدة' : '1 Year';
+    var clean = plan.replace(/_/g, ' ');
+    if (isAr && window.AppI18n && window.AppI18n.dict && window.AppI18n.dict[clean]) {
+      return window.AppI18n.dict[clean];
+    }
+    return clean;
   }
   function tr(elOrId) {
     if (window.AppI18n) {
@@ -243,8 +250,12 @@
   function refreshStudentBadge(student) {
     var el = document.getElementById('sel-stu-status');
     if (!el) return;
-    el.textContent = student.payment_status === 'paid' ? 'Paid' : 'Unpaid';
-    el.className = student.payment_status === 'paid' ? 'badge-paid' : 'badge-unpaid';
+    var isPaid = student.payment_status === 'paid';
+    var isAr = (window.AppI18n && window.AppI18n.getLang ? window.AppI18n.getLang() : localStorage.getItem('app_lang')) === 'ar';
+    var txt = isPaid ? (isAr ? 'مدفوع' : 'Paid') : (isAr ? 'غير مدفوع' : 'Unpaid');
+    el.textContent = txt;
+    el.setAttribute('data-i18n', isPaid ? 'Paid' : 'Unpaid');
+    el.className = isPaid ? 'badge-paid' : 'badge-unpaid';
   }
 
   function hideBanner(id) {
@@ -292,10 +303,11 @@
       // Show plan cards
       banner.className = 'type-subscription';
       banner.style.display = 'block';
+      var isAr = (localStorage.getItem('app_lang') || document.documentElement.lang || 'ar') === 'ar';
       var plans = [];
-      if (f.price_monthly)  plans.push({ key: '1_month',   label: '1 Month',   price: f.price_monthly });
-      if (f.price_3_months) plans.push({ key: '3_months',  label: '3 Months',  price: f.price_3_months });
-      if (f.price_1_year)   plans.push({ key: '1_year',    label: '1 Year',    price: f.price_1_year });
+      if (f.price_monthly)  plans.push({ key: '1_month',   label: isAr ? 'شهر واحد' : '1 Month',   price: f.price_monthly });
+      if (f.price_3_months) plans.push({ key: '3_months',  label: isAr ? '3 أشهر' : '3 Months',  price: f.price_3_months });
+      if (f.price_1_year)   plans.push({ key: '1_year',    label: isAr ? 'سنة واحدة' : '1 Year',    price: f.price_1_year });
 
       banner.innerHTML =
         '<div class="price-banner-title" style="color:#1d4ed8"><i class="fa fa-refresh"></i> ' + esc(f.title) + ' — Subscription</div>' +

@@ -343,6 +343,196 @@
     }
 
     .section-hidden { display:none; }
+
+    /* ── Mobile & Tablet Responsiveness ── */
+    @media (max-width: 768px) {
+        .page-header {
+            padding: 18px 16px;
+            margin-bottom: 16px;
+            border-radius: 12px;
+        }
+        .page-header h2 {
+            font-size: 18px;
+            margin-bottom: 2px;
+        }
+        .page-header p {
+            font-size: 11.5px;
+            line-height: 1.4;
+        }
+
+        .stats-row {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .stat-card {
+            padding: 12px 10px;
+            gap: 8px;
+            border-radius: 10px;
+        }
+        .stat-card:last-child {
+            grid-column: span 2;
+        }
+        .stat-icon {
+            width: 34px;
+            height: 34px;
+            font-size: 14px;
+            border-radius: 8px;
+        }
+        .stat-info h4 {
+            font-size: 15px;
+            margin-bottom: 1px;
+        }
+        .stat-info p {
+            font-size: 10.5px;
+        }
+
+        .tab-bar {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 4px;
+            gap: 4px;
+            margin-bottom: 16px;
+            scrollbar-width: none;
+        }
+        .tab-bar::-webkit-scrollbar {
+            display: none;
+        }
+        .tab-btn {
+            flex: 0 0 auto;
+            padding: 8px 12px;
+            font-size: 12px;
+            border-radius: 8px;
+        }
+
+        .panel {
+            padding: 16px 12px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+        .panel-header {
+            margin-bottom: 14px;
+            gap: 8px;
+        }
+        .panel-title {
+            font-size: 15px;
+        }
+
+        .period-row {
+            width: 100%;
+            display: flex;
+            gap: 6px;
+        }
+        .period-select {
+            flex: 1;
+            padding: 6px 8px;
+            font-size: 12px;
+        }
+
+        .bulk-bar {
+            padding: 8px 12px;
+            margin-bottom: 12px;
+        }
+        .bulk-bar span {
+            font-size: 12px;
+        }
+        .bulk-bar .btn-primary {
+            width: 100%;
+            justify-content: center;
+            padding: 8px 14px;
+            font-size: 12.5px;
+        }
+
+        .pay-row {
+            padding: 10px;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .pay-row-info {
+            min-width: 120px;
+        }
+        .t-name {
+            font-size: 12.5px;
+        }
+        .t-sub {
+            font-size: 10.5px;
+        }
+        .pay-row-amount {
+            font-size: 13.5px;
+        }
+
+        .filters-row {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+        .filter-select, .search-input {
+            width: 100%;
+            min-width: 0;
+            font-size: 12.5px;
+            padding: 8px 12px;
+        }
+
+        .table-wrap {
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+        .data-table th, .data-table td {
+            padding: 8px 10px;
+            font-size: 12px;
+        }
+        .salary-input {
+            width: 85px;
+            padding: 5px 6px;
+            font-size: 12px;
+        }
+        .rib-input {
+            width: 115px;
+            padding: 5px 6px;
+            font-size: 11px;
+        }
+        .method-select {
+            padding: 5px 6px;
+            font-size: 11.5px;
+        }
+        .btn-save-row {
+            padding: 4px 8px;
+            font-size: 11.5px;
+        }
+        .btn-icon {
+            width: 28px;
+            height: 28px;
+            font-size: 11.5px;
+        }
+
+        .modal-backdrop {
+            padding: 12px !important;
+        }
+        .modal-box {
+            border-radius: 14px;
+            max-height: calc(100vh - 24px);
+            display: flex;
+            flex-direction: column;
+        }
+        .modal-header {
+            padding: 14px 18px;
+        }
+        .modal-header h4 {
+            font-size: 15px;
+        }
+        .modal-body {
+            padding: 16px;
+            overflow-y: auto;
+        }
+        .modal-footer {
+            padding: 12px 18px;
+        }
+
+        #print-area {
+            padding: 16px;
+        }
+    }
     </style>
 </head>
 <body data-page="professors">
@@ -607,7 +797,13 @@
 <script>
 (function() {
 
-  var API = (typeof CONFIG !== 'undefined' && CONFIG.API_BASE_URL) ? CONFIG.API_BASE_URL : 'http://127.0.0.1:5000/api';
+  var API = (function() {
+    if (typeof CONFIG !== 'undefined' && CONFIG.API_BASE_URL) return CONFIG.API_BASE_URL;
+    var l = window.location;
+    return (l.hostname === 'localhost' || l.hostname === '127.0.0.1')
+      ? l.protocol + '//' + l.hostname + ':5000/api'
+      : '/api';
+  })();
   var schoolName = '';
   var schoolLogo = '';
   var teachersData = [];
@@ -625,9 +821,24 @@
   function hdrs()     { return { 'Authorization': 'Bearer ' + token(), 'Content-Type': 'application/json' }; }
   function esc(s)     { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
   function fmt(n)     { return Number(n||0).toLocaleString('fr-DZ',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+  function isFemaleGender(gender) {
+    if (!gender) return false;
+    var g = String(gender).trim().toLowerCase();
+    return g === 'female' || g === 'أنثى' || g === 'انثى' || g === 'f';
+  }
+
+  function defaultTeacherAvatar(gender) {
+    return isFemaleGender(gender) ? encodeURI('img/معلمة مسلمة.webp') : encodeURI('img/معلم.webp');
+  }
+
   function avatar(photo, gender) {
-    if (photo) return API.replace('/api','') + '/uploads/' + photo;
-    return (gender === 'female') ? 'img/\u0637\u0627\u0644\u0628\u0629 \u0645\u0633\u0644\u0645\u0629.webp' : 'img/\u0637\u0627\u0644\u0628.webp';
+    if (photo && String(photo).trim() && photo.indexOf('avatar-') === -1 && photo.indexOf('ui-avatars') === -1) {
+      var p = String(photo).trim();
+      if (p.indexOf('http') === 0 || p.indexOf('data:') === 0) return p;
+      var base = API.replace(/\/api\/?$/, '');
+      return base + (p.indexOf('/') === 0 ? '' : '/uploads/') + p;
+    }
+    return defaultTeacherAvatar(gender);
   }
   function apiGet(p)       { return fetch(API+p,{headers:hdrs()}).then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); }); }
   function apiPost(p,b)    { return fetch(API+p,{method:'POST',headers:hdrs(),body:JSON.stringify(b)}).then(function(r){ if(!r.ok) return r.json().then(function(d){throw new Error(d.message||'Error');}); return r.json(); }); }
@@ -676,16 +887,17 @@
   function renderSalaryTable() {
     var tbody = document.getElementById('salary-tbody');
     if (!teachersData.length) {
-      tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><i class="fa fa-user-md"></i><h4>لا يوجد أساتذة</h4><p>أضف أساتذة من قسم الأساتذة أولاً.</p></div></td></tr>';
+      tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><i class="fa fa-user-tie"></i><h4>لا يوجد أساتذة</h4><p>أضف أساتذة من قسم الأساتذة أولاً.</p></div></td></tr>';
       return;
     }
     tbody.innerHTML = teachersData.map(function(t, i) {
       var name = [t.first_name, t.last_name].filter(Boolean).join(' ');
       var img  = avatar(t.photo, t.gender);
+      var fallback = defaultTeacherAvatar(t.gender);
       return '<tr>' +
         '<td style="color:var(--muted);font-weight:700;text-align:center">' + (i+1) + '</td>' +
         '<td><div class="t-cell">' +
-          '<img src="' + esc(img) + '" class="t-avatar" onerror="this.src=\'img/\u0637\u0627\u0644\u0628.webp\'">' +
+          '<img src="' + esc(img) + '" class="t-avatar" onerror="this.onerror=null;this.src=\'' + fallback + '\'">' +
           '<div><div class="t-name">' + esc(name) + '</div>' +
           '<div class="t-sub">' + esc(t.employee_number||'') + (t.speciality ? ' · ' + esc(t.speciality) : '') + '</div></div>' +
         '</div></td>' +
@@ -784,12 +996,13 @@
   function renderPayList() {
     var list = document.getElementById('pay-list');
     if (!payPeriodData.length) {
-      list.innerHTML = '<div class="empty-state"><i class="fa fa-user-md"></i><h4>لا يوجد أساتذة</h4></div>';
+      list.innerHTML = '<div class="empty-state"><i class="fa fa-user-tie"></i><h4>لا يوجد أساتذة</h4></div>';
       return;
     }
     list.innerHTML = payPeriodData.map(function(t) {
       var name   = [t.first_name, t.last_name].filter(Boolean).join(' ');
       var img    = avatar(t.photo, t.gender);
+      var fallback = defaultTeacherAvatar(t.gender);
       var isPaid = !!t.payment_id;
       var amount = isPaid ? t.paid_amount : t.monthly_salary;
       var amtLabel = amount ? fmt(amount) + ' دج' : '<span style="color:var(--muted)">لم يُحدد الراتب</span>';
@@ -799,7 +1012,7 @@
         (!isPaid ? '<input type="checkbox" class="pay-checkbox" id="chk-'+t.teacher_id+'" ' +
           'data-id="'+t.teacher_id+'" data-amount="'+(t.monthly_salary||0)+'" data-method="'+(t.preferred_pay_method||'cash')+'" ' +
           'onchange="updateSelectedCount()">' : '') +
-        '<img src="' + esc(img) + '" class="t-avatar" onerror="this.src=\'img/\u0637\u0627\u0644\u0628.webp\'">' +
+        '<img src="' + esc(img) + '" class="t-avatar" onerror="this.onerror=null;this.src=\'' + fallback + '\'">' +
         '<div class="pay-row-info">' +
           '<div class="t-name">' + esc(name) + '</div>' +
           '<div class="t-sub">' + esc(t.speciality || t.employee_number || '') + '</div>' +
@@ -930,13 +1143,14 @@
     tbody.innerHTML = data.map(function(r, i) {
       var name  = [r.first_name, r.last_name].filter(Boolean).join(' ');
       var img   = avatar(r.photo, r.gender);
+      var fallback = defaultTeacherAvatar(r.gender);
       var mBadge = r.method === 'ccp'
         ? '<span class="method-badge ccp"><i class="fa fa-university"></i> CCP</span>'
         : '<span class="method-badge cash"><i class="fa fa-money"></i> نقداً</span>';
       return '<tr>' +
         '<td style="color:var(--muted);font-weight:700;text-align:center">' + (i+1) + '</td>' +
         '<td><div class="t-cell">' +
-          '<img src="' + esc(img) + '" class="t-avatar" onerror="this.src=\'img/\u0637\u0627\u0644\u0628.webp\'">' +
+          '<img src="' + esc(img) + '" class="t-avatar" onerror="this.onerror=null;this.src=\'' + fallback + '\'">' +
           '<div><div class="t-name">' + esc(name) + '</div><div class="t-sub">' + esc(r.employee_number||'') + '</div></div>' +
         '</div></td>' +
         '<td style="font-weight:700">' + monthName(r.pay_month) + ' ' + r.pay_year + '</td>' +

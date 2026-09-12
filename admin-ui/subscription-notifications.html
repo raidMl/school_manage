@@ -503,8 +503,8 @@
         function avatarUrl(photo, name, type, gender) {
             if (photo) {
                 var base = (typeof CONFIG !== 'undefined' && CONFIG.API_BASE_URL)
-                    ? CONFIG.API_BASE_URL.replace('/api', '')
-                    : 'http://127.0.0.1:5000';
+                    ? CONFIG.API_BASE_URL.replace(/\/api\/?$/, '')
+                    : ((window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? 'http://127.0.0.1:5000' : '');
                 return base + '/uploads/' + photo;
             }
             // Use local standard icons based on gender
@@ -609,7 +609,7 @@
 
             var apiBase = (typeof CONFIG !== 'undefined' && CONFIG.API_BASE_URL)
                 ? CONFIG.API_BASE_URL
-                : 'http://127.0.0.1:5000/api';
+                : ((window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? 'http://127.0.0.1:5000/api' : '/api');
 
             var token = localStorage.getItem('school_system_token') || '';
             var headers = { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' };

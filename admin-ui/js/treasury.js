@@ -38,7 +38,8 @@
     var el = typeof sel === 'string' ? document.querySelector(sel) : sel;
     if (!el) return;
     el.className = 'alert alert-' + (type || 'danger');
-    el.textContent = msg; el.style.display = 'block';
+    var text = (window.AppI18n && typeof window.AppI18n.t === 'function') ? window.AppI18n.t(msg) : msg;
+    el.textContent = text; el.style.display = 'block';
   }
   function hideAlert(sel) {
     var el = typeof sel === 'string' ? document.querySelector(sel) : sel;

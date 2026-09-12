@@ -24,7 +24,27 @@
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/font-awesome.min.css">
     <link rel="stylesheet" href="css/sidebar.css">
-    <style>body{font-family:'Inter',sans-serif}.card-panel{background:#fff;border-radius:14px;padding:20px;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:20px}</style>
+    <style>
+      body{font-family:'Inter',sans-serif}
+      .card-panel{background:#fff;border-radius:14px;padding:20px;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:20px}
+      .teacher-search-wrap{
+        position:relative;margin-bottom:14px;
+      }
+      .teacher-search-wrap .fa{
+        position:absolute;top:50%;transform:translateY(-50%);color:#94a3b8;font-size:13px;
+      }
+      [dir="ltr"] .teacher-search-wrap .fa{ left:12px; }
+      [dir="rtl"] .teacher-search-wrap .fa{ right:12px; }
+      #teacher-search{
+        width:100%;max-width:380px;height:38px;border:1px solid #dde3ec;border-radius:8px;
+        font-size:13px;background:#fff;color:#1e293b;transition:border .18s;
+      }
+      [dir="ltr"] #teacher-search{ padding:0 12px 0 34px; }
+      [dir="rtl"] #teacher-search{ padding:0 34px 0 12px; }
+      #teacher-search:focus{ border-color:#4f8ef7;outline:none;box-shadow:0 0 0 3px rgba(79,142,247,.12); }
+      .filter-count{ font-size:12px;color:#64748b;margin-bottom:10px; }
+      .filter-count strong{ color:#1e293b; }
+    </style>
 
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#007bff">
@@ -62,6 +82,14 @@
                 </div>
             </div>
             <div id="backend-teachers-status" class="alert" style="display:none"></div>
+
+            <!-- Search -->
+            <div class="teacher-search-wrap">
+              <i class="fa fa-search"></i>
+              <input type="text" id="teacher-search" placeholder="Search by name, email, emp#, speciality..." autocomplete="off">
+            </div>
+            <div class="filter-count" id="teacher-filter-count" style="display:none"></div>
+
             <div class="table-responsive">
                 <table id="backend-teachers-table" class="table table-striped table-hover table-bordered">
                     <thead><tr>

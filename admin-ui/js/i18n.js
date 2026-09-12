@@ -41,6 +41,9 @@ window.AppI18n = {
     // ── Header/Topbar ──
     "Notifications": "الإشعارات",
     "No notifications": "لا توجد إشعارات",
+    "No payment alerts": "لا توجد تنبيهات دفع",
+    "See all in table": "عرض الكل في الجدول",
+    "See all in table →": "عرض الكل في الجدول →",
     "Log Out": "تسجيل الخروج",
     "Loading...": "جار التحميل...",
 
@@ -67,6 +70,10 @@ window.AppI18n = {
     "Formations & Subscriptions": "الدورات والاشتراكات",
     "Loading formations...": "جار تحميل الدورات...",
     "+ Add new": "+ إضافة جديد",
+    "students": "طالب",
+    "students_plural": "طلاب",
+    "No teacher": "بدون أستاذ",
+    "No records found": "لا توجد سجلات",
 
     // ── Common Table Headers ──
     "Reg #": "رقم التسجيل",
@@ -81,6 +88,17 @@ window.AppI18n = {
     "Hire Date": "تاريخ التوظيف",
     "Payment": "الدفع",
     "Actions": "الإجراءات",
+    "Active": "نشط",
+    "Inactive": "غير نشط",
+    "Paid": "مدفوع",
+    "Unpaid": "غير مدفوع",
+    "Students List": "قائمة الطلاب",
+    "All registered students from the database.": "جميع الطلاب المسجلين من قاعدة البيانات.",
+    "Generate School Cards": "إصدار بطاقات مدرسية",
+    "Import Excel": "استيراد إكسيل",
+    "Import Students from Excel": "استيراد الطلاب من إكسيل",
+    "Select Formation for these students": "اختر الدورة التدريبية لهؤلاء الطلاب",
+    "Excel File (.xlsx, .xls)": "ملف إكسيل (.xlsx, .xls)",
     "Payment Archive": "أرشيف المدفوعات",
     "Enter Payment": "تسجيل دفعة",
     "Students Overview": "نظرة عامة على الطلاب",
@@ -135,9 +153,23 @@ window.AppI18n = {
     "Optional columns:": "الأعمدة الاختيارية:",
     "Default password:": "كلمة المرور الافتراضية:",
     "Select Formation for these students": "اختر الدورة لهؤلاء الطلاب",
+    "Assign to Group": "تعيين إلى الفوج",
+    "Optional": "اختياري",
+    "Select Formation first": "اختر الدورة أولاً",
+    "— Select a Formation first —": "— اختر الدورة أولاً —",
+    "No Group (Optional)": "بدون فوج (اختياري)",
+    "— No Group (Optional) —": "— بدون فوج (اختياري) —",
+    "No Group": "بدون فوج",
+    "— No Group —": "— بدون فوج —",
+    "Group is optional": "يمكنك تعيين الطلاب لفوج الآن أو ترك الحقل فارغاً.",
     "Excel File (.xlsx, .xls)": "ملف إكسيل (.xlsx, .xls)",
     "Close": "إغلاق",
     "Import": "استيراد",
+    "Formation": "الدورة",
+    "Groupe": "الفوج",
+    "Group": "الفوج",
+    "Search by name, reg #...": "البحث بالاسم أو رقم التسجيل...",
+    "Reset Filters": "إعادة ضبط التصفية",
 
     // ── All Teachers page ──
     "Teachers List": "قائمة الأساتذة",
@@ -165,6 +197,13 @@ window.AppI18n = {
     "Leave blank for unlimited": "اتركه فارغاً للا محدود",
     "Create Group": "إنشاء الفوج",
     "e.g. Group A": "مثال: الفوج أ",
+    "Edit Group": "تعديل الفوج",
+    "Attendance Sheet": "جدول الغياب",
+    "Download Attendance Sheet": "تحميل جدول الحضور والغياب",
+    "Select Month": "اختر الشهر :",
+    "Select the month you want to generate the attendance sheet for": "سيتم إنشاء جدول الحضور والغياب الشهري مع أسماء طلاب الفوج للشهر المحدد.",
+    "Generate Cards": "توليد البطاقات",
+    "Download PDF": "تحميل PDF",
 
     // ── All Classrooms page ──
     "Add Classroom": "إضافة قسم",
@@ -181,6 +220,14 @@ window.AppI18n = {
     "1 Month": "شهر واحد",
     "3 Months": "3 أشهر",
     "1 Year": "سنة واحدة",
+    "1_month": "شهر واحد",
+    "3_months": "3 أشهر",
+    "1_year": "سنة واحدة",
+    "Plan": "الخطة",
+    "Group(s)": "الأفواج",
+    "Classroom(s)": "الأقسام",
+    "Next Payment": "الدفعة القادمة",
+    "Subscription": "اشتراك",
     "Start date": "تاريخ البداية",
     "End date": "تاريخ النهاية",
     "Expected revenue": "الإيراد المتوقع",
@@ -247,7 +294,8 @@ window.AppI18n = {
     "Back": "رجوع",
     "Fill in all required fields to register a new student.": "أدخل جميع الحقول المطلوبة لتسجيل طالب جديد.",
     "Personal Information": "المعلومات الشخصية",
-    "Academic": "المعلومات الأكاديمية",
+    "Academic Information": "المعلومات الأكاديمية",
+    "Academic": "اكاديمي",
     "Parent / Guardian Contact": "معلومات الاتصال بولي الأمر",
     "Full name of parent": "الاسم الكامل لولي الأمر",
     "Phone 1": "الهاتف 1",
@@ -273,6 +321,11 @@ window.AppI18n = {
     "No — Normal Health": "لا — صحة طبيعية",
     "Yes — Needs Special Care": "نعم — يحتاج رعاية خاصة",
     "Describe any health conditions, allergies, or special requirements...": "صف الحالة الصحية، الحساسية أو أي متطلبات خاصة...",
+    "first_name, last_name, email, password, formation_id, and registration_number are required": "الاسم، اللقب، البريد الإلكتروني، كلمة المرور، الدورة التدريبية، ورقم التسجيل مطلوبة",
+    "first_name, last_name, email, password, and employee_number are required": "الاسم، اللقب، البريد الإلكتروني، كلمة المرور، ورقم الموظف مطلوبة",
+    "first_name, last_name, email, and password are required": "الاسم، اللقب، البريد الإلكتروني، وكلمة المرور مطلوبة",
+    "Promo code is invalid for this formation": "رمز التخفيض غير صالح لهذه الدورة",
+    "Student not found": "لم يتم العثور على الطالب",
 
     // ── Add Teacher form ──
     "New Teacher Registration": "تسجيل أستاذ جديد",
@@ -355,6 +408,10 @@ window.AppI18n = {
     "begin": "للمبتدئين",
     "intermediate": "متوسط",
     "advanced": "متقدم",
+    "General": "عام",
+    "Academic": "اكاديمي",
+    "general": "عام",
+    "academic": "اكاديمي",
 
     // ── Places / Registered ───────────────────────────────────────────────────
     "Places": "المقاعد",
@@ -486,7 +543,7 @@ window.AppI18n = {
     // ── Groups ──
     "Groups": "الأفواج",
     "Group": "الفوج",
-    "Groups & Classes": "الأفواج والمجموعات",
+    "Groups & Classes": "الأفواج",
     "Create Group": "إنشاء فوج",
     "Add Group": "إضافة فوج",
     "Group Name": "اسم الفوج",
@@ -498,6 +555,9 @@ window.AppI18n = {
     "Edit Group": "تعديل الفوج",
     "Edit Group Details": "تعديل تفاصيل الفوج",
     "Save Changes": "حفظ التغييرات",
+    "Attendance Sheet": "جدول الغياب",
+    "Download Attendance Sheet": "تحميل جدول الحضور والغياب",
+    "Select Month": "اختر الشهر",
     "Add Students": "إضافة طلاب",
     "Delete Group": "حذف الفوج",
     "View Students": "عرض الطلاب",
@@ -821,6 +881,13 @@ window.AppI18n = {
     "selected": "محدد"
   },
 
+  // ── Translate single key helper ───────────────────────────────────────────
+  t: function (key) {
+    if (this.getLang() !== 'ar') return key;
+    var str = typeof key === 'string' ? key.trim() : key;
+    return this.dict[str] || key;
+  },
+
   // ── Language init ─────────────────────────────────────────────────────────
   init: function () {
     this.currentLang = localStorage.getItem('app_lang') || 'en';
@@ -860,21 +927,57 @@ window.AppI18n = {
         transform: translateX(100%) !important;
       }
 
-      /* Fixed mode RTL: sidebar on right, content margin on right */
-      body.sb-fixed #app-sidebar {
-        transform: translateX(0) !important;
-        left: auto !important;
-        right: 0 !important;
+      /* Fixed mode RTL: ONLY on desktop screens (>= 992px) */
+      @media (min-width: 992px) {
+        body.sb-fixed #app-sidebar {
+          transform: translateX(0) !important;
+          left: auto !important;
+          right: 0 !important;
+        }
+        body.sb-fixed .sb-main {
+          margin-left: 0 !important;
+          margin-right: var(--sb-width) !important;
+          height: 100vh !important;
+          overflow-y: auto !important;
+        }
+        body.sb-fixed.sb-collapsed .sb-main {
+          margin-right: 68px !important;
+          margin-left: 0 !important;
+        }
       }
-      body.sb-fixed .sb-main {
-        margin-left: 0 !important;
-        margin-right: var(--sb-width) !important;
-        height: 100vh !important;
-        overflow-y: auto !important;
-      }
-      body.sb-fixed.sb-collapsed .sb-main {
-        margin-right: 68px !important;
-        margin-left: 0 !important;
+
+      /* Mobile RTL: Sidebar strictly as off-canvas drawer */
+      @media (max-width: 991px) {
+        #app-sidebar,
+        body.sb-fixed #app-sidebar,
+        body.sb-collapsed #app-sidebar,
+        body.sb-fixed.sb-collapsed #app-sidebar {
+          left: auto !important;
+          right: 0 !important;
+          transform: translateX(100%) !important;
+          width: min(280px, 85vw) !important;
+          box-shadow: -4px 0 24px rgba(0,0,0,.25) !important;
+        }
+        body.sb-open #app-sidebar,
+        body.sb-fixed.sb-open #app-sidebar,
+        body.sb-collapsed.sb-open #app-sidebar {
+          transform: translateX(0) !important;
+        }
+        body.sb-open #sb-overlay,
+        body.sb-fixed.sb-open #sb-overlay {
+          display: block !important;
+          z-index: 1040 !important;
+        }
+        .sb-main,
+        body.sb-fixed .sb-main,
+        body.sb-fixed.sb-collapsed .sb-main {
+          margin-left: 0 !important;
+          margin-right: 0 !important;
+          width: 100% !important;
+          max-width: 100vw !important;
+          height: auto !important;
+          overflow-y: visible !important;
+        }
       }
 
       /* Main content: margin on right instead of left */

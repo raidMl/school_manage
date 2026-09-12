@@ -56,7 +56,9 @@ const SELECT_STUDENT = `
     users.role,
     users.created_at,
     f.title AS formation_title,
-    f.type AS formation_type
+    f.type AS formation_type,
+    (SELECT GROUP_CONCAT(g.name SEPARATOR ', ') FROM student_groups sg JOIN \`groups\` g ON g.id = sg.group_id WHERE sg.student_id = students.id) AS group_names,
+    (SELECT GROUP_CONCAT(sg.group_id SEPARATOR ',') FROM student_groups sg WHERE sg.student_id = students.id) AS group_ids
   FROM students
   INNER JOIN users ON users.id = students.user_id
   LEFT JOIN formations f ON f.id = students.formation_id
@@ -290,6 +292,7 @@ router.post(
       photo = null,
       blood_type: bloodType = null,
       formation_id: formationId,
+      group_id: groupId = null,
       registration_number: registrationNumber,
       parent_name: parentName = null,
       parent_id_number: parentIdNumber = null,
@@ -347,11 +350,19 @@ router.post(
       );
       const userId = userResult.insertId;
 
-      await connection.execute(
+      const [studentResult] = await connection.execute(
         `INSERT INTO students (user_id, school_id, formation_id, registration_number, parent_name, parent_id_number, parent_phone, phone1_has_whatsapp, phone1_has_viber, phone1_has_telegram, parent_phone2, phone2_has_whatsapp, phone2_has_viber, phone2_has_telegram, guardian_name, guardian_relationship, guardian_id_number, health_notes, parents_status, enrollment_date, payment_status, subscription_plan, next_payment_date, promo_code, discount_percent)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [userId, schoolId, formationId, registrationNumber, parentName, parentIdNumber, parentPhone, phone1Whatsapp ? 1 : 0, phone1Viber ? 1 : 0, phone1Telegram ? 1 : 0, parentPhone2, phone2Whatsapp ? 1 : 0, phone2Viber ? 1 : 0, phone2Telegram ? 1 : 0, guardianName, guardianRelationship, guardianIdNumber, healthNotes, parentsStatus, enrollmentDate, paymentStatus, subscriptionPlan, computeNextPaymentDate(enrollmentDate, subscriptionPlan, paymentStatus), appliedPromoCode, appliedDiscountPercent]
       );
+      const studentId = studentResult.insertId;
+
+      if (groupId) {
+        await connection.execute(
+          'INSERT IGNORE INTO student_groups (student_id, group_id) VALUES (?, ?)',
+          [studentId, groupId]
+        );
+      }
 
       await connection.commit();
 

@@ -229,7 +229,7 @@
 <script src="js/bootstrap.min.js"></script>
 <script src="js/i18n.js"></script>
 <script src="js/components.js"></script>
-<script src="js/backend.js?v=3"></script>
+<script src="js/backend.js?v=4"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -338,16 +338,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Pre-select current niveau value when form data loads
   window._niveauPreSelect = function(val) {
-    if (!val) return;
+    if (!val) { populateNiveau(); return; }
+    var normVal = val;
+    if (val === 'begin' || val === 'beginner') normVal = 'للمبتدئين';
+    else if (val === 'intermediate') normVal = 'متوسط';
+    else if (val === 'advanced') normVal = 'متقدم';
+
     // Try academic first
-    var found = academicOptions.some(function(o) { return o.val === val; });
+    var found = academicOptions.some(function(o) { return o.val === normVal; });
     if (found) {
       niveauType.value = 'academic';
-      populateNiveau(val);
+      populateNiveau(normVal);
     } else {
-      var foundG = generalOptions.some(function(o) { return o.val === val; });
-      if (foundG) { niveauType.value = 'general'; populateNiveau(val); }
-      else {
+      var foundG = generalOptions.some(function(o) { return o.val === normVal; });
+      if (foundG) {
+        niveauType.value = 'general';
+        populateNiveau(normVal);
+      } else {
         // custom value
         niveauType.value = 'academic';
         populateNiveau('other');

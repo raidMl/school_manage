@@ -77,6 +77,7 @@ const GROUP_SELECT = `
     g.id, g.name, g.formation_id, g.classroom_id, g.teacher_id,
     g.start_date, g.end_date, g.max_students, g.created_at,
     f.title AS formation_title, f.price AS formation_price, f.image AS formation_image,
+    f.type AS formation_type, f.niveau AS formation_niveau,
     c.name AS classroom_name,
     COALESCE(CONCAT(tu.first_name,' ',tu.last_name), CONCAT(uf.first_name,' ',uf.last_name)) AS teacher_name,
     COUNT(DISTINCT sg.student_id) AS student_count
@@ -117,6 +118,45 @@ router.get('/groups', requireAuth, asyncHandler(async (req, res) => {
   res.json({ data: rows });
 }));
 
+// POST fetch multiple groups with all student details in one call
+router.post('/groups/batch', requireAuth, asyncHandler(async (req, res) => {
+  const { group_ids } = req.body;
+  if (!Array.isArray(group_ids) || !group_ids.length) {
+    return res.json({ data: [] });
+  }
+  const cleanIds = group_ids.map(function(id) { return Number(id); }).filter(function(id) { return !isNaN(id) && id > 0; });
+  if (!cleanIds.length) {
+    return res.json({ data: [] });
+  }
+
+  const placeholders = cleanIds.map(function() { return '?'; }).join(',');
+  const groups = await query(
+    GROUP_SELECT + `WHERE g.id IN (${placeholders}) GROUP BY g.id ORDER BY g.id DESC`,
+    cleanIds
+  );
+
+  for (const group of groups) {
+    const students = await query(
+      `SELECT
+         s.id, s.registration_number, s.parent_name, s.parent_phone, s.parent_phone2,
+         s.guardian_name,
+         COALESCE(s.gender, u.gender) AS gender,
+         COALESCE(s.birth_date, u.birth_date) AS birth_date,
+         u.first_name, u.last_name, u.email, u.photo,
+         f2.niveau AS student_niveau
+       FROM student_groups sg
+       INNER JOIN students s ON s.id = sg.student_id
+       INNER JOIN users u ON u.id = s.user_id
+       LEFT JOIN formations f2 ON f2.id = s.formation_id
+       WHERE sg.group_id = ?
+       ORDER BY u.last_name ASC, u.first_name ASC`,
+      [group.id]
+    );
+    group.students = students;
+  }
+  res.json({ data: groups });
+}));
+
 // GET single group with its students
 router.get('/groups/:id', requireAuth, asyncHandler(async (req, res) => {
   const rows = await query(
@@ -126,13 +166,21 @@ router.get('/groups/:id', requireAuth, asyncHandler(async (req, res) => {
   if (!rows.length) throw new HttpError(404, 'Group not found');
 
   const group = rows[0];
-  // fetch assigned students
+  // fetch assigned students with full demographic info for cards and PDF exports
   const students = await query(
-    `SELECT s.id, s.registration_number, u.first_name, u.last_name, u.email, u.photo
+    `SELECT
+       s.id, s.registration_number, s.parent_name, s.parent_phone, s.parent_phone2,
+       s.guardian_name,
+       COALESCE(s.gender, u.gender) AS gender,
+       COALESCE(s.birth_date, u.birth_date) AS birth_date,
+       u.first_name, u.last_name, u.email, u.photo,
+       f2.niveau AS student_niveau
      FROM student_groups sg
      INNER JOIN students s ON s.id = sg.student_id
      INNER JOIN users u ON u.id = s.user_id
-     WHERE sg.group_id = ?`,
+     LEFT JOIN formations f2 ON f2.id = s.formation_id
+     WHERE sg.group_id = ?
+     ORDER BY u.last_name ASC, u.first_name ASC`,
     [req.params.id]
   );
   group.students = students;

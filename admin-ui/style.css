@@ -4719,3 +4719,77 @@ div#sparklinehome canvas {
 	color:#fff;
 	text-decoration:none;
 }
+
+/*----------------------------------------*/
+/*  24. Formation Cards - Glass / Modern UI
+/*----------------------------------------*/
+
+/* Grid layout for formation summary */
+#backend-formations-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+}
+#backend-formations-summary .col-lg-4,
+#backend-formations-summary .col-md-6 {
+  padding: 0 10px 0 0;
+  box-sizing: border-box;
+}
+
+/* Glass card */
+.card.glass {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.09);
+  border: 1px solid rgba(0,0,0,0.07);
+  overflow: hidden;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  height: 100%;
+}
+.card.glass:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 28px rgba(0,0,0,0.14);
+}
+.card.glass .card-body {
+  padding: 14px 16px 16px;
+}
+.card.glass .card-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #1a1a2e;
+}
+
+/* Modern pill badges */
+.badge.badge-success {
+  display: inline-block;
+  padding: 4px 11px;
+  border-radius: 20px;
+  font-size: 11.5px;
+  font-weight: 600;
+  background: linear-gradient(135deg, #27ae60, #2ecc71);
+  color: #fff;
+  letter-spacing: 0.3px;
+}
+.badge.badge-info {
+  display: inline-block;
+  padding: 4px 11px;
+  border-radius: 20px;
+  font-size: 11.5px;
+  font-weight: 600;
+  background: linear-gradient(135deg, #2980b9, #3498db);
+  color: #fff;
+  letter-spacing: 0.3px;
+}
+
+/* RTL support for Arabic */
+[dir="rtl"] .card.glass {
+  text-align: right;
+}
+[dir="rtl"] #backend-formations-summary .col-lg-4,
+[dir="rtl"] #backend-formations-summary .col-md-6 {
+  padding: 0 0 0 10px;
+}
