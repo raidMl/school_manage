@@ -1,0 +1,620 @@
+/* ==========================================================================
+   Table Features CSS — Material-UI DataGrid Style Column Menu & Toolbar
+   ========================================================================== */
+
+/* ── Table Header Menu Trigger ──────────────────────────────────────────── */
+th.th-has-menu {
+  position: relative !important;
+  user-select: none;
+}
+
+.th-content-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  width: 100%;
+}
+
+.th-label-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.th-indicators {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Active indicators */
+.th-indicator-filter {
+  color: #4f46e5;
+  font-size: 11px;
+  display: none;
+}
+
+.th-indicator-filter.active {
+  display: inline-block;
+}
+
+.th-indicator-sort {
+  color: #2563eb;
+  font-size: 12px;
+  display: none;
+}
+
+.th-indicator-sort.active {
+  display: inline-block;
+}
+
+/* Three dots / Column menu button */
+.col-menu-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  color: #64748b;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s ease, background-color 0.15s ease, color 0.15s ease;
+  flex-shrink: 0;
+}
+
+th:hover .col-menu-btn,
+.col-menu-btn.active,
+th.is-filtered .col-menu-btn,
+th.is-sorted .col-menu-btn {
+  opacity: 1;
+}
+
+.col-menu-btn:hover {
+  background: rgba(15, 23, 42, 0.08);
+  color: #0f172a;
+}
+
+.col-menu-btn svg {
+  width: 17px;
+  height: 17px;
+  fill: currentColor;
+}
+
+/* ── Material-UI DataGrid Menu (Exact MUI Specifications) ──────────────── */
+.MuiDataGrid-menuContainer {
+  position: fixed;
+  z-index: 100000;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+}
+
+.MuiPaper-root.MuiDataGrid-paper {
+  background-color: #ffffff;
+  color: rgba(0, 0, 0, 0.87);
+  box-shadow: 0px 5px 5px -3px rgba(0, 0, 0, 0.2),
+              0px 8px 10px 1px rgba(0, 0, 0, 0.14),
+              0px 3px 14px 2px rgba(0, 0, 0, 0.12);
+  border-radius: 6px;
+  min-width: 210px;
+  padding: 4px 0;
+  border: 1px solid #e2e8f0;
+  animation: muiMenuFadeIn 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes muiMenuFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.MuiList-root.MuiDataGrid-menuList {
+  list-style: none;
+  margin: 0;
+  padding: 4px 0;
+  outline: 0;
+}
+
+/* MUI Menu Item */
+.MuiMenuItem-root {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 8px 16px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: #1e293b;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  text-decoration: none;
+  outline: none;
+}
+
+.MuiMenuItem-root:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  color: #0f172a;
+}
+
+.MuiMenuItem-root.active-item {
+  background-color: rgba(79, 70, 229, 0.08);
+  color: #4f46e5;
+  font-weight: 600;
+}
+
+.MuiListItemIcon-root {
+  min-width: 32px;
+  color: rgba(0, 0, 0, 0.54);
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+}
+
+.MuiMenuItem-root:hover .MuiListItemIcon-root,
+.MuiMenuItem-root.active-item .MuiListItemIcon-root {
+  color: #4f46e5;
+}
+
+.MuiSvgIcon-root {
+  user-select: none;
+  width: 19px;
+  height: 19px;
+  display: inline-block;
+  fill: currentColor;
+  flex-shrink: 0;
+  transition: fill 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.MuiListItemText-root {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+}
+
+.MuiListItemText-primary {
+  font-size: 13.5px;
+  font-weight: 500;
+  display: block;
+}
+
+.MuiDivider-root {
+  margin: 4px 0;
+  border: none;
+  border-bottom: 1px solid #e2e8f0;
+  height: 0;
+}
+
+/* ── Filter Subpanel Inside Menu ────────────────────────────────────────── */
+.mui-filter-subpanel {
+  padding: 8px 14px 10px;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.mui-filter-header {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #64748b;
+  margin-bottom: 6px;
+  letter-spacing: 0.5px;
+}
+
+.mui-filter-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.mui-filter-input {
+  width: 100%;
+  height: 32px;
+  padding: 4px 26px 4px 10px;
+  font-size: 13px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #0f172a;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.mui-filter-input:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+}
+
+.mui-filter-clear-btn {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 15px;
+  cursor: pointer;
+  padding: 0 4px;
+}
+
+.mui-filter-clear-btn:hover {
+  color: #ef4444;
+}
+
+.mui-filter-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.mui-filter-btn {
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 5px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mui-filter-btn-clear {
+  background: transparent;
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
+.mui-filter-btn-clear:hover {
+  background: #fee2e2;
+}
+
+.mui-filter-btn-apply {
+  background: #4f46e5;
+  color: #ffffff;
+}
+
+.mui-filter-btn-apply:hover {
+  background: #4338ca;
+}
+
+/* ── Manage Columns Modal / Dropdown ────────────────────────────────────── */
+.mui-manage-columns-dialog {
+  position: fixed;
+  z-index: 100001;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 320px;
+  max-width: 90vw;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  border: 1px solid #cbd5e1;
+  padding: 16px;
+  animation: muiMenuFadeIn 0.2s ease;
+}
+
+.mui-manage-columns-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.3);
+  backdrop-filter: blur(2px);
+  z-index: 100000;
+}
+
+.mui-manage-columns-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.mui-manage-columns-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.mui-manage-columns-close {
+  background: transparent;
+  border: none;
+  font-size: 18px;
+  color: #94a3b8;
+  cursor: pointer;
+}
+
+.mui-manage-columns-close:hover {
+  color: #ef4444;
+}
+
+.mui-manage-columns-list {
+  max-height: 260px;
+  overflow-y: auto;
+  margin: 0 -8px;
+  padding: 0 8px;
+}
+
+.mui-manage-column-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  font-size: 13.5px;
+  color: #334155;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.mui-manage-column-item:hover {
+  background: #f1f5f9;
+}
+
+.mui-manage-column-item input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: #4f46e5;
+}
+
+.mui-manage-columns-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.mui-btn-show-all {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #4f46e5;
+  background: #eef2ff;
+  border: 1px solid #c7d2fe;
+  border-radius: 6px;
+  padding: 5px 12px;
+  cursor: pointer;
+}
+
+.mui-btn-show-all:hover {
+  background: #e0e7ff;
+}
+
+/* ── Table Toolbar ──────────────────────────────────────────────────────── */
+.table-features-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 10px;
+  padding: 8px 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  font-family: inherit;
+}
+
+.table-features-toolbar-left,
+.table-features-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Counter Badge */
+.table-rows-counter {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 20px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+  line-height: 1.2;
+}
+
+.table-rows-counter i {
+  font-size: 11px;
+  color: #3b82f6;
+}
+
+/* Excel Download Button */
+.btn-table-excel {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 34px;
+  padding: 0 14px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #ffffff !important;
+  background: linear-gradient(135deg, #107c41, #15803d);
+  border: 1px solid #0f6c38;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(16, 124, 65, 0.25);
+  transition: all 0.2s ease-in-out;
+  text-decoration: none !important;
+}
+
+.btn-table-excel:hover {
+  background: linear-gradient(135deg, #0d6937, #136f34);
+  box-shadow: 0 4px 10px rgba(16, 124, 65, 0.35);
+  transform: translateY(-1px);
+  color: #ffffff !important;
+}
+
+.btn-table-excel:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 3px rgba(16, 124, 65, 0.2);
+}
+
+.btn-table-excel i {
+  font-size: 14px;
+}
+
+/* Manage Columns Button in Toolbar */
+.btn-table-manage-cols {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 13px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #475569;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-table-manage-cols:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+  border-color: #94a3b8;
+}
+
+/* Reset Filters Button */
+.btn-table-reset-filters {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 34px;
+  padding: 0 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #dc2626;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-table-reset-filters:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #b91c1c;
+}
+
+/* ── RTL Support ────────────────────────────────────────────────────────── */
+[dir="rtl"] .MuiDataGrid-menuContainer,
+.MuiDataGrid-menuContainer[dir="rtl"],
+.MuiDataGrid-menuContainer.rtl,
+body.rtl .MuiDataGrid-menuContainer {
+  direction: rtl;
+  text-align: right;
+  font-family: 'Cairo', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+[dir="rtl"] .MuiMenuItem-root,
+.MuiDataGrid-menuContainer[dir="rtl"] .MuiMenuItem-root,
+body.rtl .MuiMenuItem-root {
+  text-align: right;
+  flex-direction: row;
+}
+
+[dir="rtl"] .MuiListItemIcon-root,
+.MuiDataGrid-menuContainer[dir="rtl"] .MuiListItemIcon-root,
+body.rtl .MuiListItemIcon-root {
+  margin-right: 0;
+  margin-left: 12px;
+}
+
+[dir="rtl"] .MuiListItemText-root,
+.MuiDataGrid-menuContainer[dir="rtl"] .MuiListItemText-root,
+body.rtl .MuiListItemText-root {
+  text-align: right;
+}
+
+[dir="rtl"] .mui-filter-header,
+.MuiDataGrid-menuContainer[dir="rtl"] .mui-filter-header,
+body.rtl .mui-filter-header {
+  text-align: right;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+[dir="rtl"] .mui-filter-input,
+.MuiDataGrid-menuContainer[dir="rtl"] .mui-filter-input,
+body.rtl .mui-filter-input {
+  padding: 4px 10px 4px 26px;
+  text-align: right;
+  font-family: inherit;
+}
+
+[dir="rtl"] .mui-filter-clear-btn,
+.MuiDataGrid-menuContainer[dir="rtl"] .mui-filter-clear-btn,
+body.rtl .mui-filter-clear-btn {
+  right: auto;
+  left: 6px;
+}
+
+[dir="rtl"] .mui-manage-columns-dialog,
+body.rtl .mui-manage-columns-dialog {
+  direction: rtl;
+  text-align: right;
+  font-family: 'Cairo', 'Inter', -apple-system, sans-serif;
+}
+
+[dir="rtl"] .mui-manage-columns-header,
+body.rtl .mui-manage-columns-header {
+  flex-direction: row;
+}
+
+[dir="rtl"] .mui-manage-column-item,
+body.rtl .mui-manage-column-item {
+  flex-direction: row;
+}
+
+/* No Match Row in TBODY */
+.col-filter-no-match-row td {
+  padding: 24px 16px !important;
+  text-align: center !important;
+  color: #64748b !important;
+  font-size: 13.5px !important;
+  background: #f8fafc !important;
+}
+
+.col-filter-no-match-row i {
+  margin-inline-end: 6px;
+  color: #94a3b8;
+}
+
+/* Print Optimization */
+@media print {
+  .table-features-toolbar,
+  .col-menu-btn,
+  .MuiDataGrid-menuContainer,
+  .mui-manage-columns-backdrop,
+  .mui-manage-columns-dialog {
+    display: none !important;
+  }
+}

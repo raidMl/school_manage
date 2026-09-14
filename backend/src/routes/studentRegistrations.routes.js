@@ -45,9 +45,11 @@ const SELECT_STUDENT = `
     students.next_payment_date,
     students.promo_code,
     students.discount_percent,
+    students.rfid_tag,
     users.first_name,
     users.last_name,
     users.email,
+    users.phone,
     users.gender,
     users.birth_date,
     users.photo,
@@ -265,6 +267,44 @@ router.get(
   })
 );
 
+// GET check if a student/teacher/user with the same first name and last name already exists in the school
+router.get(
+  '/check-duplicate-name',
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    const schoolId = await getSchoolId(req.auth.userId);
+    const firstName = (req.query.first_name || '').trim();
+    const lastName = (req.query.last_name || '').trim();
+
+    if (!firstName || !lastName) {
+      return res.json({ exists: false, count: 0, matches: [] });
+    }
+
+    let sql = `
+      SELECT u.id, u.first_name, u.last_name, u.email, u.role, u.created_at,
+             s.id AS student_id, t.id AS teacher_id
+      FROM users u
+      LEFT JOIN students s ON s.user_id = u.id
+      LEFT JOIN teachers t ON t.user_id = u.id
+      WHERE LOWER(TRIM(u.first_name)) = LOWER(?)
+        AND LOWER(TRIM(u.last_name)) = LOWER(?)
+    `;
+    const params = [firstName, lastName];
+    if (schoolId) {
+      sql += ` AND (s.school_id = ? OR t.school_id = ? OR (s.school_id IS NULL AND t.school_id IS NULL))`;
+      params.push(schoolId, schoolId);
+    }
+    sql += ` ORDER BY u.id DESC LIMIT 10`;
+
+    const matches = await query(sql, params);
+    res.json({
+      exists: matches.length > 0,
+      count: matches.length,
+      matches
+    });
+  })
+);
+
 // GET single student by id
 router.get(
   '/:id',
@@ -322,6 +362,23 @@ router.post(
     // Resolve school for the logged-in admin
     const schoolId = await getSchoolId(req.auth.userId);
 
+    // Check if any student/teacher/user with the same first name and last name exists
+    let dupSql = `
+      SELECT u.id, u.first_name, u.last_name, u.email, u.role
+      FROM users u
+      LEFT JOIN students s ON s.user_id = u.id
+      LEFT JOIN teachers t ON t.user_id = u.id
+      WHERE LOWER(TRIM(u.first_name)) = LOWER(?)
+        AND LOWER(TRIM(u.last_name)) = LOWER(?)
+    `;
+    const dupParams = [firstName.trim(), lastName.trim()];
+    if (schoolId) {
+      dupSql += ` AND (s.school_id = ? OR t.school_id = ? OR (s.school_id IS NULL AND t.school_id IS NULL))`;
+      dupParams.push(schoolId, schoolId);
+    }
+    const duplicateMatches = await query(dupSql, dupParams);
+    const hasDuplicate = duplicateMatches.length > 0;
+
     const connection = await pool.getConnection();
     try {
       await connection.beginTransaction();
@@ -366,8 +423,27 @@ router.post(
 
       await connection.commit();
 
+      // If duplicate name was detected, record an in-app notification for the admin
+      if (hasDuplicate && req.auth.userId) {
+        try {
+          const matchRoles = duplicateMatches.map(d => `${d.role || 'user'} (${d.email})`).join(', ');
+          const notifMsg = `Duplicate Name Notice: Student "${firstName} ${lastName}" was registered, but ${duplicateMatches.length} matching user(s) already exist: ${matchRoles}.`;
+          await query(
+            'INSERT INTO notifications (user_id, message) VALUES (?, ?)',
+            [req.auth.userId, notifMsg]
+          );
+        } catch (notifErr) {
+          console.error('Failed to log duplicate student notification:', notifErr);
+        }
+      }
+
       const rows = await query(SELECT_STUDENT + ' WHERE students.user_id = ? LIMIT 1', [userId]);
-      res.status(201).json({ data: rows[0] });
+      res.status(201).json({
+        data: rows[0],
+        duplicate_detected: hasDuplicate,
+        duplicate_count: duplicateMatches.length,
+        duplicate_matches: duplicateMatches
+      });
     } catch (error) {
       await connection.rollback();
       throw error;
@@ -452,6 +528,7 @@ router.put(
       if (firstName !== undefined) { userUpdates.push('first_name = ?'); userValues.push(firstName); }
       if (lastName !== undefined)  { userUpdates.push('last_name = ?');  userValues.push(lastName); }
       if (email !== undefined)     { userUpdates.push('email = ?');      userValues.push(email); }
+      if (req.body.phone !== undefined) { userUpdates.push('phone = ?'); userValues.push(req.body.phone || null); }
       if (gender !== undefined)    { userUpdates.push('gender = ?');     userValues.push(gender); }
       if (birthDate !== undefined) { userUpdates.push('birth_date = ?'); userValues.push(birthDate); }
       if (photo !== undefined)     { userUpdates.push('photo = ?');      userValues.push(photo); }
@@ -494,11 +571,21 @@ router.put(
         stuValues.push(appliedPromoCode);
         stuUpdates.push('discount_percent = ?');
         stuValues.push(appliedDiscountPercent);
+      } else if (req.body.discount_percent !== undefined) {
+        stuUpdates.push('discount_percent = ?');
+        stuValues.push(req.body.discount_percent ? parseFloat(req.body.discount_percent) : 0);
+      }
+      if (req.body.rfid_tag !== undefined) {
+        stuUpdates.push('rfid_tag = ?');
+        stuValues.push(req.body.rfid_tag || null);
       }
       const targetEnrollmentDate = enrollmentDate !== undefined ? enrollmentDate : student.enrollment_date;
       const targetSubscriptionPlan = subscriptionPlan !== undefined ? (subscriptionPlan === '' ? null : subscriptionPlan) : student.subscription_plan;
       const targetPaymentStatus = paymentStatus !== undefined ? paymentStatus : student.payment_status;
-      if (paymentStatus !== undefined || subscriptionPlan !== undefined || enrollmentDate !== undefined) {
+      if (req.body.next_payment_date !== undefined) {
+        stuUpdates.push('next_payment_date = ?');
+        stuValues.push(req.body.next_payment_date || null);
+      } else if (paymentStatus !== undefined || subscriptionPlan !== undefined || enrollmentDate !== undefined) {
         stuUpdates.push('next_payment_date = ?');
         stuValues.push(computeNextPaymentDate(targetEnrollmentDate, targetSubscriptionPlan, targetPaymentStatus));
       }
@@ -506,6 +593,14 @@ router.put(
       if (stuUpdates.length) {
         stuValues.push(studentId);
         await connection.execute(`UPDATE students SET ${stuUpdates.join(', ')} WHERE id = ?`, stuValues);
+      }
+
+      // Update group association if specified
+      if (req.body.group_id !== undefined) {
+        await connection.execute('DELETE FROM student_groups WHERE student_id = ?', [studentId]);
+        if (req.body.group_id) {
+          await connection.execute('INSERT IGNORE INTO student_groups (student_id, group_id) VALUES (?, ?)', [studentId, req.body.group_id]);
+        }
       }
 
       await connection.commit();

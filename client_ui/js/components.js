@@ -1,6 +1,9 @@
 /**
  * components.js — Loads shared layout partials and initialises sidebar behaviour
  */
+document.write('<link rel="stylesheet" href="css/table-features.css?v=' + new Date().getTime() + '">');
+document.write('<script src="js/table-features.js?v=' + new Date().getTime() + '"></script>');
+
 (function () {
   'use strict';
 

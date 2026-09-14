@@ -403,6 +403,64 @@
         font-size: 14px;
       }
     }
+
+    /* Logo Upload & Preview Cards */
+    .logo-upload-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 20px;
+      transition: all 0.2s ease;
+    }
+    .logo-upload-card:hover {
+      border-color: #cbd5e1;
+      background: #fafbfc;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.03);
+    }
+    .logo-preview-box {
+      margin-top: 14px;
+      display: none;
+      align-items: center;
+      gap: 16px;
+      padding: 12px 16px;
+      background: #ffffff;
+      border: 1.5px dashed #cbd5e1;
+      border-radius: 10px;
+      transition: all 0.2s ease;
+    }
+    .logo-thumb-wrapper {
+      width: 80px;
+      height: 80px;
+      border-radius: 10px;
+      border: 1px solid #e2e8f0;
+      background: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      padding: 4px;
+    }
+    .logo-thumb-wrapper img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+    .logo-hero-badge {
+      display: none;
+      background: rgba(255, 255, 255, 0.16);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      border-radius: 14px;
+      padding: 8px 14px;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
+    }
   </style>
 
     <link rel="manifest" href="manifest.json">
@@ -423,14 +481,51 @@
   <div class="sb-main">
     <div id="header-placeholder"></div>
     <div class="sb-content">
-      <div class="sb-breadcrumb"><i class="fa fa-home"></i> <a href="index.html">Home</a> <span>/</span>
-        <span>Settings</span> <span>/</span> <span>School Configuration</span></div>
+      <div class="sb-breadcrumb">
+        <i class="fa fa-home"></i> <a href="index.html" data-i18n="Home">Home</a> <span>/</span>
+        <span data-i18n="Settings">Settings</span> <span>/</span> <span data-i18n="School Settings">School Settings</span>
+      </div>
+
+      <!-- Hero Banner (Purple Graphic Chart) -->
+      <div class="page-hero-card">
+        <div class="hero-top-row">
+          <div class="hero-info-area">
+            <div class="page-avatar-badge" id="hero-school-logo-badge" style="overflow:hidden; padding:4px;">
+              <i class="fa fa-university" id="hero-avatar-icon"></i>
+              <img id="hero-avatar-logo-img" src="" alt="School Logo" style="display:none; width:100%; height:100%; object-fit:contain; border-radius:14px; background:#ffffff; padding:4px;">
+            </div>
+            <div class="hero-text">
+              <h2 data-i18n="School Settings">School Configuration</h2>
+              <div class="hero-badges-row">
+                <span class="hero-pill">
+                  <i class="fa fa-university"></i>
+                  <span data-i18n="Manage your academy's profile, admins, and preferences.">Academy Profile & Preferences</span>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Hero Branding Logos Showcase -->
+          <div class="hero-logos-showcase" id="hero-logos-showcase" style="display: none; align-items: center; gap: 14px; flex-wrap: wrap;">
+            <div id="hero-logo1-badge" class="logo-hero-badge">
+              <img id="hero-logo1-img" src="" alt="Logo 1" style="width: 44px; height: 44px; object-fit: contain; border-radius: 8px; background: #fff; padding: 3px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
+              <div>
+                <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.85; color: #e0e7ff;" data-i18n="Primary Logo">Primary Logo</div>
+                <div style="font-size: 13px; font-weight: 700; color: #fff;" data-i18n="Logo 1">Logo 1</div>
+              </div>
+            </div>
+            <div id="hero-logo2-badge" class="logo-hero-badge">
+              <img id="hero-logo2-img" src="" alt="Logo 2" style="width: 44px; height: 44px; object-fit: contain; border-radius: 8px; background: #fff; padding: 3px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
+              <div>
+                <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.85; color: #e0e7ff;" data-i18n="Secondary Logo">Secondary Logo</div>
+                <div style="font-size: 13px; font-weight: 700; color: #fff;" data-i18n="Logo 2">Logo 2</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <div class="card-panel">
-        <div style="margin-bottom: 20px;">
-          <h3 style="margin:0 0 6px;font-size:22px;font-weight:700;color:#0f172a;">School Configuration</h3>
-          <p style="color:#64748b;font-size:14px;margin:0">Manage your academy's profile, admins, and preferences.</p>
-        </div>
 
         <form id="backend-setup-school-form" novalidate>
           <div class="settings-container">
@@ -569,31 +664,92 @@
                   </div>
 
                   <div class="row">
+                    <!-- Logo 1 Column -->
                     <div class="col-md-6">
-                      <div class="form-group">
-                        <label data-i18n="Logo URL">Logo URL (رابط الشعار)</label>
+                      <div class="logo-upload-card">
+                        <label style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                          <span>
+                            <i class="fa fa-picture-o" style="color:#4f46e5; margin-right:6px;"></i>
+                            <strong data-i18n="Primary Logo">Primary Logo</strong>
+                            <span class="text-muted" style="font-weight:normal; font-size:12px;">(<span data-i18n="Logo URL">رابط الشعار 1</span>)</span>
+                          </span>
+                          <span id="logo1-status-badge" class="badge" style="display:none; background:#e0e7ff; color:#4338ca; font-size:11px; font-weight:600; padding:4px 8px; border-radius:12px;">
+                            <i class="fa fa-check-circle"></i> <span data-i18n="Uploaded">Uploaded</span>
+                          </span>
+                        </label>
                         <div class="input-group">
-                          <input type="url" name="logo" id="logo" class="form-control" placeholder="https://...">
+                          <input type="url" name="logo" id="logo" class="form-control" placeholder="https://..." style="direction:ltr;">
                           <span class="input-group-btn">
-                            <label class="btn btn-default" title="Upload Image" data-i18n-title="Upload Image" style="margin:0; border-radius:0;">
+                            <label class="btn btn-default" title="Upload Image" data-i18n-title="Upload Image" style="margin:0; border-radius:0; background:#f1f5f9; border-color:#cbd5e1; cursor:pointer;">
                               <i class="fa fa-upload" id="icon-upload-logo"></i>
+                              <span style="font-size:13px; font-weight:500; margin-left:4px;" data-i18n="Upload">Upload</span>
                               <input type="file" accept="image/*" style="display:none;" onchange="handleCloudinaryUpload(this, document.getElementById('logo'), 'icon-upload-logo')">
                             </label>
                           </span>
                         </div>
+
+                        <!-- Logo 1 Preview Box -->
+                        <div id="logo1-preview-wrap" class="logo-preview-box">
+                          <div class="logo-thumb-wrapper">
+                            <img id="logo1-preview-img" src="" alt="Logo 1 Preview">
+                          </div>
+                          <div style="flex-grow:1; min-width:0;">
+                            <div style="font-weight:600; font-size:13px; color:#1e293b;" data-i18n="School Logo 1 (Primary)">School Logo 1 (Primary)</div>
+                            <div id="logo1-preview-url" style="font-size:11px; color:#64748b; font-family:monospace; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:240px; direction:ltr; text-align:left; margin-top:2px;"></div>
+                            <div style="margin-top:6px; display:flex; gap:8px;">
+                              <a id="logo1-preview-link" href="#" target="_blank" class="btn btn-xs btn-default" style="border-radius:6px; font-size:11px; color:#475569;">
+                                <i class="fa fa-external-link"></i> <span data-i18n="View Full Size">View</span>
+                              </a>
+                              <button type="button" id="btn-remove-logo1" class="btn btn-xs" style="color:#ef4444; border:1px solid #fecaca; background:#fef2f2; border-radius:6px; font-size:11px; font-weight:500;" title="Remove Logo" data-i18n-title="Remove Logo">
+                                <i class="fa fa-trash"></i> <span data-i18n="Remove">Remove</span>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
+
+                    <!-- Logo 2 Column -->
                     <div class="col-md-6">
-                      <div class="form-group">
-                        <label data-i18n="Second Logo URL">Second Logo URL (الشعار الثاني)</label>
+                      <div class="logo-upload-card">
+                        <label style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                          <span>
+                            <i class="fa fa-picture-o" style="color:#0284c7; margin-right:6px;"></i>
+                            <strong data-i18n="Secondary Logo">Secondary Logo</strong>
+                            <span class="text-muted" style="font-weight:normal; font-size:12px;">(<span data-i18n="Second Logo URL">رابط الشعار 2</span>)</span>
+                          </span>
+                          <span id="logo2-status-badge" class="badge" style="display:none; background:#e0f2fe; color:#0369a1; font-size:11px; font-weight:600; padding:4px 8px; border-radius:12px;">
+                            <i class="fa fa-check-circle"></i> <span data-i18n="Uploaded">Uploaded</span>
+                          </span>
+                        </label>
                         <div class="input-group">
-                          <input type="url" name="logo2" id="logo2" class="form-control" placeholder="https://...">
+                          <input type="url" name="logo2" id="logo2" class="form-control" placeholder="https://..." style="direction:ltr;">
                           <span class="input-group-btn">
-                            <label class="btn btn-default" title="Upload Image" data-i18n-title="Upload Image" style="margin:0; border-radius:0;">
+                            <label class="btn btn-default" title="Upload Image" data-i18n-title="Upload Image" style="margin:0; border-radius:0; background:#f1f5f9; border-color:#cbd5e1; cursor:pointer;">
                               <i class="fa fa-upload" id="icon-upload-logo2"></i>
+                              <span style="font-size:13px; font-weight:500; margin-left:4px;" data-i18n="Upload">Upload</span>
                               <input type="file" accept="image/*" style="display:none;" onchange="handleCloudinaryUpload(this, document.getElementById('logo2'), 'icon-upload-logo2')">
                             </label>
                           </span>
+                        </div>
+
+                        <!-- Logo 2 Preview Box -->
+                        <div id="logo2-preview-wrap" class="logo-preview-box">
+                          <div class="logo-thumb-wrapper">
+                            <img id="logo2-preview-img" src="" alt="Logo 2 Preview">
+                          </div>
+                          <div style="flex-grow:1; min-width:0;">
+                            <div style="font-weight:600; font-size:13px; color:#1e293b;" data-i18n="School Logo 2 (Secondary)">School Logo 2 (Secondary)</div>
+                            <div id="logo2-preview-url" style="font-size:11px; color:#64748b; font-family:monospace; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:240px; direction:ltr; text-align:left; margin-top:2px;"></div>
+                            <div style="margin-top:6px; display:flex; gap:8px;">
+                              <a id="logo2-preview-link" href="#" target="_blank" class="btn btn-xs btn-default" style="border-radius:6px; font-size:11px; color:#475569;">
+                                <i class="fa fa-external-link"></i> <span data-i18n="View Full Size">View</span>
+                              </a>
+                              <button type="button" id="btn-remove-logo2" class="btn btn-xs" style="color:#ef4444; border:1px solid #fecaca; background:#fef2f2; border-radius:6px; font-size:11px; font-weight:500;" title="Remove Logo" data-i18n-title="Remove Logo">
+                                <i class="fa fa-trash"></i> <span data-i18n="Remove">Remove</span>
+                              </button>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -851,6 +1007,145 @@
       } else {
         // DOM already ready (script at bottom of body)
         initPreferences();
+      }
+    })();
+  </script>
+  <script>
+    (function() {
+      function updateSchoolLogoPreviews() {
+        var logo1Input = document.getElementById('logo');
+        var logo2Input = document.getElementById('logo2');
+        var val1 = logo1Input ? (logo1Input.value || '').trim() : '';
+        var val2 = logo2Input ? (logo2Input.value || '').trim() : '';
+
+        // Logo 1 Preview elements
+        var wrap1 = document.getElementById('logo1-preview-wrap');
+        var img1 = document.getElementById('logo1-preview-img');
+        var url1 = document.getElementById('logo1-preview-url');
+        var link1 = document.getElementById('logo1-preview-link');
+        var badge1 = document.getElementById('logo1-status-badge');
+
+        // Logo 2 Preview elements
+        var wrap2 = document.getElementById('logo2-preview-wrap');
+        var img2 = document.getElementById('logo2-preview-img');
+        var url2 = document.getElementById('logo2-preview-url');
+        var link2 = document.getElementById('logo2-preview-link');
+        var badge2 = document.getElementById('logo2-status-badge');
+
+        // Hero Elements
+        var heroShowcase = document.getElementById('hero-logos-showcase');
+        var heroBadge1 = document.getElementById('hero-logo1-badge');
+        var heroImg1 = document.getElementById('hero-logo1-img');
+        var heroBadge2 = document.getElementById('hero-logo2-badge');
+        var heroImg2 = document.getElementById('hero-logo2-img');
+        var heroAvatarIcon = document.getElementById('hero-avatar-icon');
+        var heroAvatarImg = document.getElementById('hero-avatar-logo-img');
+
+        // Update Logo 1
+        if (val1) {
+          if (img1) { img1.src = val1; }
+          if (url1) { url1.textContent = val1; }
+          if (link1) { link1.href = val1; }
+          if (wrap1) { wrap1.style.display = 'flex'; }
+          if (badge1) { badge1.style.display = 'inline-block'; }
+
+          if (heroImg1) { heroImg1.src = val1; }
+          if (heroBadge1) { heroBadge1.style.display = 'inline-flex'; }
+
+          if (heroAvatarImg) {
+            heroAvatarImg.src = val1;
+            heroAvatarImg.style.display = 'block';
+          }
+          if (heroAvatarIcon) { heroAvatarIcon.style.display = 'none'; }
+        } else {
+          if (wrap1) { wrap1.style.display = 'none'; }
+          if (badge1) { badge1.style.display = 'none'; }
+          if (heroBadge1) { heroBadge1.style.display = 'none'; }
+
+          if (!val2) {
+            if (heroAvatarImg) { heroAvatarImg.style.display = 'none'; }
+            if (heroAvatarIcon) { heroAvatarIcon.style.display = 'block'; }
+          }
+        }
+
+        // Update Logo 2
+        if (val2) {
+          if (img2) { img2.src = val2; }
+          if (url2) { url2.textContent = val2; }
+          if (link2) { link2.href = val2; }
+          if (wrap2) { wrap2.style.display = 'flex'; }
+          if (badge2) { badge2.style.display = 'inline-block'; }
+
+          if (heroImg2) { heroImg2.src = val2; }
+          if (heroBadge2) { heroBadge2.style.display = 'inline-flex'; }
+
+          if (!val1 && heroAvatarImg) {
+            heroAvatarImg.src = val2;
+            heroAvatarImg.style.display = 'block';
+            if (heroAvatarIcon) { heroAvatarIcon.style.display = 'none'; }
+          }
+        } else {
+          if (wrap2) { wrap2.style.display = 'none'; }
+          if (badge2) { badge2.style.display = 'none'; }
+          if (heroBadge2) { heroBadge2.style.display = 'none'; }
+        }
+
+        // Showcase in Hero
+        if (heroShowcase) {
+          if (val1 || val2) {
+            heroShowcase.style.display = 'flex';
+          } else {
+            heroShowcase.style.display = 'none';
+          }
+        }
+      }
+
+      window.updateSchoolLogoPreviews = updateSchoolLogoPreviews;
+
+      function initLogoControls() {
+        var l1 = document.getElementById('logo');
+        if (l1) {
+          l1.addEventListener('input', updateSchoolLogoPreviews);
+          l1.addEventListener('change', updateSchoolLogoPreviews);
+        }
+        var l2 = document.getElementById('logo2');
+        if (l2) {
+          l2.addEventListener('input', updateSchoolLogoPreviews);
+          l2.addEventListener('change', updateSchoolLogoPreviews);
+        }
+
+        var btnRemove1 = document.getElementById('btn-remove-logo1');
+        if (btnRemove1) {
+          btnRemove1.addEventListener('click', function() {
+            if (l1) {
+              l1.value = '';
+              l1.dispatchEvent(new Event('input', { bubbles: true }));
+              l1.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+            updateSchoolLogoPreviews();
+          });
+        }
+
+        var btnRemove2 = document.getElementById('btn-remove-logo2');
+        if (btnRemove2) {
+          btnRemove2.addEventListener('click', function() {
+            if (l2) {
+              l2.value = '';
+              l2.dispatchEvent(new Event('input', { bubbles: true }));
+              l2.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+            updateSchoolLogoPreviews();
+          });
+        }
+
+        // Initial preview call
+        updateSchoolLogoPreviews();
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initLogoControls);
+      } else {
+        initLogoControls();
       }
     })();
   </script>

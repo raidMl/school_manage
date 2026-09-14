@@ -79,11 +79,32 @@
 <div class="sb-content">
 <div class="sb-breadcrumb"><i class="fa fa-home"></i> <a href="index.html" data-i18n="Home">Home</a> <span>/</span> <a href="all-students.html" data-i18n="Students">Students</a> <span>/</span> <span data-i18n="Add">Add</span></div>
 
+<!-- Hero Banner (Purple Graphic Chart) -->
+<div class="page-hero-card no-print">
+    <div class="hero-top-row">
+        <div class="hero-info-area">
+            <div class="page-avatar-badge">
+                <i class="fa fa-user-plus"></i>
+            </div>
+            <div class="hero-text">
+                <h2 data-i18n="New Student Registration">New Student Registration</h2>
+                <div class="hero-badges-row">
+                    <span class="hero-pill">
+                        <i class="fa fa-graduation-cap"></i>
+                        <span data-i18n="Fill in all required fields to register a new student.">Fill in all required fields to register a new student.</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="hero-action-btns">
+            <a href="all-students.html" class="btn-hero-glass">
+                <i class="fa fa-arrow-left"></i> <span data-i18n="Back">Back</span>
+            </a>
+        </div>
+    </div>
+</div>
+
 <div class="form-card">
-  <div class="form-card-header">
-    <h3><i class="fa fa-user-plus"></i> <span data-i18n="New Student Registration">New Student Registration</span></h3>
-    <p data-i18n="Fill in all required fields to register a new student.">Fill in all required fields to register a new student.</p>
-  </div>
   <div class="form-card-body">
     <div id="backend-form-status" class="alert" style="display:none"></div>
     <form id="backend-add-student-form" novalidate>
@@ -196,7 +217,7 @@
         <input type="text" name="parent_name" class="form-control" placeholder="Full name" data-i18n-ph="Full name">
       </div></div>
       <div class="col-md-6"><div class="form-group">
-        <label data-i18n="رقم بطاقة التعريف">رقم بطاقة التعريف</label>
+        <label data-i18n="Parent ID Number">Parent ID Number</label>
         <input type="text" name="parent_id_number" class="form-control" dir="rtl">
       </div></div>
     </div>

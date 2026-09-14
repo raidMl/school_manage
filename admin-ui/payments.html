@@ -33,14 +33,16 @@
         }
 
         /* ── Tabs ─────────────────────────────────────── */
-        .pay-tabs { display: flex; gap: 0; border-bottom: 2px solid #e8ecf0; margin-bottom: 24px; flex-wrap: wrap; }
+        .pay-tabs { display: flex; gap: 8px; border-bottom: 2px solid #e2e8f0; margin-bottom: 24px; flex-wrap: wrap; }
         .pay-tab {
             padding: 10px 22px; font-size: 13.5px; font-weight: 600;
-            color: #6c757d; cursor: pointer; border-bottom: 3px solid transparent;
-            margin-bottom: -2px; transition: all .2s; white-space: nowrap;
+            color: #64748b; cursor: pointer; border-bottom: 2.5px solid transparent;
+            margin-bottom: -2px; transition: all .2s ease; white-space: nowrap;
+            border-radius: 8px 8px 0 0;
+            display: inline-flex; align-items: center; gap: 8px;
         }
-        .pay-tab:hover { color: #3d6ee4; }
-        .pay-tab.active { color: #3d6ee4; border-bottom-color: #3d6ee4; }
+        .pay-tab:hover { color: #4338ca; background: #f8fafc; }
+        .pay-tab.active { color: #4338ca; border-bottom-color: #4f46e5; font-weight: 700; background: #f8faff; }
 
         /* ── Stat cards ────────────────────────────────── */
         .stat-cards { display: flex; gap: 16px; margin-bottom: 22px; flex-wrap: wrap; }
@@ -125,20 +127,124 @@
         .pay-form-row .form-group .form-control { height: 38px; border-radius: 8px; font-size: 13.5px; }
         .form-label-sm { font-size: 12px; font-weight: 600; color: #555; margin-bottom: 5px; display: block; }
 
-        /* ── History tables ────────────────────────────── */
-        .history-table th { background: #f8fafc; font-size: 12px; font-weight: 700; color: #5a6580; text-transform: uppercase; letter-spacing:.5px; }
-        .history-table td { font-size: 13.5px; vertical-align: middle; }
-        .method-badge { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 11.5px; font-weight: 600; }
+        /* ── Modern Chart Graphique Tables ─────────────── */
+        .history-table {
+            border-collapse: separate;
+            border-spacing: 0;
+            width: 100%;
+        }
+        .history-table thead th,
+        #backend-payments-table thead th,
+        #payment-history-table thead th,
+        #student-history-table thead th {
+            background: #f8fafc !important;
+            color: #475569 !important;
+            font-size: 12px !important;
+            font-weight: 700 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.05em !important;
+            border-top: none !important;
+            border-bottom: 2px solid #e2e8f0 !important;
+            padding: 14px 16px !important;
+            vertical-align: middle !important;
+            white-space: nowrap;
+        }
+        .history-table tbody tr,
+        #backend-payments-table tbody tr,
+        #payment-history-table tbody tr,
+        #student-history-table tbody tr {
+            transition: background 0.15s ease;
+        }
+        .history-table tbody tr:hover,
+        #backend-payments-table tbody tr:hover,
+        #payment-history-table tbody tr:hover,
+        #student-history-table tbody tr:hover {
+            background: #f8faff !important;
+        }
+        .history-table td,
+        #backend-payments-table td,
+        #payment-history-table td,
+        #student-history-table td {
+            vertical-align: middle !important;
+            font-size: 13.5px !important;
+            color: #334155 !important;
+            padding: 13px 16px !important;
+            border-top: 1px solid #f1f5f9 !important;
+            border-bottom: 1px solid #f1f5f9 !important;
+        }
+        .history-table th:last-child,
+        .history-table td:last-child {
+            white-space: nowrap !important;
+        }
+
+        /* ── Action buttons inside tables ──────────────── */
+        .history-table .btn-xs,
+        .history-table .btn-sm {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            border-radius: 8px;
+            font-size: 13px;
+            margin: 0 2px;
+            border: 1px solid #e2e8f0;
+            background: #ffffff;
+            color: #475569;
+            transition: all 0.18s ease;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .history-table .btn-xs:hover,
+        .history-table .btn-sm:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.07);
+        }
+        .history-table .btn-xs.btn-success,
+        .history-table [data-print-ph] {
+            color: #10b981;
+            border-color: #d1fae5;
+            background: #ecfdf5;
+        }
+        .history-table .btn-xs.btn-warning,
+        .history-table [data-edit-ph] {
+            color: #f59e0b;
+            border-color: #fef3c7;
+            background: #fffbeb;
+        }
+        .history-table .btn-xs.btn-info,
+        .history-table [data-view-student],
+        .history-table .btn-xs.btn-primary,
+        .history-table .btn-enter-payment {
+            color: #6366f1;
+            border-color: #e0e7ff;
+            background: #eef2ff;
+        }
+        .history-table .btn-xs.btn-danger,
+        .history-table [data-del-ph] {
+            color: #ef4444;
+            border-color: #fee2e2;
+            background: #fef2f2;
+        }
+
+        .method-badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11.5px; font-weight: 600; }
         .method-cash          { background:#dcfce7; color:#166534; }
         .method-bank_transfer { background:#dbeafe; color:#1d4ed8; }
         .method-card          { background:#fef3c7; color:#92400e; }
         .method-other         { background:#f3f4f6; color:#374151; }
 
-        /* ── Filter / search bar ───────────────────────── */
-        .filter-bar { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 18px; }
+        /* ── Modern Filter Bar ─────────────────────────── */
+        .filter-bar {
+            display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end;
+            margin-bottom: 20px; padding: 16px 18px;
+            background: #f8fafc; border-radius: 12px; border: 1px solid #edf2f7;
+        }
         .filter-bar .form-group { margin-bottom: 0; flex: 1; min-width: 130px; }
-        .filter-bar label { font-size: 12px; font-weight: 600; color: #555; margin-bottom: 4px; display: block; }
-        .filter-bar .form-control { height: 36px; font-size: 13px; border-radius: 8px; }
+        .filter-bar label { font-size: 12px; font-weight: 600; color: #475569; margin-bottom: 5px; display: block; }
+        .filter-bar .form-control { height: 38px; font-size: 13px; border-radius: 9px; border: 1.5px solid #cbd5e1; background: #ffffff; }
+        .filter-bar .form-control:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.12); }
 
         /* ── Archive search ────────────────────────────── */
         #hist-search-wrap { position: relative; }
@@ -193,38 +299,78 @@
 
 <body data-page="payments">
     <div id="sidebar-placeholder"></div>
-    <div class="sb-main">
+    <div class="sb-main" >
         <div id="header-placeholder"></div>
-        <div class="sb-content">
-            <div class="sb-breadcrumb" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                <div>
-                    <i class="fa fa-home"></i>
-                    <a href="index.html">Home</a>
-                    <span>/</span>
-                    <span>Payments</span>
-                </div>
-                <button id="btn-refresh-states" class="btn btn-sm" style="background:#fff; border:1px solid #e2e8f0; border-radius:8px; color:#5a6580; font-weight:600; padding:6px 12px; transition:all 0.2s;">
-                    <i class="fa fa-refresh"></i> <span data-i18n="Refresh">Refresh</span>
-                </button>
+        <div style="margin:   20px;">
+            <div class="sb-breadcrumb">
+                <i class="fa fa-home"></i>
+                <a href="index.html" data-i18n="Home">Home</a>
+                <span>/</span>
+                <span data-i18n="Payments">Payments</span>
             </div>
 
-            <!-- ── Stat cards ───────────────────────────────── -->
-            <div class="stat-cards">
-                <div class="stat-card">
-                    <h4 id="stat-total-collected">—</h4>
-                    <p><i class="fa fa-dollar"></i> Total Collected</p>
+            <!-- Hero Banner -->
+            <div class="page-hero-card" style="">
+                <div class="hero-top-row">
+                    <div class="hero-info-area">
+                        <div class="page-avatar-badge">
+                            <i class="fa fa-credit-card"></i>
+                        </div>
+                        <div class="hero-text">
+                            <h2 data-i18n="Payments Dashboard">Payments & Subscriptions</h2>
+                            <div class="hero-badges-row">
+                                <span class="hero-pill">
+                                    <i class="fa fa-money"></i>
+                                    <span data-i18n="Student Payments">Student Accounts</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="hero-action-btns">
+                        <button id="btn-refresh-states" class="btn-hero-glass">
+                            <i class="fa fa-refresh"></i> <span data-i18n="Refresh">Refresh</span>
+                        </button>
+                    </div>
                 </div>
-                <div class="stat-card green">
-                    <h4 id="stat-paid-students">—</h4>
-                    <p><i class="fa fa-check-circle"></i> Paid Students</p>
+            </div>
+
+            <!-- ── Metrics Grid ───────────────────────────────── -->
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-icon-wrap metric-icon-blue">
+                        <i class="fa fa-money"></i>
+                    </div>
+                    <div class="metric-info">
+                        <label data-i18n="Total Collected">Total Collected</label>
+                        <div class="val" id="stat-total-collected">—</div>
+                    </div>
                 </div>
-                <div class="stat-card orange">
-                    <h4 id="stat-all-students">—</h4>
-                    <p><i class="fa fa-users"></i> Total Students</p>
+                <div class="metric-card">
+                    <div class="metric-icon-wrap metric-icon-green">
+                        <i class="fa fa-check-circle"></i>
+                    </div>
+                    <div class="metric-info">
+                        <label data-i18n="Paid Students">Paid Students</label>
+                        <div class="val" id="stat-paid-students">—</div>
+                    </div>
                 </div>
-                <div class="stat-card red">
-                    <h4 id="stat-overdue-students">—</h4>
-                    <p><i class="fa fa-exclamation-triangle"></i> Overdue</p>
+                <div class="metric-card">
+                    <div class="metric-icon-wrap metric-icon-purple">
+                        <i class="fa fa-users"></i>
+                    </div>
+                    <div class="metric-info">
+                        <label data-i18n="Total Students">Total Students</label>
+                        <div class="val" id="stat-all-students">—</div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon-wrap metric-icon-amber">
+                        <i class="fa fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="metric-info">
+                        <label data-i18n="Overdue">Overdue</label>
+                        <div class="val" id="stat-overdue-students">—</div>
+                    </div>
                 </div>
             </div>
 
@@ -343,18 +489,29 @@
 
                     <!-- per-student history -->
                     <div id="student-history-panel" style="display:none;margin-top:28px">
-                        <p class="section-title"><i class="fa fa-history"></i> Payment History — <span id="student-history-name" style="color:#3d6ee4"></span></p>
+                        <div class="section-header-bar" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #f1f5f9;">
+                            <h4 style="margin:0;font-size:16px;font-weight:700;color:#0f172a;display:flex;align-items:center;gap:8px;">
+                                <i class="fa fa-history" style="color:#6366f1;"></i>
+                                <span data-i18n="Payment History —">Payment History —</span>
+                                <span id="student-history-name" style="color:#4f46e5;background:#eef2ff;padding:2px 10px;border-radius:20px;font-size:13px;"></span>
+                            </h4>
+                            <div style="font-size:14px;font-weight:700;color:#10b981;background:#f0fdf4;padding:4px 14px;border-radius:20px;border:1px solid #bbf7d0;" id="student-history-total"></div>
+                        </div>
                         <div class="table-responsive">
-                            <table class="table table-striped table-hover history-table" id="student-history-table">
+                            <table class="table history-table" id="student-history-table">
                                 <thead><tr>
-                                    <th>#</th><th>Amount</th><th>Date</th>
-                                    <th>Plan/Type</th><th>Method</th><th>Notes</th>
-                                    <th>Recorded By</th><th>Actions</th>
+                                    <th width="40" class="text-center">#</th>
+                                    <th data-i18n="Amount">Amount</th>
+                                    <th data-i18n="Date">Date</th>
+                                    <th data-i18n="Plan/Type">Plan/Type</th>
+                                    <th data-i18n="Method">Method</th>
+                                    <th data-i18n="Notes">Notes</th>
+                                    <th data-i18n="Recorded By">Recorded By</th>
+                                    <th width="60" class="text-center" data-i18n="Actions">Actions</th>
                                 </tr></thead>
-                                <tbody><tr><td colspan="8" class="text-center text-muted">Select a student above</td></tr></tbody>
+                                <tbody><tr><td colspan="8" class="text-center text-muted" style="padding:28px;">Select a student above</td></tr></tbody>
                             </table>
                         </div>
-                        <div style="font-size:13px;font-weight:600;color:#10b981;text-align:right;padding:6px 0" id="student-history-total"></div>
                     </div>
                 </div>
 
@@ -362,62 +519,78 @@
                 <!-- TAB 2 — Payment Archive                     -->
                 <!-- ═══════════════════════════════════════════ -->
                 <div id="tab-history" class="tab-pane fade-in" style="display:none">
+                    <div class="section-header-bar" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid #f1f5f9;">
+                        <div class="section-title">
+                            <h3 style="margin:0;font-size:18px;font-weight:700;color:#0f172a;display:flex;align-items:center;gap:10px;">
+                                <i class="fa fa-archive" style="color:#6366f1;"></i>
+                                <span data-i18n="Payment Archive">Payment Archive</span>
+                            </h3>
+                            <p style="margin:4px 0 0;color:#64748b;font-size:13px;" data-i18n="Search and filter all payment transactions">Search and filter all payment transactions</p>
+                        </div>
+                        <div id="hist-summary" style="margin-bottom:0;font-size:13px;display:none;background:#f0fdf4;border:1px solid #bbf7d0;padding:6px 16px;border-radius:20px;color:#166534;font-weight:600;">
+                            <span data-i18n="Showing">Showing</span> <strong id="hist-count">0</strong> <span data-i18n="records">records</span> —
+                            <span data-i18n="Total:">Total:</span> <strong id="hist-total" style="color:#15803d">0.00</strong>
+                            <span id="hist-search-note" style="color:#64748b;font-weight:400;"></span>
+                        </div>
+                    </div>
+
                     <div class="filter-bar">
                         <!-- search field -->
                         <div class="form-group" style="flex:2;min-width:200px">
-                            <label>Search</label>
+                            <label data-i18n="Search">Search</label>
                             <div id="hist-search-wrap">
                                 <i class="fa fa-search"></i>
                                 <input type="text" id="hist-search-input" class="form-control"
-                                       placeholder="Name, registration number, formation...">
+                                       placeholder="Name, registration number, formation..." data-i18n-placeholder="Name, registration number, formation...">
                             </div>
                         </div>
                         <div class="form-group">
-                            <label>From</label>
+                            <label data-i18n="From">From</label>
                             <input type="date" id="hist-filter-date-start" class="form-control">
                         </div>
                         <div class="form-group">
-                            <label>To</label>
+                            <label data-i18n="To">To</label>
                             <input type="date" id="hist-filter-date-end" class="form-control">
                         </div>
                         <div class="form-group">
-                            <label>Method</label>
+                            <label data-i18n="Method">Method</label>
                             <select id="hist-filter-method" class="form-control">
-                                <option value="">All</option>
-                                <option value="cash">Cash</option>
-                                <option value="bank_transfer">Bank Transfer</option>
-                                <option value="card">Card</option>
-                                <option value="other">Other</option>
+                                <option value="" data-i18n="All">All</option>
+                                <option value="cash" data-i18n="Cash">Cash</option>
+                                <option value="bank_transfer" data-i18n="Bank Transfer">Bank Transfer</option>
+                                <option value="card" data-i18n="Card">Card</option>
+                                <option value="other" data-i18n="Other">Other</option>
                             </select>
                         </div>
                         <div class="form-group" style="flex:0;min-width:auto">
                             <label>&nbsp;</label>
-                            <button class="btn btn-primary btn-sm" id="btn-hist-filter" style="height:36px;border-radius:8px;white-space:nowrap">
-                                <i class="fa fa-filter"></i> Filter
+                            <button class="btn btn-primary btn-sm" id="btn-hist-filter" style="height:38px;padding:0 16px;border-radius:9px;white-space:nowrap;font-weight:600;background:#4f46e5;border-color:#4f46e5;">
+                                <i class="fa fa-filter"></i> <span data-i18n="Filter">Filter</span>
                             </button>
                         </div>
                         <div class="form-group" style="flex:0;min-width:auto">
                             <label>&nbsp;</label>
-                            <button class="btn btn-default btn-sm" id="btn-hist-reset" style="height:36px;border-radius:8px">
-                                <i class="fa fa-refresh"></i> Reset
+                            <button class="btn btn-default btn-sm" id="btn-hist-reset" style="height:38px;padding:0 16px;border-radius:9px;font-weight:600;">
+                                <i class="fa fa-refresh"></i> <span data-i18n="Reset">Reset</span>
                             </button>
                         </div>
                     </div>
 
-                    <div id="hist-summary" style="margin-bottom:14px;font-size:13px;color:#555;display:none">
-                        Showing <strong id="hist-count">0</strong> records —
-                        Total: <strong id="hist-total" style="color:#10b981">0.00</strong>
-                        <span id="hist-search-note" style="color:#8a96a8"></span>
-                    </div>
                     <div id="hist-status" class="alert" style="display:none"></div>
                     <div class="table-responsive">
-                        <table class="table table-striped table-hover history-table" id="payment-history-table">
+                        <table class="table history-table" id="payment-history-table">
                             <thead><tr>
-                                <th>Student</th><th>Reg #</th><th>Formation</th>
-                                <th>Amount</th><th>Date</th><th>Method</th>
-                                <th>Notes</th><th>Recorded By</th><th>Actions</th>
+                                <th data-i18n="Student">Student</th>
+                                <th data-i18n="Reg #">Reg #</th>
+                                <th data-i18n="Formation">Formation</th>
+                                <th data-i18n="Amount">Amount</th>
+                                <th data-i18n="Date">Date</th>
+                                <th data-i18n="Method">Method</th>
+                                <th data-i18n="Notes">Notes</th>
+                                <th data-i18n="Recorded By">Recorded By</th>
+                                <th width="120" class="text-center" data-i18n="Actions">Actions</th>
                             </tr></thead>
-                            <tbody><tr><td colspan="9" class="text-center text-muted">Loading...</td></tr></tbody>
+                            <tbody><tr><td colspan="9" class="text-center text-muted" style="padding:32px;" data-i18n="Loading...">Loading...</td></tr></tbody>
                         </table>
                     </div>
                 </div>
@@ -426,21 +599,31 @@
                 <!-- TAB 3 — Students Overview                   -->
                 <!-- ═══════════════════════════════════════════ -->
                 <div id="tab-dashboard" class="tab-pane fade-in" style="display:none">
-                    <div class="filter-bar" style="margin-bottom:18px">
+                    <div class="section-header-bar" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid #f1f5f9;">
+                        <div class="section-title">
+                            <h3 style="margin:0;font-size:18px;font-weight:700;color:#0f172a;display:flex;align-items:center;gap:10px;">
+                                <i class="fa fa-users" style="color:#6366f1;"></i>
+                                <span data-i18n="Students Payment Overview">Students Payment Overview</span>
+                            </h3>
+                            <p style="margin:4px 0 0;color:#64748b;font-size:13px;" data-i18n="Track payment and subscription status per student">Track payment and subscription status per student</p>
+                        </div>
+                    </div>
+
+                    <div class="filter-bar">
                         <div class="form-group">
-                            <label>Formation</label>
+                            <label data-i18n="Formation">Formation</label>
                             <select id="payment-filter-formation" class="form-control"></select>
                         </div>
                         <div class="form-group">
-                            <label>Group</label>
+                            <label data-i18n="Group">Group</label>
                             <select id="payment-filter-group" class="form-control"></select>
                         </div>
                         <div class="form-group">
-                            <label>Classroom</label>
+                            <label data-i18n="Classroom">Classroom</label>
                             <select id="payment-filter-classroom" class="form-control"></select>
                         </div>
                         <div class="form-group">
-                            <label>Teacher</label>
+                            <label data-i18n="Teacher">Teacher</label>
                             <select id="payment-filter-teacher" class="form-control"></select>
                         </div>
                         <div class="form-group">
@@ -455,10 +638,10 @@
                     </div>
                     <div id="backend-payments-status" class="alert" style="display:none"></div>
                     <div class="table-responsive">
-                        <table id="backend-payments-table" class="table table-striped table-hover table-bordered history-table">
+                        <table id="backend-payments-table" class="table history-table">
                             <thead><tr>
-                                <th data-i18n="Reg #">Reg #</th>
                                 <th data-i18n="Name">Name</th>
+                                <th width="80" class="text-center" data-i18n="Reg #">Reg #</th>
                                 <th data-i18n="Formation">Formation</th>
                                 <th data-i18n="Group(s)">Group(s)</th>
                                 <th data-i18n="Classroom(s)">Classroom(s)</th>
@@ -466,9 +649,9 @@
                                 <th data-i18n="Subscription">Subscription</th>
                                 <th data-i18n="Next Payment">Next Payment</th>
                                 <th data-i18n="Enrolled">Enrolled</th>
-                                <th data-i18n="Actions">Actions</th>
+                                <th width="90" class="text-center" data-i18n="Actions">Actions</th>
                             </tr></thead>
-                            <tbody><tr><td colspan="10" class="text-center" data-i18n="Loading...">Loading...</td></tr></tbody>
+                            <tbody><tr><td colspan="10" class="text-center text-muted" style="padding:32px;" data-i18n="Loading...">Loading...</td></tr></tbody>
                         </table>
                     </div>
                 </div>
@@ -476,6 +659,7 @@
 
             <div id="footer-placeholder"></div>
         </div>
+    </div>
     </div>
 
     <!-- Edit Payment Modal -->

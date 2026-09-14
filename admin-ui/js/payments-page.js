@@ -53,10 +53,12 @@
     var el = typeof sel === 'string' ? document.querySelector(sel) : sel;
     if (el) el.style.display = 'none';
   }
-  function avatarUrl(photo, name) {
-    if (photo && photo.trim() && photo.indexOf('/img/avatar-') === -1) return photo.trim();
-    var letter = (name && name.trim()) ? encodeURIComponent(name.trim().charAt(0).toUpperCase()) : 'S';
-    return 'https://ui-avatars.com/api/?name=' + letter + '&background=f7971e&color=fff&size=80';
+  function avatarUrl(photo, name, gender) {
+    if (photo && photo.trim() && photo.indexOf('/img/avatar-') === -1 && photo.indexOf('ui-avatars') === -1 && photo.indexOf('base64') === -1) {
+      return photo.trim();
+    }
+    var isFemale = gender && (String(gender).toLowerCase() === 'female' || gender === 'أنثى');
+    return isFemale ? encodeURI('img/طالبة مسلمة.webp') : encodeURI('img/طالب.webp');
   }
   function methodBadge(m) {
     var cls = { cash: 'method-cash', bank_transfer: 'method-bank_transfer', card: 'method-card', other: 'method-other' };
@@ -168,7 +170,7 @@
           ? '<span style="width:8px;height:8px;border-radius:50%;background:#10b981;display:inline-block;margin-right:4px"></span>'
           : '<span style="width:8px;height:8px;border-radius:50%;background:#ef4444;display:inline-block;margin-right:4px"></span>';
         return '<div class="ac-item" data-id="' + s.id + '">' +
-          '<img src="' + esc(avatarUrl(s.photo, name)) + '" onerror="this.src=\'' + avatarUrl('', name) + '\'">' +
+          '<img src="' + esc(avatarUrl(s.photo, name, s.gender)) + '" onerror="this.src=\'' + esc(avatarUrl('', name, s.gender)) + '\'">' +
           '<div><div class="ac-name">' + esc(name) + '</div>' +
           '<div class="ac-meta">' + statusDot + esc(s.registration_number) + ' · ' + esc(s.formation_title || 'No formation') + '</div></div>' +
           '</div>';
@@ -205,7 +207,7 @@
 
     // Fill student card
     var photo = document.getElementById('sel-stu-photo');
-    if (photo) { photo.src = avatarUrl(student.photo, name); }
+    if (photo) { photo.src = avatarUrl(student.photo, name, student.gender); }
     setText('sel-stu-name', name);
     setText('sel-stu-meta', (student.registration_number || '') + (student.formation_title ? ' · ' + student.formation_title : ''));
     refreshStudentBadge(student);
@@ -641,11 +643,13 @@
     tbody.innerHTML = filtered.map(function (r) {
       var name = [r.first_name, r.last_name].filter(Boolean).join(' ');
       var by   = [r.recorded_by_name, r.recorded_by_last].filter(Boolean).join(' ') || '-';
-      var img  = '<img src="' + esc(avatarUrl(r.photo, name)) +
-        '" style="width:30px;height:30px;border-radius:50%;object-fit:cover;margin-right:8px;vertical-align:middle"' +
-        ' onerror="this.src=\'' + avatarUrl('', name) + '\'">';
+      var avSrc = avatarUrl(r.photo, name, r.gender);
+      var defSrc = avatarUrl('', name, r.gender);
+      var img  = '<img src="' + esc(avSrc) +
+        '" style="width:32px;height:32px;border-radius:50%;object-fit:cover;margin-inline-end:10px;vertical-align:middle;box-shadow:0 1px 4px rgba(0,0,0,0.1);border:1.5px solid #e2e8f0;"' +
+        ' onerror="this.src=\'' + esc(defSrc) + '\'">';
       return '<tr>' +
-        '<td>' + img + esc(name) + '</td>' +
+        '<td style="font-weight:600;color:#0f172a;"><div style="display:flex;align-items:center;">' + img + '<span>' + esc(name) + '</span></div></td>' +
         '<td>' + esc(r.registration_number || '-') + '</td>' +
         '<td>' + esc(r.formation_title || '-') + '</td>' +
         '<td><strong style="color:#10b981">+ ' + fmtMoney(r.amount) + '</strong></td>' +

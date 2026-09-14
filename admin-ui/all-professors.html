@@ -519,6 +519,9 @@
                         <button id="btn-generate-work-cert" class="btn-hero-glass" style="display:none; font-weight:600;">
                             <i class="fa fa-file-text-o"></i> <span data-i18n="Work Certificate">شهادة عمل</span>
                         </button>
+                        <button type="button" class="btn-hero-glass" data-toggle="modal" data-target="#importTeacherExcelModal">
+                            <i class="fa fa-file-excel-o"></i> <span data-i18n="Import Excel">استيراد إكسيل</span>
+                        </button>
                         <a href="add-professor.html" class="btn-hero-primary">
                             <i class="fa fa-plus"></i> <span data-i18n="Add Teacher">Add Teacher</span>
                         </a>
@@ -581,7 +584,7 @@
                     <div class="controls-toolbar">
                         <div class="teacher-search-wrap">
                             <i class="fa fa-search search-icon"></i>
-                            <input type="text" id="teacher-search" class="form-control" placeholder="Search by name, email, emp#, speciality..." data-i18n-placeholder="Search by name, email, emp#, speciality..." autocomplete="off">
+                            <input type="text" id="teacher-search" class="form-control" placeholder="Search by name, email, phone, emp#, speciality..." data-i18n-placeholder="Search by name, email, phone, emp#, speciality..." autocomplete="off">
                         </div>
                         <span class="filter-count badge" id="teacher-filter-count" style="background:#4338ca; font-size:12px; padding:8px 12px; font-weight:600; border-radius:8px; display:none;"></span>
                     </div>
@@ -597,6 +600,7 @@
                                 <th width="50" data-i18n="Photo">Photo</th>
                                 <th data-i18n="Emp #">Emp #</th>
                                 <th data-i18n="Name">Name</th>
+                                <th data-i18n="Phone">Phone</th>
                                 <th data-i18n="Email">Email</th>
                                 <th data-i18n="Status">Status</th>
                                 <th data-i18n="Speciality">Speciality</th>
@@ -604,7 +608,7 @@
                                 <th width="140" data-i18n="Actions">Actions</th>
                             </tr>
                         </thead>
-                        <tbody><tr><td colspan="9" class="text-center" data-i18n="Loading...">Loading...</td></tr></tbody>
+                        <tbody><tr><td colspan="10" class="text-center" data-i18n="Loading...">Loading...</td></tr></tbody>
                     </table>
                 </div>
             </div>
@@ -612,6 +616,83 @@
             <div id="footer-placeholder"></div>
         </div>
     </div>
+
+    <!-- ═══════════════════ Import Teachers from Excel Modal ═══════════════════ -->
+    <div id="importTeacherExcelModal" class="modal fade" tabindex="-1" role="dialog">
+      <div class="modal-dialog modal-dialog-centered" role="document" style="max-width:520px;margin:50px auto;">
+        <div class="modal-content" style="border-radius:18px;overflow:hidden;border:none;box-shadow:0 20px 40px rgba(0,0,0,0.18);">
+          <div class="modal-header" style="background:linear-gradient(135deg,#1e1b4b,#312e81);color:#fff;padding:18px 24px;border-bottom:none;display:flex;align-items:center;justify-content:space-between;">
+            <h4 class="modal-title" style="margin:0;font-weight:700;font-size:17px;display:flex;align-items:center;gap:8px;">
+              <i class="fa fa-file-excel-o" style="color:#38bdf8;"></i>
+              <span data-i18n="Import Teachers from Excel">استيراد أساتذة من إكسيل</span>
+            </h4>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color:#fff;opacity:0.8;font-size:24px;margin:0;padding:0;line-height:1;background:none;border:none;">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body" style="padding:24px;">
+            <!-- Info box -->
+            <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:12px 16px;margin-bottom:18px;">
+              <p class="text-muted" style="margin:0;font-size:12.5px;line-height:1.7;">
+                <strong data-i18n="Required columns">Required columns:</strong>&nbsp;
+                <code style="color:#4338ca;background:#ede9fe;">الاسم</code>,
+                <code style="color:#4338ca;background:#ede9fe;">اللقب</code>,
+                <code style="color:#4338ca;background:#ede9fe;">البريد الالكتروني</code><br>
+                <strong data-i18n="Optional columns">Optional columns:</strong>&nbsp;
+                <code style="color:#0284c7;background:#e0f2fe;">رقم الهاتف</code>,
+                <code style="color:#0284c7;background:#e0f2fe;">تاريخ الميلاد</code>,
+                <code style="color:#0284c7;background:#e0f2fe;">الجنس</code>,
+                <code style="color:#0284c7;background:#e0f2fe;">التخصص</code>,
+                <code style="color:#0284c7;background:#e0f2fe;">رقم الموظف</code>,
+                <code style="color:#0284c7;background:#e0f2fe;">الشهادة</code>,
+                <code style="color:#0284c7;background:#e0f2fe;">تاريخ التوظيف</code>,
+                <code style="color:#0284c7;background:#e0f2fe;">الراتب</code><br>
+                <span data-i18n="Default password">Default password:</span>&nbsp;<code style="background:#f1f5f9;color:#334155;">123456789</code>
+              </p>
+            </div>
+
+            <!-- Download template link -->
+            <div style="text-align:center;margin-bottom:14px;">
+              <a id="teacher-template-download" href="#" style="font-size:12.5px;color:#4338ca;text-decoration:none;display:inline-flex;align-items:center;gap:6px;padding:6px 14px;background:#ede9fe;border-radius:8px;font-weight:600;transition:background 0.15s;">
+                <i class="fa fa-download"></i>
+                <span data-i18n="Download Excel Template">تحميل قالب إكسيل</span>
+              </a>
+            </div>
+
+            <div id="import-teacher-excel-status" class="alert" style="display:none;"></div>
+
+            <!-- File input -->
+            <div class="form-group" style="margin-bottom:14px;">
+              <label style="font-weight:600;font-size:13px;color:#334155;margin-bottom:6px;">
+                <span data-i18n="Excel File (.xlsx, .xls)">Excel File (.xlsx, .xls)</span>
+                <span class="text-danger">*</span>
+              </label>
+              <input type="file" id="import-teacher-excel-file" class="form-control" accept=".xlsx,.xls"
+                style="border-radius:10px;height:42px;padding:8px 12px;border:1.5px solid #cbd5e1;">
+            </div>
+
+            <!-- Progress -->
+            <div id="import-teacher-progress-container" style="display:none;margin-top:15px;">
+              <p style="margin-bottom:5px;font-size:12px;text-align:center;" id="import-teacher-progress-text">0 / 0</p>
+              <div class="progress" style="height:10px;margin-bottom:0;border-radius:6px;overflow:hidden;">
+                <div id="import-teacher-progress-bar" class="progress-bar progress-bar-success" role="progressbar"
+                  style="width:0%;background:linear-gradient(135deg,#10b981,#059669);"></div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer" style="padding:14px 24px;background:#f8fafc;border-top:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center;">
+            <button type="button" class="btn btn-default" data-dismiss="modal"
+              style="border-radius:10px;padding:8px 18px;font-weight:600;border:1px solid #cbd5e1;"
+              data-i18n="Close">Close</button>
+            <button type="button" class="btn btn-success" id="btn-do-teacher-import"
+              style="border-radius:10px;padding:8px 22px;font-weight:700;background:linear-gradient(135deg,#10b981,#059669);border:none;box-shadow:0 4px 12px rgba(16,185,129,0.3);display:inline-flex;align-items:center;gap:8px;">
+              <i class="fa fa-upload"></i> <span data-i18n="Import">استيراد</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- ═══════════════════ / Import Teachers Modal ═══════════════════ -->
 
     <!-- Arabic font fix for html2canvas -->
     <style>
@@ -819,6 +900,221 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="js/backend.js?v=6"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="js/backend.js?v=7"></script>
+    <script>
+    /* ── Teacher Excel Import ── */
+    (function () {
+      function initTeacherImport() {
+        var modal     = document.getElementById('importTeacherExcelModal');
+        var btnImport = document.getElementById('btn-do-teacher-import');
+        var fileInput = document.getElementById('import-teacher-excel-file');
+        var statusEl  = document.getElementById('import-teacher-excel-status');
+        var progressContainer = document.getElementById('import-teacher-progress-container');
+        var progressBar       = document.getElementById('import-teacher-progress-bar');
+        var progressText      = document.getElementById('import-teacher-progress-text');
+        var dlTpl             = document.getElementById('teacher-template-download');
+
+        if (!modal || !btnImport) return;
+
+        function t(key) {
+          if (window.AppI18n && typeof window.AppI18n.t === 'function') {
+            var r = window.AppI18n.t(key); if (r && r !== key) return r;
+          }
+          return key;
+        }
+
+        function showStatus(msg, type) {
+          statusEl.className = 'alert alert-' + (type || 'danger');
+          statusEl.innerHTML = msg;
+          statusEl.style.display = 'block';
+        }
+
+        /* Generate and download an Excel template */
+        if (dlTpl) {
+          dlTpl.addEventListener('click', function (e) {
+            e.preventDefault();
+            function doDownload() {
+              var ws = XLSX.utils.aoa_to_sheet([
+                ['الاسم', 'اللقب', 'البريد الالكتروني', 'رقم الهاتف', 'تاريخ الميلاد', 'الجنس', 'التخصص', 'رقم الموظف', 'الشهادة', 'تاريخ التوظيف', 'الراتب'],
+                ['محمد', 'بن علي', 'm.benali@school.dz', '0550123456', '1985-06-15', 'ذكر', 'رياضيات', 'EMP001', 'ليسانس', '2020-09-01', '35000']
+              ]);
+              ws['!views'] = [{ rightToLeft: true }];
+              ws['!cols'] = [22,22,32,18,18,10,20,14,18,18,12].map(function(w){return{wch:w};});
+              var wb = XLSX.utils.book_new();
+              XLSX.utils.book_append_sheet(wb, ws, 'Teachers');
+              XLSX.writeFile(wb, 'teacher_import_template.xlsx');
+            }
+            if (typeof XLSX !== 'undefined') { doDownload(); }
+            else {
+              var s = document.createElement('script');
+              s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+              s.onload = doDownload;
+              document.head.appendChild(s);
+            }
+          });
+        }
+
+        /* Reset modal on open */
+        if (window.jQuery) {
+          $(modal).on('show.bs.modal', function () {
+            statusEl.style.display = 'none';
+            if (fileInput) fileInput.value = '';
+            progressContainer.style.display = 'none';
+            btnImport.disabled = false;
+            progressBar.style.width = '0%';
+            if (window.AppI18n && window.AppI18n.translateAll) window.AppI18n.translateAll(modal);
+          });
+        }
+
+        /* ── Main import click handler ── */
+        btnImport.addEventListener('click', function () {
+          var file = fileInput.files[0];
+          if (!file) { showStatus(t('Please select an Excel file.')); return; }
+
+          btnImport.disabled = true;
+          statusEl.style.display = 'none';
+
+          var reader = new FileReader();
+          reader.onload = function (e) {
+            try {
+              if (typeof XLSX === 'undefined') {
+                showStatus(t('SheetJS library is not loaded. Please refresh the page.'));
+                btnImport.disabled = false;
+                return;
+              }
+              var data     = new Uint8Array(e.target.result);
+              var workbook = XLSX.read(data, { type: 'array' });
+              var rows     = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+
+              /* Map row columns → payload fields */
+              var teachers = rows.map(function (row) {
+                var r = {};
+                Object.keys(row).forEach(function (k) { r[k.trim()] = row[k]; });
+
+                /* Gender normalisation */
+                var rawGender = String(r['الجنس'] || r['Gender'] || '').trim();
+                var gender = null;
+                if (rawGender === 'ذكر' || rawGender.toUpperCase() === 'MALE')         gender = 'MALE';
+                else if (rawGender === 'أنثى' || rawGender === 'انثى' || rawGender.toUpperCase() === 'FEMALE') gender = 'FEMALE';
+
+                /* Date normalisation – handle Excel serial numbers */
+                function parseDate(val) {
+                  if (!val) return null;
+                  if (typeof val === 'number') {
+                    // Excel serial date → JS Date
+                    var d = XLSX.SSF.parse_date_code(val);
+                    if (d) return d.y + '-' + String(d.m).padStart(2,'0') + '-' + String(d.d).padStart(2,'0');
+                  }
+                  var s = String(val).trim();
+                  // Accept formats: dd/mm/yyyy, yyyy-mm-dd
+                  var m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+                  if (m) return m[3] + '-' + m[2].padStart(2,'0') + '-' + m[1].padStart(2,'0');
+                  return s || null;
+                }
+
+                return {
+                  first_name:       String(r['الاسم']  || r['First Name'] || '').trim(),
+                  last_name:        String(r['اللقب']  || r['Last Name']  || '').trim(),
+                  email:            String(r['البريد الالكتروني'] || r['البريد الإلكتروني'] || r['Email'] || '').trim(),
+                  phone:            String(r['رقم الهاتف'] || r['الهاتف'] || r['Phone'] || r['Mobile'] || '').trim() || null,
+                  gender:           gender,
+                  birth_date:       parseDate(r['تاريخ الميلاد'] || r['Birth Date']),
+                  speciality:       String(r['التخصص']   || r['Speciality'] || r['Specialization'] || '').trim() || null,
+                  employee_number:  String(r['رقم الموظف'] || r['Emp #'] || r['Employee Number'] || '').trim() || null,
+                  diploma:          String(r['الشهادة'] || r['Diploma'] || '').trim() || null,
+                  hire_date:        parseDate(r['تاريخ التوظيف'] || r['Hire Date']),
+                  monthly_salary:   parseFloat(r['الراتب'] || r['Salary'] || '') || null,
+                };
+              }).filter(function (t) { return t.first_name && t.last_name && t.email; });
+
+              if (teachers.length === 0) {
+                showStatus(t('No valid teachers found. Ensure columns match: الاسم، اللقب، البريد الالكتروني'));
+                btnImport.disabled = false;
+                return;
+              }
+
+              progressContainer.style.display = 'block';
+              progressText.textContent = '0 / ' + teachers.length;
+              progressBar.style.width = '0%';
+
+              var imported = 0, errors = [];
+
+              /* Sequential import to avoid overwhelming the API */
+              function processNext(idx) {
+                if (idx >= teachers.length) {
+                  if (errors.length === 0) {
+                    showStatus('<i class="fa fa-check-circle"></i> ' + t('Successfully imported ') + imported + t(' teachers!'), 'success');
+                  } else {
+                    showStatus('<i class="fa fa-exclamation-triangle"></i> ' +
+                      t('Imported') + ' ' + imported + t(' teachers') + ', ' + errors.length + t(' errors. Check console.'), 'warning');
+                    console.warn('Teacher import errors:', errors);
+                  }
+                  btnImport.disabled = false;
+                  /* Reload the teachers table */
+                  if (typeof window.loadTeachers === 'function') window.loadTeachers();
+                  else if (typeof window.loadProfessors === 'function') window.loadProfessors();
+                  if (window.jQuery && errors.length === 0) {
+                    setTimeout(function () { $(modal).modal('hide'); }, 2000);
+                  }
+                  return;
+                }
+
+                var teacher = teachers[idx];
+
+                /* Auto-generate a unique employee number if blank */
+                var empNo = teacher.employee_number ||
+                  ('EMP-' + Date.now().toString(36).toUpperCase() + '-' + Math.floor(Math.random() * 1000).toString().padStart(3,'0'));
+
+                var payload = {
+                  first_name:       teacher.first_name,
+                  last_name:        teacher.last_name,
+                  email:            teacher.email,
+                  password:         '123456789',
+                  employee_number:  empNo,
+                };
+                if (teacher.phone)           payload.phone           = teacher.phone;
+                if (teacher.gender)          payload.gender          = teacher.gender;
+                if (teacher.birth_date)      payload.birth_date      = teacher.birth_date;
+                if (teacher.speciality)      payload.speciality      = teacher.speciality;
+                if (teacher.diploma)         payload.diploma         = teacher.diploma;
+                if (teacher.hire_date)       payload.hire_date       = teacher.hire_date;
+                if (teacher.monthly_salary)  payload.monthly_salary  = teacher.monthly_salary;
+
+                /* Use the global `request` helper defined in backend.js */
+                window.request('/api/teacher-registrations', {
+                  method: 'POST',
+                  body: JSON.stringify(payload)
+                }).then(function () {
+                  imported++;
+                }).catch(function (err) {
+                  errors.push({ row: idx + 2, email: teacher.email, err: err });
+                }).then(function () {
+                  var pct = Math.round(((idx + 1) / teachers.length) * 100);
+                  progressBar.style.width = pct + '%';
+                  progressText.textContent = (idx + 1) + ' / ' + teachers.length;
+                  processNext(idx + 1);
+                });
+              }
+
+              processNext(0);
+
+            } catch (ex) {
+              showStatus(t('Error reading file: ') + (ex.message || ex));
+              btnImport.disabled = false;
+            }
+          };
+          reader.readAsArrayBuffer(file);
+        });
+      }
+
+      /* Run after DOM + backend.js are ready */
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initTeacherImport);
+      } else {
+        initTeacherImport();
+      }
+    })();
+    </script>
 </body>
 </html>

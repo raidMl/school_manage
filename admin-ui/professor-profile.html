@@ -283,6 +283,40 @@
                 <span data-i18n="Profile">Profile</span>
             </div>
 
+            <!-- Hero Banner (Purple Graphic Chart) -->
+            <div class="page-hero-card">
+                <div class="hero-top-row">
+                    <div class="hero-info-area">
+                        <div class="page-avatar-badge" style="overflow:hidden;padding:0;">
+                            <img id="tp-photo" src="" alt="Teacher Photo" style="width:100%;height:100%;object-fit:cover;border-radius:18px;">
+                        </div>
+                        <div class="hero-text">
+                            <h2 id="tp-name">—</h2>
+                            <div class="hero-badges-row">
+                                <span class="hero-pill">
+                                    <i class="fa fa-graduation-cap"></i>
+                                    <span data-i18n="Professor">Professor</span>
+                                </span>
+                                <span class="hero-pill">
+                                    <i class="fa fa-id-badge"></i>
+                                    <span id="tp-emp-num"></span>
+                                </span>
+                                <span class="hero-pill">
+                                    <i class="fa fa-envelope"></i>
+                                    <span id="tp-email"></span>
+                                </span>
+                                <span id="tp-status"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="hero-action-btns">
+                        <a id="tp-edit-link" href="#" class="btn-hero-primary">
+                            <i class="fa fa-pencil"></i> <span data-i18n="Edit">Edit</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
             <div id="tp-container" class="card-panel">
                 <!-- Loading state -->
                 <div id="tp-loading" class="text-center">
@@ -292,24 +326,6 @@
 
                 <!-- Content -->
                 <div id="tp-content" style="display:none;">
-
-                    <!-- Header -->
-                    <div class="profile-header">
-                        <img id="tp-photo" class="profile-photo" src="" alt="Teacher Photo">
-                        <div class="profile-title">
-                            <div class="prof-badge">
-                                <i class="fa fa-graduation-cap"></i>
-                                <span data-i18n="Professor">Professor</span>
-                            </div>
-                            <h3 id="tp-name">—</h3>
-                            <p><i class="fa fa-id-badge"></i> <span id="tp-emp-num"></span></p>
-                            <p><i class="fa fa-envelope"></i> <span id="tp-email"></span></p>
-                            <p><span id="tp-status"></span></p>
-                        </div>
-                        <a id="tp-edit-link" href="#" class="btn-edit-profile">
-                            <i class="fa fa-edit"></i> <span data-i18n="Edit">Edit</span>
-                        </a>
-                    </div>
 
                     <!-- Professional Info -->
                     <h4 class="section-title-h4">

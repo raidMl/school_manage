@@ -35,6 +35,80 @@
         border: 1px solid #edf2f7;
       }
 
+      /* ── Table Styling (Matching All-Groups Chart Graphique) ── */
+      #backend-classrooms-table thead th {
+        background: #f8fafc;
+        color: #475569;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border-top: none;
+        border-bottom: 2px solid #e2e8f0;
+        padding: 14px 16px;
+      }
+
+      #backend-classrooms-table tbody tr {
+        transition: background 0.15s ease;
+      }
+
+      #backend-classrooms-table tbody tr:hover {
+        background: #f8faff;
+      }
+
+      #backend-classrooms-table td {
+        vertical-align: middle;
+        font-size: 14px;
+        color: #334155;
+        padding: 14px 16px;
+        border-color: #f1f5f9;
+      }
+
+      #backend-classrooms-table th:last-child,
+      #backend-classrooms-table td:last-child {
+        white-space: nowrap !important;
+        min-width: 120px !important;
+      }
+
+      .classroom-icon-badge {
+        width: 34px;
+        height: 34px;
+        border-radius: 8px;
+        background: #ede9fe;
+        color: #6366f1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        flex-shrink: 0;
+      }
+
+      .capacity-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #eff6ff;
+        color: #1d4ed8;
+        border: 1px solid #bfdbfe;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12.5px;
+        font-weight: 600;
+      }
+
+      .capacity-pill.empty {
+        background: #f1f5f9;
+        color: #64748b;
+        border-color: #e2e8f0;
+      }
+
+      .desc-text {
+        color: #64748b;
+        font-size: 13px;
+        max-width: 350px;
+        display: inline-block;
+      }
+
       /* ── Page Header Area ── */
       .page-header-bar {
         display: flex;
@@ -66,29 +140,6 @@
         justify-content: center;
         font-size: 18px;
         box-shadow: 0 2px 8px rgba(79, 70, 229, 0.15);
-      }
-
-      /* ── Add Classroom Trigger Button ── */
-      #btn-add-classroom {
-        background: linear-gradient(135deg, #4f46e5, #6366f1);
-        color: #ffffff;
-        border: none;
-        border-radius: 12px;
-        padding: 10px 22px;
-        font-size: 14px;
-        font-weight: 600;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
-        box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
-        transition: all 0.22s ease;
-      }
-
-      #btn-add-classroom:hover {
-        background: linear-gradient(135deg, #4338ca, #4f46e5);
-        box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45);
-        transform: translateY(-1px);
       }
 
       /* ── Fullscreen Centered Overlay System ── */
@@ -409,16 +460,30 @@
   <span data-i18n="Classrooms">Classrooms</span>
 </div>
 
-<!-- Header bar -->
-<div class="page-header-bar">
-  <h2>
-    <span class="icon-badge"><i class="fa fa-building"></i></span>
-    <span data-i18n="Classrooms">Classrooms</span>
-  </h2>
-  <button id="btn-add-classroom" type="button" onclick="toggleAddPanel(event)">
-    <i class="fa fa-plus"></i>
-    <span data-i18n="Add Classroom">Add Classroom</span>
-  </button>
+<!-- Hero Banner (Purple Graphic Chart) -->
+<div class="page-hero-card">
+  <div class="hero-top-row">
+    <div class="hero-info-area">
+      <div class="page-avatar-badge">
+        <i class="fa fa-building"></i>
+      </div>
+      <div class="hero-text">
+        <h2 data-i18n="Classrooms">Classrooms</h2>
+        <div class="hero-badges-row">
+          <span class="hero-pill">
+            <i class="fa fa-building-o"></i>
+            <span id="hero-total-classrooms">0</span> <span data-i18n="Classrooms">Classrooms</span>
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="hero-action-btns">
+      <button id="btn-add-classroom" type="button" class="btn-hero-primary" onclick="toggleAddPanel(event)">
+        <i class="fa fa-plus"></i>
+        <span data-i18n="Add Classroom">Add Classroom</span>
+      </button>
+    </div>
+  </div>
 </div>
 
 <!-- Centered Modal Dropdown with guaranteed z-index hierarchy -->
@@ -491,22 +556,36 @@
   </div>
 </div>
 
-<!-- Classrooms table -->
+<!-- Full-width Classrooms Table Card (Chart Graphique) -->
 <div class="card-panel">
+  <div class="section-header-bar"
+    style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid #f1f5f9;">
+    <div class="section-title">
+      <h3 style="margin:0;font-size:18px;font-weight:700;color:#0f172a;display:flex;align-items:center;gap:10px;">
+        <i class="fa fa-building" style="color:#6366f1;"></i>
+        <span data-i18n="All Classrooms">All Classrooms</span>
+      </h3>
+      <p style="margin:4px 0 0;color:#64748b;font-size:13px;"
+        data-i18n="Manage and organize all school classrooms and spaces">Manage and organize all school classrooms and spaces</p>
+    </div>
+    <div class="controls-toolbar" style="display:flex;align-items:center;gap:10px;">
+      <input type="text" id="filter-classroom-search" class="form-control" placeholder="Search classrooms..." data-i18n-placeholder="Search classrooms..." style="border-radius:10px; height:40px; border:1.5px solid #cbd5e1; background:#f8fafc; font-size:13px; min-width:220px; padding: 6px 14px;">
+    </div>
+  </div>
   <div id="backend-classrooms-status" class="alert" style="display:none"></div>
   <div class="table-responsive">
     <table id="backend-classrooms-table" class="table table-hover">
       <thead>
         <tr>
-          <th>#</th>
-          <th data-i18n="Name">Name</th>
+          <th width="50" class="text-center">#</th>
+          <th data-i18n="Classroom Name">Classroom Name</th>
           <th data-i18n="Capacity">Capacity</th>
           <th data-i18n="Description">Description</th>
-          <th width="100" class="text-center" data-i18n="Actions">Actions</th>
+          <th width="120" class="text-center" data-i18n="Actions">Actions</th>
         </tr>
       </thead>
       <tbody>
-        <tr><td colspan="5" class="text-center" data-i18n="Loading...">Loading...</td></tr>
+        <tr><td colspan="5" class="text-center text-muted" style="padding:32px;" data-i18n="Loading...">Loading...</td></tr>
       </tbody>
     </table>
   </div>

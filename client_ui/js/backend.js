@@ -16,7 +16,14 @@
     if (currentLang !== 'ar' || !root) return;
     root.querySelectorAll('[data-i18n]').forEach(function (el) {
       var k = el.getAttribute('data-i18n'), v = AR[k];
-      if (v) el.textContent = v;
+      if (v) {
+        var labelEl = el.querySelector('.th-label-text');
+        if (labelEl) {
+          labelEl.textContent = v;
+        } else {
+          el.textContent = v;
+        }
+      }
     });
   }
   if (currentLang === 'ar') {

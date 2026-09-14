@@ -96,31 +96,66 @@
         <div id="header-placeholder"></div>
         <div class="sb-content">
             <div style="max-width: 1080px; margin: 0 auto;">
-            <div class="sb-breadcrumb" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                <div>
-                    <i class="fa fa-home"></i>
-                    <a href="index.html" data-i18n="Home">Home</a>
-                    <span>/</span>
-                    <span data-i18n="Treasury Management">Treasury Management</span>
-                </div>
-                <button id="btn-refresh-treasury" class="btn btn-sm" style="background:#fff; border:1px solid #e2e8f0; border-radius:8px; color:#5a6580; font-weight:600; padding:6px 12px; transition:all 0.2s;">
-                    <i class="fa fa-refresh"></i> <span data-i18n="Refresh">Refresh</span>
-                </button>
+            <div class="sb-breadcrumb">
+                <i class="fa fa-home"></i>
+                <a href="index.html" data-i18n="Home">Home</a>
+                <span>/</span>
+                <span data-i18n="Treasury Management">Treasury Management</span>
             </div>
 
-            <!-- Stat cards -->
-            <div class="stat-cards">
-                <div class="stat-card green">
-                    <h4 id="stat-total-income">—</h4>
-                    <p><i class="fa fa-arrow-down"></i> <span data-i18n="Total Incomes">Total Incomes</span></p>
+            <!-- Hero Banner -->
+            <div class="page-hero-card">
+                <div class="hero-top-row">
+                    <div class="hero-info-area">
+                        <div class="page-avatar-badge">
+                            <i class="fa fa-money"></i>
+                        </div>
+                        <div class="hero-text">
+                            <h2 data-i18n="Treasury Management">Treasury Management</h2>
+                            <div class="hero-badges-row">
+                                <span class="hero-pill">
+                                    <i class="fa fa-balance-scale"></i>
+                                    <span data-i18n="Financial tracking & balance">Incomes, Expenses & Balance</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="hero-action-btns">
+                        <button id="btn-refresh-treasury" class="btn-hero-glass">
+                            <i class="fa fa-refresh"></i> <span data-i18n="Refresh">Refresh</span>
+                        </button>
+                    </div>
                 </div>
-                <div class="stat-card red">
-                    <h4 id="stat-total-expense">—</h4>
-                    <p><i class="fa fa-arrow-up"></i> <span data-i18n="Total Expenses">Total Expenses</span></p>
+            </div>
+
+            <!-- Modern Metrics Grid -->
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-icon-wrap metric-icon-green">
+                        <i class="fa fa-arrow-down"></i>
+                    </div>
+                    <div class="metric-info">
+                        <label data-i18n="Total Incomes">Total Incomes</label>
+                        <div class="val" id="stat-total-income">—</div>
+                    </div>
                 </div>
-                <div class="stat-card blue">
-                    <h4 id="stat-balance">—</h4>
-                    <p><i class="fa fa-balance-scale"></i> <span data-i18n="Net Balance">Net Balance</span></p>
+                <div class="metric-card">
+                    <div class="metric-icon-wrap metric-icon-amber">
+                        <i class="fa fa-arrow-up"></i>
+                    </div>
+                    <div class="metric-info">
+                        <label data-i18n="Total Expenses">Total Expenses</label>
+                        <div class="val" id="stat-total-expense">—</div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon-wrap metric-icon-blue">
+                        <i class="fa fa-balance-scale"></i>
+                    </div>
+                    <div class="metric-info">
+                        <label data-i18n="Net Balance">Net Balance</label>
+                        <div class="val" id="stat-balance">—</div>
+                    </div>
                 </div>
             </div>
 

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -264,6 +264,36 @@
                 <span>Profile</span>
             </div>
 
+            <!-- Hero Banner (Purple Graphic Chart) -->
+            <div class="page-hero-card">
+                <div class="hero-top-row">
+                    <div class="hero-info-area">
+                        <div class="page-avatar-badge" style="overflow:hidden;padding:0;">
+                            <img id="sp-photo" src="" alt="Student Photo" style="width:100%;height:100%;object-fit:cover;border-radius:18px;">
+                        </div>
+                        <div class="hero-text">
+                            <h2 id="sp-name">Student Name</h2>
+                            <div class="hero-badges-row">
+                                <span class="hero-pill">
+                                    <i class="fa fa-id-badge"></i>
+                                    <span id="sp-reg-num"></span>
+                                </span>
+                                <span class="hero-pill">
+                                    <i class="fa fa-envelope"></i>
+                                    <span id="sp-email"></span>
+                                </span>
+                                <span id="sp-status"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="hero-action-btns">
+                        <a id="sp-edit-link" href="#" class="btn-hero-primary">
+                            <i class="fa fa-pencil"></i> <span data-i18n="Edit">Edit</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
             <div id="sp-container" class="card-panel">
                 <div id="sp-loading" class="text-center" style="padding:40px;color:#888;">
                     <i class="fa fa-spinner fa-spin fa-2x"></i>
@@ -271,15 +301,6 @@
                 </div>
 
                 <div id="sp-content" style="display:none;">
-                    <div class="profile-header">
-                        <img id="sp-photo" class="profile-photo" src="" alt="Student Photo">
-                        <div class="profile-title">
-                            <h3 id="sp-name">Student Name</h3>
-                            <p><i class="fa fa-id-badge"></i> <span id="sp-reg-num"></span></p>
-                            <p><i class="fa fa-envelope"></i> <span id="sp-email"></span></p>
-                            <p><span id="sp-status"></span></p>
-                        </div>
-                    </div>
 
                     <h4 class="section-title-h4">
                         <i class="fa fa-user"></i>

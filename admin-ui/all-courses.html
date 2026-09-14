@@ -81,16 +81,44 @@
                 <i class="fa fa-home"></i>
                 <a href="index.html">Home</a>
                 <span>/</span>
-                <span>Formations</span>
+                <span data-i18n="Formations">Formations</span>
             </div>
-        <div class="card-panel">
-            <div class="page-header">
-                <div>
-                    <h3 class="page-title">Formations List</h3>
-                    <p class="page-desc">Manage all formations and course subscriptions.</p>
+
+            <!-- Hero Banner -->
+            <div class="page-hero-card">
+                <div class="hero-top-row">
+                    <div class="hero-info-area">
+                        <div class="page-avatar-badge">
+                            <i class="fa fa-graduation-cap"></i>
+                        </div>
+                        <div class="hero-text">
+                            <h2 data-i18n="Formations List">Formations & Subscriptions</h2>
+                            <div class="hero-badges-row">
+                                <span class="hero-pill">
+                                    <i class="fa fa-book"></i>
+                                    <span data-i18n="Manage all formations and course subscriptions.">Courses & Programs</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="hero-action-btns">
+                        <a href="add-course.html" class="btn-hero-primary">
+                            <i class="fa fa-plus"></i> <span data-i18n="Add Formation / Subscription">Add Formation</span>
+                        </a>
+                    </div>
                 </div>
-                <a href="add-course.html" class="btn btn-add-new"><i class="fa fa-plus"></i> Add Formation / Subscription</a>
             </div>
+
+            <div class="card-panel">
+                <!-- <div class="section-header-bar" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid #f1f5f9;">
+                    <div class="section-title">
+                        <h3 style="margin:0;font-size:18px;font-weight:700;color:#0f172a;display:flex;align-items:center;gap:10px;">
+                            <i class="fa fa-graduation-cap" style="color:#6366f1;"></i>
+                            <span data-i18n="Formations List">Formations List</span>
+                        </h3>
+                        <p style="margin:4px 0 0;color:#64748b;font-size:13px;" data-i18n="Manage all formations and course subscriptions.">Manage all formations and course subscriptions.</p>
+                    </div>
+                </div> -->
             <div id="backend-formations-status" class="alert" style="display:none"></div>
             <div class="table-responsive" style="overflow-x: auto;">
                 <table id="backend-formations-table" class="table-custom">

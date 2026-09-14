@@ -4,6 +4,9 @@
 
 // Inject translation script synchronously with cache buster
 document.write('<script src="js/i18n.js?v=' + new Date().getTime() + '"></script>');
+// Inject universal table features (Excel export & per-column filters)
+document.write('<link rel="stylesheet" href="css/table-features.css?v=' + new Date().getTime() + '">');
+document.write('<script src="js/table-features.js?v=' + new Date().getTime() + '"></script>');
 
 (function () {
   'use strict';

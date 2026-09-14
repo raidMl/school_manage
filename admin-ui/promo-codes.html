@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <!-- Anti-FOUC & Preloader -->
@@ -59,10 +59,41 @@
                 <span>/</span>
                 <span>Promo Codes</span>
             </div>
-            
-            <div class="card-panel promo-card" style="margin-bottom: 20px;">
-                <h3 style="margin:0 0 10px;font-size:16px;font-weight:700"><i class="fa fa-tag" style="color:#4f46e5"></i> Generate Promo Code</h3>
-                <p style="margin:0 0 14px;color:#64748b;font-size:13px">Create discounts for a specific formation or subscription plan.</p>
+
+            <!-- Hero Banner (Purple Graphic Chart) -->
+            <div class="page-hero-card">
+                <div class="hero-top-row">
+                    <div class="hero-info-area">
+                        <div class="page-avatar-badge">
+                            <i class="fa fa-tag"></i>
+                        </div>
+                        <div class="hero-text">
+                            <h2 data-i18n="Promo Codes">Promo Codes</h2>
+                            <div class="hero-badges-row">
+                                <span class="hero-pill">
+                                    <i class="fa fa-percent"></i>
+                                    <span data-i18n="Discounts & Promotions">Discounts &amp; Promotions</span>
+                                </span>
+                                <span class="hero-pill">
+                                    <i class="fa fa-ticket"></i>
+                                    <span id="hero-total-promos">0</span> <span data-i18n="Active Codes">Active Codes</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-panel" style="margin-bottom: 20px;">
+                <div class="section-header-bar" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid #f1f5f9;">
+                    <div class="section-title">
+                        <h3 style="margin:0;font-size:18px;font-weight:700;color:#0f172a;display:flex;align-items:center;gap:10px;">
+                            <i class="fa fa-plus-circle" style="color:#6366f1;"></i>
+                            <span data-i18n="Generate Promo Code">Generate Promo Code</span>
+                        </h3>
+                        <p style="margin:4px 0 0;color:#64748b;font-size:13px;">Create discounts for a specific formation or subscription plan.</p>
+                    </div>
+                </div>
                 <form id="backend-add-promo-form" class="row">
                     <div class="col-md-3">
                         <div class="form-group">
@@ -100,10 +131,13 @@
             </div>
 
             <div class="card-panel">
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-                    <div>
-                        <h3 style="margin:0;font-size:16px;font-weight:700">Promo Codes List</h3>
-                        <p style="margin:4px 0 0;color:#888;font-size:13px">Manage active and inactive promo codes.</p>
+                <div class="section-header-bar" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid #f1f5f9;">
+                    <div class="section-title">
+                        <h3 style="margin:0;font-size:18px;font-weight:700;color:#0f172a;display:flex;align-items:center;gap:10px;">
+                            <i class="fa fa-list" style="color:#6366f1;"></i>
+                            <span data-i18n="Promo Codes List">Promo Codes List</span>
+                        </h3>
+                        <p style="margin:4px 0 0;color:#64748b;font-size:13px;">Manage active and inactive promo codes.</p>
                     </div>
                 </div>
                 <div id="backend-promos-status" class="alert" style="display:none"></div>

@@ -203,7 +203,7 @@
     'Total Expenses': 'إجمالي المصاريف',
     'Net Balance': 'صافي الرصيد',
     'Record new income or expense': 'تسجيل مداخيل أو مصاريف جديدة',
-    'Transaction Type': 'نوع المعاملة',
+    'Transaction Type': 'التعيين',
     'Select Type': 'اختر النوع',
     'Income (مداخيل)': 'مداخيل (Income)',
     'Expense (مصاريف)': 'مصاريف (Expense)',
@@ -216,7 +216,7 @@
     'Edit Transaction': 'تعديل المعاملة',
     'Delete Transaction': 'حذف المعاملة',
     'Delete this record? This cannot be undone.': 'هل تريد حذف هذا السجل؟ لا يمكن التراجع عن هذا الإجراء.',
-    'Name (Person)': 'الاسم (الشخص)',
+    'Name (Person)': 'المانح',
     'Optional notes...': 'ملاحظات اختيارية...',
     'e.g. Mathematics': 'مثال: رياضيات',
     'e.g. PhD': 'مثال: ماستر، دكتوراه',
@@ -224,7 +224,7 @@
     'Image': 'الصورة',
     'Refresh': 'تحديث',
     'Date': 'التاريخ',
-    'Category': 'الفئة',
+    'Category': 'التصنيف',
     'Amount': 'المبلغ',
     'Notes': 'الملاحظات',
     'Total Income': 'إجمالي المداخيل',
@@ -340,7 +340,22 @@
     'No students found': 'لا يوجد طلاب',
     'Close': 'إغلاق',
     'Optional': 'اختياري',
-    'cap': 'سعة'
+    'Phone Number': 'رقم الهاتف',
+    '(Optional)': '(اختياري)',
+    'cap': 'سعة',
+    'Potential Duplicate Detected': 'تحذير: اسم مكرر محتمل',
+    'A student with this name already exists in the database.': 'يوجد طالب بهذا الاسم في قاعدة البيانات.',
+    'A teacher with this name already exists in the database.': 'يوجد أستاذ بهذا الاسم في قاعدة البيانات.',
+    'Do you still want to proceed?': 'هل تريد المتابعة؟',
+    'Yes, Create Anyway': 'نعم، إنشاء على أي حال',
+    'Cancel & Review': 'إلغاء والمراجعة',
+    'Student created successfully (duplicate name exists)': 'تم إنشاء الطالب بنجاح (يوجد اسم مكرر)',
+    'Teacher created successfully (duplicate name exists)': 'تم إنشاء الأستاذ بنجاح (يوجد اسم مكرر)',
+    'Group assignment failed': 'فشل تعيين المجموعة',
+    'existing record(s) found': 'سجل(ات) موجودة',
+    'Duplicate Name Warning': 'تحذير: اسم مكرر',
+    'System Notification': 'إشعار من النظام',
+    'Mark all as read': 'تحديد الكل كمقروء'
   };
   function t(s) {
     var lang = (window.AppI18n && window.AppI18n.getLang ? window.AppI18n.getLang() : (localStorage.getItem(LANG_KEY) || document.documentElement.lang || currentLang || 'ar'));
@@ -359,7 +374,17 @@
     }
     root.querySelectorAll('[data-i18n]').forEach(function (el) {
       var k = el.getAttribute('data-i18n'), v = lookup(k);
-      if (v) el.textContent = v;
+      if (v) {
+        var labelEl = el.querySelector('.th-label-text');
+        if (labelEl) {
+          labelEl.textContent = v;
+        } else if (el.tagName === 'TH' && el.querySelector('.col-menu-btn')) {
+          var thText = el.querySelector('.th-label-text');
+          if (thText) thText.textContent = v;
+        } else {
+          el.textContent = v;
+        }
+      }
     });
     // Translate placeholder attributes
     root.querySelectorAll('[data-i18n-ph], [data-i18n-placeholder]').forEach(function (el) {
@@ -444,6 +469,7 @@
       return res.json();
     });
   }
+  window.request = request;
 
   function uploadToCloudinary(file, folder) {
     return new Promise(function(resolve, reject) {
@@ -488,7 +514,16 @@
     if (icon) { icon.className = 'fa fa-spinner fa-spin'; }
     
     uploadToCloudinary(file, 'school_management').then(function(url) {
-      if (urlInput) urlInput.value = url;
+      if (urlInput) {
+        urlInput.value = url;
+        try {
+          urlInput.dispatchEvent(new Event('input', { bubbles: true }));
+          urlInput.dispatchEvent(new Event('change', { bubbles: true }));
+        } catch (e) {}
+      }
+      if (typeof window.updateSchoolLogoPreviews === 'function') {
+        window.updateSchoolLogoPreviews();
+      }
       if (icon) { icon.className = 'fa fa-check text-success'; }
       setTimeout(function() { if(icon) icon.className = 'fa fa-upload'; }, 2000);
     }).catch(function(err) {
@@ -551,6 +586,182 @@
     el.textContent = text; el.style.display = 'block';
     el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
+
+  /* ── Universal Delete Confirmation Modal (immune to browser dialog silencing) ── */
+  function showDeleteConfirmModal(opts) {
+    var existing = document.getElementById('global-delete-modal');
+    if (existing && existing.parentNode) existing.parentNode.removeChild(existing);
+
+    var isAr = (window.AppI18n && typeof window.AppI18n.getLang === 'function' && window.AppI18n.getLang() === 'ar') || (typeof currentLang !== 'undefined' && currentLang === 'ar');
+    var title = opts.title || (isAr ? 'تأكيد الحذف' : 'Confirm Deletion');
+    var message = opts.message || (isAr ? 'هل أنت متأكد من رغبتك في حذف هذا العنصر نهائياً؟ لا يمكن التراجع عن هذا الإجراء.' : 'Are you sure you want to delete this item permanently? This action cannot be undone.');
+    var confirmText = opts.confirmText || (isAr ? 'نعم، احذف' : 'Yes, Delete');
+    var cancelText = opts.cancelText || (isAr ? 'إلغاء' : 'Cancel');
+
+    var styleEl = document.getElementById('gdm-styles');
+    if (!styleEl) {
+      styleEl = document.createElement('style');
+      styleEl.id = 'gdm-styles';
+      styleEl.textContent = '@keyframes gdmFadeIn{from{opacity:0;}to{opacity:1;}}@keyframes gdmScaleIn{from{transform:scale(0.93) translateY(8px);opacity:0;}to{transform:scale(1) translateY(0);opacity:1;}}';
+      document.head.appendChild(styleEl);
+    }
+
+    var modal = document.createElement('div');
+    modal.id = 'global-delete-modal';
+    modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(15,23,42,0.65);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);z-index:9999999;display:flex;align-items:center;justify-content:center;animation:gdmFadeIn 0.2s ease;padding:16px;box-sizing:border-box;';
+
+    modal.innerHTML = 
+      '<div style="background:#ffffff;border-radius:20px;max-width:420px;width:100%;box-shadow:0 25px 50px -12px rgba(0,0,0,0.35);overflow:hidden;animation:gdmScaleIn 0.22s cubic-bezier(0.16,1,0.3,1);text-align:center;padding:32px 26px 26px;font-family:inherit;direction:' + (isAr ? 'rtl' : 'ltr') + ';box-sizing:border-box;">' +
+        '<div style="width:64px;height:64px;border-radius:50%;background:#fee2e2;color:#dc2626;display:inline-flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:18px;box-shadow:0 8px 18px -4px rgba(220,38,38,0.25);">' +
+          '<i class="fa fa-trash"></i>' +
+        '</div>' +
+        '<h3 style="margin:0 0 10px;font-size:20px;font-weight:700;color:#0f172a;line-height:1.3;">' + esc(title) + '</h3>' +
+        '<p style="margin:0 0 26px;font-size:14.5px;color:#64748b;line-height:1.55;">' + esc(message) + '</p>' +
+        '<div style="display:flex;gap:12px;justify-content:center;">' +
+          '<button type="button" id="gdm-cancel-btn" style="flex:1;padding:11px 18px;border-radius:12px;border:1px solid #e2e8f0;background:#f8fafc;color:#475569;font-weight:600;font-size:14px;cursor:pointer;outline:none;transition:background 0.15s;">' + esc(cancelText) + '</button>' +
+          '<button type="button" id="gdm-confirm-btn" style="flex:1;padding:11px 18px;border-radius:12px;border:none;background:linear-gradient(135deg,#dc2626,#b91c1c);color:#ffffff;font-weight:600;font-size:14px;cursor:pointer;outline:none;box-shadow:0 4px 14px rgba(220,38,38,0.35);transition:opacity 0.15s;">' + esc(confirmText) + '</button>' +
+        '</div>' +
+      '</div>';
+
+    document.body.appendChild(modal);
+
+    function cleanup() {
+      if (modal && modal.parentNode) modal.parentNode.removeChild(modal);
+      document.removeEventListener('keydown', onKeyDown);
+    }
+
+    function onKeyDown(e) {
+      if (e.key === 'Escape') cleanup();
+    }
+    document.addEventListener('keydown', onKeyDown);
+
+    var cancelBtn = modal.querySelector('#gdm-cancel-btn');
+    if (cancelBtn) cancelBtn.onclick = cleanup;
+    modal.onclick = function(e) { if (e.target === modal) cleanup(); };
+
+    var confirmBtn = modal.querySelector('#gdm-confirm-btn');
+    if (confirmBtn) {
+      confirmBtn.onclick = function() {
+        confirmBtn.disabled = true;
+        confirmBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> ' + (isAr ? 'جاري الحذف...' : 'Deleting...');
+        cleanup();
+        if (typeof opts.onConfirm === 'function') opts.onConfirm();
+      };
+    }
+  }
+  window.showDeleteConfirmModal = showDeleteConfirmModal;
+
+  /* ── Universal Global Student Deletion ── */
+  window.deleteStudent = function (id, btnEl, ev) {
+    if (ev) {
+      if (typeof ev.preventDefault === 'function') ev.preventDefault();
+      if (typeof ev.stopPropagation === 'function') ev.stopPropagation();
+    }
+    if (!id) return;
+    var isAr = (window.AppI18n && typeof window.AppI18n.getLang === 'function' && window.AppI18n.getLang() === 'ar') || (typeof currentLang !== 'undefined' && currentLang === 'ar');
+    showDeleteConfirmModal({
+      title: isAr ? 'حذف الطالب' : 'Delete Student',
+      message: isAr ? 'هل أنت متأكد من رغبتك في حذف هذا الطالب نهائياً؟ لا يمكن التراجع عن هذا الإجراء.' : 'Are you sure you want to delete this student permanently? This action cannot be undone.',
+      confirmText: isAr ? 'نعم، احذف' : 'Yes, Delete',
+      cancelText: isAr ? 'إلغاء' : 'Cancel',
+      onConfirm: function () {
+        var btn = btnEl || (ev && ev.target && ev.target.closest('[data-del-student]')) || document.querySelector('[data-del-student="' + id + '"]');
+        var origHtml = btn ? btn.innerHTML : '';
+        if (btn) {
+          btn.disabled = true;
+          btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
+        }
+        var tr = btn ? btn.closest('tr') : null;
+        if (tr) tr.style.opacity = '0.35';
+
+        request('/api/student-registrations/' + encodeURIComponent(id), { method: 'DELETE' })
+          .then(function () {
+            showAlert('#backend-students-status', isAr ? 'تم حذف الطالب بنجاح' : 'Student deleted successfully', 'success');
+            if (tr && tr.parentNode) {
+              tr.style.transition = 'all 0.3s ease';
+              tr.style.transform = 'scale(0.95)';
+              tr.style.opacity = '0';
+              setTimeout(function () { if (tr && tr.parentNode) tr.parentNode.removeChild(tr); }, 300);
+            }
+            if (typeof loadStudents === 'function') loadStudents();
+          })
+          .catch(function (err) {
+            if (btn) {
+              btn.disabled = false;
+              btn.innerHTML = origHtml;
+            }
+            if (tr) tr.style.opacity = '1';
+            showAlert('#backend-students-status', err.message || 'Failed to delete student', 'danger');
+            alert(err.message || 'Failed to delete student');
+          });
+      }
+    });
+  };
+
+  /* ── Universal Global Teacher Deletion ── */
+  window.deleteTeacher = function (id, btnEl, ev) {
+    if (ev) {
+      if (typeof ev.preventDefault === 'function') ev.preventDefault();
+      if (typeof ev.stopPropagation === 'function') ev.stopPropagation();
+    }
+    if (!id) return;
+    var isAr = (window.AppI18n && typeof window.AppI18n.getLang === 'function' && window.AppI18n.getLang() === 'ar') || (typeof currentLang !== 'undefined' && currentLang === 'ar');
+    showDeleteConfirmModal({
+      title: isAr ? 'حذف الأستاذ' : 'Delete Teacher',
+      message: isAr ? 'هل أنت متأكد من رغبتك في حذف هذا الأستاذ نهائياً؟ لا يمكن التراجع عن هذا الإجراء.' : 'Are you sure you want to delete this teacher permanently? This action cannot be undone.',
+      confirmText: isAr ? 'نعم، احذف' : 'Yes, Delete',
+      cancelText: isAr ? 'إلغاء' : 'Cancel',
+      onConfirm: function () {
+        var btn = btnEl || (ev && ev.target && ev.target.closest('[data-del-teacher]')) || document.querySelector('[data-del-teacher="' + id + '"]');
+        var origHtml = btn ? btn.innerHTML : '';
+        if (btn) {
+          btn.disabled = true;
+          btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
+        }
+        var tr = btn ? btn.closest('tr') : null;
+        if (tr) tr.style.opacity = '0.35';
+
+        request('/api/teacher-registrations/' + encodeURIComponent(id), { method: 'DELETE' })
+          .then(function () {
+            showAlert('#backend-teachers-status', isAr ? 'تم حذف الأستاذ بنجاح' : 'Teacher deleted successfully', 'success');
+            if (tr && tr.parentNode) {
+              tr.style.transition = 'all 0.3s ease';
+              tr.style.transform = 'scale(0.95)';
+              tr.style.opacity = '0';
+              setTimeout(function () { if (tr && tr.parentNode) tr.parentNode.removeChild(tr); }, 300);
+            }
+            if (typeof loadTeachers === 'function') loadTeachers();
+          })
+          .catch(function (err) {
+            if (btn) {
+              btn.disabled = false;
+              btn.innerHTML = origHtml;
+            }
+            if (tr) tr.style.opacity = '1';
+            showAlert('#backend-teachers-status', err.message || 'Failed to delete teacher', 'danger');
+            alert(err.message || 'Failed to delete teacher');
+          });
+      }
+    });
+  };
+
+  /* ── Universal Delegated Capture-Phase Click Listener for Delete Buttons ── */
+  document.addEventListener('click', function (e) {
+    var studentBtn = e.target.closest('[data-del-student]');
+    if (studentBtn) {
+      e.preventDefault();
+      var sId = studentBtn.getAttribute('data-del-student');
+      window.deleteStudent(sId, studentBtn, e);
+      return;
+    }
+    var teacherBtn = e.target.closest('[data-del-teacher]');
+    if (teacherBtn) {
+      e.preventDefault();
+      var tId = teacherBtn.getAttribute('data-del-teacher');
+      window.deleteTeacher(tId, teacherBtn, e);
+      return;
+    }
+  }, true);
 
   // ── Language switcher ────────────────────────────────────────────────────────
   function initLanguageSwitcher() {
@@ -641,18 +852,30 @@
     var notifBtn = document.querySelector('#topbar-notif-menu .topbar-icon-btn');
     if (!notifBadge || !notifList) return;
 
-    request('/api/student-registrations/payment-alerts').then(function (res) {
-      var alerts = res.data || [];
-      var summary = res.summary || { total: 0, urgent: 0, warning: 0, has_red: false, has_yellow: false };
+    Promise.all([
+      request('/api/student-registrations/payment-alerts').catch(function () { return { data: [], summary: {} }; }),
+      request('/api/notifications').catch(function () { return { notifications: [] }; })
+    ]).then(function (results) {
+      var resAlerts = results[0] || {};
+      var resSys = results[1] || {};
 
-      if (summary.total > 0) {
+      var alerts = resAlerts.data || [];
+      var summary = resAlerts.summary || { total: 0, urgent: 0, warning: 0, has_red: false, has_yellow: false };
+      var sysNotifs = (resSys.notifications || []).filter(function (n) { return !n.is_read; });
+
+      var totalItems = (summary.total || 0) + sysNotifs.length;
+
+      if (totalItems > 0) {
         notifBadge.style.display = 'block';
         if (summary.has_red) {
           notifBadge.className = 'topbar-badge badge-red';
           notifBadge.title = (currentLang === 'ar' ? 'تنبيه عاجل: اشتراكات مستحقة اليوم أو غداً أو متأخرة' : 'Urgent: Payment due in ≤ 1 day or overdue');
-        } else {
+        } else if (summary.has_yellow) {
           notifBadge.className = 'topbar-badge badge-yellow';
           notifBadge.title = (currentLang === 'ar' ? 'تنبيه: اشتراكات مستحقة خلال أسبوع' : 'Warning: Payment due within 1 week');
+        } else {
+          notifBadge.className = 'topbar-badge badge-blue';
+          notifBadge.title = (currentLang === 'ar' ? 'إشعارات النظام' : 'System Notifications');
         }
 
         if (badgeUrgent && countUrgent) {
@@ -675,7 +898,25 @@
 
         if (notifBtn) notifBtn.style.pointerEvents = 'auto';
 
-        var html = alerts.slice(0, 8).map(function (s) {
+        // Render system notifications first
+        var sysHtml = sysNotifs.map(function (n) {
+          var dateStr = n.created_at ? new Date(n.created_at).toLocaleDateString() : '';
+          return '<div class="sys-notif-item" style="display: flex; align-items: flex-start; gap: 12px; padding: 12px 16px; border-bottom: 1px solid #f1f5f9; background: #f8fafc; transition: background .15s;" onmouseover="this.style.background=\'#edf2f7\'" onmouseout="this.style.background=\'#f8fafc\'">' +
+            '<div style="width: 36px; height: 36px; border-radius: 50%; background: #eff6ff; color: #3b82f6; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 15px; border: 1px solid #dbeafe;">' +
+              '<i class="fa fa-info-circle"></i>' +
+            '</div>' +
+            '<div style="flex: 1; min-width: 0;">' +
+              '<div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 3px;">' +
+                '<span style="font-weight: 700; font-size: 12px; color: #1e40af;">' + t('System Notification') + '</span>' +
+                '<button type="button" class="btn-mark-sys-read" data-id="' + n.id + '" title="' + (currentLang === 'ar' ? 'تحديد كمقروء' : 'Mark as read') + '" style="background: none; border: none; padding: 0 4px; font-size: 16px; line-height: 1; color: #94a3b8; cursor: pointer;" onmouseover="this.style.color=\'#0f172a\'" onmouseout="this.style.color=\'#94a3b8\'">&times;</button>' +
+              '</div>' +
+              '<div style="font-size: 12px; color: #334155; line-height: 1.4; word-break: break-word;">' + esc(n.message) + '</div>' +
+              (dateStr ? '<div style="font-size: 10px; color: #94a3b8; margin-top: 4px;"><i class="fa fa-clock-o" style="margin-right: 3px;"></i>' + dateStr + '</div>' : '') +
+            '</div>' +
+          '</div>';
+        }).join('');
+
+        var alertHtml = alerts.slice(0, 8).map(function (s) {
           var name = esc([s.first_name, s.last_name].filter(Boolean).join(' '));
           var img = avatarUrl(s.photo, name, 'student', s.gender);
           var isRed = s.urgency === 'overdue' || s.urgency === 'urgent';
@@ -724,7 +965,18 @@
           '</a>';
         }).join('');
 
-        notifList.innerHTML = html;
+        notifList.innerHTML = sysHtml + alertHtml;
+
+        notifList.querySelectorAll('.btn-mark-sys-read').forEach(function (btn) {
+          btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            var id = this.getAttribute('data-id');
+            request('/api/notifications/' + id + '/read', { method: 'PUT' }).then(function () {
+              loadNotifications();
+            }).catch(function (err) { console.error('Failed to mark notification read', err); });
+          });
+        });
       } else {
         notifBadge.style.display = 'none';
         if (badgeUrgent) badgeUrgent.style.display = 'none';
@@ -732,7 +984,7 @@
         if (notifBtn) notifBtn.style.pointerEvents = 'auto';
         notifList.innerHTML = '<div style="padding: 30px 20px; text-align: center; color: #94a3b8; font-size: 13px;">' +
           '<i class="fa fa-check-circle-o" style="font-size: 28px; color: #cbd5e1; display: block; margin-bottom: 8px;"></i>' +
-          '<span>' + (currentLang === 'ar' ? 'لا توجد اشتراكات مستحقة' : 'No upcoming payment alerts') + '</span>' +
+          '<span>' + (currentLang === 'ar' ? 'لا توجد إشعارات جديدة' : 'No new notifications') + '</span>' +
         '</div>';
       }
     }).catch(function (err) {
@@ -849,6 +1101,9 @@
       form.querySelector('[name="name"]').value = s.name || '';
       var logoEl = form.querySelector('[name="logo"]'); if (logoEl) logoEl.value = s.logo || '';
       var logo2El = form.querySelector('[name="logo2"]'); if (logo2El) logo2El.value = s.logo2 || '';
+      if (typeof window.updateSchoolLogoPreviews === 'function') {
+        window.updateSchoolLogoPreviews();
+      }
       var typeEl = form.querySelector('[name="type"]'); 
       var customTypeEl = form.querySelector('[name="custom_type"]');
       if (typeEl) {
@@ -1064,6 +1319,9 @@
         .then(function (res) {
           showAlert('#backend-setup-status', t('Settings saved successfully'), 'success');
           if (btn) btn.disabled = false;
+          if (typeof window.updateSchoolLogoPreviews === 'function') {
+            window.updateSchoolLogoPreviews();
+          }
           // Refresh auth context
           request('/api/auth/me').then(function (ctx) {
             window._ctx = ctx;
@@ -1283,7 +1541,7 @@
       return '<tr><td>' + chk + '</td><td>' + img + '</td><td>' + esc(r.registration_number) + '</td><td>' + name + '</td><td>' + formationBadge + '</td><td>' + groupBadge + '</td><td>' + statusBadge + '</td><td>' + esc(formatGmtPlusOneDate(r.enrollment_date)) + '</td><td>' + payStatus + '</td>' +
         '<td><a href="student-profile.html?id=' + r.id + '" class="btn btn-xs btn-success" title="' + t('View Details') + '"><i class="fa fa-eye"></i></a> ' +
         '<a href="edit-student.html?id=' + r.id + '" class="btn btn-xs btn-info" title="' + t('Edit') + '"><i class="fa fa-pencil"></i></a> ' +
-        '<button class="btn btn-xs btn-danger" data-del-student="' + r.id + '" title="' + t('Delete') + '"><i class="fa fa-trash"></i></button></td></tr>';
+        '<button type="button" class="btn btn-xs btn-danger" onclick="window.deleteStudent(' + r.id + ', this, event)" data-del-student="' + r.id + '" title="' + t('Delete') + '"><i class="fa fa-trash"></i></button></td></tr>';
     }).join('');
     if (window.AppI18n && window.AppI18n.translateAll) {
       window.AppI18n.translateAll(tbody);
@@ -1292,12 +1550,15 @@
     }
     if (!_studentTableDeleteBound) {
       _studentTableDeleteBound = true;
-      document.querySelector('#backend-students-table').addEventListener('click', function (e) {
-        var btn = e.target.closest('[data-del-student]'); if (!btn) return;
-        if (!confirm('Delete this student?')) return;
-        request('/api/student-registrations/' + btn.getAttribute('data-del-student'), { method: 'DELETE' })
-          .then(loadStudents).catch(function (err) { showAlert('#backend-students-status', err.message); });
-      });
+      var stTable = document.querySelector('#backend-students-table');
+      if (stTable) {
+        stTable.addEventListener('click', function (e) {
+          var btn = e.target.closest('[data-del-student]');
+          if (!btn) return;
+          var stId = btn.getAttribute('data-del-student');
+          window.deleteStudent(stId, btn, e);
+        });
+      }
     }
 
     var selectAll = document.querySelector('#backend-students-table .select-all');
@@ -1354,24 +1615,28 @@
     var today = formatGmtPlusOneDate(new Date());
     tbody.innerHTML = rows.map(function (r) {
       var name = esc([r.first_name, r.last_name].filter(Boolean).join(' '));
+      var avSrc = avatarUrl(r.photo, name, 'student', r.gender);
+      var defSrc = avatarUrl('', name, 'student', r.gender);
+      var img = '<img src="' + esc(avSrc) + '" style="width:32px;height:32px;border-radius:50%;object-fit:cover;margin-inline-end:10px;vertical-align:middle;box-shadow:0 1px 4px rgba(0,0,0,0.1);border:1.5px solid #e2e8f0;" onerror="this.src=\'' + esc(defSrc) + '\'">';
       var nextPaymentDate = formatGmtPlusOneDate(r.next_payment_date);
       var enrollmentDate = formatGmtPlusOneDate(r.enrollment_date);
       var overdue = nextPaymentDate !== '-' && nextPaymentDate < today && r.payment_status !== 'paid';
       var trClass = overdue ? ' class="table-danger"' : '';
       return '<tr' + trClass + '>' +
-        '<td>' + esc(r.registration_number) + '</td>' +
-        '<td>' + name + '</td>' +
-        '<td>' + esc(r.formation_title || '-') + '</td>' +
-        '<td>' + esc(r.group_names || '-') + '</td>' +
-        '<td>' + esc(r.classroom_names || '-') + '</td>' +
-        '<td>' + formatPaymentStatus(r.payment_status) + '</td>' +
-        '<td>' + esc(formatSubscriptionPlan(r.subscription_plan)) + '</td>' +
-        '<td>' + esc(nextPaymentDate) + '</td>' +
-        '<td>' + esc(enrollmentDate) + '</td>' +
-        '<td style="white-space: nowrap;">' +
+        '<td style="font-weight:600;color:#0f172a;vertical-align:middle;"><div style="display:flex;align-items:center;">' + img + '<span>' + name + '</span></div></td>' +
+        '<td class="text-center" style="font-weight:600;color:#64748b;vertical-align:middle;">' + esc(r.registration_number) + '</td>' +
+        '<td style="vertical-align:middle;">' + esc(r.formation_title || '-') + '</td>' +
+        '<td style="vertical-align:middle;">' + esc(r.group_names || '-') + '</td>' +
+        '<td style="vertical-align:middle;">' + esc(r.classroom_names || '-') + '</td>' +
+        '<td style="vertical-align:middle;">' + formatPaymentStatus(r.payment_status) + '</td>' +
+        '<td style="vertical-align:middle;">' + esc(formatSubscriptionPlan(r.subscription_plan)) + '</td>' +
+        '<td style="vertical-align:middle;">' + esc(nextPaymentDate) + '</td>' +
+        '<td style="vertical-align:middle;">' + esc(enrollmentDate) + '</td>' +
+        '<td class="text-center" style="white-space: nowrap; vertical-align:middle;">' +
+        '<div style="display:inline-flex;align-items:center;justify-content:center;gap:4px;">' +
           '<a href="student-profile.html?id=' + r.id + '" class="btn btn-xs btn-success" title="View"><i class="fa fa-eye"></i></a> ' +
           '<button class="btn btn-xs btn-primary btn-enter-payment" data-student-id="' + r.id + '" title="Enter Payment"><i class="fa fa-plus"></i></button>' +
-          '</td>' +
+        '</div></td>' +
         '</tr>';
     }).join('');
 
@@ -1536,11 +1801,173 @@
     });
   }
 
+  // ── Duplicate Name Warning & Modal Helpers ─────────────────────────────────
+  function showDuplicateConfirmModal(options) {
+    var role = options.role === 'teacher' ? 'teacher' : 'student';
+    var existingModal = document.getElementById('duplicate-confirm-modal-overlay');
+    if (existingModal) existingModal.remove();
+
+    var overlay = document.createElement('div');
+    overlay.id = 'duplicate-confirm-modal-overlay';
+    overlay.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(4px); z-index: 99999; display: flex; align-items: center; justify-content: center; padding: 20px;';
+
+    var entityText = role === 'teacher' ? t('A teacher with this name already exists in the database.') : t('A student with this name already exists in the database.');
+    var nameEsc = esc(options.name || '');
+
+    var matchesHtml = '';
+    if (options.matches && options.matches.length > 0) {
+      matchesHtml = '<div style="margin-top: 12px; max-height: 120px; overflow-y: auto; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; font-size: 12px; color: #475569;">' +
+        options.matches.map(function (m) {
+          var details = [m.email, m.phone].filter(Boolean).join(' \u2022 ');
+          return '<div style="padding: 4px 0; border-bottom: 1px dashed #e2e8f0;"><strong>' + esc(m.first_name + ' ' + m.last_name) + '</strong>' + (details ? ' <span style="color:#64748b;">(' + esc(details) + ')</span>' : '') + '</div>';
+        }).join('') +
+      '</div>';
+    }
+
+    var card = document.createElement('div');
+    card.style.cssText = 'background: #fff; width: 100%; max-width: 480px; border-radius: 16px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25); overflow: hidden;';
+    card.innerHTML =
+      '<div style="padding: 24px 24px 16px 24px; display: flex; align-items: flex-start; gap: 16px;">' +
+        '<div style="width: 46px; height: 46px; border-radius: 50%; background: #fef3c7; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: #d97706; font-size: 22px;">' +
+          '<i class="fa fa-exclamation-triangle"></i>' +
+        '</div>' +
+        '<div style="flex: 1;">' +
+          '<h3 style="margin: 0 0 8px 0; font-size: 17px; font-weight: 700; color: #0f172a;">' + t('Potential Duplicate Detected') + '</h3>' +
+          '<p style="margin: 0; font-size: 13.5px; line-height: 1.5; color: #334155;">' +
+            entityText + '<br>' +
+            '<strong>"' + nameEsc + '"</strong> (' + (options.count || 1) + ' ' + t('existing record(s) found') + ').<br>' +
+            '<span style="display:inline-block; margin-top: 6px; font-weight: 600; color: #0f172a;">' + t('Do you still want to proceed?') + '</span>' +
+          '</p>' +
+          matchesHtml +
+        '</div>' +
+      '</div>' +
+      '<div style="padding: 14px 24px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 10px;">' +
+        '<button type="button" id="dup-modal-cancel-btn" class="btn btn-default" style="padding: 8px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;">' + t('Cancel & Review') + '</button>' +
+        '<button type="button" id="dup-modal-confirm-btn" class="btn btn-warning" style="padding: 8px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; background: #f59e0b; border-color: #d97706; color: #fff; cursor: pointer;">' + t('Yes, Create Anyway') + '</button>' +
+      '</div>';
+
+    overlay.appendChild(card);
+    document.body.appendChild(overlay);
+
+    function cleanup() {
+      if (overlay && overlay.parentNode) {
+        overlay.parentNode.removeChild(overlay);
+      }
+    }
+
+    card.querySelector('#dup-modal-cancel-btn').addEventListener('click', function () {
+      cleanup();
+      if (options.onCancel) options.onCancel();
+    });
+
+    card.querySelector('#dup-modal-confirm-btn').addEventListener('click', function () {
+      cleanup();
+      if (options.onConfirm) options.onConfirm();
+    });
+  }
+
+  function setupDuplicateNameCheck(form, role, checkUrl) {
+    var firstNameInput = form.querySelector('[name="first_name"]');
+    var lastNameInput = form.querySelector('[name="last_name"]');
+    if (!firstNameInput || !lastNameInput) return null;
+
+    var nameRow = firstNameInput.closest('.row');
+    var warningDiv = document.createElement('div');
+    warningDiv.className = 'duplicate-name-warning';
+    warningDiv.style.display = 'none';
+    warningDiv.style.width = '100%';
+    warningDiv.style.padding = '0 15px';
+    warningDiv.innerHTML =
+      '<div class="alert alert-warning" style="display: flex; align-items: center; gap: 10px; margin-top: 6px; margin-bottom: 14px; border-left: 4px solid #f59e0b; background: #fffbeb; color: #92400e; padding: 10px 14px; border-radius: 8px; font-size: 13px;">' +
+        '<i class="fa fa-exclamation-triangle" style="font-size: 16px; color: #f59e0b; flex-shrink: 0;"></i>' +
+        '<div class="dup-msg-text" style="flex: 1;"></div>' +
+      '</div>';
+
+    if (nameRow && nameRow.parentNode) {
+      nameRow.parentNode.insertBefore(warningDiv, nameRow.nextSibling);
+    }
+
+    var state = {
+      hasDuplicate: false,
+      confirmed: false,
+      lastCheckedName: '',
+      matches: [],
+      count: 0
+    };
+
+    var debounceTimer = null;
+    function check() {
+      var first = (firstNameInput.value || '').trim();
+      var last = (lastNameInput.value || '').trim();
+
+      if (first.length < 2 || last.length < 2) {
+        warningDiv.style.display = 'none';
+        state.hasDuplicate = false;
+        state.confirmed = false;
+        state.lastCheckedName = '';
+        state.matches = [];
+        state.count = 0;
+        return Promise.resolve(false);
+      }
+
+      var fullName = (first + ' ' + last).toLowerCase();
+      if (fullName === state.lastCheckedName) {
+        return Promise.resolve(state.hasDuplicate);
+      }
+
+      return request(checkUrl + '?first_name=' + encodeURIComponent(first) + '&last_name=' + encodeURIComponent(last))
+        .then(function (res) {
+          state.lastCheckedName = fullName;
+          if (res && res.exists) {
+            state.hasDuplicate = true;
+            state.matches = res.matches || [];
+            state.count = res.count || 1;
+            var entityDesc = role === 'teacher'
+              ? t('A teacher with this name already exists in the database.')
+              : t('A student with this name already exists in the database.');
+            var msgText = '<strong>' + t('Potential Duplicate Detected') + ':</strong> ' +
+              entityDesc + ' (' + state.count + ' ' + t('existing record(s) found') + ')';
+            warningDiv.querySelector('.dup-msg-text').innerHTML = msgText;
+            warningDiv.style.display = 'block';
+            return true;
+          } else {
+            state.hasDuplicate = false;
+            state.matches = [];
+            state.count = 0;
+            state.confirmed = false;
+            warningDiv.style.display = 'none';
+            return false;
+          }
+        })
+        .catch(function (err) {
+          console.warn('Duplicate check failed', err);
+          return false;
+        });
+    }
+
+    state.check = check;
+
+    function onInput() {
+      state.confirmed = false;
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(check, 350);
+    }
+
+    firstNameInput.addEventListener('input', onInput);
+    lastNameInput.addEventListener('input', onInput);
+    firstNameInput.addEventListener('blur', check);
+    lastNameInput.addEventListener('blur', check);
+
+    return state;
+  }
+
   function bindAddStudentForm() {
     var form = document.querySelector('#backend-add-student-form'); if (!form) return;
     populateFormationSelect(form.querySelector('#student-formation-id'));
     setupSubscriptionPlanToggle(form);
     setupPromoCodeSelect(form);
+
+    var dupState = setupDuplicateNameCheck(form, 'student', '/api/student-registrations/check-duplicate-name');
 
     // Populate groups when formation changes
     var formationSel = form.querySelector('#student-formation-id');
@@ -1552,98 +1979,217 @@
     }
 
     form.addEventListener('submit', function (e) {
-      e.preventDefault(); var fd = new FormData(form);
-      var btn = form.querySelector('[type=submit]'); if (btn) btn.disabled = true;
-      var selectedGroupId = fd.get('group_id') || null;
-      request('/api/student-registrations', {
-        method: 'POST', body: JSON.stringify({
-          first_name: fd.get('first_name'), last_name: fd.get('last_name'), email: fd.get('email'), password: fd.get('password'),
-          gender: fd.get('gender') || null, birth_date: fd.get('birth_date') || null, photo: fd.get('photo') || null,
-          blood_type: fd.get('blood_type') || null,
-          formation_id: fd.get('formation_id'),
-          group_id: selectedGroupId ? parseInt(selectedGroupId, 10) : null,
-          registration_number: Math.floor(1000000000 + Math.random() * 9000000000).toString(),
-          parent_name: fd.get('parent_name') || null,
-          parent_phone: fd.get('parent_phone') || null,
-          phone1_has_whatsapp: fd.get('phone1_has_whatsapp') === '1' ? 1 : 0,
-          phone1_has_viber: fd.get('phone1_has_viber') === '1' ? 1 : 0,
-          phone1_has_telegram: fd.get('phone1_has_telegram') === '1' ? 1 : 0,
-          parent_phone2: fd.get('parent_phone2') || null,
-          phone2_has_whatsapp: fd.get('phone2_has_whatsapp') === '1' ? 1 : 0,
-          phone2_has_viber: fd.get('phone2_has_viber') === '1' ? 1 : 0,
-          phone2_has_telegram: fd.get('phone2_has_telegram') === '1' ? 1 : 0,
-          guardian_name: fd.get('guardian_name') || null,
-          guardian_relationship: fd.get('guardian_relationship') || null,
-          guardian_id_number: fd.get('guardian_id_number') || null,
-          parent_id_number: fd.get('parent_id_number') || null,
-          health_notes: fd.get('health_notes') || null,
-          parents_status: fd.get('parents_status') || null,
-          enrollment_date: fd.get('enrollment_date') || null,
-          payment_status: fd.get('payment_status') || 'not_paid',
-          subscription_plan: fd.get('subscription_plan') || null,
-          promo_code: fd.get('promo_code') || null,
-        })
-      }).then(function (resp) {
-        var newStudentId = resp.data && resp.data.id;
-        // If a group was selected, assign the student to it
-        if (selectedGroupId && newStudentId) {
-          return request('/api/student-groups', {
-            method: 'POST',
-            body: JSON.stringify({ student_id: newStudentId, group_id: parseInt(selectedGroupId) })
-          }).then(function () {
-            showAlert('#backend-form-status', t('Student created successfully'), 'success');
-          }).catch(function () {
-            // Group assignment failed but student was created — still show success
-            showAlert('#backend-form-status', t('Student created successfully') + ' (' + t('Group assignment failed') + ')', 'success');
+      e.preventDefault();
+
+      var first = (form.querySelector('[name="first_name"]').value || '').trim();
+      var last = (form.querySelector('[name="last_name"]').value || '').trim();
+
+      (dupState ? dupState.check() : Promise.resolve(false)).then(function (hasDup) {
+        if (hasDup && dupState && !dupState.confirmed) {
+          showDuplicateConfirmModal({
+            role: 'student',
+            name: first + ' ' + last,
+            count: dupState.count,
+            matches: dupState.matches,
+            onCancel: function () {
+              // Stay on form to review
+            },
+            onConfirm: function () {
+              dupState.confirmed = true;
+              form.dispatchEvent(new Event('submit', { cancelable: true }));
+            }
           });
-        } else {
-          showAlert('#backend-form-status', t('Student created successfully'), 'success');
+          return;
         }
-      }).then(function () {
-        form.reset();
-        if (groupSel) groupSel.innerHTML = '<option value="">\u2014 Select a Formation first \u2014</option>';
-        if (btn) btn.disabled = false;
-      }).catch(function (err) { showAlert('#backend-form-status', err.message); if (btn) btn.disabled = false; });
+
+        var fd = new FormData(form);
+        var btn = form.querySelector('[type=submit]'); if (btn) btn.disabled = true;
+        var selectedGroupId = fd.get('group_id') || null;
+
+        request('/api/student-registrations', {
+          method: 'POST', body: JSON.stringify({
+            first_name: fd.get('first_name'), last_name: fd.get('last_name'), email: fd.get('email'), password: fd.get('password'),
+            gender: fd.get('gender') || null, birth_date: fd.get('birth_date') || null, photo: fd.get('photo') || null,
+            blood_type: fd.get('blood_type') || null,
+            formation_id: fd.get('formation_id'),
+            group_id: selectedGroupId ? parseInt(selectedGroupId, 10) : null,
+            registration_number: Math.floor(1000000000 + Math.random() * 9000000000).toString(),
+            parent_name: fd.get('parent_name') || null,
+            parent_phone: fd.get('parent_phone') || null,
+            phone1_has_whatsapp: fd.get('phone1_has_whatsapp') === '1' ? 1 : 0,
+            phone1_has_viber: fd.get('phone1_has_viber') === '1' ? 1 : 0,
+            phone1_has_telegram: fd.get('phone1_has_telegram') === '1' ? 1 : 0,
+            parent_phone2: fd.get('parent_phone2') || null,
+            phone2_has_whatsapp: fd.get('phone2_has_whatsapp') === '1' ? 1 : 0,
+            phone2_has_viber: fd.get('phone2_has_viber') === '1' ? 1 : 0,
+            phone2_has_telegram: fd.get('phone2_has_telegram') === '1' ? 1 : 0,
+            guardian_name: fd.get('guardian_name') || null,
+            guardian_relationship: fd.get('guardian_relationship') || null,
+            guardian_id_number: fd.get('guardian_id_number') || null,
+            parent_id_number: fd.get('parent_id_number') || null,
+            health_notes: fd.get('health_notes') || null,
+            parents_status: fd.get('parents_status') || null,
+            enrollment_date: fd.get('enrollment_date') || null,
+            payment_status: fd.get('payment_status') || 'not_paid',
+            subscription_plan: fd.get('subscription_plan') || null,
+            promo_code: fd.get('promo_code') || null,
+          })
+        }).then(function (resp) {
+          var isDuplicate = resp && resp.duplicate_detected;
+          var successMsg = isDuplicate
+            ? t('Student created successfully (duplicate name exists)')
+            : t('Student created successfully');
+
+          var newStudentId = resp.data && resp.data.id;
+          // If a group was selected, assign the student to it
+          if (selectedGroupId && newStudentId) {
+            return request('/api/student-groups', {
+              method: 'POST',
+              body: JSON.stringify({ student_id: newStudentId, group_id: parseInt(selectedGroupId) })
+            }).then(function () {
+              showAlert('#backend-form-status', successMsg, isDuplicate ? 'warning' : 'success');
+            }).catch(function () {
+              // Group assignment failed but student was created — still show message
+              showAlert('#backend-form-status', successMsg + ' (' + t('Group assignment failed') + ')', 'warning');
+            });
+          } else {
+            showAlert('#backend-form-status', successMsg, isDuplicate ? 'warning' : 'success');
+          }
+        }).then(function () {
+          form.reset();
+          if (dupState) {
+            dupState.hasDuplicate = false;
+            dupState.confirmed = false;
+            dupState.lastCheckedName = '';
+          }
+          var warnEl = form.parentNode ? form.parentNode.querySelector('.duplicate-name-warning') : null;
+          if (warnEl) warnEl.style.display = 'none';
+          if (groupSel) groupSel.innerHTML = '<option value="">\u2014 Select a Formation first \u2014</option>';
+          if (btn) btn.disabled = false;
+          loadNotifications();
+        }).catch(function (err) { showAlert('#backend-form-status', err.message); if (btn) btn.disabled = false; });
+      });
     });
   }
   function bindEditStudentForm() {
     var form = document.querySelector('#backend-edit-student-form'); if (!form) return;
     var id = urlParam('id'); if (!id) { showAlert('#backend-form-status', 'No student ID in URL'); return; }
     var sel = form.querySelector('#student-formation-id');
+    var groupSel = form.querySelector('#student-group-id');
     populateFormationSelect(sel);
     setupSubscriptionPlanToggle(form);
     setupPromoCodeSelect(form);
+
+    if (sel && groupSel) {
+      sel.addEventListener('change', function () {
+        populateGroupSelect(groupSel, this.value);
+      });
+    }
+
     request('/api/student-registrations/' + id).then(function (p) {
       var s = p.data;
-      ['first_name', 'last_name', 'email', 'gender', 'birth_date', 'photo', 'blood_type', 'formation_id', 'registration_number', 'parent_name', 'parent_phone', 'parent_phone2', 'guardian_name', 'guardian_relationship', 'guardian_id_number', 'parent_id_number', 'health_notes', 'parents_status', 'enrollment_date', 'payment_status', 'subscription_plan'].forEach(function (f) {
-        var el = form.querySelector('[name="' + f + '"]'); if (el && s[f] != null) el.value = s[f];
+      var fields = [
+        'first_name', 'last_name', 'email', 'phone', 'gender', 'birth_date', 'photo', 'blood_type',
+        'formation_id', 'registration_number', 'parent_name', 'parent_phone', 'parent_phone2',
+        'guardian_name', 'guardian_relationship', 'guardian_id_number', 'parent_id_number',
+        'health_notes', 'parents_status', 'enrollment_date', 'payment_status', 'subscription_plan',
+        'promo_code', 'discount_percent', 'next_payment_date', 'rfid_tag'
+      ];
+      fields.forEach(function (f) {
+        var el = form.querySelector('[name="' + f + '"]');
+        if (el && s[f] != null) {
+          if (el.type === 'date' && typeof s[f] === 'string') {
+            el.value = s[f].slice(0, 10);
+          } else {
+            el.value = s[f];
+          }
+        }
       });
-      // checkboxes
+
+      // App badges / checkboxes for Phone 1 and Phone 2
       ['phone1_has_whatsapp','phone1_has_viber','phone1_has_telegram','phone2_has_whatsapp','phone2_has_viber','phone2_has_telegram'].forEach(function(f) {
-        var el = form.querySelector('[name="' + f + '"]'); if (el) el.value = s[f] ? '1' : '0';
-        var chk = form.querySelector('[data-app-check="' + f + '"]'); if (chk) chk.classList.toggle('active', !!s[f]);
+        var el = form.querySelector('[name="' + f + '"]');
+        if (el) el.value = s[f] ? '1' : '0';
+        var appName = f.indexOf('whatsapp') !== -1 ? 'wa' : (f.indexOf('viber') !== -1 ? 'vb' : 'tg');
+        var btn = form.querySelector('.app-check-btn[data-target="' + f + '"]');
+        if (btn) {
+          if (s[f]) { btn.classList.add('active-' + appName); }
+          else { btn.classList.remove('active-' + appName); }
+        }
       });
+
+      // Show phone app panels if phone numbers are present
+      if (s.parent_phone && document.getElementById('phone1-apps')) {
+        document.getElementById('phone1-apps').style.display = 'flex';
+      }
+      if (s.parent_phone2 && document.getElementById('phone2-apps')) {
+        document.getElementById('phone2-apps').style.display = 'flex';
+      }
+
+      // Health status radio
+      if (typeof window.selectHealth === 'function') {
+        if (s.health_notes && s.health_notes.trim()) {
+          window.selectHealth('yes');
+          var notesEl = form.querySelector('[name="health_notes"]');
+          if (notesEl) notesEl.value = s.health_notes;
+        } else {
+          window.selectHealth('no');
+        }
+      }
+
       var statusEl = form.querySelector('[name="is_active"]');
       if (statusEl) statusEl.value = s.is_active ? '1' : '0';
+
+      var preview = document.getElementById('student-photo-preview');
+      if (preview) preview.src = avatarUrl(s.photo, [s.first_name, s.last_name].join(' '), 'student', s.gender);
+
+      var photoInput = form.querySelector('[name="photo"]');
+      if (photoInput && preview) {
+        photoInput.addEventListener('input', function() {
+          if (this.value.trim()) preview.src = this.value.trim();
+        });
+      }
+
       if (s.formation_id && sel) setTimeout(function () {
         sel.value = s.formation_id;
         sel.dispatchEvent(new Event('change'));
-        // Re-apply subscription plan value after toggle
+        if (groupSel) {
+          populateGroupSelect(groupSel, s.formation_id);
+          setTimeout(function() {
+            if (s.group_ids) {
+              var firstGroupId = String(s.group_ids).split(',')[0].trim();
+              groupSel.value = firstGroupId;
+            }
+          }, 350);
+        }
+        // Re-apply subscription plan, promo code, next_payment_date after toggle
         setTimeout(function () {
           var planEl = form.querySelector('[name="subscription_plan"]');
           if (planEl && s.subscription_plan) planEl.value = s.subscription_plan;
           var promoEl = form.querySelector('#student-promo-code');
           if (promoEl && s.promo_code) promoEl.value = s.promo_code;
-        }, 100);
+          var nextDateEl = form.querySelector('[name="next_payment_date"]');
+          if (nextDateEl && s.next_payment_date) nextDateEl.value = String(s.next_payment_date).slice(0, 10);
+          var discountEl = form.querySelector('[name="discount_percent"]');
+          if (discountEl && s.discount_percent != null) discountEl.value = s.discount_percent;
+        }, 150);
       }, 600);
-      var preview = document.getElementById('student-photo-preview');
-      if (preview) preview.src = avatarUrl(s.photo, [s.first_name, s.last_name].join(' '), 'student', s.gender);
     }).catch(function (err) { showAlert('#backend-form-status', err.message); });
+
     form.addEventListener('submit', function (e) {
       e.preventDefault(); var fd = new FormData(form); var payload = {};
-      ['first_name', 'last_name', 'email', 'gender', 'birth_date', 'photo', 'blood_type', 'formation_id', 'registration_number', 'parent_name', 'parent_phone', 'parent_phone2', 'guardian_name', 'guardian_relationship', 'guardian_id_number', 'parent_id_number', 'health_notes', 'parents_status', 'enrollment_date', 'payment_status', 'subscription_plan', 'promo_code'].forEach(function (f) {
+      var fields = [
+        'first_name', 'last_name', 'email', 'phone', 'gender', 'birth_date', 'photo', 'blood_type',
+        'formation_id', 'registration_number', 'parent_name', 'parent_phone', 'parent_phone2',
+        'guardian_name', 'guardian_relationship', 'guardian_id_number', 'parent_id_number',
+        'health_notes', 'parents_status', 'enrollment_date', 'payment_status', 'subscription_plan',
+        'promo_code', 'discount_percent', 'next_payment_date', 'rfid_tag'
+      ];
+      fields.forEach(function (f) {
         var v = fd.get(f); if (v !== null) payload[f] = v || null;
       });
+      var grp = fd.get('group_id');
+      if (grp !== null) payload.group_id = grp ? parseInt(grp, 10) : null;
       // boolean app checkboxes
       ['phone1_has_whatsapp','phone1_has_viber','phone1_has_telegram','phone2_has_whatsapp','phone2_has_viber','phone2_has_telegram'].forEach(function(f) {
         var v = fd.get(f); if (v !== null) payload[f] = v === '1' ? 1 : 0;
@@ -1710,7 +2256,7 @@
     var q = ((document.getElementById('teacher-search') || {}).value || '').trim().toLowerCase();
 
     var filtered = q ? _allTeacherRows.filter(function (r) {
-      var haystack = [r.first_name, r.last_name, r.email, r.employee_number, r.speciality, r.specialization]
+      var haystack = [r.first_name, r.last_name, r.email, r.phone, r.employee_number, r.speciality, r.specialization]
         .filter(Boolean).join(' ').toLowerCase();
       return haystack.indexOf(q) !== -1;
     }) : _allTeacherRows;
@@ -1730,7 +2276,7 @@
 
   function renderTeacherRows(rows) {
     var tbody = document.querySelector('#backend-teachers-table tbody'); if (!tbody) return;
-    if (!rows.length) { tbody.innerHTML = '<tr><td colspan="9" class="text-center">' + t('No records found') + '</td></tr>'; return; }
+    if (!rows.length) { tbody.innerHTML = '<tr><td colspan="10" class="text-center">' + t('No records found') + '</td></tr>'; return; }
     tbody.innerHTML = rows.map(function (r) {
       var name = esc([r.first_name, r.last_name].filter(Boolean).join(' '));
       var img = '<img src="' + esc(avatarUrl(r.photo, [r.first_name, r.last_name].join(' '), 'teacher', r.gender)) + '" style="width:36px;height:36px;border-radius:50%;object-fit:cover">';
@@ -1738,10 +2284,11 @@
       var statusBadge = r.is_active
         ? '<span class="label label-success" data-i18n="Active">' + t('Active') + '</span>'
         : '<span class="label label-danger" data-i18n="Inactive">' + t('Inactive') + '</span>';
-      return '<tr><td>' + chk + '</td><td>' + img + '</td><td>' + esc(r.employee_number) + '</td><td>' + name + '</td><td>' + esc(r.email) + '</td><td>' + statusBadge + '</td><td>' + esc(r.speciality || '-') + '</td><td>' + esc(fmtDate(r.hire_date)) + '</td>' +
+      var phone = esc(r.phone || '-');
+      return '<tr><td>' + chk + '</td><td>' + img + '</td><td>' + esc(r.employee_number) + '</td><td>' + name + '</td><td>' + phone + '</td><td>' + esc(r.email) + '</td><td>' + statusBadge + '</td><td>' + esc(r.speciality || '-') + '</td><td>' + esc(fmtDate(r.hire_date)) + '</td>' +
         '<td><a href="professor-profile.html?id=' + r.id + '" class="btn btn-xs btn-success" title="' + t('View Details') + '"><i class="fa fa-eye"></i></a> ' +
         '<a href="edit-professor.html?id=' + r.id + '" class="btn btn-xs btn-info" title="' + t('Edit') + '"><i class="fa fa-pencil"></i></a> ' +
-        '<button class="btn btn-xs btn-danger" data-del-teacher="' + r.id + '" title="' + t('Delete') + '"><i class="fa fa-trash"></i></button></td></tr>';
+        '<button type="button" class="btn btn-xs btn-danger" onclick="window.deleteTeacher(' + r.id + ', this, event)" data-del-teacher="' + r.id + '" title="' + t('Delete') + '"><i class="fa fa-trash"></i></button></td></tr>';
     }).join('');
     if (window.AppI18n && window.AppI18n.translateAll) {
       window.AppI18n.translateAll(tbody);
@@ -1753,10 +2300,10 @@
     if (tbl && !tbl._delBound) {
       tbl._delBound = true;
       tbl.addEventListener('click', function (e) {
-        var btn = e.target.closest('[data-del-teacher]'); if (!btn) return;
-        if (!confirm('Delete this teacher?')) return;
-        request('/api/teacher-registrations/' + btn.getAttribute('data-del-teacher'), { method: 'DELETE' })
-          .then(loadTeachers).catch(function (err) { showAlert('#backend-teachers-status', err.message); });
+        var btn = e.target.closest('[data-del-teacher]');
+        if (!btn) return;
+        var tId = btn.getAttribute('data-del-teacher');
+        window.deleteTeacher(tId, btn, e);
       });
     }
   }
@@ -1942,21 +2489,64 @@
 
   function bindAddTeacherForm() {
     var form = document.querySelector('#backend-add-teacher-form'); if (!form) return;
+    var dupState = setupDuplicateNameCheck(form, 'teacher', '/api/teacher-registrations/check-duplicate-name');
+
     form.addEventListener('submit', function (e) {
-      e.preventDefault(); var fd = new FormData(form);
-      var btn = form.querySelector('[type=submit]'); if (btn) btn.disabled = true;
-      request('/api/teacher-registrations', {
-        method: 'POST', body: JSON.stringify({
-          first_name: fd.get('first_name'), last_name: fd.get('last_name'), email: fd.get('email'), password: fd.get('password'),
-          gender: fd.get('gender') || null, birth_date: fd.get('birth_date') || null, photo: fd.get('photo') || null,
-          blood_type: fd.get('blood_type') || null,
-          employee_number: Math.floor(1000000000 + Math.random() * 9000000000).toString(), speciality: fd.get('speciality') || null,
-          diploma: fd.get('diploma') || null, hire_date: fd.get('hire_date') || null,
-          national_id: fd.get('national_id') || null,
-          social_security_number: fd.get('social_security_number') || null,
-        })
-      }).then(function () { showAlert('#backend-form-status', t('Teacher created successfully'), 'success'); form.reset(); if (btn) btn.disabled = false; })
-        .catch(function (err) { showAlert('#backend-form-status', err.message); if (btn) btn.disabled = false; });
+      e.preventDefault();
+
+      var first = (form.querySelector('[name="first_name"]').value || '').trim();
+      var last = (form.querySelector('[name="last_name"]').value || '').trim();
+
+      (dupState ? dupState.check() : Promise.resolve(false)).then(function (hasDup) {
+        if (hasDup && dupState && !dupState.confirmed) {
+          showDuplicateConfirmModal({
+            role: 'teacher',
+            name: first + ' ' + last,
+            count: dupState.count,
+            matches: dupState.matches,
+            onCancel: function () {
+              // Stay on form to review
+            },
+            onConfirm: function () {
+              dupState.confirmed = true;
+              form.dispatchEvent(new Event('submit', { cancelable: true }));
+            }
+          });
+          return;
+        }
+
+        var fd = new FormData(form);
+        var btn = form.querySelector('[type=submit]'); if (btn) btn.disabled = true;
+
+        request('/api/teacher-registrations', {
+          method: 'POST', body: JSON.stringify({
+            first_name: fd.get('first_name'), last_name: fd.get('last_name'), email: fd.get('email'), password: fd.get('password'),
+            phone: fd.get('phone') || null,
+            gender: fd.get('gender') || null, birth_date: fd.get('birth_date') || null, photo: fd.get('photo') || null,
+            blood_type: fd.get('blood_type') || null,
+            employee_number: Math.floor(1000000000 + Math.random() * 9000000000).toString(), speciality: fd.get('speciality') || null,
+            diploma: fd.get('diploma') || null, hire_date: fd.get('hire_date') || null,
+            national_id: fd.get('national_id') || null,
+            social_security_number: fd.get('social_security_number') || null,
+          })
+        }).then(function (resp) {
+          var isDuplicate = resp && resp.duplicate_detected;
+          var successMsg = isDuplicate
+            ? t('Teacher created successfully (duplicate name exists)')
+            : t('Teacher created successfully');
+          showAlert('#backend-form-status', successMsg, isDuplicate ? 'warning' : 'success');
+          form.reset();
+          if (dupState) {
+            dupState.hasDuplicate = false;
+            dupState.confirmed = false;
+            dupState.lastCheckedName = '';
+          }
+          var warnEl = form.parentNode ? form.parentNode.querySelector('.duplicate-name-warning') : null;
+          if (warnEl) warnEl.style.display = 'none';
+          if (btn) btn.disabled = false;
+          loadNotifications();
+        }).catch(function (err) { showAlert('#backend-form-status', err.message); if (btn) btn.disabled = false; });
+      });
     });
   }
   function bindEditTeacherForm() {
@@ -1964,21 +2554,47 @@
     var id = urlParam('id'); if (!id) { showAlert('#backend-form-status', 'No teacher ID in URL'); return; }
     request('/api/teacher-registrations/' + id).then(function (p) {
       var tc = p.data;
-      ['first_name', 'last_name', 'email', 'gender', 'birth_date', 'photo', 'blood_type', 'employee_number', 'speciality', 'diploma', 'hire_date', 'national_id', 'social_security_number'].forEach(function (f) {
-        var el = form.querySelector('[name="' + f + '"]'); if (el && tc[f] != null) el.value = tc[f];
+      var fields = [
+        'first_name', 'last_name', 'email', 'phone', 'gender', 'birth_date', 'photo', 'blood_type',
+        'employee_number', 'speciality', 'diploma', 'hire_date', 'national_id', 'social_security_number',
+        'monthly_salary', 'ccp_rib', 'preferred_pay_method', 'rfid_tag'
+      ];
+      fields.forEach(function (f) {
+        var el = form.querySelector('[name="' + f + '"]');
+        if (el && tc[f] != null) {
+          if (el.type === 'date' && typeof tc[f] === 'string') {
+            el.value = tc[f].slice(0, 10);
+          } else {
+            el.value = tc[f];
+          }
+        }
       });
       var statusEl = form.querySelector('[name="is_active"]');
       if (statusEl) statusEl.value = tc.is_active ? '1' : '0';
       var bloodTypeEl = form.querySelector('[name="blood_type"]');
       if (bloodTypeEl && tc.blood_type) bloodTypeEl.value = tc.blood_type;
+      var payMethodEl = form.querySelector('[name="preferred_pay_method"]');
+      if (payMethodEl && tc.preferred_pay_method) payMethodEl.value = tc.preferred_pay_method;
       var preview = document.getElementById('teacher-photo-preview');
       if (preview) preview.src = avatarUrl(tc.photo, [tc.first_name, tc.last_name].join(' '), 'teacher', tc.gender);
+      var photoInput = form.querySelector('[name="photo"]');
+      if (photoInput && preview) {
+        photoInput.addEventListener('input', function() {
+          if (this.value.trim()) preview.src = this.value.trim();
+        });
+      }
     }).catch(function (err) { showAlert('#backend-form-status', err.message); });
     form.addEventListener('submit', function (e) {
       e.preventDefault(); var fd = new FormData(form); var payload = {};
-      ['first_name', 'last_name', 'email', 'gender', 'birth_date', 'photo', 'blood_type', 'employee_number', 'speciality', 'diploma', 'hire_date', 'national_id', 'social_security_number'].forEach(function (f) {
+      var fields = [
+        'first_name', 'last_name', 'email', 'phone', 'gender', 'birth_date', 'photo', 'blood_type',
+        'employee_number', 'speciality', 'diploma', 'hire_date', 'national_id', 'social_security_number',
+        'monthly_salary', 'ccp_rib', 'preferred_pay_method', 'rfid_tag'
+      ];
+      fields.forEach(function (f) {
         var v = fd.get(f); if (v !== null) payload[f] = v || null;
       });
+      if (payload.speciality) payload.specialization = payload.speciality;
       var isActive = fd.get('is_active');
       if (isActive !== null) payload.is_active = isActive === '1' ? 1 : 0;
       var btn = form.querySelector('[type=submit]'); if (btn) btn.disabled = true;
@@ -2160,18 +2776,54 @@
   }
 
   // ── Classrooms ───────────────────────────────────────────────────────────────
+  var _allClassrooms = [];
   function loadClassrooms() {
     var tbl = document.querySelector('#backend-classrooms-table'); if (!tbl) return;
-    request('/api/classrooms').then(function (p) { renderClassroomRows(p.data || []); })
-      .catch(function (err) { showAlert('#backend-classrooms-status', err.message); });
+    request('/api/classrooms').then(function (p) {
+      _allClassrooms = p.data || [];
+      var heroClassrooms = document.getElementById('hero-total-classrooms');
+      if (heroClassrooms) heroClassrooms.textContent = _allClassrooms.length;
+      renderClassroomRows(_allClassrooms);
+      bindClassroomSearch();
+    })
+    .catch(function (err) { showAlert('#backend-classrooms-status', err.message); });
   }
+
+  function bindClassroomSearch() {
+    var searchInput = document.getElementById('filter-classroom-search');
+    if (searchInput && !searchInput._bound) {
+      searchInput._bound = true;
+      searchInput.addEventListener('input', function () {
+        var q = (this.value || '').toLowerCase().trim();
+        var filtered = _allClassrooms.filter(function (c) {
+          return (c.name || '').toLowerCase().includes(q) || (c.description || '').toLowerCase().includes(q);
+        });
+        renderClassroomRows(filtered);
+      });
+    }
+  }
+
   function renderClassroomRows(rows) {
     var tbody = document.querySelector('#backend-classrooms-table tbody'); if (!tbody) return;
-    if (!rows.length) { tbody.innerHTML = '<tr><td colspan="5" class="text-center">' + t('No records found') + '</td></tr>'; return; }
+    if (!rows.length) { tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted" style="padding:32px;">' + t('No classrooms found. Create one using the button above.') + '</td></tr>'; return; }
     tbody.innerHTML = rows.map(function (r) {
-      return '<tr><td>' + esc(r.id) + '</td><td>' + esc(r.name) + '</td><td>' + (r.capacity || '-') + '</td><td>' + esc(r.description || '-') + '</td>' +
-        '<td style="white-space:nowrap;"><button class="btn btn-xs btn-primary" data-edit-classroom=\'' + JSON.stringify(r).replace(/'/g, "&apos;") + '\' style="margin: 0 8px;" title="' + t('Edit') + '"><i class="fa fa-edit"></i></button>' +
-        '<button class="btn btn-xs btn-danger" data-del-classroom="' + r.id + '" title="' + t('Delete') + '"><i class="fa fa-trash"></i></button></td></tr>';
+      var capHtml = r.capacity 
+        ? '<span class="capacity-pill"><i class="fa fa-users"></i> ' + esc(r.capacity) + ' ' + t('seats') + '</span>'
+        : '<span class="capacity-pill empty"><i class="fa fa-minus"></i> ' + t('No limit') + '</span>';
+      var descHtml = r.description 
+        ? '<span class="desc-text">' + esc(r.description) + '</span>' 
+        : '<span class="text-muted" style="font-size:13px;">-</span>';
+
+      return '<tr id="classroom-row-' + r.id + '">' +
+        '<td class="text-center" style="vertical-align:middle; font-weight:600; color:#64748b;">' + esc(r.id) + '</td>' +
+        '<td style="vertical-align:middle;"><div style="display:flex;align-items:center;gap:10px;"><span class="classroom-icon-badge"><i class="fa fa-building"></i></span> <strong style="font-size:14px;color:#0f172a;">' + esc(r.name) + '</strong></div></td>' +
+        '<td style="vertical-align:middle;">' + capHtml + '</td>' +
+        '<td style="vertical-align:middle;">' + descHtml + '</td>' +
+        '<td class="text-center" style="vertical-align:middle; white-space:nowrap;">' +
+        '<div style="display:inline-flex; align-items:center; justify-content:center; gap:6px;">' +
+        '<button type="button" class="btn btn-default btn-sm" style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;padding:0;border-radius:8px;" data-edit-classroom=\'' + JSON.stringify(r).replace(/'/g, "&apos;") + '\' title="' + t('Edit Classroom') + '"><i class="fa fa-pencil text-primary"></i></button>' +
+        '<button type="button" class="btn btn-default btn-sm" style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;padding:0;border-radius:8px;" data-del-classroom="' + r.id + '" title="' + t('Delete Classroom') + '"><i class="fa fa-trash text-danger"></i></button>' +
+        '</div></td></tr>';
     }).join('');
     var tableEl = document.querySelector('#backend-classrooms-table');
     if (tableEl) tableEl.onclick = function (e) {
@@ -2246,6 +2898,9 @@
       _allStudents = (results[2].data || []).filter(function (s) { return s.is_active !== 0 && s.is_active !== false; });
       _allFormations = formations;
 
+      var heroFormations = document.getElementById('hero-total-formations');
+      if (heroFormations) heroFormations.textContent = formations.length;
+
       // Populate formation selects
       var fSel = document.querySelector('#group-formation-id');
       if (fSel) {
@@ -2312,6 +2967,8 @@
   function loadGroups() {
     request('/api/groups').then(function (p) {
       _allGroups = p.data || [];
+      var heroGroups = document.getElementById('hero-total-groups');
+      if (heroGroups) heroGroups.textContent = _allGroups.length;
       renderGroupCards(_allGroups, '');
     }).catch(function (err) { showAlert('#backend-groups-status', err.message); });
   }
@@ -3518,6 +4175,8 @@
   function bindEditGroupForm() {
     var form = document.querySelector('#backend-edit-group-form'); if (!form) return;
     var id = urlParam('id'); if (!id) { showAlert('#backend-group-form-status', t('No group ID in URL')); return; }
+    var btnView = document.getElementById('btn-header-view-group');
+    if (btnView) btnView.href = 'group-info.html?id=' + encodeURIComponent(id);
 
     Promise.all([
       request('/api/formations'),
@@ -3620,15 +4279,19 @@
       var psText = psLabels[ps] || ps;
       document.getElementById('sp-parents-status').innerHTML = '<span data-i18n="'+psText+'">'+psText+'</span>';
       
-      if (tc.needs_special_care) {
+      if (tc.needs_special_care || (tc.health_notes && tc.health_notes.trim())) {
         document.getElementById('sp-health-notes').innerHTML = '<span class="text-danger" style="font-weight:600;"><i class="fa fa-exclamation-triangle"></i> ' + t('Needs Special Care') + '</span>' + 
           (tc.health_notes ? '<br><span style="font-size:13px;color:#555;margin-top:6px;display:block;">' + esc(tc.health_notes) + '</span>' : '');
       } else {
         document.getElementById('sp-health-notes').innerHTML = '<span class="text-success"><i class="fa fa-check-circle"></i> ' + t('Normal Health') + '</span>';
       }
       
+      // Wire hero edit link
+      var spEditLink = document.getElementById('sp-edit-link');
+      if (spEditLink) spEditLink.href = 'edit-student.html?id=' + tc.id;
+      
       // Trigger i18n translation for dynamically injected strings
-      if (window.AppI18n) window.AppI18n.translateAll(document.getElementById('sp-content'));
+      if (window.AppI18n) window.AppI18n.translateAll(document.body);
     }).catch(function (err) { showAlert(cont, err.message); });
   }
 
@@ -3674,8 +4337,8 @@
       var editLink = document.getElementById('tp-edit-link');
       if (editLink) editLink.href = 'edit-professor.html?id=' + id;
 
-      // Apply i18n translations
-      if (window.AppI18n) window.AppI18n.translateAll(document.getElementById('tp-content'));
+      // Apply i18n translations (include hero card outside tp-content)
+      if (window.AppI18n) window.AppI18n.translateAll(document.body);
     }).catch(function (err) { showAlert(cont, err.message); });
   }
 
@@ -3687,13 +4350,24 @@
       document.getElementById('cp-loading').style.display = 'none';
       document.getElementById('cp-content').style.display = 'block';
 
+      // Populate hero card
+      var heroEl = document.getElementById('cp-hero');
+      if (heroEl) heroEl.style.display = '';
+      var heroTitle = document.getElementById('cp-hero-title');
+      if (heroTitle) heroTitle.textContent = tc.title || '-';
+      var heroTeacher = document.getElementById('cp-hero-teacher');
+      if (heroTeacher) heroTeacher.textContent = tc.teacher_name || t('No teacher assigned');
+      var heroClassroom = document.getElementById('cp-hero-classroom');
+      if (heroClassroom) heroClassroom.textContent = tc.classroom_name || t('No classroom assigned');
+      var heroRegistered = document.getElementById('cp-hero-registered');
+      if (heroRegistered) heroRegistered.textContent = tc.registered_students || '0';
+      var editBtnHero = document.getElementById('btn-edit-course');
+      if (editBtnHero) editBtnHero.href = 'edit-course.html?id=' + tc.id;
+
       document.getElementById('cp-image').src = formationImg(tc.image, tc.title);
       document.getElementById('cp-title').textContent = tc.title || '-';
       document.getElementById('cp-teacher').textContent = tc.teacher_name || t('No teacher assigned');
       document.getElementById('cp-classroom').textContent = tc.classroom_name || t('No classroom assigned');
-      
-      var editBtn = document.getElementById('btn-edit-course');
-      if (editBtn) editBtn.href = 'edit-course.html?id=' + tc.id;
 
       document.getElementById('cp-duration').textContent = tc.duration_hours ? tc.duration_hours + ' ' + t('hours') : '-';
       document.getElementById('cp-niveau').innerHTML = formatFormationNiveau(tc.niveau);
@@ -4598,6 +5272,8 @@
     var tbl = document.getElementById('backend-promos-table'); if (!tbl) return;
     request('/api/promo-codes').then(function (p) {
       var rows = p.data || [];
+      var heroCounter = document.getElementById('hero-total-promos');
+      if (heroCounter) heroCounter.textContent = rows.filter(function (r) { return r.is_active; }).length;
       var tbody = tbl.querySelector('tbody');
       if (!rows.length) { tbody.innerHTML = '<tr><td colspan="6" class="text-center">No records found</td></tr>'; return; }
 

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'admin-cache-v3';
+const CACHE_NAME = 'admin-cache-v4';
 
 // Install: skip pre-caching to avoid failures from missing files
 self.addEventListener('install', event => {

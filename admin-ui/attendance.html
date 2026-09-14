@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <!-- Anti-FOUC & Preloader -->
@@ -120,24 +120,47 @@
     <div id="sidebar-placeholder"></div>
     <div class="sb-main">
         <div id="header-placeholder"></div>
-        <div class="sb-content">
             <div class="sb-breadcrumb">
                 <i class="fa fa-home"></i>
-                <a href="index.html">Home</a>
+                <a href="index.html" data-i18n="Home">Home</a>
                 <span>/</span>
-                <span>Attendance & Scanning</span>
+                <span data-i18n="Attendance & Scanning">Attendance & Scanning</span>
+            </div>
+
+            <!-- Hero Banner (Purple Graphic Chart) -->
+            <div class="page-hero-card">
+                <div class="hero-top-row">
+                    <div class="hero-info-area">
+                        <div class="page-avatar-badge">
+                            <i class="fa fa-check-square-o"></i>
+                        </div>
+                        <div class="hero-text">
+                            <h2 data-i18n="Attendance & Scanning">Attendance & Scanning</h2>
+                            <div class="hero-badges-row">
+                                <span class="hero-pill">
+                                    <i class="fa fa-qrcode"></i>
+                                    <span data-i18n="QR Code & Barcode Scanner">QR & Barcode Scanning</span>
+                                </span>
+                                <span class="hero-pill">
+                                    <i class="fa fa-calendar-check-o"></i>
+                                    <span data-i18n="Daily Attendance Check">Daily Attendance Check</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="hero-action-btns">
+                        <button id="btn-toggle-webcam" class="btn-hero-primary">
+                            <i class="fa fa-camera"></i> <span data-i18n="Use Webcam QR">Use Webcam QR</span>
+                        </button>
+                    </div>
+                </div>
             </div>
             
             <div class="card-panel">
                 <div class="scanner-section">
                     <div class="scanner-input-wrapper">
-                        <input type="text" id="attendance-scanner-input" class="scanner-input" placeholder="Scan RFID/QR Code or type ID here..." autocomplete="off">
+                        <input type="text" id="attendance-scanner-input" class="scanner-input" placeholder="Scan RFID/QR Code or type ID here..." data-i18n-placeholder="Scan RFID/QR Code or type ID here..." autocomplete="off">
                         <i class="fa fa-barcode scanner-icon"></i>
-                    </div>
-                    <div>
-                        <button id="btn-toggle-webcam" class="btn btn-primary" style="padding: 14px 24px;">
-                            <i class="fa fa-camera"></i> Use Webcam QR
-                        </button>
                     </div>
                 </div>
                 <div id="reader"></div>

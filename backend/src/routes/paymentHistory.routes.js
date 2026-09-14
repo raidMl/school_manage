@@ -223,7 +223,7 @@ router.put(
 
     const updated = await query(
       `SELECT ph.*,
-         u.first_name, u.last_name, u.photo,
+         u.first_name, u.last_name, u.photo, u.gender,
          st.registration_number,
          st.id AS student_id,
          f.title AS formation_title,
@@ -270,7 +270,7 @@ router.get(
 
     const rows = await query(
       `SELECT ph.*,
-         u.first_name, u.last_name, u.photo,
+         u.first_name, u.last_name, u.photo, u.gender,
          st.registration_number,
          st.id AS student_id,
          f.title AS formation_title,
