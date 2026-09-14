@@ -956,7 +956,8 @@ window.AppI18n = {
     "View Full Size": "عرض بالحجم الكامل",
     "Remove Logo": "حذف الشعار",
     "Remove": "حذف",
-    "Upload": "رفع"
+    "Upload": "رفع",
+    "Generate": "إنشاء"
   },
 
   // ── Translate single key helper ───────────────────────────────────────────

@@ -1164,8 +1164,10 @@
         '<td><label class="admin-cell-label">' + t('Status') + '</label><select class="form-control admin-is-active"><option value="1"' + (admin.is_active ? ' selected' : '') + '>' + t('Active') + '</option><option value="0"' + (!admin.is_active ? ' selected' : '') + '>' + t('Inactive') + '</option></select></td>' +
         '<td><label class="admin-cell-label">' + t('New Password') + '</label><input type="password" class="form-control admin-password" placeholder="' + t('Leave blank to keep current') + '"></td>' +
         '<td class="admin-card-actions">' +
+        '<div class="admin-card-actions-inner">' +
         '<button type="button" class="btn admin-save-button" data-admin-id="' + admin.id + '" title="' + t('Save') + '"><i class="fa fa-save"></i> <span>' + t('Save') + '</span></button>' +
         '<button type="button" class="btn admin-delete-button" data-admin-id="' + admin.id + '" title="' + t('Remove') + '"><i class="fa fa-trash"></i> <span>' + t('Remove') + '</span></button>' +
+        '</div>' +
         '</td>' +
         '</tr>';
     }).join('');
@@ -1183,7 +1185,9 @@
       '<td><label class="admin-cell-label">' + t('Status') + '</label><select name="additional_admin_is_active[]" class="form-control"><option value="1">' + t('Active') + '</option><option value="0">' + t('Inactive') + '</option></select></td>' +
       '<td><label class="admin-cell-label">' + t('Password') + '</label><input type="password" name="additional_admin_password[]" class="form-control" required placeholder="' + t('Password') + '"></td>' +
       '<td class="admin-card-actions">' +
+      '<div class="admin-card-actions-inner">' +
       '<button type="button" class="btn remove-additional-admin" title="' + t('Remove') + '"><i class="fa fa-times"></i> <span>' + t('Remove') + '</span></button>' +
+      '</div>' +
       '</td>';
     container.appendChild(row);
   }
