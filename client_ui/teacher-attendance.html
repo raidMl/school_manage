@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>My Attendance History | Teacher Space</title>
+    <link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/sidebar.css">
+    <link rel="stylesheet" href="css/portal.css">
+
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#4f6eff">
+    <link rel="apple-touch-icon" href="img/icon-512.jpg">
+</head>
+
+<body data-page="teacher-attendance">
+    <div id="sidebar-placeholder"></div>
+
+    <div class="sb-main">
+        <div id="header-placeholder"></div>
+
+        <div class="sb-content" style="padding: 24px;">
+            <div class="sb-breadcrumb">
+                <i class="fa fa-calendar-check-o"></i>
+                <span data-i18n="Teacher Space">Teacher Space</span>
+                <span style="color: #cbd5e1;">/</span>
+                <span data-i18n="My Attendance History">My Attendance History</span>
+            </div>
+
+            <!-- Hero Header Banner -->
+            <div class="portal-hero-banner" style="padding: 24px 30px;">
+                <div class="portal-hero-content">
+                    <div class="portal-hero-user">
+                        <div class="portal-hero-avatar-wrap">
+                            <img id="att-teacher-avatar" class="portal-hero-avatar" src="https://ui-avatars.com/api/?name=Teacher&background=11998e&color=fff&size=150" alt="Teacher">
+                        </div>
+                        <div class="portal-hero-text">
+                            <h2 id="att-teacher-name">Loading...</h2>
+                            <p>
+                                <span><i class="fa fa-briefcase"></i> <span id="att-teacher-emp">—</span></span>
+                                <span class="portal-chip portal-chip-primary"><i class="fa fa-bookmark"></i> <span data-i18n="Faculty Attendance">Faculty Attendance</span></span>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="portal-hero-actions">
+                        <a href="teacher-space.html" class="portal-btn portal-btn-secondary" style="background: rgba(255,255,255,0.15); color: #fff !important; border: 1px solid rgba(255,255,255,0.25);">
+                            <i class="fa fa-arrow-left"></i> <span data-i18n="My Dashboard">Back to Dashboard</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Attendance Stats Grid -->
+            <div class="portal-stats-grid">
+                <div class="portal-stat-card">
+                    <div class="portal-stat-icon-wrap portal-stat-icon-blue">
+                        <i class="fa fa-list-alt"></i>
+                    </div>
+                    <div class="portal-stat-details">
+                        <div class="portal-stat-value" id="stat-total-sessions">0</div>
+                        <div class="portal-stat-label" data-i18n="Total Teaching Sessions">Total Teaching Sessions</div>
+                    </div>
+                </div>
+
+                <div class="portal-stat-card">
+                    <div class="portal-stat-icon-wrap portal-stat-icon-green">
+                        <i class="fa fa-check-circle"></i>
+                    </div>
+                    <div class="portal-stat-details">
+                        <div class="portal-stat-value" id="stat-present-count">0</div>
+                        <div class="portal-stat-label" data-i18n="Sessions Present">Sessions Present</div>
+                    </div>
+                </div>
+
+                <div class="portal-stat-card">
+                    <div class="portal-stat-icon-wrap portal-stat-icon-red">
+                        <i class="fa fa-times-circle"></i>
+                    </div>
+                    <div class="portal-stat-details">
+                        <div class="portal-stat-value" id="stat-absent-count">0</div>
+                        <div class="portal-stat-label" data-i18n="Absences / Excused">Absences / Excused</div>
+                    </div>
+                </div>
+
+                <div class="portal-stat-card">
+                    <div class="portal-stat-icon-wrap portal-stat-icon-amber">
+                        <i class="fa fa-pie-chart"></i>
+                    </div>
+                    <div class="portal-stat-details">
+                        <div class="portal-stat-value" id="stat-presence-rate">0%</div>
+                        <div class="portal-stat-label" data-i18n="Faculty Attendance Rate">Faculty Attendance Rate</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Attendance Table Card -->
+            <div class="portal-card">
+                <div class="portal-card-header">
+                    <div>
+                        <h3 class="portal-card-title"><i class="fa fa-history"></i> <span data-i18n="Teaching Attendance Logs">Teaching Attendance Logs</span></h3>
+                        <p class="portal-card-subtitle" data-i18n="Official presence verification logs for conducted sessions">Official presence verification logs for conducted sessions</p>
+                    </div>
+
+                    <!-- Filter Controls -->
+                    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                        <select id="filter-status" class="portal-input" style="height: 38px; width: 140px; padding: 6px 12px; font-size: 13px;">
+                            <option value="all" data-i18n="All Statuses">All Statuses</option>
+                            <option value="present" data-i18n="Present Only">Present Only</option>
+                            <option value="absent" data-i18n="Absent Only">Absent Only</option>
+                        </select>
+                        <input type="text" id="filter-search" class="portal-input" placeholder="Search group or date..." data-i18n-ph="Search group or date..." style="height: 38px; width: 200px; padding: 6px 12px; font-size: 13px;">
+                    </div>
+                </div>
+
+                <div class="portal-table-container">
+                    <table class="portal-table" id="teacher-attendance-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th data-i18n="Date">Date</th>
+                                <th data-i18n="Check-in / Scan Time">Check-in / Scan Time</th>
+                                <th data-i18n="Group">Group</th>
+                                <th data-i18n="Course Formation">Course Formation</th>
+                                <th data-i18n="Status">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="6" class="text-center" style="padding: 30px;">
+                                    <i class="fa fa-spinner fa-spin" style="color: #4f6eff;"></i> <span data-i18n="Loading attendance logs...">Loading attendance logs...</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+        <div id="footer-placeholder"></div>
+    </div>
+
+    <script src="js/vendor/jquery-1.12.4.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/i18n.js"></script>
+    <script src="js/components.js"></script>
+    <script src="js/backend.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var allAttendanceRecords = [];
+
+            function renderTable(records) {
+                var tb = document.querySelector('#teacher-attendance-table tbody');
+                if (!records || !records.length) {
+                    tb.innerHTML = `
+                        <tr>
+                            <td colspan="6">
+                                <div class="portal-empty-state">
+                                    <div class="portal-empty-icon"><i class="fa fa-calendar-o"></i></div>
+                                    <div class="portal-empty-title" data-i18n="No attendance records found">No attendance records found</div>
+                                    <div class="portal-empty-desc" data-i18n="No attendance records have been registered for your teaching sessions yet.">No attendance records have been registered for your teaching sessions yet.</div>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    if (window.AppI18n) window.AppI18n.translateAll(tb);
+                    return;
+                }
+
+                tb.innerHTML = records.map(function(a, idx) {
+                    var isPresent = a.status === 'present';
+                    var badgeClass = isPresent ? 'portal-badge-present' : 'portal-badge-absent';
+                    var rawStatus = isPresent ? 'PRESENT' : 'ABSENT';
+                    var statusLabel = window.AppI18n ? window.AppI18n.t(rawStatus) : rawStatus;
+                    var d = a.date ? new Date(a.date).toLocaleDateString(undefined, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' }) : '—';
+                    var rawTimeStr = a.scan_time ? a.scan_time : (isPresent ? 'Logged' : 'Not recorded');
+                    var timeStr = window.AppI18n ? window.AppI18n.t(rawTimeStr) : rawTimeStr;
+
+                    return '<tr>' +
+                        '<td><span style="color:#94a3b8; font-size:12px;">' + (idx + 1) + '</span></td>' +
+                        '<td><strong>' + d + '</strong></td>' +
+                        '<td><span class="portal-chip"><i class="fa fa-clock-o"></i> ' + timeStr + '</span></td>' +
+                        '<td><span style="font-weight:600; color:#1e293b;">' + (a.group_name || 'Standard Group') + '</span></td>' +
+                        '<td><span style="color:#475569;">' + (a.formation_title || '—') + '</span></td>' +
+                        '<td><span class="portal-badge ' + badgeClass + '"><span class="portal-dot"></span> ' + statusLabel + '</span></td>' +
+                    '</tr>';
+                }).join('');
+                if (window.AppI18n) window.AppI18n.translateAll(tb);
+            }
+
+            function applyFilters() {
+                var statusVal = document.getElementById('filter-status').value;
+                var searchVal = document.getElementById('filter-search').value.toLowerCase().trim();
+
+                var filtered = allAttendanceRecords.filter(function(item) {
+                    var matchStatus = (statusVal === 'all') || (item.status === statusVal);
+                    var str = (item.group_name || '') + ' ' + (item.formation_title || '') + ' ' + (item.date || '');
+                    var matchSearch = !searchVal || str.toLowerCase().indexOf(searchVal) !== -1;
+                    return matchStatus && matchSearch;
+                });
+
+                renderTable(filtered);
+            }
+
+            window.onAuthReady = function() {
+                if (!window._ctx || window._ctx.user.role !== 'teacher') return;
+
+                // Load Teacher info for header
+                SchoolBackend.request('/api/teacher-space/me').then(function(res) {
+                    var p = res.profile;
+                    var fullName = [p.first_name, p.last_name].filter(Boolean).join(' ');
+                    document.getElementById('att-teacher-name').textContent = fullName || (window.AppI18n ? window.AppI18n.t('Teacher') : 'Teacher');
+                    var empPrefix = window.AppI18n ? window.AppI18n.t('Emp:') : 'Emp:';
+                    document.getElementById('att-teacher-emp').textContent = p.employee_number ? (empPrefix + ' ' + p.employee_number) : (window.AppI18n ? window.AppI18n.t('Teacher') : 'Teacher');
+                    document.getElementById('att-teacher-avatar').src = SchoolBackend.avatarUrl(p.photo, fullName, 'teacher', p.gender);
+                }).catch(function() {});
+
+                // Load Attendance records
+                SchoolBackend.request('/api/teacher-space/attendance').then(function(res) {
+                    allAttendanceRecords = res.data || [];
+                    
+                    var total = allAttendanceRecords.length;
+                    var present = allAttendanceRecords.filter(function(r) { return r.status === 'present'; }).length;
+                    var absent = total - present;
+                    var rate = total > 0 ? Math.round((present / total) * 100) : 0;
+
+                    document.getElementById('stat-total-sessions').textContent = total;
+                    document.getElementById('stat-present-count').textContent = present;
+                    document.getElementById('stat-absent-count').textContent = absent;
+                    document.getElementById('stat-presence-rate').textContent = rate + '%';
+
+                    renderTable(allAttendanceRecords);
+                }).catch(function(err) {
+                    var tb = document.querySelector('#teacher-attendance-table tbody');
+                    if (tb) tb.innerHTML = '<tr><td colspan="6" class="text-center text-danger" style="padding:20px;">Failed to load attendance logs: ' + err.message + '</td></tr>';
+                });
+            };
+
+            document.getElementById('filter-status').addEventListener('change', applyFilters);
+            document.getElementById('filter-search').addEventListener('input', applyFilters);
+        });
+    </script>
+</body>
+</html>

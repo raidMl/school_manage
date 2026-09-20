@@ -11,7 +11,7 @@
     </script>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>رواتب الأساتذة | School System Admin</title>
+    <title>Teacher Salaries | School System Admin</title>
     <link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/bootstrap.min.css">
@@ -548,7 +548,7 @@
       <span>/</span>
       <a href="all-professors.html" data-i18n="Teachers">Teachers</a>
       <span>/</span>
-      <span id="lbl-bc-title">رواتب الأساتذة</span>
+      <span id="lbl-bc-title" data-i18n="Teacher Salaries">Teacher Salaries</span>
     </div>
 
     <!-- Hero Banner (Purple Graphic Chart) -->
@@ -559,11 +559,11 @@
             <i class="fa fa-money"></i>
           </div>
           <div class="hero-text">
-            <h2 id="lbl-page-title">رواتب الأساتذة</h2>
+            <h2 id="lbl-page-title" data-i18n="Teacher Salaries">Teacher Salaries</h2>
             <div class="hero-badges-row">
               <span class="hero-pill">
                 <i class="fa fa-file-text-o"></i>
-                <span id="lbl-page-sub">إدارة الرواتب الشهرية وسجلات المدفوعات وطباعة وصولات الأساتذة</span>
+                <span id="lbl-page-sub" data-i18n="Manage monthly salaries, payment records, and print teacher payment slips">Manage monthly salaries, payment records, and print teacher payment vouchers</span>
               </span>
             </div>
           </div>
@@ -575,58 +575,58 @@
     <div class="stats-row no-print">
       <div class="stat-card">
         <div class="stat-icon"><i class="fa fa-users"></i></div>
-        <div class="stat-info"><h4 id="st-total">—</h4><p id="lbl-total">إجمالي الأساتذة</p></div>
+        <div class="stat-info"><h4 id="st-total">—</h4><p id="lbl-total" data-i18n="Total Teachers">Total Teachers</p></div>
       </div>
       <div class="stat-card green">
         <div class="stat-icon"><i class="fa fa-check-circle"></i></div>
-        <div class="stat-info"><h4 id="st-paid">—</h4><p id="lbl-paid">مدفوع هذا الشهر</p></div>
+        <div class="stat-info"><h4 id="st-paid">—</h4><p id="lbl-paid" data-i18n="Paid This Month">Paid This Month</p></div>
       </div>
       <div class="stat-card red">
         <div class="stat-icon"><i class="fa fa-clock-o"></i></div>
-        <div class="stat-info"><h4 id="st-unpaid">—</h4><p id="lbl-unpaid">غير مدفوع</p></div>
+        <div class="stat-info"><h4 id="st-unpaid">—</h4><p id="lbl-unpaid" data-i18n="Unpaid">Unpaid</p></div>
       </div>
       <div class="stat-card orange">
         <div class="stat-icon"><i class="fa fa-money"></i></div>
-        <div class="stat-info"><h4 id="st-mass">—</h4><p id="lbl-mass">الكتلة الشهرية (دج)</p></div>
+        <div class="stat-info"><h4 id="st-mass">—</h4><p id="lbl-mass" data-i18n="Monthly Payroll (DZD)">Monthly Payroll (DZD)</p></div>
       </div>
       <div class="stat-card purple">
         <div class="stat-icon"><i class="fa fa-bar-chart"></i></div>
-        <div class="stat-info"><h4 id="st-ytd">—</h4><p id="lbl-ytd">المدفوع هذه السنة</p></div>
+        <div class="stat-info"><h4 id="st-ytd">—</h4><p id="lbl-ytd" data-i18n="Paid This Year">Paid This Year</p></div>
       </div>
     </div>
 
     <!-- Tab Bar -->
     <div class="tab-bar no-print">
       <button class="tab-btn active" onclick="switchTab('salary')" id="tab-salary">
-        <i class="fa fa-user-circle-o"></i> <span id="lbl-tab-salary">معلومات الراتب</span>
+        <i class="fa fa-user-circle-o"></i> <span id="lbl-tab-salary" data-i18n="Salary Info">Salary Info</span>
       </button>
       <button class="tab-btn" onclick="switchTab('pay')" id="tab-pay">
-        <i class="fa fa-credit-card"></i> <span id="lbl-tab-pay">تسديد هذا الشهر</span>
+        <i class="fa fa-credit-card"></i> <span id="lbl-tab-pay" data-i18n="Pay This Month">Pay This Month</span>
         <span class="badge" id="tab-pay-badge">0</span>
       </button>
       <button class="tab-btn" onclick="switchTab('archive')" id="tab-archive">
-        <i class="fa fa-archive"></i> <span id="lbl-tab-archive">أرشيف المدفوعات</span>
+        <i class="fa fa-archive"></i> <span id="lbl-tab-archive" data-i18n="Payment Archive">Payment Archive</span>
       </button>
     </div>
 
     <!-- ══════════ TAB 1: Salary Info ══════════ -->
     <div id="section-salary" class="panel no-print">
       <div class="panel-header">
-        <h3 class="panel-title"><i class="fa fa-user-circle-o" style="color:var(--primary);margin-inline-end:8px"></i><span id="lbl-salary-title">معلومات رواتب الأساتذة</span></h3>
+        <h3 class="panel-title"><i class="fa fa-user-circle-o" style="color:var(--primary);margin-inline-end:8px"></i><span id="lbl-salary-title" data-i18n="Teacher Salary Information">Teacher Salary Information</span></h3>
       </div>
-      <p style="font-size:13px;color:var(--muted);margin:-10px 0 18px" id="lbl-salary-desc">
-        أدخل الراتب الشهري ورقم CCP/RIB وطريقة الدفع المفضلة لكل أستاذ.
+      <p style="font-size:13px;color:var(--muted);margin:-10px 0 18px" id="lbl-salary-desc" data-i18n="Enter the monthly salary, CCP/RIB number, and preferred payment method for each teacher.">
+        Enter the monthly salary, CCP/RIB number, and preferred payment method for each teacher.
       </p>
       <div class="table-wrap">
         <table class="data-table">
           <thead>
             <tr>
               <th style="width:40px">#</th>
-              <th id="th-teacher">الأستاذ</th>
-              <th id="th-salary">الراتب الشهري (دج)</th>
+              <th id="th-teacher" data-i18n="Teacher">Teacher</th>
+              <th id="th-salary" data-i18n="Monthly Salary (DZD)">Monthly Salary (DZD)</th>
               <th id="th-rib">CCP / RIB</th>
-              <th id="th-method">طريقة الدفع</th>
-              <th id="th-action">حفظ</th>
+              <th id="th-method" data-i18n="Payment Method">Payment Method</th>
+              <th id="th-action" data-i18n="Save">Save</th>
             </tr>
           </thead>
           <tbody id="salary-tbody">
@@ -639,30 +639,30 @@
     <!-- ══════════ TAB 2: Pay This Month ══════════ -->
     <div id="section-pay" class="panel section-hidden no-print">
       <div class="panel-header">
-        <h3 class="panel-title"><i class="fa fa-credit-card" style="color:var(--primary);margin-inline-end:8px"></i><span id="lbl-pay-title">تسديد رواتب الأساتذة</span></h3>
+        <h3 class="panel-title"><i class="fa fa-credit-card" style="color:var(--primary);margin-inline-end:8px"></i><span id="lbl-pay-title" data-i18n="Pay Teacher Salaries">Pay Teacher Salaries</span></h3>
         <div class="period-row">
           <select class="period-select" id="pay-month">
-            <option value="1">جانفي</option><option value="2">فيفري</option>
-            <option value="3">مارس</option><option value="4">أفريل</option>
-            <option value="5">ماي</option><option value="6">جوان</option>
-            <option value="7">جويلية</option><option value="8">أوت</option>
-            <option value="9">سبتمبر</option><option value="10">أكتوبر</option>
-            <option value="11">نوفمبر</option><option value="12">ديسمبر</option>
+            <option value="1" data-i18n="January">January</option><option value="2" data-i18n="February">February</option>
+            <option value="3" data-i18n="March">March</option><option value="4" data-i18n="April">April</option>
+            <option value="5" data-i18n="May">May</option><option value="6" data-i18n="June">June</option>
+            <option value="7" data-i18n="July">July</option><option value="8" data-i18n="August">August</option>
+            <option value="9" data-i18n="September">September</option><option value="10" data-i18n="October">October</option>
+            <option value="11" data-i18n="November">November</option><option value="12" data-i18n="December">December</option>
           </select>
           <select class="period-select" id="pay-year"></select>
-          <button class="btn-outline" onclick="loadPayPeriod()"><i class="fa fa-refresh"></i> تحميل</button>
+          <button class="btn-outline" onclick="loadPayPeriod()"><i class="fa fa-refresh"></i> <span data-i18n="Load">Load</span></button>
         </div>
       </div>
 
       <div class="bulk-bar" id="bulk-bar" style="display:none">
         <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
           <input type="checkbox" id="chk-all" onchange="toggleAll(this)" class="pay-checkbox">
-          <span id="lbl-select-all">تحديد الكل غير المدفوعين</span>
+          <span id="lbl-select-all" data-i18n="Select all unpaid">Select all unpaid</span>
         </label>
         <div style="display:flex;align-items:center;gap:10px">
-          <span id="selected-count" style="font-size:13px;color:var(--muted)">0 محدد</span>
+          <span id="selected-count" style="font-size:13px;color:var(--muted)">0 selected</span>
           <button class="btn-primary" onclick="openPayModal()" id="btn-pay-selected" disabled>
-            <i class="fa fa-check-circle"></i> <span id="lbl-btn-pay" style="color:white;">تسديد المحددين</span>
+            <i class="fa fa-check-circle"></i> <span id="lbl-btn-pay" style="color:white;" data-i18n="Pay Selected">Pay Selected</span>
           </button>
         </div>
       </div>
@@ -673,38 +673,38 @@
     <!-- ══════════ TAB 3: Archive ══════════ -->
     <div id="section-archive" class="panel section-hidden no-print">
       <div class="panel-header">
-        <h3 class="panel-title"><i class="fa fa-archive" style="color:var(--primary);margin-inline-end:8px"></i><span id="lbl-archive-title">أرشيف المدفوعات</span></h3>
+        <h3 class="panel-title"><i class="fa fa-archive" style="color:var(--primary);margin-inline-end:8px"></i><span id="lbl-archive-title" data-i18n="Payment Archive">Payment Archive</span></h3>
       </div>
       <div class="filters-row">
         <select class="filter-select" id="arc-month" onchange="loadArchive()">
-          <option value="">كل الأشهر</option>
-          <option value="1">جانفي</option><option value="2">فيفري</option>
-          <option value="3">مارس</option><option value="4">أفريل</option>
-          <option value="5">ماي</option><option value="6">جوان</option>
-          <option value="7">جويلية</option><option value="8">أوت</option>
-          <option value="9">سبتمبر</option><option value="10">أكتوبر</option>
-          <option value="11">نوفمبر</option><option value="12">ديسمبر</option>
+          <option value="" data-i18n="All Months">All Months</option>
+          <option value="1" data-i18n="January">January</option><option value="2" data-i18n="February">February</option>
+          <option value="3" data-i18n="March">March</option><option value="4" data-i18n="April">April</option>
+          <option value="5" data-i18n="May">May</option><option value="6" data-i18n="June">June</option>
+          <option value="7" data-i18n="July">July</option><option value="8" data-i18n="August">August</option>
+          <option value="9" data-i18n="September">September</option><option value="10" data-i18n="October">October</option>
+          <option value="11" data-i18n="November">November</option><option value="12" data-i18n="December">December</option>
         </select>
         <select class="filter-select" id="arc-year" onchange="loadArchive()"></select>
         <select class="filter-select" id="arc-method" onchange="loadArchive()">
-          <option value="">كل الطرق</option>
-          <option value="cash">نقداً</option>
+          <option value="" data-i18n="All Methods">All Methods</option>
+          <option value="cash" data-i18n="Cash">Cash</option>
           <option value="ccp">CCP</option>
         </select>
-        <input type="text" class="search-input" id="arc-search" placeholder="ابحث عن أستاذ..." oninput="filterArchive()">
+        <input type="text" class="search-input" id="arc-search" placeholder="Search for teacher..." data-i18n-ph="Search for teacher..." oninput="filterArchive()">
       </div>
       <div class="table-wrap">
         <table class="data-table">
           <thead>
             <tr>
               <th style="width:40px">#</th>
-              <th>الأستاذ</th>
-              <th>الفترة</th>
-              <th>المبلغ (دج)</th>
-              <th>طريقة الدفع</th>
-              <th>تاريخ التسديد</th>
-              <th>ملاحظات</th>
-              <th>الإجراءات</th>
+              <th data-i18n="Teacher">Teacher</th>
+              <th data-i18n="Period">Period</th>
+              <th data-i18n="Amount (DZD)">Amount (DZD)</th>
+              <th data-i18n="Payment Method">Payment Method</th>
+              <th data-i18n="Payment Date">Payment Date</th>
+              <th data-i18n="Notes">Notes</th>
+              <th data-i18n="Actions">Actions</th>
             </tr>
           </thead>
           <tbody id="archive-tbody">
@@ -721,31 +721,31 @@
 <div class="modal-backdrop" id="pay-modal">
   <div class="modal-box">
     <div class="modal-header">
-      <h4><i class="fa fa-check-circle" style="margin-inline-end:8px"></i>تأكيد التسديد</h4>
+      <h4><i class="fa fa-check-circle" style="margin-inline-end:8px"></i><span data-i18n="Confirm Payment">Confirm Payment</span></h4>
       <button class="modal-close" onclick="closeModal('pay-modal')">×</button>
     </div>
     <div class="modal-body">
       <div id="pay-modal-summary" style="background:var(--primary-light);border-radius:10px;padding:14px;margin-bottom:18px;font-size:13.5px;font-weight:600;color:var(--primary)"></div>
       <div class="form-group">
-        <label class="form-label">تاريخ التسديد</label>
+        <label class="form-label" data-i18n="Payment Date">Payment Date</label>
         <input type="date" class="form-control" id="pm-date">
       </div>
       <div class="form-group">
-        <label class="form-label">طريقة الدفع</label>
+        <label class="form-label" data-i18n="Payment Method">Payment Method</label>
         <select class="form-control" id="pm-method">
-          <option value="cash">💵 نقداً (Cash)</option>
-          <option value="ccp">🏦 CCP / تحويل بنكي</option>
+          <option value="cash" data-i18n="Cash">💵 Cash</option>
+          <option value="ccp" data-i18n="CCP / Bank Transfer">🏦 CCP / Bank Transfer</option>
         </select>
       </div>
       <div class="form-group">
-        <label class="form-label">ملاحظات (اختياري)</label>
-        <textarea class="form-control" id="pm-notes" rows="2" placeholder="أي ملاحظات..."></textarea>
+        <label class="form-label" data-i18n="Notes (Optional)">Notes (Optional)</label>
+        <textarea class="form-control" id="pm-notes" rows="2" placeholder="Any notes..." data-i18n-ph="Any notes..."></textarea>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn-outline" onclick="closeModal('pay-modal')">إلغاء</button>
+      <button class="btn-outline" onclick="closeModal('pay-modal')" data-i18n="Cancel">Cancel</button>
       <button class="btn-primary" onclick="submitPayment()" id="btn-confirm-pay">
-        <i class="fa fa-money"></i> تأكيد وتسديد
+        <i class="fa fa-money"></i> <span data-i18n="Confirm & Pay">Confirm & Pay</span>
       </button>
     </div>
   </div>
@@ -755,34 +755,34 @@
 <div class="modal-backdrop" id="edit-modal">
   <div class="modal-box">
     <div class="modal-header">
-      <h4><i class="fa fa-pencil" style="margin-inline-end:8px"></i>تعديل الدفعة</h4>
+      <h4><i class="fa fa-pencil" style="margin-inline-end:8px"></i><span data-i18n="Edit Payment">Edit Payment</span></h4>
       <button class="modal-close" onclick="closeModal('edit-modal')">×</button>
     </div>
     <div class="modal-body">
       <input type="hidden" id="edit-id">
       <div class="form-group">
-        <label class="form-label">المبلغ (دج)</label>
+        <label class="form-label" data-i18n="Amount (DZD)">Amount (DZD)</label>
         <input type="number" class="form-control" id="edit-amount" min="0" step="0.01">
       </div>
       <div class="form-group">
-        <label class="form-label">تاريخ التسديد</label>
+        <label class="form-label" data-i18n="Payment Date">Payment Date</label>
         <input type="date" class="form-control" id="edit-date">
       </div>
       <div class="form-group">
-        <label class="form-label">طريقة الدفع</label>
+        <label class="form-label" data-i18n="Payment Method">Payment Method</label>
         <select class="form-control" id="edit-method">
-          <option value="cash">💵 نقداً</option>
-          <option value="ccp">🏦 CCP</option>
+          <option value="cash" data-i18n="Cash">💵 Cash</option>
+          <option value="ccp" data-i18n="CCP / Bank Transfer">🏦 CCP / Bank Transfer</option>
         </select>
       </div>
       <div class="form-group">
-        <label class="form-label">ملاحظات</label>
-        <textarea class="form-control" id="edit-notes" rows="2"></textarea>
+        <label class="form-label" data-i18n="Notes">Notes</label>
+        <textarea class="form-control" id="edit-notes" rows="2" placeholder="Optional notes..." data-i18n-ph="Optional notes..."></textarea>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn-outline" onclick="closeModal('edit-modal')">إلغاء</button>
-      <button class="btn-primary" onclick="submitEdit()"><i class="fa fa-save"></i> حفظ التغييرات</button>
+      <button class="btn-outline" onclick="closeModal('edit-modal')" data-i18n="Cancel">Cancel</button>
+      <button class="btn-primary" onclick="submitEdit()"><i class="fa fa-save"></i> <span data-i18n="Save Changes">Save Changes</span></button>
     </div>
   </div>
 </div>
@@ -792,10 +792,10 @@
   <div style="max-width:580px;margin:0 auto">
     <div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:16px" class="no-print">
       <button onclick="document.getElementById('print-area').style.display='none'" class="btn-outline">
-        <i class="fa fa-times"></i> إغلاق
+        <i class="fa fa-times"></i> <span data-i18n="Close">Close</span>
       </button>
       <button onclick="window.print()" class="btn-primary">
-        <i class="fa fa-print"></i> طباعة
+        <i class="fa fa-print"></i> <span data-i18n="Print">Print</span>
       </button>
     </div>
     <div id="slip-content"></div>
@@ -825,7 +825,7 @@
   // ─── i18n ─────────────────────────────────────────────────────────────────
   var MONTHS_AR = ['','جانفي','فيفري','مارس','أفريل','ماي','جوان','جويلية','أوت','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
   var MONTHS_EN = ['','January','February','March','April','May','June','July','August','September','October','November','December'];
-  var lang = localStorage.getItem('app_lang') || 'ar';
+  var lang = localStorage.getItem('app_lang') || 'en';
   function monthName(m) { return (lang === 'ar' ? MONTHS_AR : MONTHS_EN)[m] || m; }
 
   // ─── helpers ──────────────────────────────────────────────────────────────
@@ -899,7 +899,10 @@
   function renderSalaryTable() {
     var tbody = document.getElementById('salary-tbody');
     if (!teachersData.length) {
-      tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><i class="fa fa-user-tie"></i><h4>لا يوجد أساتذة</h4><p>أضف أساتذة من قسم الأساتذة أولاً.</p></div></td></tr>';
+      tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><i class="fa fa-user-tie"></i><h4>' +
+        (lang === 'ar' ? 'لا يوجد أساتذة' : 'No Teachers Found') + '</h4><p>' +
+        (lang === 'ar' ? 'أضف أساتذة من قسم الأساتذة أولاً.' : 'Please add teachers from the Teachers section first.') +
+        '</p></div></td></tr>';
       return;
     }
     tbody.innerHTML = teachersData.map(function(t, i) {
@@ -916,18 +919,18 @@
         '<td><input type="number" class="salary-input" id="sal-' + t.id + '" value="' + (t.monthly_salary != null && t.monthly_salary !== '' ? parseFloat(t.monthly_salary) : '') + '" placeholder="0.00" min="0" step="100" onchange="markDirty(' + t.id + ')"></td>' +
         '<td><input type="text" class="rib-input" id="rib-' + t.id + '" value="' + esc(t.ccp_rib||'') + '" placeholder="00000000000 00" onchange="markDirty(' + t.id + ')"></td>' +
         '<td><select class="method-select" id="meth-' + t.id + '" onchange="markDirty(' + t.id + ')">' +
-          '<option value="cash"' + (t.preferred_pay_method==='cash'||!t.preferred_pay_method?' selected':'') + '>💵 نقداً</option>' +
+          '<option value="cash"' + (t.preferred_pay_method==='cash'||!t.preferred_pay_method?' selected':'') + '>' + (lang==='ar'?'💵 نقداً':'💵 Cash') + '</option>' +
           '<option value="ccp"'  + (t.preferred_pay_method==='ccp'?' selected':'') + '>🏦 CCP</option>' +
         '</select></td>' +
         '<td><button class="btn-save-row" id="savebtn-' + t.id + '" onclick="saveSalary(' + t.id + ')">' +
-          '<i class="fa fa-save"></i> حفظ</button></td>' +
+          '<i class="fa fa-save"></i> ' + (lang==='ar'?'حفظ':'Save') + '</button></td>' +
       '</tr>';
     }).join('');
   }
 
   window.markDirty = function(id) {
     var btn = document.getElementById('savebtn-'+id);
-    if (btn) { btn.classList.remove('saved'); btn.innerHTML = '<i class="fa fa-save"></i> حفظ'; }
+    if (btn) { btn.classList.remove('saved'); btn.innerHTML = '<i class="fa fa-save"></i> ' + (lang==='ar'?'حفظ':'Save'); }
   };
 
   window.saveSalary = function(tid) {
@@ -943,7 +946,7 @@
       preferred_pay_method: method
     }).then(function() {
       btn.disabled = false; btn.classList.add('saved');
-      btn.innerHTML = '<i class="fa fa-check"></i> تم!';
+      btn.innerHTML = '<i class="fa fa-check"></i> ' + (lang==='ar'?'تم!':'Saved!');
       var t = teachersData.find(function(x){return x.id===tid;});
       if (t) {
         t.monthly_salary = parsedSalary;
@@ -953,11 +956,11 @@
       loadStats();
       loadPayPeriod();
       setTimeout(function() {
-        btn.classList.remove('saved'); btn.innerHTML = '<i class="fa fa-save"></i> حفظ';
+        btn.classList.remove('saved'); btn.innerHTML = '<i class="fa fa-save"></i> ' + (lang==='ar'?'حفظ':'Save');
       }, 2500);
     }).catch(function(e) {
-      btn.disabled = false; btn.innerHTML = '<i class="fa fa-save"></i> حفظ';
-      alert('خطأ: ' + e.message);
+      btn.disabled = false; btn.innerHTML = '<i class="fa fa-save"></i> ' + (lang==='ar'?'حفظ':'Save');
+      alert((lang==='ar'?'خطأ: ':'Error: ') + e.message);
     });
   };
 
@@ -1008,16 +1011,18 @@
   function renderPayList() {
     var list = document.getElementById('pay-list');
     if (!payPeriodData.length) {
-      list.innerHTML = '<div class="empty-state"><i class="fa fa-user-tie"></i><h4>لا يوجد أساتذة</h4></div>';
+      list.innerHTML = '<div class="empty-state"><i class="fa fa-user-tie"></i><h4>' +
+        (lang === 'ar' ? 'لا يوجد أساتذة' : 'No Teachers Found') + '</h4></div>';
       return;
     }
+    var curr = lang === 'ar' ? ' دج' : ' DZD';
     list.innerHTML = payPeriodData.map(function(t) {
       var name   = [t.first_name, t.last_name].filter(Boolean).join(' ');
       var img    = avatar(t.photo, t.gender);
       var fallback = defaultTeacherAvatar(t.gender);
       var isPaid = !!t.payment_id;
       var amount = isPaid ? t.paid_amount : t.monthly_salary;
-      var amtLabel = amount ? fmt(amount) + ' دج' : '<span style="color:var(--muted)">لم يُحدد الراتب</span>';
+      var amtLabel = amount ? fmt(amount) + curr : '<span style="color:var(--muted)">' + (lang==='ar'?'لم يُحدد الراتب':'Salary Not Set') + '</span>';
       var clickable = !isPaid && t.monthly_salary ? ' clickable" onclick="toggleRow(this,' + t.teacher_id + ')' : '';
 
       return '<div class="pay-row ' + (isPaid?'paid':'') + clickable + '" id="payrow-' + t.teacher_id + '">' +
@@ -1034,8 +1039,8 @@
           (isPaid ? '<div style="font-size:11px;color:var(--muted)">' + esc(t.payment_date?String(t.payment_date).split('T')[0]:'') + '</div>' : '') +
         '</div>' +
         (isPaid
-          ? '<span class="pill pill-paid"><span class="pill-dot"></span>مدفوع</span>'
-          : '<span class="pill pill-unpaid"><span class="pill-dot"></span>غير مدفوع</span>'
+          ? '<span class="pill pill-paid"><span class="pill-dot"></span>' + (lang==='ar'?'مدفوع':'Paid') + '</span>'
+          : '<span class="pill pill-unpaid"><span class="pill-dot"></span>' + (lang==='ar'?'غير مدفوع':'Unpaid') + '</span>'
         ) +
       '</div>';
     }).join('');
@@ -1062,7 +1067,9 @@
   window.updateSelectedCount = function() {
     var sel = document.querySelectorAll('.pay-checkbox[data-id]:checked');
     var tot = Array.from(sel).reduce(function(s,c){ return s + parseFloat(c.dataset.amount||0); }, 0);
-    document.getElementById('selected-count').textContent = sel.length + ' محدد — ' + fmt(tot) + ' دج';
+    var curr = lang === 'ar' ? ' دج' : ' DZD';
+    var suffix = lang === 'ar' ? ' محدد — ' : ' selected — ';
+    document.getElementById('selected-count').textContent = sel.length + suffix + fmt(tot) + curr;
     document.getElementById('btn-pay-selected').disabled = sel.length === 0;
   };
 
@@ -1071,9 +1078,12 @@
     var tot  = Array.from(sel).reduce(function(s,c){ return s + parseFloat(c.dataset.amount||0); }, 0);
     var mon  = document.getElementById('pay-month').value;
     var yr   = document.getElementById('pay-year').value;
+    var curr = lang === 'ar' ? ' دج' : ' DZD';
+    var tLabel = lang === 'ar' ? 'أستاذ' : 'teachers';
+    var totLabel = lang === 'ar' ? 'إجمالي' : 'total';
     document.getElementById('pay-modal-summary').innerHTML =
       '<i class="fa fa-info-circle" style="margin-inline-end:8px"></i>' +
-      '<strong>' + sel.length + '</strong> أستاذ · <strong>' + fmt(tot) + ' دج</strong> إجمالي · ' +
+      '<strong>' + sel.length + '</strong> ' + tLabel + ' · <strong>' + fmt(tot) + curr + '</strong> ' + totLabel + ' · ' +
       monthName(parseInt(mon)) + ' ' + yr;
     document.getElementById('pm-date').value = new Date().toISOString().split('T')[0];
     document.getElementById('pm-method').value = 'cash';
@@ -1089,11 +1099,11 @@
     var method = document.getElementById('pm-method').value;
     var notes  = document.getElementById('pm-notes').value.trim();
     var btn    = document.getElementById('btn-confirm-pay');
-    if (!date) { alert('يرجى تحديد تاريخ التسديد'); return; }
+    if (!date) { alert(lang==='ar' ? 'يرجى تحديد تاريخ التسديد' : 'Please select a payment date'); return; }
     var payments = sel.map(function(c) {
       return { teacher_id: parseInt(c.dataset.id), amount: parseFloat(c.dataset.amount), method: method, notes: notes||null };
     });
-    btn.disabled = true; btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> جاري التسديد...';
+    btn.disabled = true; btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> ' + (lang==='ar'?'جاري التسديد...':'Processing payment...');
     apiPost('/teacher-payments', { payments: payments, pay_month: month, pay_year: year, payment_date: date })
       .then(function() {
         closeModal('pay-modal');
@@ -1101,11 +1111,11 @@
         loadSalaryTab();
         loadStats();
         if (typeof loadArchive === 'function') loadArchive();
-        alert('✅ تم تسجيل الرواتب بنجاح!');
+        alert(lang==='ar' ? '✅ تم تسجيل الرواتب بنجاح!' : '✅ Payments recorded successfully!');
       })
-      .catch(function(e) { alert('خطأ: ' + e.message); })
+      .catch(function(e) { alert((lang==='ar'?'خطأ: ':'Error: ') + e.message); })
       .finally(function() {
-        btn.disabled = false; btn.innerHTML = '<i class="fa fa-money"></i> تأكيد وتسديد';
+        btn.disabled = false; btn.innerHTML = '<i class="fa fa-money"></i> ' + (lang==='ar'?'تأكيد وتسديد':'Confirm & Pay');
       });
   };
 
@@ -1113,7 +1123,10 @@
   function initArchiveYears() {
     var yr  = new Date().getFullYear();
     var sel = document.getElementById('arc-year');
-    var o0  = document.createElement('option'); o0.value=''; o0.textContent='كل السنوات'; sel.appendChild(o0);
+    var o0  = document.createElement('option');
+    o0.value = '';
+    o0.textContent = lang === 'ar' ? 'كل السنوات' : 'All Years';
+    sel.appendChild(o0);
     for (var y = yr; y >= yr-5; y--) {
       var o = document.createElement('option'); o.value=y; o.textContent=y;
       if (y===yr) o.selected=true;
@@ -1149,16 +1162,18 @@
   function renderArchiveTable(data) {
     var tbody = document.getElementById('archive-tbody');
     if (!data.length) {
-      tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><i class="fa fa-archive"></i><h4>لا توجد سجلات مدفوعات</h4></div></td></tr>';
+      tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><i class="fa fa-archive"></i><h4>' +
+        (lang === 'ar' ? 'لا توجد سجلات مدفوعات' : 'No payment records found') + '</h4></div></td></tr>';
       return;
     }
+    var curr = lang === 'ar' ? ' دج' : ' DZD';
     tbody.innerHTML = data.map(function(r, i) {
       var name  = [r.first_name, r.last_name].filter(Boolean).join(' ');
       var img   = avatar(r.photo, r.gender);
       var fallback = defaultTeacherAvatar(r.gender);
       var mBadge = r.method === 'ccp'
         ? '<span class="method-badge ccp"><i class="fa fa-university"></i> CCP</span>'
-        : '<span class="method-badge cash"><i class="fa fa-money"></i> نقداً</span>';
+        : '<span class="method-badge cash"><i class="fa fa-money"></i> ' + (lang==='ar'?'نقداً':'Cash') + '</span>';
       return '<tr>' +
         '<td style="color:var(--muted);font-weight:700;text-align:center">' + (i+1) + '</td>' +
         '<td><div class="t-cell">' +
@@ -1166,14 +1181,14 @@
           '<div><div class="t-name">' + esc(name) + '</div><div class="t-sub">' + esc(r.employee_number||'') + '</div></div>' +
         '</div></td>' +
         '<td style="font-weight:700">' + monthName(r.pay_month) + ' ' + r.pay_year + '</td>' +
-        '<td style="font-weight:800;color:var(--primary)">' + fmt(r.amount) + ' دج</td>' +
+        '<td style="font-weight:800;color:var(--primary)">' + fmt(r.amount) + curr + '</td>' +
         '<td>' + mBadge + '</td>' +
         '<td style="font-size:12.5px">' + esc(r.payment_date ? String(r.payment_date).split('T')[0] : '—') + '</td>' +
         '<td style="font-size:12px;color:var(--muted)">' + esc(r.notes||'—') + '</td>' +
         '<td style="white-space:nowrap">' +
-          '<button class="btn-icon edit"   onclick="openEdit('+r.id+')"          title="تعديل"><i class="fa fa-pencil"></i></button> ' +
-          '<button class="btn-icon print"  onclick="printSlip('+r.id+')"         title="طباعة وصل"><i class="fa fa-print"></i></button> ' +
-          '<button class="btn-icon delete" onclick="deletePayment('+r.id+',\''+esc(name)+'\')" title="حذف"><i class="fa fa-trash"></i></button>' +
+          '<button class="btn-icon edit"   onclick="openEdit('+r.id+')"          title="' + (lang==='ar'?'تعديل':'Edit') + '"><i class="fa fa-pencil"></i></button> ' +
+          '<button class="btn-icon print"  onclick="printSlip('+r.id+')"         title="' + (lang==='ar'?'طباعة وصل':'Print Voucher') + '"><i class="fa fa-print"></i></button> ' +
+          '<button class="btn-icon delete" onclick="deletePayment('+r.id+',\''+esc(name)+'\')" title="' + (lang==='ar'?'حذف':'Delete') + '"><i class="fa fa-trash"></i></button>' +
         '</td>' +
       '</tr>';
     }).join('');
@@ -1204,11 +1219,14 @@
         loadSalaryTab();
         loadStats();
       })
-      .catch(function(e) { alert('خطأ: ' + e.message); });
+      .catch(function(e) { alert((lang==='ar'?'خطأ: ':'Error: ') + e.message); });
   };
 
   window.deletePayment = function(id, name) {
-    if (!confirm('حذف دفعة ' + name + '؟\nسيتم إلغاء السجل من الخزينة أيضاً.')) return;
+    var confirmMsg = lang === 'ar'
+      ? ('حذف دفعة ' + name + '؟\nسيتم إلغاء السجل من الخزينة أيضاً.')
+      : ('Delete payment for ' + name + '?\nThis will also cancel the record in Treasury.');
+    if (!confirm(confirmMsg)) return;
     apiDel('/teacher-payments/'+id)
       .then(function() {
         loadArchive();
@@ -1216,7 +1234,7 @@
         loadSalaryTab();
         loadStats();
       })
-      .catch(function(e) { alert('خطأ: ' + e.message); });
+      .catch(function(e) { alert((lang==='ar'?'خطأ: ':'Error: ') + e.message); });
   };
 
   // ─── School info & logo helpers ───────────────────────────────────────────
@@ -1252,49 +1270,69 @@
     var name = [r.first_name, r.last_name].filter(Boolean).join(' ');
     var tc   = teachersData.find(function(t){return t.id===r.teacher_id;});
     var rib  = tc ? (tc.ccp_rib||'—') : '—';
-    var methodLabel = r.method==='ccp' ? 'CCP / تحويل بنكي' : 'نقداً (Cash)';
+    var isAr = lang === 'ar';
+    var methodLabel = r.method==='ccp'
+      ? (isAr ? 'CCP / تحويل بنكي' : 'CCP / Bank Transfer')
+      : (isAr ? 'نقداً (Cash)' : 'Cash');
 
+    var fallbackSchoolName = isAr ? 'المؤسسة التعليمية' : 'Educational Institution';
     var activeSchoolName = schoolName ||
       (document.getElementById('backend-school-name') && document.getElementById('backend-school-name').textContent.trim()) ||
-      (document.getElementById('sb-school-name') && document.getElementById('sb-school-name').textContent.trim()) || 'المؤسسة التعليمية';
+      (document.getElementById('sb-school-name') && document.getElementById('sb-school-name').textContent.trim()) || fallbackSchoolName;
     var logoUrl = resolveSchoolLogo(schoolLogo, activeSchoolName);
 
+    var voucherTitle = isAr ? 'وصل تسليم راتب أستاذ' : 'Teacher Salary Payment Voucher';
+    var lblTeacher = isAr ? 'اسم الأستاذ' : 'Teacher Name';
+    var lblEmp = isAr ? 'رقم الموظف' : 'Employee Number';
+    var lblSpec = isAr ? 'التخصص / المادة' : 'Speciality / Subject';
+    var lblPeriod = isAr ? 'فترة الراتب' : 'Salary Period';
+    var lblDate = isAr ? 'تاريخ التسديد' : 'Payment Date';
+    var lblMethod = isAr ? 'طريقة الدفع' : 'Payment Method';
+    var lblRib = isAr ? 'رقم CCP / RIB' : 'CCP / RIB Number';
+    var lblNotes = isAr ? 'ملاحظات' : 'Notes';
+    var lblTotal = isAr ? 'المبلغ الصافي المدفوع:' : 'Net Amount Paid:';
+    var lblSign = isAr ? 'ختم وتوقيع الإدارة' : 'Administration Stamp & Signature';
+    var lblIssue = isAr ? 'تاريخ الإصدار: ' : 'Date of Issue: ';
+    var lblFooter = isAr ? 'وصل رسمي صادر عن نظام إدارة المؤسسة' : 'Official voucher issued by the School Management System';
+    var curr = isAr ? ' دج' : ' DZD';
+    var dir = isAr ? 'rtl' : 'ltr';
+
     document.getElementById('slip-content').innerHTML =
-      '<div style="border: 2px solid #0f172a; border-radius: 12px; padding: 28px 32px; background: #fff; direction: rtl; font-family: \'Cairo\', \'Inter\', sans-serif;">' +
+      '<div style="border: 2px solid #0f172a; border-radius: 12px; padding: 28px 32px; background: #fff; direction: ' + dir + '; font-family: \'Inter\', sans-serif;">' +
         '<!-- Header with School Name & Logo -->' +
         '<div style="display:flex; align-items:center; justify-content:space-between; border-bottom: 2px solid #0f172a; padding-bottom: 16px; margin-bottom: 20px;">' +
           '<div>' +
             '<h2 style="font-size:22px; font-weight:800; color:#0f172a; margin:0 0 6px;">' + esc(activeSchoolName) + '</h2>' +
-            '<div style="font-size:13px; font-weight:700; color:var(--primary); background:var(--primary-light); display:inline-block; padding:4px 12px; border-radius:6px;">وصل تسليم راتب أستاذ</div>' +
+            '<div style="font-size:13px; font-weight:700; color:var(--primary); background:var(--primary-light); display:inline-block; padding:4px 12px; border-radius:6px;">' + voucherTitle + '</div>' +
           '</div>' +
-          (logoUrl ? '<img src="' + esc(logoUrl) + '" style="max-height:75px; max-width:150px; object-fit:contain;" alt="شعار المؤسسة">' : '') +
+          (logoUrl ? '<img src="' + esc(logoUrl) + '" style="max-height:75px; max-width:150px; object-fit:contain;" alt="Logo">' : '') +
         '</div>' +
 
         '<!-- Details Rows -->' +
-        '<div class="slip-row"><span>اسم الأستاذ</span><strong>' + esc(name) + '</strong></div>' +
-        '<div class="slip-row"><span>رقم الموظف</span><strong>' + esc(r.employee_number||'—') + '</strong></div>' +
-        (tc && tc.speciality ? '<div class="slip-row"><span>التخصص / المادة</span><strong>' + esc(tc.speciality) + '</strong></div>' : '') +
-        '<div class="slip-row"><span>فترة الراتب</span><strong>' + monthName(r.pay_month) + ' ' + r.pay_year + '</strong></div>' +
-        '<div class="slip-row"><span>تاريخ التسديد</span><strong>' + esc(r.payment_date ? String(r.payment_date).split('T')[0] : '—') + '</strong></div>' +
-        '<div class="slip-row"><span>طريقة الدفع</span><strong>' + esc(methodLabel) + '</strong></div>' +
-        (rib && rib !== '—' ? '<div class="slip-row"><span>رقم CCP / RIB</span><strong style="font-family:monospace">' + esc(rib) + '</strong></div>' : '') +
-        (r.notes ? '<div class="slip-row"><span>ملاحظات</span><span>' + esc(r.notes) + '</span></div>' : '') +
+        '<div class="slip-row"><span>' + lblTeacher + '</span><strong>' + esc(name) + '</strong></div>' +
+        '<div class="slip-row"><span>' + lblEmp + '</span><strong>' + esc(r.employee_number||'—') + '</strong></div>' +
+        (tc && tc.speciality ? '<div class="slip-row"><span>' + lblSpec + '</span><strong>' + esc(tc.speciality) + '</strong></div>' : '') +
+        '<div class="slip-row"><span>' + lblPeriod + '</span><strong>' + monthName(r.pay_month) + ' ' + r.pay_year + '</strong></div>' +
+        '<div class="slip-row"><span>' + lblDate + '</span><strong>' + esc(r.payment_date ? String(r.payment_date).split('T')[0] : '—') + '</strong></div>' +
+        '<div class="slip-row"><span>' + lblMethod + '</span><strong>' + esc(methodLabel) + '</strong></div>' +
+        (rib && rib !== '—' ? '<div class="slip-row"><span>' + lblRib + '</span><strong style="font-family:monospace">' + esc(rib) + '</strong></div>' : '') +
+        (r.notes ? '<div class="slip-row"><span>' + lblNotes + '</span><span>' + esc(r.notes) + '</span></div>' : '') +
         '<div class="slip-row" style="background:#f8fafc; padding:12px; border-radius:8px; margin-top:10px; border-bottom:none;">' +
-          '<span style="font-size:15px; font-weight:700;">المبلغ الصافي المدفوع:</span>' +
-          '<strong style="color:var(--primary); font-size:21px; font-weight:800;">' + fmt(r.amount) + ' دج</strong>' +
+          '<span style="font-size:15px; font-weight:700;">' + lblTotal + '</span>' +
+          '<strong style="color:var(--primary); font-size:21px; font-weight:800;">' + fmt(r.amount) + curr + '</strong>' +
         '</div>' +
 
         '<!-- Signature Area (Administration only) -->' +
         '<div style="display:flex; justify-content:flex-end; margin-top:40px; padding-inline-end:20px;">' +
           '<div style="text-align:center; width:200px;">' +
-            '<div style="font-size:13px; font-weight:700; color:#1e293b; margin-bottom:45px;">ختم وتوقيع الإدارة</div>' +
+            '<div style="font-size:13px; font-weight:700; color:#1e293b; margin-bottom:45px;">' + lblSign + '</div>' +
             '<div style="border-bottom:2px dashed #94a3b8; width:100%;"></div>' +
           '</div>' +
         '</div>' +
 
         '<div style="display:flex; justify-content:space-between; font-size:11px; color:#64748b; margin-top:35px; border-top:1px solid #e2e8f0; padding-top:10px;">' +
-          '<span>تاريخ الإصدار: ' + new Date().toLocaleDateString('ar-DZ') + '</span>' +
-          '<span>وصل رسمي صادر عن نظام إدارة المؤسسة</span>' +
+          '<span>' + lblIssue + new Date().toLocaleDateString(isAr ? 'ar-DZ' : 'en-US') + '</span>' +
+          '<span>' + lblFooter + '</span>' +
         '</div>' +
       '</div>';
 

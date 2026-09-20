@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/font-awesome.min.css">
     <link rel="stylesheet" href="css/sidebar.css">
+    <link rel="stylesheet" href="css/portal.css">
     <style>
         body { font-family: 'Inter', sans-serif; }
         .card-panel {
@@ -108,20 +109,20 @@
         <div class="sb-content">
             <div class="sb-breadcrumb">
                 <i class="fa fa-home"></i>
-                <a href="index.html">Home</a>
+                <a href="index.html" data-i18n="Home">Home</a>
                 <span>/</span>
-                <span>Attendance & Scanning</span>
+                <span data-i18n="Attendance & Scanning">Attendance & Scanning</span>
             </div>
             
             <div class="card-panel">
                 <div class="scanner-section">
                     <div class="scanner-input-wrapper">
-                        <input type="text" id="attendance-scanner-input" class="scanner-input" placeholder="Scan RFID/QR Code or type ID here..." autocomplete="off">
+                        <input type="text" id="attendance-scanner-input" class="scanner-input" placeholder="Scan RFID/QR Code or type ID here..." data-i18n-ph="Scan RFID/QR Code or type ID here..." autocomplete="off">
                         <i class="fa fa-barcode scanner-icon"></i>
                     </div>
                     <div>
                         <button id="btn-toggle-webcam" class="btn btn-primary" style="padding: 14px 24px;">
-                            <i class="fa fa-camera"></i> Use Webcam QR
+                            <i class="fa fa-camera"></i> <span data-i18n="Use Webcam QR">Use Webcam QR</span>
                         </button>
                     </div>
                 </div>
@@ -130,29 +131,29 @@
             </div>
 
             <div class="card-panel">
-                <h3 style="margin:0 0 16px;font-size:16px;font-weight:700">Manual Attendance Check</h3>
+                <h3 style="margin:0 0 16px;font-size:16px;font-weight:700" data-i18n="Manual Attendance Check">Manual Attendance Check</h3>
                 
                 <div class="attendance-filters">
                     <div class="filter-group">
-                        <label>Date</label>
+                        <label data-i18n="Date">Date</label>
                         <input type="date" id="attendance-filter-date">
                     </div>
                     <div class="filter-group">
-                        <label>Target Audience</label>
+                        <label data-i18n="Target Audience">Target Audience</label>
                         <select id="attendance-filter-type">
-                            <option value="student">Students</option>
-                            <option value="teacher">Teachers</option>
+                            <option value="student" data-i18n="Students">Students</option>
+                            <option value="teacher" data-i18n="Teachers">Teachers</option>
                         </select>
                     </div>
                     <div class="filter-group" id="attendance-group-container">
-                        <label>Group / Class</label>
+                        <label data-i18n="Group / Class">Group / Class</label>
                         <select id="attendance-filter-group">
-                            <option value="">-- All Groups --</option>
+                            <option value="" data-i18n="-- All Groups --">-- All Groups --</option>
                         </select>
                     </div>
                     <div class="filter-group" style="display: flex; align-items: flex-end;">
                         <button id="btn-validate-attendance" class="btn btn-success" style="display: none; height: 38px;">
-                            <i class="fa fa-lock"></i> Validate Attendance
+                            <i class="fa fa-lock"></i> <span data-i18n="Validate Attendance">Validate Attendance</span>
                         </button>
                     </div>
                 </div>
@@ -160,8 +161,8 @@
                 <div id="attendance-status" class="alert" style="display:none"></div>
 
                 <div class="attendance-bulk-actions" style="margin-bottom: 15px; display: none;" id="attendance-bulk-actions">
-                    <button id="btn-bulk-present" class="btn btn-success btn-sm"><i class="fa fa-check"></i> Mark Selected Present</button>
-                    <button id="btn-bulk-absent" class="btn btn-danger btn-sm"><i class="fa fa-times"></i> Mark Selected Absent</button>
+                    <button id="btn-bulk-present" class="btn btn-success btn-sm"><i class="fa fa-check"></i> <span data-i18n="Mark Selected Present">Mark Selected Present</span></button>
+                    <button id="btn-bulk-absent" class="btn btn-danger btn-sm"><i class="fa fa-times"></i> <span data-i18n="Mark Selected Absent">Mark Selected Absent</span></button>
                     <span id="bulk-selection-count" style="margin-left: 10px; font-weight: 600; color: #555;"></span>
                 </div>
 
@@ -170,16 +171,16 @@
                         <thead>
                             <tr>
                                 <th width="40"><input type="checkbox" id="attendance-select-all" title="Select All"></th>
-                                <th width="50">Photo</th>
-                                <th>ID Number</th>
-                                <th>Name</th>
-                                <th>RFID Tag</th>
-                                <th>Scan Time</th>
-                                <th width="150">Status</th>
+                                <th width="50" data-i18n="Photo">Photo</th>
+                                <th data-i18n="ID Number">ID Number</th>
+                                <th data-i18n="Name">Name</th>
+                                <th data-i18n="RFID Tag">RFID Tag</th>
+                                <th data-i18n="Scan / Check-in Time">Scan Time</th>
+                                <th width="150" data-i18n="Status">Status</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr><td colspan="7" class="text-center">Loading...</td></tr>
+                            <tr><td colspan="7" class="text-center" data-i18n="Loading...">Loading...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -193,6 +194,7 @@
     <script src="js/bootstrap.min.js"></script>
     <!-- Include html5-qrcode for webcam scanning -->
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <script src="js/i18n.js"></script>
     <script src="js/components.js"></script>
     <script src="js/backend.js"></script>
 </body>

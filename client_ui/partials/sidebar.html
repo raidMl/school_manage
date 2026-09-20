@@ -9,37 +9,65 @@
             <img id="sb-school-logo" src="https://ui-avatars.com/api/?name=School&background=2c3e50&color=fff&size=40" alt="School Logo" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">
         </div>
         <div class="sb-logo-text">
-            My Portal
-            <small id="sb-school-name">Student & Teacher</small>
+            <span data-i18n="My Portal">My Portal</span>
+            <small id="sb-school-name" data-i18n="Student & Teacher">Student & Teacher</small>
         </div>
     </a>
 
     <!-- Navigation -->
     <nav class="sb-nav">
         <!-- Student only -->
-        <div class="sb-section-label" data-role="student">Student</div>
+        <div class="sb-section-label" data-role="student" data-i18n="Student Space">Student</div>
 
         <div class="sb-item" data-menu="student-space" data-role="student">
             <a href="student-space.html" class="sb-link">
-                <i class="fa fa-graduation-cap sb-icon"></i>
-                <span class="sb-label">My Dashboard</span>
+                <i class="fa fa-th-large sb-icon"></i>
+                <span class="sb-label" data-i18n="My Dashboard">My Dashboard</span>
+            </a>
+        </div>
+
+        <div class="sb-item" data-menu="student-attendance" data-role="student">
+            <a href="student-attendance.html" class="sb-link">
+                <i class="fa fa-calendar-check-o sb-icon"></i>
+                <span class="sb-label" data-i18n="My Attendance History">My Attendance History</span>
+            </a>
+        </div>
+
+        <div class="sb-item" data-menu="student-profile" data-role="student">
+            <a href="student-profile.html" class="sb-link">
+                <i class="fa fa-user-circle-o sb-icon"></i>
+                <span class="sb-label" data-i18n="Update Profile">Update Profile</span>
             </a>
         </div>
 
         <!-- Teacher only -->
-        <div class="sb-section-label" data-role="teacher">Teacher</div>
+        <div class="sb-section-label" data-role="teacher" data-i18n="Teacher Space">Teacher</div>
 
         <div class="sb-item" data-menu="teacher-space" data-role="teacher">
             <a href="teacher-space.html" class="sb-link">
-                <i class="fa fa-briefcase sb-icon"></i>
-                <span class="sb-label">My Dashboard</span>
+                <i class="fa fa-th-large sb-icon"></i>
+                <span class="sb-label" data-i18n="My Dashboard">My Dashboard</span>
             </a>
         </div>
 
         <div class="sb-item" data-menu="attendance" data-role="teacher">
             <a href="attendance.html" class="sb-link">
-                <i class="fa fa-check-square-o sb-icon"></i>
-                <span class="sb-label">Attendance & Scanning</span>
+                <i class="fa fa-qrcode sb-icon"></i>
+                <span class="sb-label" data-i18n="Attendance & Scanning">Attendance & Scanning</span>
+            </a>
+        </div>
+
+        <div class="sb-item" data-menu="teacher-attendance" data-role="teacher">
+            <a href="teacher-attendance.html" class="sb-link">
+                <i class="fa fa-calendar-check-o sb-icon"></i>
+                <span class="sb-label" data-i18n="My Attendance History">My Attendance History</span>
+            </a>
+        </div>
+
+        <div class="sb-item" data-menu="teacher-profile" data-role="teacher">
+            <a href="teacher-profile.html" class="sb-link">
+                <i class="fa fa-user-circle-o sb-icon"></i>
+                <span class="sb-label" data-i18n="Update Profile">Update Profile</span>
             </a>
         </div>
     </nav>

@@ -8,14 +8,26 @@
   // ── i18n ────────────────────────────────────────────────────────────────────
   var AR = {
     'Home': 'الرئيسية', 'Log Out': 'تسجيل الخروج',
+    'Dashboard': 'لوحة التحكم', 'My Dashboard': 'لوحة التحكم',
+    'Student Space': 'فضاء التلميذ', 'Teacher Space': 'فضاء الأستاذ',
+    'Update Profile': 'تعديل الملف الشخصي',
+    'My Attendance History': 'سجل الحضور',
+    'Attendance & Scanning': 'تسجيل الحضور والمسح',
     'No records found': 'لا توجد سجلات', 'Loading...': 'جاري التحميل...',
     'Passwords do not match': 'كلمات المرور غير متطابقة',
+    'Profile updated successfully!': 'تم تحديث الملف الشخصي بنجاح!',
+    'Present': 'حاضر', 'Absent': 'غائب', 'Save Changes': 'حفظ التعديلات'
   };
   function t(s) { return currentLang === 'ar' ? (AR[s] || s) : s; }
   function applyTranslations(root) {
-    if (currentLang !== 'ar' || !root) return;
-    root.querySelectorAll('[data-i18n]').forEach(function (el) {
-      var k = el.getAttribute('data-i18n'), v = AR[k];
+    if (currentLang !== 'ar') return;
+    var container = root || document;
+    if (window.AppI18n && typeof window.AppI18n.translateAll === 'function') {
+      window.AppI18n.translateAll(container);
+      return;
+    }
+    container.querySelectorAll('[data-i18n]').forEach(function (el) {
+      var k = el.getAttribute('data-i18n').trim(), v = AR[k];
       if (v) {
         var labelEl = el.querySelector('.th-label-text');
         if (labelEl) {
@@ -34,11 +46,20 @@
   }
 
   // ── Avatar helper ────────────────────────────────────────────────────────────
-  function avatarUrl(photo, name, type) {
-    if (photo && photo.trim() && photo.indexOf('/img/avatar-') === -1) return photo.trim();
-    var bg = type === 'student' ? 'f7971e' : (type === 'teacher' ? '11998e' : '4f6eff');
-    var letter = (name && name.trim()) ? name.trim().charAt(0).toUpperCase() : (type === 'student' ? 'S' : (type === 'teacher' ? 'T' : 'U'));
-    return 'https://ui-avatars.com/api/?name=' + letter + '&background=' + bg + '&color=fff&size=150';
+  function avatarUrl(photo, name, type, gender) {
+    if (photo && photo.trim() && photo.indexOf('/img/avatar-') === -1 && photo.indexOf('ui-avatars.com') === -1) {
+      return photo.trim();
+    }
+    var userGender = gender || (window._ctx && window._ctx.user && window._ctx.user.gender) || '';
+    var g = String(userGender).toLowerCase();
+    var isFemale = (g === 'female' || g === 'f' || g === 'woman' || g === 'girl' || g === 'أنثى');
+
+    if (type === 'student') {
+      return isFemale ? encodeURI('img/طالبة مسلمة.webp') : encodeURI('img/طالب.webp');
+    } else if (type === 'teacher') {
+      return isFemale ? encodeURI('img/معلمة مسلمة.webp') : encodeURI('img/معلم.webp');
+    }
+    return isFemale ? encodeURI('img/طالبة مسلمة.webp') : encodeURI('img/طالب.webp');
   }
 
   // ── API client ───────────────────────────────────────────────────────────────
@@ -87,14 +108,18 @@
       if (!btn) return;
       e.preventDefault();
       var lang = btn.getAttribute('data-lang');
-      if (lang !== currentLang) { localStorage.setItem(LANG_KEY, lang); window.location.reload(); }
+      if (lang !== currentLang) {
+        localStorage.setItem(LANG_KEY, lang);
+        localStorage.setItem('app_lang', lang);
+        window.location.reload();
+      }
     });
   }
 
   // ── Auth ─────────────────────────────────────────────────────────────────────
   var ALLOWED_PAGES = {
-    'student': ['student-space'],
-    'teacher': ['teacher-space', 'attendance']
+    'student': ['student-space', 'student-profile', 'student-attendance'],
+    'teacher': ['teacher-space', 'attendance', 'teacher-profile', 'teacher-attendance']
   };
 
   function ensureAuth() {
@@ -103,6 +128,7 @@
         var role = ctx.user.role;
         if (role === 'student') redirect('student-space.html');
         else if (role === 'teacher') redirect('teacher-space.html');
+        else if (role === 'admin' || role === 'super_admin') redirect('../admin-ui/index.html');
         else { clearToken(); showAlert('#backend-auth-status', 'Admins must use the admin portal.'); }
       }).catch(function () { clearToken(); });
       return;
@@ -132,9 +158,20 @@
 
     var userAvatar = document.getElementById('header-user-avatar');
     if (userAvatar) {
-      userAvatar.src = avatarUrl(ctx.user.photo, name, ctx.user.role);
+      userAvatar.src = avatarUrl(ctx.user.photo, name, ctx.user.role, ctx.user.gender);
     }
     if (ctx.school) window._schoolId = ctx.school.id;
+
+    // Dynamically wire topbar dropdown links
+    var dashLink = document.getElementById('header-dashboard-link');
+    if (dashLink) {
+      dashLink.href = ctx.user.role === 'student' ? 'student-space.html' : 'teacher-space.html';
+    }
+    var profLink = document.getElementById('header-profile-link');
+    if (profLink) {
+      profLink.href = ctx.user.role === 'student' ? 'student-profile.html' : 'teacher-profile.html';
+    }
+
     bindLogout();
     filterSidebarByRole();
     fetchNotifications();
@@ -265,10 +302,14 @@
     var name = [ctx.user.first_name, ctx.user.last_name].filter(Boolean).join(' ');
     setText('#sb-footer-user-name', name);
     var roleLabel = document.querySelector('#app-sidebar .sb-user-role');
-    if (roleLabel) roleLabel.textContent = role === 'student' ? 'Student' : 'Teacher';
+    if (roleLabel) {
+      var roleName = role === 'student' ? 'Student' : 'Teacher';
+      roleLabel.textContent = window.AppI18n ? window.AppI18n.t(roleName) : roleName;
+      roleLabel.setAttribute('data-i18n', roleName);
+    }
 
     var sbAvatar = document.getElementById('sb-user-avatar');
-    if (sbAvatar) sbAvatar.src = avatarUrl(ctx.user.photo, name, role);
+    if (sbAvatar) sbAvatar.src = avatarUrl(ctx.user.photo, name, role, ctx.user.gender);
   }
 
   function bindLogout() {
@@ -283,8 +324,13 @@
     avatarUrl: avatarUrl,
     afterPartialLoad: function (name) {
       populateAuthUI();
-      if (name === 'header') { bindLogout(); initLanguageSwitcher(); applyTranslations(document.getElementById('header-placeholder')); }
-      if (name === 'sidebar') { applyTranslations(document.getElementById('sidebar-placeholder')); filterSidebarByRole(); }
+      if (window.AppI18n && typeof window.AppI18n.translateAll === 'function') {
+        window.AppI18n.translateAll(document);
+      } else {
+        applyTranslations(document);
+      }
+      if (name === 'header') { bindLogout(); initLanguageSwitcher(); }
+      if (name === 'sidebar') { filterSidebarByRole(); }
     }
   };
 
@@ -299,8 +345,11 @@
           if (role === 'student' || role === 'teacher') {
             setToken(r.token);
             redirect(role === 'student' ? 'student-space.html' : 'teacher-space.html');
+          } else if (role === 'admin' || role === 'super_admin') {
+            setToken(r.token);
+            redirect('../admin-ui/' + (r.needsSchoolSetup ? 'setup-school.html' : 'index.html'));
           } else {
-            showAlert('#backend-auth-status', 'Admins must use the admin portal.');
+            showAlert('#backend-auth-status', 'Unknown user role.');
           }
         })
         .catch(function (err) { showAlert('#backend-auth-status', err.message); });

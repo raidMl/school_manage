@@ -1,0 +1,3267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Anti-FOUC & Preloader -->
+    <style id="fouc-style">body { opacity: 0; visibility: hidden; }</style>
+    <script>
+      (function() {
+        var lang = localStorage.getItem('app_lang') || 'ar';
+        if(lang === 'ar') {
+          document.documentElement.dir = 'rtl';
+          document.documentElement.lang = 'ar';
+        } else {
+          document.documentElement.dir = 'ltr';
+          document.documentElement.lang = 'en';
+        }
+      })();
+    </script>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Memorization Levels | Quran Department</title>
+    <meta name="description" content="Track students' Quran memorization levels">
+    <link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/sidebar.css">
+
+    <style>
+        /* ═══════════════════════════════ BASE THEME ═══════════════════════════════ */
+        body {
+            font-family: 'Inter', 'Amiri', sans-serif;
+            background: #f1f5f9;
+            color: #1e293b;
+        }
+
+        /* ── Hero card ──────────────────────────────────────────────────────────── */
+        .quran-hero {
+            background: linear-gradient(135deg, #064e3b 0%, #065f46 38%, #047857 72%, #0d9488 100%);
+            border-radius: 20px;
+            padding: 30px 34px;
+            margin-bottom: 24px;
+            color: #fff;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 32px rgba(6, 78, 59, 0.3);
+        }
+        .quran-hero::before {
+            content: '﷽';
+            position: absolute;
+            left: -15px; top: -35px;
+            font-size: 150px;
+            opacity: 0.08;
+            line-height: 1;
+            pointer-events: none;
+            font-family: 'Amiri', serif;
+        }
+        .quran-hero::after {
+            content: '';
+            position: absolute;
+            right: -50px; bottom: -50px;
+            width: 220px; height: 220px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0) 70%);
+            pointer-events: none;
+        }
+        .quran-hero h1 {
+            font-family: 'Amiri', serif;
+            font-size: 27px;
+            font-weight: 700;
+            margin: 0 0 6px;
+            text-shadow: 0 2px 6px rgba(0,0,0,0.25);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .quran-hero p {
+            margin: 0;
+            opacity: 0.9;
+            font-size: 14px;
+            max-width: 650px;
+            line-height: 1.6;
+        }
+        .hero-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        .btn-quran-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.16);
+            backdrop-filter: blur(8px);
+            border: 1.5px solid rgba(255,255,255,0.32);
+            color: #fff;
+            border-radius: 12px;
+            padding: 10px 22px;
+            font-size: 13.5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .2s;
+            text-decoration: none;
+        }
+        .btn-quran-primary:hover {
+            background: rgba(255,255,255,0.26);
+            color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.18);
+        }
+        .btn-quran-gold {
+            background: linear-gradient(135deg, #d97706, #f59e0b);
+            border: none;
+            box-shadow: 0 4px 14px rgba(217,119,6,0.38);
+        }
+        .btn-quran-gold:hover {
+            background: linear-gradient(135deg, #b45309, #d97706);
+            box-shadow: 0 8px 24px rgba(217,119,6,0.48);
+        }
+
+        /* ── Stat chips ──────────────────────────────────────────────────────────── */
+        .quran-stats-row {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+            margin-bottom: 22px;
+        }
+        .q-stat {
+            flex: 1;
+            min-width: 140px;
+            background: #fff;
+            border-radius: 14px;
+            padding: 16px 18px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            transition: transform .2s, box-shadow .2s;
+        }
+        .q-stat:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+        }
+        .q-stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #fff;
+            flex-shrink: 0;
+        }
+        .q-stat-val {
+            font-size: 26px;
+            font-weight: 700;
+            color: #0f172a;
+            line-height: 1.1;
+        }
+        .q-stat-lbl {
+            font-size: 11.5px;
+            color: #64748b;
+            margin-top: 3px;
+            font-weight: 500;
+        }
+
+        /* ── Tabs ────────────────────────────────────────────────────────────────── */
+        .q-tabs {
+            display: flex;
+            gap: 6px;
+            border-bottom: 2px solid #e2e8f0;
+            margin-bottom: 20px;
+        }
+        .q-tab {
+            padding: 11px 22px;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: #64748b;
+            cursor: pointer;
+            border-bottom: 2.5px solid transparent;
+            margin-bottom: -2px;
+            transition: all .2s;
+            border-radius: 10px 10px 0 0;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            user-select: none;
+        }
+        .q-tab:hover {
+            color: #059669;
+            background: #f0fdf4;
+        }
+        .q-tab.active {
+            color: #059669;
+            border-bottom-color: #10b981;
+            background: #f0fdf4;
+            font-weight: 700;
+        }
+
+        /* ── Panel / Card ────────────────────────────────────────────────────────── */
+        .card-panel {
+            background: #fff;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+            margin-bottom: 22px;
+        }
+        .panel-header {
+            font-size: 15.5px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0 0 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .panel-header-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            color: #fff;
+            margin-inline-end: 10px;
+            flex-shrink: 0;
+        }
+
+        /* ── Filters ─────────────────────────────────────────────────────────────── */
+        .q-filters {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 18px;
+            background: #f8fafc;
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+        .q-filter {
+            flex: 1;
+            min-width: 145px;
+        }
+        .q-filter label {
+            font-size: 11.5px;
+            font-weight: 600;
+            color: #64748b;
+            display: block;
+            margin-bottom: 5px;
+        }
+        .q-filter select, .q-filter input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #1e293b;
+            background: #fff;
+            transition: border-color .2s, box-shadow .2s;
+            outline: none;
+        }
+        .q-filter select:focus, .q-filter input:focus {
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16,185,129,0.12);
+        }
+
+        /* ── Table ───────────────────────────────────────────────────────────────── */
+        .q-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .q-table th {
+            background: #f8fafc;
+            font-size: 12px;
+            font-weight: 700;
+            color: #475569;
+            padding: 12px 14px;
+            border-bottom: 2px solid #e2e8f0;
+            white-space: nowrap;
+            text-align: right;
+        }
+        [dir="ltr"] .q-table th { text-align: left; }
+        .q-table td {
+            padding: 12px 14px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 13px;
+            color: #334155;
+            vertical-align: middle;
+            text-align: right;
+        }
+        [dir="ltr"] .q-table td { text-align: left; }
+        .q-table tbody tr:hover {
+            background: #f0fdf4;
+        }
+        .q-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* ── Badges ──────────────────────────────────────────────────────────────── */
+        .cycle-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            background: #eff6ff;
+            color: #2563eb;
+            border: 1px solid #bfdbfe;
+            white-space: nowrap;
+        }
+        .group-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 9px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            background: #f0fdf4;
+            color: #059669;
+            border: 1px solid #bbf7d0;
+            white-space: nowrap;
+        }
+        .amount-badge {
+            font-weight: 700;
+            color: #0f172a;
+            font-size: 13px;
+            display: inline-block;
+            max-width: 220px;
+        }
+
+        /* ── Student avatar cell ─────────────────────────────────────────────────── */
+        .stu-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+        .stu-cell:hover .stu-name {
+            color: #059669;
+            text-decoration: underline;
+        }
+        .stu-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+            border: 2px solid #e2e8f0;
+        }
+        .stu-name {
+            font-weight: 600;
+            font-size: 13.5px;
+            color: #1e293b;
+            transition: color .15s;
+        }
+        .stu-reg {
+            font-size: 11px;
+            color: #94a3b8;
+            direction: ltr;
+            text-align: right;
+        }
+
+        /* ── Level badge ─────────────────────────────────────────────────────────── */
+        .lvl-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11.5px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        .lvl-badge   { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+        .lvl-مبتدئ   { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+        .lvl-متوسط   { background: #fef3c7; color: #d97706; border: 1px solid #fde68a; }
+        .lvl-متقدم   { background: #d1fae5; color: #059669; border: 1px solid #a7f3d0; }
+        .lvl-ختم, .lvl-ختم-القرآن { background: linear-gradient(135deg,#7c3aed,#a855f7); color:#fff; border:none; }
+        .lvl-تحضيري  { background: #fdf4ff; color: #a21caf; border: 1px solid #f5d0fe; }
+        .lvl-تمهيدي  { background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; }
+        .lvl-default { background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0; }
+
+        /* ── Action buttons ──────────────────────────────────────────────────────── */
+        .btn-tbl {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all .15s;
+        }
+        .btn-tbl-view  { background: #ecfdf5; color: #059669; }
+        .btn-tbl-view:hover  { background: #059669; color: #fff; }
+        .btn-tbl-edit  { background: #eff6ff; color: #3b82f6; }
+        .btn-tbl-edit:hover  { background: #3b82f6; color: #fff; }
+        .btn-tbl-del   { background: #fff1f2; color: #ef4444; }
+        .btn-tbl-del:hover   { background: #ef4444; color: #fff; }
+
+        /* ── Autocomplete for students ───────────────────────────────────────────── */
+        .stu-search-wrap {
+            position: relative;
+        }
+        .stu-autocomplete {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #fff;
+            border: 1.5px solid #10b981;
+            border-top: none;
+            border-radius: 0 0 12px 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+            z-index: 1050;
+            max-height: 250px;
+            overflow-y: auto;
+            display: none;
+        }
+        .stu-autocomplete.open { display: block; }
+        .stu-ac-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 9px 14px;
+            cursor: pointer;
+            border-bottom: 1px solid #f1f5f9;
+            transition: background .15s;
+        }
+        .stu-ac-item:last-child { border-bottom: none; }
+        .stu-ac-item:hover { background: #f0fdf4; }
+        .stu-ac-item img {
+            width: 34px; height: 34px; border-radius: 50%; object-fit: cover; flex-shrink: 0;
+        }
+        .stu-ac-name { font-weight: 600; font-size: 13px; color: #0f172a; }
+        .stu-ac-meta { font-size: 11px; color: #64748b; }
+
+        /* ── Selected student chip ───────────────────────────────────────────────── */
+        .stu-selected-card {
+            display: none;
+            background: linear-gradient(135deg, #f0fdf4, #ecfdf5);
+            border: 1.5px solid #86efac;
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            align-items: center;
+            gap: 14px;
+        }
+        .stu-selected-card.visible { display: flex; }
+        .stu-selected-card img {
+            width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 2px solid #10b981; flex-shrink: 0;
+        }
+        .stu-selected-info { flex: 1; }
+        .stu-selected-name { font-weight: 700; font-size: 14px; color: #064e3b; }
+        .stu-selected-meta { font-size: 11.5px; color: #047857; margin-top: 2px; }
+
+        /* ── Quick chips ─────────────────────────────────────────────────────────── */
+        .quick-chips {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-top: 7px;
+        }
+        .q-chip {
+            padding: 4px 10px;
+            border-radius: 16px;
+            background: #f1f5f9;
+            color: #475569;
+            font-size: 11.5px;
+            font-weight: 500;
+            cursor: pointer;
+            border: 1px solid #e2e8f0;
+            transition: all .15s;
+            user-select: none;
+        }
+        .q-chip:hover {
+            background: #d1fae5;
+            color: #065f46;
+            border-color: #a7f3d0;
+        }
+
+        /* ── Leaderboard cards ───────────────────────────────────────────────────── */
+        .lb-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 16px;
+        }
+        .lb-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            transition: transform .2s, box-shadow .2s;
+            border: 2px solid #f1f5f9;
+            cursor: pointer;
+        }
+        .lb-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 28px rgba(0,0,0,0.09);
+            border-color: #10b981;
+        }
+        .lb-rank {
+            position: absolute;
+            top: 12px;
+            inset-inline-start: 14px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 800;
+        }
+        .lb-rank.gold   { background: linear-gradient(135deg,#f59e0b,#fbbf24); color:#fff; box-shadow:0 2px 8px rgba(245,158,11,0.4); }
+        .lb-rank.silver { background: linear-gradient(135deg,#94a3b8,#cbd5e1); color:#fff; }
+        .lb-rank.bronze { background: linear-gradient(135deg,#b45309,#d97706); color:#fff; }
+        .lb-rank.other  { background: #f1f5f9; color: #64748b; }
+        .lb-avatar {
+            width: 68px;
+            height: 68px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #e2e8f0;
+            margin-bottom: 10px;
+        }
+        .lb-name {
+            font-weight: 700;
+            font-size: 14px;
+            color: #0f172a;
+            margin-bottom: 3px;
+        }
+        .lb-group {
+            font-size: 11.5px;
+            color: #94a3b8;
+            margin-bottom: 10px;
+        }
+        .lb-sessions {
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #059669, #10b981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+        .lb-sessions-lbl {
+            font-size: 11px;
+            color: #64748b;
+            font-weight: 500;
+        }
+        .lb-last {
+            font-size: 11px;
+            color: #94a3b8;
+            margin-top: 8px;
+        }
+
+        /* ── Form styling ────────────────────────────────────────────────────────── */
+        .form-group label {
+            font-size: 12.5px;
+            font-weight: 600;
+            color: #475569;
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-control {
+            width: 100%;
+            padding: 9px 13px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 13px;
+            color: #1e293b;
+            background: #f8fafc;
+            transition: border-color .2s, box-shadow .2s;
+            outline: none;
+        }
+        .form-control:focus {
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16,185,129,0.12);
+            background: #fff;
+        }
+        textarea.form-control {
+            resize: vertical;
+            min-height: 70px;
+        }
+
+        /* ── Bulk entry modal & table ────────────────────────────────────────────── */
+        .bulk-modal {
+            max-width: 1080px !important;
+            width: 95vw !important;
+            max-height: 90vh !important;
+            border-radius: 20px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            overflow: hidden !important;
+            box-shadow: 0 25px 60px rgba(15,23,42,0.35) !important;
+        }
+        .bulk-modal-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-shrink: 0;
+            background: #fff;
+        }
+        .bulk-modal-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(245,158,11,0.15), rgba(217,119,6,0.22));
+            color: #d97706;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+            border: 1px solid rgba(245,158,11,0.3);
+        }
+        .bulk-modal-title-wrap h3 {
+            font-size: 17.5px;
+            font-weight: 800;
+            color: #0f172a;
+            margin: 0;
+        }
+        .bulk-modal-title-wrap p {
+            margin: 3px 0 0;
+            font-size: 12px;
+            color: #64748b;
+            font-weight: 500;
+        }
+        .bulk-modal-body {
+            padding: 18px 24px;
+            overflow-y: auto;
+            flex: 1;
+            min-height: 0;
+        }
+        .bulk-modal + .q-modal-footer,
+        .bulk-modal .q-modal-footer {
+            flex-shrink: 0;
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            padding: 14px 24px;
+        }
+        .bulk-config-card {
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+            border: 1.5px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 16px 18px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.02);
+        }
+        .bulk-config-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+        }
+        @media (max-width: 992px) {
+            .bulk-config-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 576px) {
+            .bulk-config-grid { grid-template-columns: 1fr; }
+        }
+        .bulk-field-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .bulk-field-label {
+            font-size: 12.5px;
+            font-weight: 700;
+            color: #334155;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 2px;
+        }
+        .bulk-field-label-left {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .bulk-field-label-left i {
+            color: #d97706;
+            font-size: 13px;
+        }
+        .bulk-badge-auto {
+            font-size: 10.5px;
+            font-weight: 600;
+            color: #64748b;
+            background: #f1f5f9;
+            padding: 2px 7px;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+        }
+        .bulk-select, .bulk-input {
+            width: 100%;
+            height: 40px;
+            padding: 8px 12px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 10px;
+            font-size: 13px;
+            color: #1e293b;
+            background-color: #fff;
+            transition: border-color .15s, box-shadow .15s;
+            outline: none;
+            box-sizing: border-box;
+        }
+        .bulk-select:focus, .bulk-input:focus {
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 3px rgba(245,158,11,0.15);
+        }
+        .bulk-quick-card {
+            margin-top: 14px;
+            padding: 12px 14px;
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+            border: 1px solid #fde68a;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .bulk-quick-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .bulk-quick-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12.5px;
+            font-weight: 700;
+            color: #92400e;
+        }
+        .bulk-quick-title i {
+            font-size: 14px;
+            color: #d97706;
+        }
+        .bulk-quick-action-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+            max-width: 440px;
+        }
+        .bulk-quick-input {
+            height: 36px;
+            padding: 6px 12px;
+            border: 1.5px solid #fcd34d;
+            border-radius: 8px;
+            font-size: 12.5px;
+            color: #1e293b;
+            background: #fff;
+            flex: 1;
+            outline: none;
+            box-sizing: border-box;
+        }
+        .bulk-quick-input:focus {
+            border-color: #d97706;
+            box-shadow: 0 0 0 3px rgba(217,119,6,0.15);
+        }
+        .btn-bulk-apply {
+            height: 36px;
+            padding: 0 16px;
+            background: linear-gradient(135deg, #d97706, #f59e0b);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all .15s;
+            box-shadow: 0 2px 6px rgba(217,119,6,0.3);
+            white-space: nowrap;
+        }
+        .btn-bulk-apply:hover {
+            background: linear-gradient(135deg, #b45309, #d97706);
+            transform: translateY(-1px);
+        }
+        .bulk-quick-chips {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+            border-top: 1px dashed rgba(217,119,6,0.25);
+            padding-top: 8px;
+        }
+        .bulk-chip-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: #b45309;
+            margin-inline-end: 4px;
+        }
+        .bulk-chip {
+            padding: 4px 10px;
+            background: #fff;
+            border: 1px solid #fde68a;
+            color: #92400e;
+            border-radius: 6px;
+            font-size: 11.5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .15s;
+            display: inline-flex;
+            align-items: center;
+            user-select: none;
+        }
+        .bulk-chip:hover {
+            background: #fef3c7;
+            border-color: #d97706;
+            color: #78350f;
+            transform: translateY(-1px);
+        }
+        .bulk-hint-box {
+            background: #f8fafc;
+            border: 2px dashed #cbd5e1;
+            border-radius: 16px;
+            padding: 36px 20px;
+            text-align: center;
+            margin: 10px 0;
+        }
+        .bulk-hint-icon {
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(245,158,11,0.12), rgba(217,119,6,0.18));
+            color: #d97706;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            margin: 0 auto 14px;
+        }
+        .bulk-hint-title {
+            font-size: 15px;
+            font-weight: 800;
+            color: #1e293b;
+            margin-bottom: 6px;
+        }
+        .bulk-hint-text {
+            font-size: 12.5px;
+            color: #64748b;
+            max-width: 480px;
+            margin: 0 auto 16px;
+            line-height: 1.6;
+        }
+        .bulk-hint-steps {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .bulk-step-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 12px;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            font-size: 11.5px;
+            font-weight: 700;
+            color: #475569;
+        }
+        .bulk-step-pill .step-num {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #d97706;
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 800;
+        }
+        .bulk-step-arr {
+            color: #94a3b8;
+            font-size: 11px;
+        }
+        .bulk-table-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 10px;
+            padding: 9px 14px;
+            margin-bottom: 12px;
+        }
+        .bulk-table-notice {
+            font-size: 12.5px;
+            color: #15803d;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .bulk-table-stats {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .bulk-stat-badge {
+            font-size: 11.5px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .bulk-stat-badge.total {
+            background: #e2e8f0;
+            color: #334155;
+        }
+        .bulk-stat-badge.filled {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #86efac;
+        }
+        .bulk-table-container {
+            max-height: 420px;
+            overflow-y: auto;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            background: #fff;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
+        }
+        .bulk-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 0 !important;
+        }
+        .bulk-table thead th {
+            position: sticky;
+            top: 0;
+            z-index: 5;
+            background: #f8fafc;
+            color: #334155;
+            font-size: 12px;
+            font-weight: 800;
+            padding: 11px 12px;
+            border-bottom: 2px solid #e2e8f0;
+            white-space: nowrap;
+        }
+        .bulk-table tbody tr {
+            transition: background-color .15s;
+        }
+        .bulk-table tbody tr:hover {
+            background-color: #f8fafc;
+        }
+        .bulk-table tbody tr.has-amount {
+            background-color: #f0fdf4;
+        }
+        .bulk-table tbody tr.has-amount td:first-child {
+            border-inline-start: 3.5px solid #10b981;
+            font-weight: 700;
+            color: #059669 !important;
+        }
+        .bulk-table td {
+            padding: 8px 10px;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+        }
+        .bulk-table input, .bulk-table select {
+            width: 100%;
+            height: 36px;
+            padding: 6px 10px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 12.5px;
+            background: #fff;
+            outline: none;
+            transition: all .15s;
+            box-sizing: border-box;
+        }
+        .bulk-table input:focus, .bulk-table select:focus {
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16,185,129,0.12);
+        }
+        .bulk-table tr.has-amount .bulk-amount {
+            border-color: #86efac;
+            background-color: #fafffc;
+            font-weight: 600;
+        }
+
+        /* ── Modal backdrop & card ───────────────────────────────────────────────── */
+        .q-modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15,23,42,0.6);
+            backdrop-filter: blur(4px);
+            z-index: 9000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .q-modal-backdrop.open { display: flex; }
+        .q-modal {
+            background: #fff;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 680px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.3);
+            animation: qModalIn .22s cubic-bezier(.16,1,.3,1);
+        }
+        @keyframes qModalIn {
+            from { transform: scale(0.95) translateY(12px); opacity: 0; }
+            to { transform: scale(1) translateY(0); opacity: 1; }
+        }
+        .q-modal-header {
+            padding: 20px 24px 16px;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .q-modal-header h3 {
+            margin: 0;
+            font-size: 17px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+        .q-modal-body {
+            padding: 22px 24px;
+        }
+        .q-modal-footer {
+            padding: 16px 24px 20px;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            border-top: 1px solid #f1f5f9;
+        }
+        .btn-modal-cancel {
+            padding: 9px 20px;
+            border-radius: 10px;
+            border: 1.5px solid #e2e8f0;
+            background: #f8fafc;
+            color: #64748b;
+            font-weight: 600;
+            font-size: 13.5px;
+            cursor: pointer;
+            transition: all .15s;
+        }
+        .btn-modal-cancel:hover { background: #f1f5f9; }
+        .btn-modal-save {
+            padding: 9px 24px;
+            border-radius: 10px;
+            background: linear-gradient(135deg,#059669,#10b981);
+            border: none;
+            color: #fff;
+            font-weight: 700;
+            font-size: 13.5px;
+            cursor: pointer;
+            transition: all .2s;
+            box-shadow: 0 4px 14px rgba(16,185,129,0.4);
+        }
+        .btn-modal-save:hover {
+            background: linear-gradient(135deg,#047857,#059669);
+            transform: translateY(-1px);
+        }
+        .btn-modal-save:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* ── Student history timeline modal ──────────────────────────────────────── */
+        .history-card-header {
+            background: linear-gradient(135deg, #064e3b, #047857);
+            color: #fff;
+            padding: 20px 24px;
+            border-radius: 14px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .history-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2.5px solid #fff;
+            flex-shrink: 0;
+        }
+        .history-name {
+            font-size: 17px;
+            font-weight: 700;
+            margin-bottom: 3px;
+        }
+        .history-meta {
+            font-size: 12px;
+            opacity: 0.88;
+        }
+
+        /* ── Standard buttons ────────────────────────────────────────────────────── */
+        .btn-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all .2s;
+        }
+        .btn-green {
+            background: linear-gradient(135deg,#059669,#10b981);
+            color: #fff;
+            box-shadow: 0 3px 12px rgba(16,185,129,0.3);
+        }
+        .btn-green:hover {
+            background: linear-gradient(135deg,#047857,#059669);
+            transform: translateY(-1px);
+        }
+        .btn-gold {
+            background: linear-gradient(135deg,#d97706,#f59e0b);
+            color: #fff;
+            box-shadow: 0 3px 12px rgba(217,119,6,0.3);
+        }
+        .btn-gold:hover {
+            background: linear-gradient(135deg,#b45309,#d97706);
+            transform: translateY(-1px);
+        }
+        .btn-close-modal {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: none;
+            background: #f1f5f9;
+            color: #64748b;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            transition: all .15s;
+        }
+        .btn-close-modal:hover { background: #e2e8f0; }
+
+        /* ── Tab panels ──────────────────────────────────────────────────────────── */
+        .q-tab-panel { display: none; }
+        .q-tab-panel.active { display: block; }
+
+        /* ── Empty states ────────────────────────────────────────────────────────── */
+        .q-empty {
+            text-align: center;
+            padding: 50px 20px;
+            color: #94a3b8;
+        }
+        .q-empty i {
+            font-size: 44px;
+            margin-bottom: 12px;
+            display: block;
+            color: #cbd5e1;
+        }
+        .q-empty p {
+            font-size: 14px;
+            margin: 0;
+        }
+
+        /* ── Alert ───────────────────────────────────────────────────────────────── */
+        #quran-status-alert { display: none; margin-bottom: 16px; }
+
+        @media (max-width: 768px) {
+            .quran-hero { padding: 22px 20px; }
+            .quran-hero h1 { font-size: 21px; }
+            .q-modal { max-width: 100%; }
+            .lb-grid { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
+        }
+    </style>
+</head>
+
+<body data-page="quran">
+    <div id="sidebar-placeholder"></div>
+
+    <div class="sb-main">
+        <div id="header-placeholder"></div>
+
+        <div class="sb-content">
+            <!-- Breadcrumb -->
+            <div class="sb-breadcrumb">
+                <i class="fa fa-home"></i>
+                <a href="index.html" data-i18n="Home">Home</a>
+                <span>/</span>
+                <span data-i18n="Quran Department">Quran Department</span>
+                <span>/</span>
+                <span data-i18n="Memorization Levels">Memorization Levels</span>
+            </div>
+
+            <!-- ══ HERO BANNER ═════════════════════════════════════════════════════ -->
+            <div class="quran-hero">
+                <h1>
+                    <i class="fa fa-star" style="color:#fbbf24"></i>
+                    <span data-i18n="Quran Department — Memorization Levels">Quran Department — Memorization Levels</span>
+                </h1>
+                <p data-i18n="Track students' Quran memorization levels periodically, monitor individual progress, and record entire groups at once.">
+                    Track students' Quran memorization levels periodically, monitor individual progress, and record entire groups at once.
+                </p>
+                <div class="hero-actions">
+                    <button class="btn-quran-primary btn-quran-gold" onclick="openAddModal()">
+                        <i class="fa fa-plus"></i> <span data-i18n="Add Memorization Record">Add Memorization Record</span>
+                    </button>
+                    <button class="btn-quran-primary" onclick="openBulkModal()">
+                        <i class="fa fa-users"></i> <span data-i18n="Bulk Group Entry">Bulk Group Entry</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- ══ STAT CHIPS ══════════════════════════════════════════════════════ -->
+            <div class="quran-stats-row">
+                <div class="q-stat">
+                    <div class="q-stat-icon" style="background:linear-gradient(135deg,#059669,#10b981)"><i class="fa fa-users"></i></div>
+                    <div>
+                        <div class="q-stat-val" id="stat-students">—</div>
+                        <div class="q-stat-lbl" data-i18n="Total Students">Total Students</div>
+                    </div>
+                </div>
+                <div class="q-stat">
+                    <div class="q-stat-icon" style="background:linear-gradient(135deg,#d97706,#f59e0b)"><i class="fa fa-book"></i></div>
+                    <div>
+                        <div class="q-stat-val" id="stat-sessions">—</div>
+                        <div class="q-stat-lbl" data-i18n="Total Records">Total Records</div>
+                    </div>
+                </div>
+                <div class="q-stat">
+                    <div class="q-stat-icon" style="background:linear-gradient(135deg,#7c3aed,#a855f7)"><i class="fa fa-trophy"></i></div>
+                    <div>
+                        <div class="q-stat-val" id="stat-advanced">—</div>
+                        <div class="q-stat-lbl" data-i18n="Advanced / Completed">Advanced / Completed</div>
+                    </div>
+                </div>
+                <div class="q-stat">
+                    <div class="q-stat-icon" style="background:linear-gradient(135deg,#0284c7,#0ea5e9)"><i class="fa fa-calendar"></i></div>
+                    <div>
+                        <div class="q-stat-val" id="stat-this-month">—</div>
+                        <div class="q-stat-lbl" data-i18n="Records This Month">Records This Month</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ══ STATUS ALERT ════════════════════════════════════════════════════ -->
+            <div id="quran-status-alert" class="alert"></div>
+
+            <!-- ══ TABS HEADER ═════════════════════════════════════════════════════ -->
+            <div class="card-panel" style="padding-bottom:0">
+                <div class="q-tabs" id="quran-tabs">
+                    <div class="q-tab active" data-tab="records" onclick="switchTab('records',this)">
+                        <i class="fa fa-list"></i> <span data-i18n="Memorization Records">Memorization Records</span>
+                    </div>
+                    <div class="q-tab" data-tab="summary" onclick="switchTab('summary',this)">
+                        <i class="fa fa-trophy"></i> <span data-i18n="Student Progress & Leaderboard">Student Progress & Leaderboard</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ══ TAB 1: RECORDS TABLE (مستويات الحفظ) ═════════════════════════════ -->
+            <div id="tab-records" class="q-tab-panel active">
+                <div class="card-panel">
+                    <div class="panel-header">
+                        <div style="display:flex;align-items:center">
+                            <div class="panel-header-icon" style="background:linear-gradient(135deg,#059669,#10b981)"><i class="fa fa-list"></i></div>
+                            <span data-i18n="Memorization Records">Memorization Records</span>
+                        </div>
+                        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                            <button id="btn-delete-selected" class="btn-action" onclick="deleteSelectedRecords()" style="display:none;background:linear-gradient(135deg,#dc2626,#ef4444);color:#fff;gap:6px">
+                                <i class="fa fa-trash"></i> <span id="delete-selected-count" data-i18n="Delete Selected">Delete Selected</span>
+                            </button>
+                            <button class="btn-action btn-gold" onclick="openBulkModal()"><i class="fa fa-users"></i> <span data-i18n="Bulk Group Entry">Bulk Group Entry</span></button>
+                            <button class="btn-action btn-green" onclick="openAddModal()"><i class="fa fa-plus"></i> <span data-i18n="Add Record">Add Record</span></button>
+                        </div>
+                    </div>
+
+                    <!-- Filters (دورة، فوج، طالب، مستوى، تاريخ) -->
+                    <div class="q-filters">
+                        <div class="q-filter" style="min-width:180px">
+                            <label><i class="fa fa-search"></i> <span data-i18n="Search for student">Search for student</span></label>
+                            <input type="text" id="filter-search" placeholder="Student name or registration number..." data-i18n-ph="Student name or registration number..." oninput="debounceLoadRecords()">
+                        </div>
+                        <div class="q-filter">
+                            <label><i class="fa fa-graduation-cap"></i> <span data-i18n="Course / Formation">Course / Formation</span></label>
+                            <select id="filter-formation" onchange="onFilterFormationChange()">
+                                <option value="" data-i18n="— All Courses —">— All Courses —</option>
+                            </select>
+                        </div>
+                        <div class="q-filter">
+                            <label><i class="fa fa-users"></i> <span data-i18n="Group">Group</span></label>
+                            <select id="filter-group" onchange="loadRecords()">
+                                <option value="" data-i18n="— All Groups —">— All Groups —</option>
+                            </select>
+                        </div>
+                        <div class="q-filter">
+                            <label><i class="fa fa-star"></i> <span data-i18n="Level">Level</span></label>
+                            <select id="filter-level" onchange="loadRecords()">
+                                <option value="" data-i18n="— All Levels —">— All Levels —</option>
+                            </select>
+                        </div>
+                        <div class="q-filter" style="min-width:130px">
+                            <label data-i18n="From Date">From Date</label>
+                            <input type="date" id="filter-date-from" onchange="loadRecords()">
+                        </div>
+                        <div class="q-filter" style="min-width:130px">
+                            <label data-i18n="To Date">To Date</label>
+                            <input type="date" id="filter-date-to" onchange="loadRecords()">
+                        </div>
+                        <div style="display:flex;align-items:flex-end">
+                            <button class="btn btn-default" onclick="resetFilters()" title="Reset Filters" data-i18n-title="Reset Filters" style="height:36px;border-radius:8px">
+                                <i class="fa fa-refresh"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Records Table -->
+                    <div class="table-responsive">
+                        <table class="q-table" id="records-table">
+                            <thead>
+                                <tr>
+                                    <th style="width:36px;text-align:center">
+                                        <input type="checkbox" id="chk-select-all" title="Select All" onchange="toggleSelectAllRecords(this.checked)" style="cursor:pointer;width:15px;height:15px">
+                                    </th>
+                                    <th style="width:36px">#</th>
+                                    <th data-i18n="Course">Course</th>
+                                    <th data-i18n="Group">Group</th>
+                                    <th data-i18n="Name">Name</th>
+                                    <th data-i18n="Memorized Amount">Memorized Amount</th>
+                                    <th data-i18n="Date">Date</th>
+                                    <th data-i18n="Level">Level</th>
+                                    <th data-i18n="Notes">Notes</th>
+                                    <th style="width:130px" data-i18n="Actions">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="records-tbody">
+                                <tr><td colspan="10" class="text-center" style="padding:40px;color:#94a3b8">
+                                    <i class="fa fa-spinner fa-spin fa-2x"></i><br><br><span data-i18n="Loading...">Loading...</span>
+                                </td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ══ TAB 2: SUMMARY & LEADERBOARD ════════════════════════════════════ -->
+            <div id="tab-summary" class="q-tab-panel">
+                <div class="card-panel">
+                    <div class="panel-header">
+                        <div style="display:flex;align-items:center">
+                            <div class="panel-header-icon" style="background:linear-gradient(135deg,#d97706,#f59e0b)"><i class="fa fa-trophy"></i></div>
+                            <span data-i18n="Student Progress & Leaderboard">Student Progress & Leaderboard</span>
+                        </div>
+                        <div style="display:flex;gap:10px;flex-wrap:wrap">
+                            <div class="q-filter" style="min-width:160px;margin:0">
+                                <select id="summary-filter-cycle" onchange="onSummaryFormationChange()">
+                                    <option value="" data-i18n="— All Courses —">— All Courses —</option>
+                                </select>
+                            </div>
+                            <div class="q-filter" style="min-width:160px;margin:0">
+                                <select id="summary-filter-group" onchange="loadSummary()">
+                                    <option value="" data-i18n="— All Groups —">— All Groups —</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="lb-grid" id="summary-grid">
+                        <div class="q-empty" style="grid-column:1/-1">
+                            <i class="fa fa-spinner fa-spin"></i>
+                            <p data-i18n="Loading...">Loading...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="footer-placeholder"></div>
+        </div><!-- /.sb-content -->
+    </div><!-- /.sb-main -->
+
+    <!-- ══════════════════════════════════════════════════════════════════════
+         MODAL 1: Add / Edit Single Record
+    ═══════════════════════════════════════════════════════════════════════ -->
+    <div class="q-modal-backdrop" id="modal-add" onclick="closeModalOnBackdrop(event,'modal-add')">
+        <div class="q-modal">
+            <div class="q-modal-header">
+                <h3 id="modal-add-title"><i class="fa fa-plus" style="color:#10b981;margin-inline-end:8px"></i><span data-i18n="Add Student Memorization Record">Add Student Memorization Record</span></h3>
+                <button class="btn-close-modal" onclick="closeModal('modal-add')"><i class="fa fa-times"></i></button>
+            </div>
+            <div class="q-modal-body">
+                <input type="hidden" id="edit-record-id">
+
+                <!-- Student search & select -->
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group stu-search-wrap" style="margin-bottom:14px">
+                            <label><i class="fa fa-user" style="color:#10b981;margin-inline-end:6px"></i><span data-i18n="Student Name or Registration Number">Student Name or Registration Number</span> <span style="color:#ef4444">*</span></label>
+                            <input type="text" class="form-control" id="add-student-search" placeholder="Search by student name or registration number..." data-i18n-ph="Search by student name or registration number..." autocomplete="off" oninput="onStudentSearchInput()" onfocus="onStudentSearchInput()" onkeydown="onStudentSearchKeydown(event)" onchange="onStudentSearchChange()">
+                            <input type="hidden" id="add-student-id">
+                            <div class="stu-autocomplete" id="add-student-autocomplete"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group" style="margin-bottom:14px">
+                            <label><span data-i18n="Course">Course</span> <span style="color:#ef4444">*</span></label>
+                            <select class="form-control" id="add-cycle-select" onchange="onAddFormationChange()">
+                                <option value="" data-i18n="— Select Course —">— Select Course —</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group" style="margin-bottom:14px">
+                            <label data-i18n="Group">Group</label>
+                            <select class="form-control" id="add-group" onchange="onAddGroupChange()">
+                                <option value="" data-i18n="— All Groups —">— All Groups —</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Selected Student Card Preview -->
+                <div class="stu-selected-card" id="add-student-card">
+                    <img src="img/طالب.webp" id="add-student-avatar" alt="Student">
+                    <div class="stu-selected-info">
+                        <div class="stu-selected-name" id="add-student-name" data-i18n="Student Name">Student Name</div>
+                        <div class="stu-selected-meta" id="add-student-meta" data-i18n="Group: — | Reg #: —">Group: — | Reg #: —</div>
+                    </div>
+                    <button type="button" class="btn-close-modal" onclick="clearSelectedStudent()" title="Change Student" data-i18n-title="Change Student"><i class="fa fa-times"></i></button>
+                </div>
+
+                <!-- Fields: Date, Level, Amount -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group" style="margin-bottom:14px">
+                            <label><span data-i18n="Date">Date</span> <span style="color:#ef4444">*</span></label>
+                            <input type="date" class="form-control" id="add-date" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group" style="margin-bottom:14px">
+                            <label data-i18n="Level">Level</label>
+                            <select class="form-control" id="add-level">
+                                <option value="" data-i18n="— Select Level —">— Select Level —</option>
+                                <option value="مبتدئ" data-i18n="Beginner">Beginner</option>
+                                <option value="متوسط" data-i18n="Intermediate">Intermediate</option>
+                                <option value="متقدم" data-i18n="Advanced">Advanced</option>
+                                <option value="ختم" data-i18n="Quran Completion">Quran Completion</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group" style="margin-bottom:14px">
+                            <label><span data-i18n="Memorized Amount">Memorized Amount</span> <span style="color:#ef4444">*</span></label>
+                            <input type="text" class="form-control" id="add-amount" placeholder="e.g. 5 Ahzab, Surah Al-Baqarah, Juz Amma..." data-i18n-ph="e.g. 5 Ahzab, Surah Al-Baqarah, Juz Amma..." required>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <!-- Quick Pick Chips for Amount -->
+                        <div style="margin-bottom:14px">
+                            <label style="font-size:11.5px;color:#64748b;margin-bottom:4px;display:block" data-i18n="Quick select memorized amount:">Quick select memorized amount:</label>
+                            <div class="quick-chips">
+                                <span class="q-chip" onclick="setAmountChip('ربع حزب')" data-i18n="Quarter Hizb">Quarter Hizb</span>
+                                <span class="q-chip" onclick="setAmountChip('نصف حزب')" data-i18n="Half Hizb">Half Hizb</span>
+                                <span class="q-chip" onclick="setAmountChip('حزب كامل')" data-i18n="Full Hizb">Full Hizb</span>
+                                <span class="q-chip" onclick="setAmountChip('جزء كامل')" data-i18n="Full Juz'">Full Juz'</span>
+                                <span class="q-chip" onclick="setAmountChip('جزء عم')" data-i18n="Juz' Amma">Juz' Amma</span>
+                                <span class="q-chip" onclick="setAmountChip('جزء تبارك')" data-i18n="Juz' Tabarak">Juz' Tabarak</span>
+                                <span class="q-chip" onclick="setAmountChip('سورة البقرة')" data-i18n="Surah Al-Baqarah">Surah Al-Baqarah</span>
+                                <span class="q-chip" onclick="setAmountChip('سورة الكهف')" data-i18n="Surah Al-Kahf">Surah Al-Kahf</span>
+                                <span class="q-chip" onclick="setAmountChip('ختم القرآن كاملاً')" data-i18n="🏆 Full Quran Completion">🏆 Full Quran Completion</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group" style="margin-bottom:8px">
+                            <label data-i18n="Additional Notes">Additional Notes</label>
+                            <textarea class="form-control" id="add-notes" placeholder="Notes on recitation quality, Tajweed rules..." data-i18n-ph="Notes on recitation quality, Tajweed rules..."></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="q-modal-footer">
+                <button class="btn-modal-cancel" onclick="closeModal('modal-add')" data-i18n="Cancel">Cancel</button>
+                <button class="btn-modal-save" id="btn-save-record" onclick="saveRecord()">
+                    <i class="fa fa-check"></i> <span data-i18n="Save Record">Save Record</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════════════
+         MODAL 2: Bulk Group Entry
+    ═══════════════════════════════════════════════════════════════════════ -->
+    <div class="q-modal-backdrop" id="modal-bulk" onclick="closeModalOnBackdrop(event,'modal-bulk')">
+        <div class="q-modal bulk-modal">
+            <div class="q-modal-header bulk-modal-header">
+                <div style="display:flex;align-items:center;gap:14px">
+                    <div class="bulk-modal-icon">
+                        <i class="fa fa-users"></i>
+                    </div>
+                    <div class="bulk-modal-title-wrap">
+                        <h3 data-i18n="Bulk Group Memorization Entry">Bulk Group Memorization Entry</h3>
+                        <p data-i18n="Record Quran memorization progress for all students in the selected group in a single session (monthly / periodic)">Record Quran memorization progress for all students in the selected group in a single session (monthly / periodic)</p>
+                    </div>
+                </div>
+                <button class="btn-close-modal" onclick="closeModal('modal-bulk')" title="Close" data-i18n-title="Close"><i class="fa fa-times"></i></button>
+            </div>
+            <div class="q-modal-body bulk-modal-body">
+                <!-- Step 1: Controls Panel -->
+                <div class="bulk-config-card">
+                    <div class="bulk-config-grid">
+                        <div class="bulk-field-group">
+                            <label class="bulk-field-label">
+                                <span class="bulk-field-label-left"><i class="fa fa-graduation-cap"></i> <span data-i18n="Course">Course</span> <span style="color:#ef4444">*</span></span>
+                            </label>
+                            <select class="bulk-select" id="bulk-formation" onchange="onBulkFormationChange()">
+                                <option value="" data-i18n="— Select Course —">— Select Course —</option>
+                            </select>
+                        </div>
+                        <div class="bulk-field-group">
+                            <label class="bulk-field-label">
+                                <span class="bulk-field-label-left"><i class="fa fa-users"></i> <span data-i18n="Group">Group</span> <span style="color:#ef4444">*</span></span>
+                            </label>
+                            <select class="bulk-select" id="bulk-group" onchange="onBulkGroupChange()">
+                                <option value="" data-i18n="— Select Group —">— Select Group —</option>
+                            </select>
+                        </div>
+                        <div class="bulk-field-group">
+                            <label class="bulk-field-label">
+                                <span class="bulk-field-label-left"><i class="fa fa-calendar-alt"></i> <span data-i18n="Date">Date</span> <span style="color:#ef4444">*</span></span>
+                            </label>
+                            <input type="date" class="bulk-input" id="bulk-date">
+                        </div>
+                        <div class="bulk-field-group">
+                            <label class="bulk-field-label">
+                                <span class="bulk-field-label-left"><i class="fa fa-layer-group"></i> <span data-i18n="Default Level">Default Level</span></span>
+                                <span class="bulk-badge-auto" data-i18n="Auto">Auto</span>
+                            </label>
+                            <select class="bulk-select" id="bulk-default-level" onchange="applyDefaultLevel()">
+                                <option value="" data-i18n="— Select Default Level —">— Select Default Level —</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Quick Fill Action Bar -->
+                    <div class="bulk-quick-card">
+                        <div class="bulk-quick-top">
+                            <div class="bulk-quick-title">
+                                <i class="fa fa-bolt"></i>
+                                <span data-i18n="Quick fill memorized amount for all students:">Quick fill memorized amount for all students:</span>
+                            </div>
+                            <div class="bulk-quick-action-row">
+                                <input type="text" class="bulk-quick-input" id="bulk-quick-amount" placeholder="e.g. Hizb 60 or Surah An-Naba..." data-i18n-ph="e.g. Hizb 60 or Surah An-Naba...">
+                                <button type="button" class="btn-bulk-apply" onclick="applyQuickAmountToAll()">
+                                    <i class="fa fa-magic"></i> <span data-i18n="Apply to All">Apply to All</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="bulk-quick-chips">
+                            <span class="bulk-chip-label"><i class="fa fa-tags"></i> <span data-i18n="Common amounts:">Common amounts:</span></span>
+                            <span class="bulk-chip" onclick="setBulkQuickChip('ربع حزب')" data-i18n="Quarter Hizb">Quarter Hizb</span>
+                            <span class="bulk-chip" onclick="setBulkQuickChip('نصف حزب')" data-i18n="Half Hizb">Half Hizb</span>
+                            <span class="bulk-chip" onclick="setBulkQuickChip('حزب كامل')" data-i18n="Full Hizb">Full Hizb</span>
+                            <span class="bulk-chip" onclick="setBulkQuickChip('جزء كامل')" data-i18n="Full Juz'">Full Juz'</span>
+                            <span class="bulk-chip" onclick="setBulkQuickChip('جزء عم')" data-i18n="Juz' Amma">Juz' Amma</span>
+                            <span class="bulk-chip" onclick="setBulkQuickChip('جزء تبارك')" data-i18n="Juz' Tabarak">Juz' Tabarak</span>
+                            <span class="bulk-chip" onclick="setBulkQuickChip('سورة البقرة')" data-i18n="Surah Al-Baqarah">Surah Al-Baqarah</span>
+                            <span class="bulk-chip" onclick="setBulkQuickChip('سورة الكهف')" data-i18n="Surah Al-Kahf">Surah Al-Kahf</span>
+                            <span class="bulk-chip" onclick="setBulkQuickChip('ختم القرآن كاملاً')" data-i18n="🏆 Full Quran Completion">🏆 Full Quran Completion</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Empty / Hint Guide Card -->
+                <div id="bulk-hint" class="bulk-hint-box">
+                    <div class="bulk-hint-icon"><i class="fa fa-users"></i></div>
+                    <div class="bulk-hint-title" data-i18n="Select Course and Group to continue">Select Course and Group to continue</div>
+                    <div class="bulk-hint-text" data-i18n="Select a group to display the student roster and enter memorization amounts at once">Select a group to display the student roster and enter memorization amounts at once</div>
+                    <div class="bulk-hint-steps">
+                        <span class="bulk-step-pill"><span class="step-num">1</span> <span data-i18n="Select Course">Select Course</span></span>
+                        <i class="fa fa-arrow-right bulk-step-arr"></i>
+                        <span class="bulk-step-pill"><span class="step-num">2</span> <span data-i18n="Select Group">Select Group</span></span>
+                        <i class="fa fa-arrow-right bulk-step-arr"></i>
+                        <span class="bulk-step-pill"><span class="step-num">3</span> <span data-i18n="Enter Memorized Amount">Enter Memorized Amount</span></span>
+                        <i class="fa fa-arrow-right bulk-step-arr"></i>
+                        <span class="bulk-step-pill"><span class="step-num">4</span> <span data-i18n="Save Group">Save Group</span></span>
+                    </div>
+                </div>
+
+                <!-- Students Table in Bulk Modal -->
+                <div id="bulk-students-wrap" style="display:none">
+                    <div class="bulk-table-toolbar">
+                        <div class="bulk-table-notice">
+                            <i class="fa fa-check-circle"></i>
+                            <span data-i18n="Enter the memorized amount for each student. Students left blank will not be recorded.">Enter the memorized amount for each student. Students left blank will not be recorded.</span>
+                        </div>
+                        <div class="bulk-table-stats">
+                            <span class="bulk-stat-badge total" id="bulk-total-counter"><i class="fa fa-users"></i> <strong>0</strong> <span data-i18n="Students">Students</span></span>
+                            <span class="bulk-stat-badge filled" id="bulk-filled-counter"><i class="fa fa-check-circle"></i> <strong>0</strong> <span data-i18n="filled">filled</span></span>
+                        </div>
+                    </div>
+                    <div class="bulk-table-container">
+                        <table class="q-table bulk-table" id="bulk-table" data-no-table-features="true">
+                            <thead>
+                                <tr>
+                                    <th style="width:40px;text-align:center">#</th>
+                                    <th data-i18n="Student">Student</th>
+                                    <th style="width:140px" data-i18n="Course">Course</th>
+                                    <th style="min-width:210px"><span data-i18n="Memorized Amount">Memorized Amount</span> <span style="color:#ef4444">*</span></th>
+                                    <th style="min-width:140px" data-i18n="Level">Level</th>
+                                    <th style="min-width:160px" data-i18n="Notes">Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bulk-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="q-modal-footer">
+                <button class="btn-modal-cancel" onclick="closeModal('modal-bulk')" data-i18n="Cancel">Cancel</button>
+                <button class="btn-modal-save" id="btn-save-bulk" onclick="saveBulk()" style="background:linear-gradient(135deg,#d97706,#f59e0b);box-shadow:0 4px 14px rgba(217,119,6,0.4)">
+                    <i class="fa fa-check"></i> <span data-i18n="Save Group Records">Save Group Records</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════════════
+         MODAL 3: Student Memorization Portfolio / History
+    ═══════════════════════════════════════════════════════════════════════ -->
+    <div class="q-modal-backdrop" id="modal-history" onclick="closeModalOnBackdrop(event,'modal-history')">
+        <div class="q-modal" style="max-width:760px">
+            <div class="q-modal-header">
+                <h3><i class="fa fa-book" style="color:#059669;margin-inline-end:8px"></i><span data-i18n="Student Memorization History & Achievements">Student Memorization History & Achievements</span></h3>
+                <button class="btn-close-modal" onclick="closeModal('modal-history')"><i class="fa fa-times"></i></button>
+            </div>
+            <div class="q-modal-body">
+                <!-- Header card with student details -->
+                <div class="history-card-header">
+                    <img src="img/طالب.webp" id="hist-avatar" class="history-avatar" alt="Avatar">
+                    <div style="flex:1">
+                        <div class="history-name" id="hist-name">—</div>
+                        <div class="history-meta" id="hist-meta">—</div>
+                    </div>
+                    <div style="text-align:center;background:rgba(255,255,255,0.18);padding:10px 16px;border-radius:12px">
+                        <div style="font-size:22px;font-weight:800;line-height:1" id="hist-total">0</div>
+                        <div style="font-size:11px;opacity:0.9;margin-top:2px" data-i18n="Total Records">Total Records</div>
+                    </div>
+                </div>
+
+                <!-- Timeline of memorization sessions -->
+                <h4 style="font-size:14.5px;font-weight:700;color:#0f172a;margin:0 0 12px">
+                    <i class="fa fa-history" style="color:#059669"></i> <span data-i18n="Session History & Memorization Progress:">Session History & Memorization Progress:</span>
+                </h4>
+                <div class="table-responsive" style="max-height:340px;overflow-y:auto">
+                    <table class="q-table" id="hist-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th data-i18n="Course">Course</th>
+                                <th data-i18n="Date">Date</th>
+                                <th data-i18n="Memorized Amount">Memorized Amount</th>
+                                <th data-i18n="Level">Level</th>
+                                <th data-i18n="Group">Group</th>
+                                <th data-i18n="Notes">Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody id="hist-tbody">
+                            <tr><td colspan="7" class="text-center" style="padding:24px;color:#94a3b8" data-i18n="Loading...">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="q-modal-footer">
+                <button class="btn-modal-cancel" onclick="closeModal('modal-history')" data-i18n="Close">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/vendor/jquery-1.12.4.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/components.js"></script>
+    <script src="js/backend.js?v=6"></script>
+
+    <script>
+    /* ══════════════════════════════════════════════════════════════════════
+       Quran Memorization Page Logic
+    ═══════════════════════════════════════════════════════════════════════ */
+    (function() {
+        'use strict';
+
+        var allGroups = [];
+        var allStudents = [];
+        var allCycles = [];
+        var allFormations = [];
+        var allNiveaux = [];
+        var currentEditId = null;
+        var searchDebounceTimer = null;
+
+        // ── API request helper ────────────────────────────────────────────────
+        var TOKEN_KEY = 'school_system_token';
+        function getToken() {
+            return localStorage.getItem(TOKEN_KEY) || localStorage.getItem('token') || localStorage.getItem('jwt') || '';
+        }
+        function base() {
+            var l = window.location;
+            return (l.hostname === 'localhost' || l.hostname === '127.0.0.1')
+                ? l.protocol + '//' + l.hostname + ':5000' : '';
+        }
+        function request(path, opts) {
+            opts = Object.assign({ headers: {} }, opts);
+            var token = getToken();
+            if (token) opts.headers['Authorization'] = 'Bearer ' + token;
+            if (opts.body && typeof opts.body === 'string') opts.headers['Content-Type'] = 'application/json';
+            return fetch(base() + path, opts).then(function(res) {
+                if (!res.ok) {
+                    return res.json().catch(function() { return { message: 'Request failed (' + res.status + ')' }; })
+                        .then(function(p) { throw new Error(p.message || ('Request failed (' + res.status + ')')); });
+                }
+                if (res.status === 204) return null;
+                return res.json();
+            });
+        }
+        window.request = request;
+
+        // ── Helper functions ──────────────────────────────────────────────────
+        // ── Helper functions & i18n ──────────────────────────────────────────
+        function isAr() {
+            return (localStorage.getItem('app_lang') || (document.documentElement && document.documentElement.lang) || 'ar') === 'ar';
+        }
+        function t(en, ar) {
+            return isAr() ? ar : en;
+        }
+
+        function fmtDate(v) {
+            if (!v) return '—';
+            var p = String(v).slice(0, 10).split('-');
+            return p.length === 3 ? p[2] + '/' + p[1] + '/' + p[0] : v;
+        }
+
+        function getCurrentCycleDefault() {
+            var now = new Date();
+            if (isAr()) {
+                var monthsAr = ['يناير','فيفري','مارس','أفريل','ماي','جوان','جويلية','أوت','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+                return 'دورة ' + monthsAr[now.getMonth()] + ' ' + now.getFullYear();
+            }
+            var monthsEn = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+            return 'Session ' + monthsEn[now.getMonth()] + ' ' + now.getFullYear();
+        }
+
+        function esc(s) {
+            return String(s == null ? '' : s)
+                .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+                .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+        }
+
+        function avatarFallback(photo, gender) {
+            if (photo && photo.trim() && photo.indexOf('ui-avatars') === -1) return photo;
+            var f = gender && (gender === 'female' || gender === 'أنثى');
+            return f ? encodeURI('img/طالبة مسلمة.webp') : encodeURI('img/طالب.webp');
+        }
+
+        function getLevelDisplay(lvl) {
+            if (!lvl) return '—';
+            var s = String(lvl).trim();
+            if (isAr()) {
+                if (s === 'begin' || s === 'beginner' || s === 'Beginner') return 'مبتدئ';
+                if (s === 'intermediate' || s === 'Intermediate') return 'متوسط';
+                if (s === 'advanced' || s === 'Advanced') return 'متقدم';
+                if (s === 'khatm' || s === 'completion' || s === 'Quran Completion') return 'ختم القرآن';
+                if (s === 'Introductory') return 'تمهيدي';
+                if (s === 'Preparatory') return 'تحضيري';
+                if (s === 'Primary 1') return '1 ابتدائي';
+                if (s === 'Primary 2') return '2 ابتدائي';
+                if (s === 'Primary 3') return '3 ابتدائي';
+                if (s === 'Primary 4') return '4 ابتدائي';
+                if (s === 'Primary 5') return '5 ابتدائي';
+                if (s === 'Middle 1') return '1 متوسط';
+                if (s === 'Middle 2') return '2 متوسط';
+                if (s === 'Middle 3') return '3 متوسط';
+                if (s === 'Middle 4') return '4 متوسط';
+                if (s === 'Secondary 1') return '1 ثانوي';
+                if (s === 'Secondary 2') return '2 ثانوي';
+                if (s === 'Secondary 3') return '3 ثانوي';
+                if (s === 'University') return 'جامعي';
+                if (s === 'Illiterate') return 'امي';
+                if (s === 'All Levels') return 'كل المستويات';
+                return s;
+            } else {
+                if (s === 'مبتدئ' || s === 'begin' || s === 'beginner') return 'Beginner';
+                if (s === 'متوسط' || s === 'intermediate') return 'Intermediate';
+                if (s === 'متقدم' || s === 'advanced') return 'Advanced';
+                if (s === 'ختم' || s === 'ختم القرآن' || s === 'khatm') return 'Quran Completion';
+                if (s === 'تمهيدي') return 'Introductory';
+                if (s === 'تحضيري') return 'Preparatory';
+                if (s === '1 ابتدائي') return 'Primary 1';
+                if (s === '2 ابتدائي') return 'Primary 2';
+                if (s === '3 ابتدائي') return 'Primary 3';
+                if (s === '4 ابتدائي') return 'Primary 4';
+                if (s === '5 ابتدائي') return 'Primary 5';
+                if (s === '1 متوسط') return 'Middle 1';
+                if (s === '2 متوسط') return 'Middle 2';
+                if (s === '3 متوسط') return 'Middle 3';
+                if (s === '4 متوسط') return 'Middle 4';
+                if (s === '1 ثانوي') return 'Secondary 1';
+                if (s === '2 ثانوي') return 'Secondary 2';
+                if (s === '3 ثانوي') return 'Secondary 3';
+                if (s === 'جامعي') return 'University';
+                if (s === 'امي') return 'Illiterate';
+                if (s === 'كل المستويات') return 'All Levels';
+                return s;
+            }
+        }
+
+        function lvlBadge(lvl) {
+            if (!lvl) return '<span class="lvl-badge lvl-default">—</span>';
+            var safeLvl = String(lvl).trim();
+            var cls = 'lvl-' + safeLvl.replace(/\s+/g, '-');
+            var icon = (safeLvl === 'ختم' || safeLvl === 'ختم القرآن' || safeLvl.toLowerCase().indexOf('khatm') !== -1 || safeLvl.toLowerCase().indexOf('completion') !== -1) ? '🏆' :
+                       (safeLvl === 'متقدم' || safeLvl.indexOf('متقدم') !== -1 || safeLvl.toLowerCase().indexOf('advanced') !== -1) ? '⭐' :
+                       (safeLvl === 'متوسط' || safeLvl.indexOf('متوسط') !== -1 || safeLvl.toLowerCase().indexOf('intermediate') !== -1) ? '📚' :
+                       (safeLvl.indexOf('تحضيري') !== -1 || safeLvl.indexOf('تمهيدي') !== -1 || safeLvl.toLowerCase().indexOf('prep') !== -1) ? '🌱' : '📖';
+            return '<span class="lvl-badge ' + cls + '">' + icon + ' ' + esc(getLevelDisplay(safeLvl)) + '</span>';
+        }
+
+        function showStatus(msg, type) {
+            var el = document.getElementById('quran-status-alert');
+            if (!el) return;
+            el.className = 'alert alert-' + (type || 'danger');
+            el.innerHTML = msg;
+            el.style.display = 'block';
+            el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            setTimeout(function() { el.style.display = 'none'; }, 6000);
+        }
+
+        // ── Tabs ─────────────────────────────────────────────────────────────
+        window.switchTab = function(tab, el) {
+            document.querySelectorAll('.q-tab').forEach(function(t) { t.classList.remove('active'); });
+            document.querySelectorAll('.q-tab-panel').forEach(function(p) { p.classList.remove('active'); });
+            el.classList.add('active');
+            var panel = document.getElementById('tab-' + tab);
+            if (panel) panel.classList.add('active');
+            if (tab === 'summary') loadSummary();
+        };
+
+        // ── Load Formations ──────────────────────────────────────────────────
+        function loadFormations() {
+            return request('/api/quran/formations').then(function(data) {
+                allFormations = data.formations || [];
+                var sel = document.getElementById('filter-formation');
+                var bulkFormSel = document.getElementById('bulk-formation');
+                var opts = '<option value="">' + t('— All Courses —', '— جميع الدورات —') + '</option>';
+
+                var formations = allFormations.filter(function(f) { return f.type === 'formation'; });
+                var subscriptions = allFormations.filter(function(f) { return f.type === 'subscription'; });
+
+                if (formations.length > 0) {
+                    opts += '<optgroup label="' + t('Courses / Formations', 'دورات تكوينية') + '">';
+                    formations.forEach(function(f) {
+                        var niv = f.niveau ? ' [' + esc(getLevelDisplay(normalizeLevel(f.niveau))) + ']' : '';
+                        opts += '<option value="' + f.id + '" data-type="formation">' + esc(f.title) + niv + '</option>';
+                    });
+                    opts += '</optgroup>';
+                }
+                if (subscriptions.length > 0) {
+                    opts += '<optgroup label="' + t('Subscriptions', 'اشتراكات') + '">';
+                    subscriptions.forEach(function(f) {
+                        var niv = f.niveau ? ' [' + esc(getLevelDisplay(normalizeLevel(f.niveau))) + ']' : '';
+                        opts += '<option value="' + f.id + '" data-type="subscription">' + esc(f.title) + niv + '</option>';
+                    });
+                    opts += '</optgroup>';
+                }
+                if (sel) {
+                    var cur = sel.value;
+                    sel.innerHTML = opts;
+                    if (cur) sel.value = cur;
+                }
+                if (bulkFormSel) {
+                    var curBf = bulkFormSel.value;
+                    bulkFormSel.innerHTML = '<option value="">' + t('— Select Course —', '— اختر الدورة —') + '</option>' + opts.split('</option>').slice(1).join('</option>');
+                    if (curBf) bulkFormSel.value = curBf;
+                }
+
+                // Populate add-record formation select
+                var addCycleSel = document.getElementById('add-cycle-select');
+                if (addCycleSel) {
+                    var curAc = addCycleSel.value;
+                    addCycleSel.innerHTML = '<option value="">' + t('— Select Course —', '— اختر الدورة —') + '</option>' + opts.split('</option>').slice(1).join('</option>');
+                    if (curAc) addCycleSel.value = curAc;
+                }
+
+                // Populate summary formation filter
+                var summCycleSel = document.getElementById('summary-filter-cycle');
+                if (summCycleSel) {
+                    var curSc = summCycleSel.value;
+                    summCycleSel.innerHTML = '<option value="">' + t('— All Courses —', '— جميع الدورات —') + '</option>' + opts.split('</option>').slice(1).join('</option>');
+                    if (curSc) summCycleSel.value = curSc;
+                    else onSummaryFormationChange();
+                }
+            }).catch(function(err) {
+                console.error('Error loading formations:', err);
+            });
+        }
+
+        // ── Load Niveaux ─────────────────────────────────────────────────────
+        var ACADEMIC_NIVEAUX = [
+            'تمهيدي', 'تحضيري',
+            '1 ابتدائي', '2 ابتدائي', '3 ابتدائي', '4 ابتدائي', '5 ابتدائي',
+            '1 متوسط', '2 متوسط', '3 متوسط', '4 متوسط',
+            '1 ثانوي', '2 ثانوي', '3 ثانوي',
+            'جامعي', 'امي', 'كل المستويات'
+        ];
+        var GENERAL_NIVEAUX = ['مبتدئ', 'متوسط', 'متقدم', 'ختم القرآن'];
+        var allDbNiveaux = [];
+        var allDbMemoLevels = [];
+
+        function normalizeLevel(val) {
+            if (!val) return '';
+            var s = String(val).trim();
+            if (s === 'begin' || s === 'beginner' || s === 'للمبتدئين') return 'مبتدئ';
+            if (s === 'intermediate') return 'متوسط';
+            if (s === 'advanced') return 'متقدم';
+            return s;
+        }
+
+        function ensureOptionExists(selectEl, val) {
+            if (!selectEl || !val) return;
+            for (var i = 0; i < selectEl.options.length; i++) {
+                if (selectEl.options[i].value === val) return;
+            }
+            var opt = document.createElement('option');
+            opt.value = val;
+            opt.textContent = getLevelDisplay(val);
+            selectEl.appendChild(opt);
+        }
+
+        function buildNiveauOptionsHtml(emptyVal, emptyText) {
+            var html = '';
+            if (emptyText !== undefined) {
+                html += '<option value="' + (emptyVal || '') + '">' + esc(emptyText) + '</option>';
+            }
+
+            html += '<optgroup label="' + t('Academic Levels (Formal Education)', 'المستويات الأكاديمية (التعليم النظامي)') + '">';
+            ACADEMIC_NIVEAUX.forEach(function(lvl) {
+                html += '<option value="' + esc(lvl) + '">' + esc(getLevelDisplay(lvl)) + '</option>';
+            });
+            html += '</optgroup>';
+
+            html += '<optgroup label="' + t('General Levels (Quran Section)', 'المستويات العامة (قسم القرآن)') + '">';
+            GENERAL_NIVEAUX.forEach(function(lvl) {
+                html += '<option value="' + esc(lvl) + '">' + esc(getLevelDisplay(lvl)) + '</option>';
+            });
+            html += '</optgroup>';
+
+            var known = ACADEMIC_NIVEAUX.concat(GENERAL_NIVEAUX);
+            var extras = [];
+            (allDbNiveaux || []).concat(allDbMemoLevels || []).forEach(function(item) {
+                var norm = normalizeLevel(item);
+                if (norm && known.indexOf(norm) === -1 && extras.indexOf(norm) === -1) {
+                    extras.push(norm);
+                }
+            });
+            if (extras.length > 0) {
+                html += '<optgroup label="' + t('Additional Course Levels', 'مستويات إضافية من الدورات') + '">';
+                extras.forEach(function(lvl) {
+                    html += '<option value="' + esc(lvl) + '">' + esc(getLevelDisplay(lvl)) + '</option>';
+                });
+                html += '</optgroup>';
+            }
+            return html;
+        }
+
+        function loadNiveaux() {
+            return request('/api/quran/niveaux').then(function(data) {
+                allDbNiveaux = data.db_niveaux || [];
+                allDbMemoLevels = data.db_memo_levels || [];
+                allNiveaux = allDbNiveaux;
+
+                // Update filter-level
+                var filterLvl = document.getElementById('filter-level');
+                if (filterLvl) {
+                    var curF = filterLvl.value;
+                    filterLvl.innerHTML = buildNiveauOptionsHtml('', t('— All Levels —', '— جميع المستويات —'));
+                    if (curF) filterLvl.value = curF;
+                }
+
+                // Update modal selects: add-level and bulk-default-level
+                var addLvl = document.getElementById('add-level');
+                if (addLvl) {
+                    var curA = addLvl.value;
+                    addLvl.innerHTML = buildNiveauOptionsHtml('', t('— Select Level —', '— اختر المستوى —'));
+                    if (curA) addLvl.value = curA;
+                }
+
+                var bulkLvl = document.getElementById('bulk-default-level');
+                if (bulkLvl) {
+                    var curB = bulkLvl.value;
+                    bulkLvl.innerHTML = buildNiveauOptionsHtml('', t('— Select Default Level —', '— اختر المستوى الافتراضي —'));
+                    if (curB) bulkLvl.value = curB;
+                }
+            }).catch(function(err) {
+                console.error('Error loading niveaux:', err);
+            });
+        }
+
+        // ── Formation filter change: cascade groups ───────────────────────────
+        window.onFilterFormationChange = function() {
+            var fid = document.getElementById('filter-formation').value;
+            var filteredGroups = fid ? allGroups.filter(function(g) { return String(g.formation_id) === String(fid); }) : allGroups;
+            var sel = document.getElementById('filter-group');
+            if (sel) {
+                var cur = sel.value;
+                var opts = '<option value="">' + t('— All Groups —', '— جميع الأفواج —') + '</option>';
+                filteredGroups.forEach(function(g) {
+                    var extra = '';
+                    if (g.formation_title) extra += ' (' + esc(g.formation_title) + ')';
+                    if (g.formation_niveau) extra += ' [' + esc(getLevelDisplay(normalizeLevel(g.formation_niveau))) + ']';
+                    opts += '<option value="' + g.id + '">' + esc(g.name) + extra + ' — ' + (g.student_count || 0) + ' ' + t('students', 'طالب') + '</option>';
+                });
+                sel.innerHTML = opts;
+                if (cur && filteredGroups.some(function(g) { return String(g.id) === cur; })) {
+                    sel.value = cur;
+                } else {
+                    sel.value = '';
+                }
+            }
+            loadRecords();
+        };
+
+        // ── Load Groups ───────────────────────────────────────────────────────
+        function loadGroups() {
+            request('/api/quran/groups').then(function(data) {
+                allGroups = data.groups || [];
+                var selectors = ['filter-group', 'add-group', 'bulk-group'];
+                selectors.forEach(function(id) {
+                    var sel = document.getElementById(id);
+                    if (!sel) return;
+                    var cur = sel.value;
+                    var isFilter = id.indexOf('filter') !== -1;
+                    var opts = isFilter ? '<option value="">' + t('— All Groups —', '— جميع الأفواج —') + '</option>' : '<option value="">' + t('— Select Group —', '— اختر الفوج —') + '</option>';
+                    allGroups.forEach(function(g) {
+                        var extra = '';
+                        if (g.formation_title) extra += ' (' + esc(g.formation_title) + ')';
+                        if (g.formation_niveau) extra += ' [' + esc(getLevelDisplay(normalizeLevel(g.formation_niveau))) + ']';
+                        opts += '<option value="' + g.id + '">' + esc(g.name) + extra + ' — ' + (g.student_count || 0) + ' ' + t('students', 'طالب') + '</option>';
+                    });
+                    sel.innerHTML = opts;
+                    if (cur) sel.value = cur;
+                });
+            }).catch(function(err) {
+                console.error('Error loading groups:', err);
+            });
+        }
+
+        // ── Load Cycles ───────────────────────────────────────────────────────
+        function loadCycles() {
+            request('/api/quran/cycles').then(function(data) {
+                allCycles = data.cycles || [];
+                // Update datalist suggestions
+                var dl = document.getElementById('cycle-suggestions');
+                if (dl) {
+                    var curDefault = getCurrentCycleDefault();
+                    var list = allCycles.slice();
+                    if (list.indexOf(curDefault) === -1) list.unshift(curDefault);
+                    dl.innerHTML = list.map(function(c) { return '<option value="' + esc(c) + '">'; }).join('');
+                }
+
+                // Update filter-cycle (raw cycle text filter)
+                var cycleSelectors = ['filter-cycle'];
+                cycleSelectors.forEach(function(id) {
+                    var sel = document.getElementById(id);
+                    if (!sel) return;
+                    var cur = sel.value;
+                    var opts = '<option value="">' + t('— All Cycles —', '— جميع الفصول —') + '</option>';
+                    allCycles.forEach(function(c) {
+                        opts += '<option value="' + esc(c) + '">' + esc(c) + '</option>';
+                    });
+                    sel.innerHTML = opts;
+                    if (cur) sel.value = cur;
+                });
+
+            }).catch(function(err) {
+                console.error('Error loading cycles:', err);
+            });
+        }
+
+        // ── Load All Students (for autocomplete) ──────────────────────────────
+        function loadAllStudents() {
+            request('/api/quran/students').then(function(data) {
+                allStudents = data.students || data.registrations || data || [];
+                console.log('Students loaded from DB:', allStudents.length);
+            }).catch(function(err) {
+                console.error('Error loading students from DB:', err);
+            });
+        }
+
+        // ── Records Tab Table ─────────────────────────────────────────────────
+        window.debounceLoadRecords = function() {
+            clearTimeout(searchDebounceTimer);
+            searchDebounceTimer = setTimeout(loadRecords, 300);
+        };
+
+        window.loadRecords = function() {
+            var params = new URLSearchParams();
+            var search = (document.getElementById('filter-search').value || '').trim();
+            var fid    = document.getElementById('filter-formation') ? document.getElementById('filter-formation').value : '';
+            var group  = document.getElementById('filter-group').value;
+            var level  = document.getElementById('filter-level').value;
+            var cycle  = document.getElementById('filter-cycle') ? document.getElementById('filter-cycle').value : '';
+            var df     = document.getElementById('filter-date-from').value;
+            var dt     = document.getElementById('filter-date-to').value;
+
+            if (search) params.append('search', search);
+            if (fid)    params.append('formation_id', fid);
+            if (group)  params.append('group_id', group);
+            if (level)  params.append('level', level);
+            if (cycle)  params.append('cycle', cycle);
+            if (df)     params.append('date_from', df);
+            if (dt)     params.append('date_to', dt);
+
+            var tbody = document.getElementById('records-tbody');
+            tbody.innerHTML = '<tr><td colspan="10" class="text-center" style="padding:30px;color:#94a3b8"><i class="fa fa-spinner fa-spin"></i> ' + t('Loading...', 'جاري التحميل...') + '</td></tr>';
+
+            request('/api/quran?' + params.toString()).then(function(data) {
+                var records = data.records || [];
+                updateStats(records);
+
+                if (records.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="10"><div class="q-empty"><i class="fa fa-book"></i><p>' + t('No memorization records match your search', 'لا توجد سجلات حفظ مطابقة للبحث') + '</p></div></td></tr>';
+                    return;
+                }
+
+                var html = '';
+                records.forEach(function(r, i) {
+                    var name = esc((r.first_name || '') + ' ' + (r.last_name || ''));
+                    var avatar = avatarFallback(r.photo, r.gender);
+
+                    var dspCycle;
+                    if (r.formation_title) {
+                        var isFormation = r.formation_type === 'formation';
+                        var cycleStyle  = isFormation
+                            ? 'background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe'
+                            : 'background:#ecfdf5;color:#065f46;border-color:#a7f3d0';
+                        var cycleIcon   = isFormation ? 'fa-book' : 'fa-users';
+                        var cycleLabel  = isFormation ? t('Formation Course', 'دورة تكوينية') : t('Subscription', 'اشتراك');
+                        dspCycle = '<span class="cycle-badge" style="' + cycleStyle + '" title="' + cycleLabel + '">'
+                                 + '<i class="fa ' + cycleIcon + '"></i> ' + esc(r.formation_title.trim()) + '</span>';
+                    } else if (r.cycle) {
+                        dspCycle = '<span class="cycle-badge" title="' + t('Cycle / Term', 'الدورة') + '"><i class="fa fa-calendar-o"></i> ' + esc(r.cycle) + '</span>';
+                    } else {
+                        dspCycle = '<span style="color:#94a3b8">—</span>';
+                    }
+
+                    var groupHtml = r.group_name ? '<span class="group-badge"><i class="fa fa-users"></i> ' + esc(r.group_name) + '</span>' : '<span style="color:#94a3b8">—</span>';
+
+                    html += '<tr data-record-id="' + r.id + '">' +
+                        '<td style="text-align:center">' +
+                            '<input type="checkbox" class="row-chk" data-id="' + r.id + '" onchange="updateDeleteSelectedBtn()" style="cursor:pointer;width:15px;height:15px">' +
+                        '</td>' +
+                        '<td style="color:#94a3b8;font-size:12px">' + (i + 1) + '</td>' +
+                        '<td>' + dspCycle + '</td>' +
+                        '<td>' + groupHtml + '</td>' +
+                        '<td>' +
+                            '<div class="stu-cell" onclick="openStudentHistory(' + r.student_id + ')" title="' + t('Click to view student history', 'اضغط لعرض كامل سجل الطالب') + '">' +
+                                '<img src="' + esc(avatar) + '" class="stu-avatar" onerror="this.src=\'img/طالب.webp\'">' +
+                                '<div>' +
+                                    '<div class="stu-name">' + name + '</div>' +
+                                    '<div class="stu-reg">' + esc(r.registration_number || '') + '</div>' +
+                                '</div>' +
+                            '</div>' +
+                        '</td>' +
+                        '<td><span class="amount-badge">' + esc(r.amount) + '</span></td>' +
+                        '<td style="white-space:nowrap">' + fmtDate(r.session_date) + '</td>' +
+                        '<td>' + lvlBadge(r.level) + '</td>' +
+                        '<td style="color:#64748b;font-size:12px;max-width:140px;white-space:normal">' + esc(r.notes || '—') + '</td>' +
+                        '<td style="white-space:nowrap">' +
+                            '<button class="btn-tbl btn-tbl-view" title="' + t('Student Portfolio & Achievements', 'سجل وإنجازات الطالب') + '" onclick="openStudentHistory(' + r.student_id + ')"><i class="fa fa-book"></i></button> ' +
+                            '<button class="btn-tbl btn-tbl-edit" title="' + t('Edit', 'تعديل') + '" onclick="editRecord(' + JSON.stringify(r).replace(/"/g,'&quot;') + ')"><i class="fa fa-pencil"></i></button> ' +
+                            '<button class="btn-tbl btn-tbl-del" title="' + t('Delete', 'حذف') + '" onclick="deleteRecord(' + r.id + ')"><i class="fa fa-trash"></i></button>' +
+                        '</td>' +
+                    '</tr>';
+                });
+                tbody.innerHTML = html;
+                // Reset select-all state
+                var chkAll = document.getElementById('chk-select-all');
+                if (chkAll) chkAll.checked = false;
+                updateDeleteSelectedBtn();
+            }).catch(function(err) {
+                tbody.innerHTML = '<tr><td colspan="10" class="text-center text-danger">' + t('Loading error: ', 'خطأ في التحميل: ') + esc(err.message) + '</td></tr>';
+            });
+        };
+
+        window.resetFilters = function() {
+            document.getElementById('filter-search').value = '';
+            if (document.getElementById('filter-formation')) document.getElementById('filter-formation').value = '';
+            if (document.getElementById('filter-cycle')) document.getElementById('filter-cycle').value = '';
+            document.getElementById('filter-group').value = '';
+            document.getElementById('filter-level').value = '';
+            document.getElementById('filter-date-from').value = '';
+            document.getElementById('filter-date-to').value = '';
+
+            // Reset groups options to show all groups
+            var selG = document.getElementById('filter-group');
+            if (selG) {
+                var opts = '<option value="">' + t('— All Groups —', '— جميع الأفواج —') + '</option>';
+                allGroups.forEach(function(g) {
+                    var extra = g.formation_title ? ' (' + esc(g.formation_title) + ')' : '';
+                    opts += '<option value="' + g.id + '">' + esc(g.name) + extra + ' — ' + (g.student_count || 0) + ' ' + t('students', 'طالب') + '</option>';
+                });
+                selG.innerHTML = opts;
+                selG.value = '';
+            }
+            loadRecords();
+        };
+
+        function updateStats(records) {
+            var stuSet = {};
+            var advanced = 0;
+            var thisMonth = 0;
+            var now = new Date();
+            var ym = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
+
+            records.forEach(function(r) {
+                stuSet[r.student_id] = true;
+                var lvl = String(r.level || '').toLowerCase();
+                if (lvl === 'متقدم' || lvl === 'ختم' || lvl.indexOf('advanced') !== -1 || lvl.indexOf('khatm') !== -1) advanced++;
+                if (r.session_date && String(r.session_date).slice(0,7) === ym) thisMonth++;
+            });
+
+            document.getElementById('stat-students').textContent = Object.keys(stuSet).length;
+            document.getElementById('stat-sessions').textContent = records.length;
+            document.getElementById('stat-advanced').textContent = advanced;
+            document.getElementById('stat-this-month').textContent = thisMonth;
+        }
+
+        // ── Summary Tab ───────────────────────────────────────────────────────
+        window.onSummaryFormationChange = function() {
+            var fid = document.getElementById('summary-filter-cycle').value;
+            var groupSel = document.getElementById('summary-filter-group');
+            var filtered = fid
+                ? (allGroups || []).filter(function(g) { return String(g.formation_id) === String(fid); })
+                : (allGroups || []);
+            var opts = '<option value="">' + t('— All Groups —', '— جميع الأفواج —') + '</option>';
+            filtered.forEach(function(g) {
+                var extra = '';
+                if (!fid && g.formation_title) extra += ' (' + esc(g.formation_title) + ')';
+                if (g.formation_niveau) extra += ' [' + esc(getLevelDisplay(normalizeLevel(g.formation_niveau))) + ']';
+                opts += '<option value="' + g.id + '">' + esc(g.name || '') + extra + ' — ' + (g.student_count || 0) + ' ' + t('students', 'طالب') + '</option>';
+            });
+            groupSel.innerHTML = opts;
+            groupSel.value = '';
+            loadSummary();
+        };
+
+        window.loadSummary = function() {
+            var gid = document.getElementById('summary-filter-group').value;
+            var fid = document.getElementById('summary-filter-cycle').value;
+            var params = new URLSearchParams();
+            if (gid) params.append('group_id', gid);
+            if (fid) params.append('formation_id', fid);
+
+            var grid = document.getElementById('summary-grid');
+            grid.innerHTML = '<div class="q-empty" style="grid-column:1/-1"><i class="fa fa-spinner fa-spin"></i><p>' + t('Loading...', 'جاري التحميل...') + '</p></div>';
+
+            request('/api/quran/summary?' + params.toString()).then(function(data) {
+                var rows = data.summary || [];
+                if (rows.length === 0) {
+                    grid.innerHTML = '<div class="q-empty" style="grid-column:1/-1"><i class="fa fa-trophy"></i><p>' + t('No memorization data yet', 'لا يوجد بيانات حفظ بعد') + '</p></div>';
+                    return;
+                }
+
+                var html = '';
+                rows.forEach(function(r, i) {
+                    var name = esc((r.first_name || '') + ' ' + (r.last_name || ''));
+                    var avatar = avatarFallback(r.photo, r.gender);
+                    var rankClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : 'other';
+
+                    html += '<div class="lb-card" onclick="openStudentHistory(' + r.student_id + ')" title="' + t('View detailed memorization record', 'عرض سجل الحفظ التفصيلي') + '">' +
+                        '<div class="lb-rank ' + rankClass + '">' + (i + 1) + '</div>' +
+                        '<img src="' + esc(avatar) + '" class="lb-avatar" onerror="this.src=\'img/طالب.webp\'">' +
+                        '<div class="lb-name">' + name + '</div>' +
+                        '<div class="lb-group">' + (r.group_name ? esc(r.group_name) : '—') + '</div>' +
+                        '<div class="lb-sessions">' + (r.total_sessions || 0) + '</div>' +
+                        '<div class="lb-sessions-lbl">' + t('Memorization Session(s)', 'جلسة حفظ') + '</div>' +
+                        (r.current_level ? '<div style="margin-top:8px">' + lvlBadge(r.current_level) + '</div>' : '') +
+                        (r.latest_amount ? '<div style="font-size:12px;color:#047857;font-weight:600;margin-top:6px">' + t('Latest:', 'آخر حفظ:') + ' ' + esc(r.latest_amount) + '</div>' : '') +
+                        '<div class="lb-last">' + t('Last session:', 'آخر تسميع:') + ' ' + fmtDate(r.last_session) + '</div>' +
+                    '</div>';
+                });
+                grid.innerHTML = html;
+            }).catch(function() {
+                grid.innerHTML = '<div class="q-empty" style="grid-column:1/-1"><p style="color:#ef4444">' + t('Loading error', 'خطأ في التحميل') + '</p></div>';
+            });
+        };
+
+        // ── Modal Helpers ─────────────────────────────────────────────────────
+        function openModal(id) { document.getElementById(id).classList.add('open'); }
+        window.closeModal = function(id) { document.getElementById(id).classList.remove('open'); };
+        window.closeModalOnBackdrop = function(e, id) { if (e.target === e.currentTarget) closeModal(id); };
+
+        // ── Add/Edit Modal (Student Autocomplete & Quick Chips) ────────────────
+        window.openAddModal = function() {
+            currentEditId = null;
+            document.getElementById('modal-add-title').innerHTML = '<i class="fa fa-plus" style="color:#10b981;margin-inline-end:8px"></i>' + t('Add Student Memorization Record', 'إضافة سجل حفظ طالب');
+            document.getElementById('edit-record-id').value = '';
+            document.getElementById('add-cycle-select').value = '';
+            document.getElementById('add-group').value = '';
+            populateAddGroupOptions('');
+
+            document.getElementById('add-date').value = new Date().toISOString().slice(0, 10);
+            document.getElementById('add-level').value = '';
+            document.getElementById('add-amount').value = '';
+            document.getElementById('add-notes').value = '';
+            clearSelectedStudent();
+            if (!allStudents || allStudents.length === 0) {
+                loadAllStudents();
+            }
+            openModal('modal-add');
+            if (window.AppI18n && typeof window.AppI18n.translateAll === 'function') {
+                window.AppI18n.translateAll(document.getElementById('modal-add'));
+            }
+            setTimeout(function() {
+                var searchInp = document.getElementById('add-student-search');
+                if (searchInp) searchInp.focus();
+            }, 100);
+        };
+
+        window.setAmountChip = function(txt) {
+            document.getElementById('add-amount').value = txt;
+        };
+
+        function populateAddGroupOptions(fid, selectedGid) {
+            var groupSel = document.getElementById('add-group');
+            if (!groupSel) return;
+            var filtered = fid
+                ? (allGroups || []).filter(function(g) { return String(g.formation_id) === String(fid); })
+                : (allGroups || []);
+            var opts = '<option value="">' + t('— All Groups —', '— جميع الأفواج —') + '</option>';
+            filtered.forEach(function(g) {
+                var extra = '';
+                if (!fid && g.formation_title) extra += ' (' + esc(g.formation_title) + ')';
+                if (g.formation_niveau) extra += ' [' + esc(getLevelDisplay(normalizeLevel(g.formation_niveau))) + ']';
+                opts += '<option value="' + g.id + '">' + esc(g.name || g.title || '') + extra + ' — ' + (g.student_count || 0) + ' ' + t('students', 'طالب') + '</option>';
+            });
+            groupSel.innerHTML = opts;
+            if (selectedGid) {
+                groupSel.value = String(selectedGid);
+            }
+        }
+
+        window.onAddFormationChange = function(preserveStudent) {
+            var fid = document.getElementById('add-cycle-select').value;
+            populateAddGroupOptions(fid);
+            if (!preserveStudent) {
+                clearSelectedStudent();
+            }
+        };
+
+        window.onAddGroupChange = function() {
+            var gid = document.getElementById('add-group').value;
+            if (gid) {
+                var grp = (allGroups || []).find(function(g) { return String(g.id) === String(gid); });
+                if (grp) {
+                    var cycleSel = document.getElementById('add-cycle-select');
+                    if (cycleSel && !cycleSel.value && grp.formation_id) {
+                        cycleSel.value = String(grp.formation_id);
+                    }
+                    if (grp.formation_niveau) {
+                        var addLvl = document.getElementById('add-level');
+                        var norm = normalizeLevel(grp.formation_niveau);
+                        if (addLvl && norm) {
+                            ensureOptionExists(addLvl, norm);
+                            addLvl.value = norm;
+                        }
+                    }
+                }
+            }
+            // Only clear student if the currently selected student is not in this group
+            var currentSid = document.getElementById('add-student-id').value;
+            if (currentSid && gid) {
+                var curStu = (allStudents || []).find(function(s) { return String(s.id || s.student_id) === String(currentSid); });
+                if (curStu) {
+                    var gids = curStu.group_ids ? String(curStu.group_ids).split(',') : [String(curStu.group_id || '')];
+                    if (gids.indexOf(String(gid)) === -1) {
+                        clearSelectedStudent();
+                    }
+                }
+            }
+            document.getElementById('add-student-search').focus();
+        };
+
+        window.onStudentSearchInput = function() {
+            var q = (document.getElementById('add-student-search').value || '').trim().toLowerCase();
+            var ac = document.getElementById('add-student-autocomplete');
+            var gid = document.getElementById('add-group').value;
+
+            if (!q) {
+                clearSelectedStudent();
+                if (ac) ac.classList.remove('open');
+                return;
+            }
+
+            // If user typed or pasted exact match, auto-select immediately
+            var exactMatch = (allStudents || []).find(function(s) {
+                var fn = (s.first_name || '').toLowerCase();
+                var ln = (s.last_name || '').toLowerCase();
+                var full = (fn + ' ' + ln).trim();
+                var fullRev = (ln + ' ' + fn).trim();
+                var reg = (s.registration_number || '').trim().toLowerCase();
+                return full === q || fullRev === q || (reg && reg === q);
+            });
+
+            if (exactMatch && document.getElementById('add-student-id').value !== String(exactMatch.id || exactMatch.student_id)) {
+                selectStudent(exactMatch.id || exactMatch.student_id);
+                return;
+            }
+
+            var filtered = (allStudents || []).filter(function(s) {
+                if (gid) {
+                    var gids = s.group_ids ? String(s.group_ids).split(',') : [String(s.group_id || '')];
+                    if (gids.indexOf(String(gid)) === -1) return false;
+                }
+                var fn = (s.first_name || '').toLowerCase();
+                var ln = (s.last_name || '').toLowerCase();
+                var full = (fn + ' ' + ln).trim();
+                var fullRev = (ln + ' ' + fn).trim();
+                var reg = (s.registration_number || '').toLowerCase();
+                return full.indexOf(q) !== -1 || fullRev.indexOf(q) !== -1 || reg.indexOf(q) !== -1;
+            }).slice(0, 20);
+
+            if (filtered.length === 0) {
+                ac.innerHTML = '<div style="padding:12px;color:#94a3b8;font-size:12px;text-align:center">' + t('No matching students found', 'لا يوجد طلاب مطابقون للبحث') + '</div>';
+                ac.classList.add('open');
+                return;
+            }
+
+            var html = '';
+            filtered.forEach(function(s) {
+                var name = esc(((s.first_name || '') + ' ' + (s.last_name || '')).trim());
+                var avatar = avatarFallback(s.photo, s.gender);
+                var reg = esc(s.registration_number || '');
+                var sid = s.id || s.student_id;
+                var gname = esc(s.group_names || s.group_name || '');
+                var fniv = s.formation_niveau ? String(s.formation_niveau).replace(/'/g, "\\'") : '';
+
+                html += '<div class="stu-ac-item" onclick="selectStudent(' + sid + ',\'' + name.replace(/'/g,"\\'") + '\',\'' + reg + '\',\'' + avatar + '\',\'' + gname + '\',\'' + fniv + '\')">' +
+                    '<img src="' + avatar + '" onerror="this.src=\'img/طالب.webp\'">' +
+                    '<div><div class="stu-ac-name">' + name + '</div><div class="stu-ac-meta">' + t('Reg #: ', 'رقم: ') + reg + (gname ? ' | ' + t('Group: ', 'فوج: ') + gname : '') + '</div></div>' +
+                '</div>';
+            });
+            ac.innerHTML = html;
+            ac.classList.add('open');
+        };
+
+        window.onStudentSearchKeydown = function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                var q = (document.getElementById('add-student-search').value || '').trim().toLowerCase();
+                if (!q) return;
+
+                var gid = document.getElementById('add-group').value;
+                var match = (allStudents || []).find(function(s) {
+                    if (gid) {
+                        var gids = s.group_ids ? String(s.group_ids).split(',') : [String(s.group_id || '')];
+                        if (gids.indexOf(String(gid)) === -1) return false;
+                    }
+                    var fn = (s.first_name || '').toLowerCase();
+                    var ln = (s.last_name || '').toLowerCase();
+                    var full = (fn + ' ' + ln).trim();
+                    var fullRev = (ln + ' ' + fn).trim();
+                    var reg = (s.registration_number || '').trim().toLowerCase();
+                    return full === q || fullRev === q || (reg && reg === q);
+                });
+
+                if (!match) {
+                    var filtered = (allStudents || []).filter(function(s) {
+                        if (gid) {
+                            var gids = s.group_ids ? String(s.group_ids).split(',') : [String(s.group_id || '')];
+                            if (gids.indexOf(String(gid)) === -1) return false;
+                        }
+                        var fn = (s.first_name || '').toLowerCase();
+                        var ln = (s.last_name || '').toLowerCase();
+                        var full = (fn + ' ' + ln).trim();
+                        var fullRev = (ln + ' ' + fn).trim();
+                        var reg = (s.registration_number || '').toLowerCase();
+                        return full.indexOf(q) !== -1 || fullRev.indexOf(q) !== -1 || reg.indexOf(q) !== -1;
+                    });
+                    if (filtered.length > 0) match = filtered[0];
+                }
+
+                if (match) {
+                    selectStudent(match.id || match.student_id);
+                    var amtEl = document.getElementById('add-amount');
+                    if (amtEl) amtEl.focus();
+                }
+            }
+        };
+
+        window.onStudentSearchChange = function() {
+            var q = (document.getElementById('add-student-search').value || '').trim().toLowerCase();
+            var sid = document.getElementById('add-student-id').value;
+            if (!sid && q) {
+                var match = (allStudents || []).find(function(s) {
+                    var fn = (s.first_name || '').toLowerCase();
+                    var ln = (s.last_name || '').toLowerCase();
+                    var full = (fn + ' ' + ln).trim();
+                    var fullRev = (ln + ' ' + fn).trim();
+                    var reg = (s.registration_number || '').trim().toLowerCase();
+                    return full === q || fullRev === q || (reg && reg === q);
+                });
+                if (match) {
+                    selectStudent(match.id || match.student_id);
+                }
+            }
+        };
+
+        // Close autocomplete when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.stu-search-wrap')) {
+                var ac = document.getElementById('add-student-autocomplete');
+                if (ac) ac.classList.remove('open');
+            }
+        });
+
+        window.selectStudent = function(id, name, reg, avatar, gname, formationNiveau, isEdit) {
+            var s = (allStudents || []).find(function(item) {
+                return String(item.id || item.student_id) === String(id);
+            });
+
+            var sid = id || (s ? (s.id || s.student_id) : '');
+            var sname = name || (s ? ((s.first_name || '') + ' ' + (s.last_name || '')).trim() : '');
+            var sreg = reg || (s ? s.registration_number : '') || '';
+            var savatar = avatar || (s ? avatarFallback(s.photo, s.gender) : 'img/طالب.webp');
+            var sgname = gname || (s ? (s.group_names || s.group_name || '') : '');
+
+            // 1. Populate student card & hidden input
+            document.getElementById('add-student-id').value = sid;
+            document.getElementById('add-student-name').textContent = sname;
+            document.getElementById('add-student-meta').textContent = t('Reg #: ', 'رقم التسجيل: ') + (sreg || '—') + (sgname ? ' | ' + t('Group: ', 'الفوج: ') + sgname : '');
+            document.getElementById('add-student-avatar').src = savatar;
+            document.getElementById('add-student-card').classList.add('visible');
+            document.getElementById('add-student-search').value = sname;
+
+            var ac = document.getElementById('add-student-autocomplete');
+            if (ac) ac.classList.remove('open');
+
+            // 2. Set default date to today if empty
+            var addDate = document.getElementById('add-date');
+            if (addDate && !addDate.value) {
+                addDate.value = new Date().toISOString().slice(0, 10);
+            }
+
+            // If editing an existing record, preserve the edited values
+            if (currentEditId || isEdit) return;
+
+            // 3. Determine Group & Formation automatically
+            var gid = '';
+            if (s && s.group_ids) {
+                var gids = String(s.group_ids).split(',');
+                if (gids.length > 0 && gids[0].trim()) gid = gids[0].trim();
+            } else if (s && s.group_id) {
+                gid = String(s.group_id);
+            }
+
+            var grp = gid ? (allGroups || []).find(function(g) { return String(g.id) === String(gid); }) : null;
+            var fid = (s && s.formation_id) ? String(s.formation_id) : (grp && grp.formation_id ? String(grp.formation_id) : '');
+
+            var cycleSelect = document.getElementById('add-cycle-select');
+            if (cycleSelect && fid) {
+                cycleSelect.value = fid;
+            }
+            populateAddGroupOptions(fid, gid);
+
+            if (gid) {
+                var groupSel = document.getElementById('add-group');
+                if (groupSel) groupSel.value = gid;
+            }
+
+            // 4. Auto-select Level
+            var lvlToSet = '';
+            if (grp && grp.formation_niveau) {
+                lvlToSet = grp.formation_niveau;
+            } else if (s && s.formation_niveau) {
+                lvlToSet = s.formation_niveau;
+            } else if (formationNiveau) {
+                lvlToSet = formationNiveau;
+            }
+
+            var addLvl = document.getElementById('add-level');
+            if (addLvl && lvlToSet) {
+                var norm = normalizeLevel(lvlToSet);
+                if (norm) {
+                    ensureOptionExists(addLvl, norm);
+                    addLvl.value = norm;
+                }
+            }
+
+            // 5. Query student history to get latest memorization details & level
+            if (sid) {
+                request('/api/quran/student-history/' + sid).then(function(data) {
+                    if (data && data.records && data.records.length > 0) {
+                        var lastRec = data.records[0];
+
+                        // Prioritize latest recorded level in Quran sessions
+                        if (lastRec.level && addLvl) {
+                            var normLvl = normalizeLevel(lastRec.level);
+                            if (normLvl) {
+                                ensureOptionExists(addLvl, normLvl);
+                                addLvl.value = normLvl;
+                            }
+                        }
+
+                        // If cycle or group wasn't set yet, populate from last record
+                        if (cycleSelect && !cycleSelect.value && lastRec.formation_id) {
+                            cycleSelect.value = String(lastRec.formation_id);
+                            populateAddGroupOptions(lastRec.formation_id, lastRec.group_id);
+                        }
+                        var gSel = document.getElementById('add-group');
+                        if (gSel && !gSel.value && lastRec.group_id) {
+                            gSel.value = String(lastRec.group_id);
+                        }
+
+                        // Update student card meta with latest memorization info
+                        var metaEl = document.getElementById('add-student-meta');
+                        if (metaEl) {
+                            var parts = [];
+                            if (sreg) parts.push(t('Reg #: ', 'رقم التسجيل: ') + sreg);
+                            var grpDisplay = sgname || lastRec.group_name;
+                            if (grpDisplay) parts.push(t('Group: ', 'الفوج: ') + grpDisplay);
+                            if (lastRec.amount) parts.push(t('Latest memorization: ', 'آخر حفظ: ') + '<strong>' + esc(lastRec.amount) + '</strong> (' + fmtDate(lastRec.session_date) + ')');
+                            metaEl.innerHTML = parts.join(' | ');
+                        }
+                    }
+                }).catch(function(err) {
+                    console.warn('Student history fetch error:', err);
+                });
+            }
+        };
+
+        window.clearSelectedStudent = function() {
+            document.getElementById('add-student-id').value = '';
+            document.getElementById('add-student-search').value = '';
+            var card = document.getElementById('add-student-card');
+            if (card) card.classList.remove('visible');
+            var metaEl = document.getElementById('add-student-meta');
+            if (metaEl) metaEl.textContent = t('Group: — | Reg #: —', 'الفوج: — | رقم التسجيل: —');
+            var nameEl = document.getElementById('add-student-name');
+            if (nameEl) nameEl.textContent = t('Student Name', 'اسم الطالب');
+        };
+
+        window.editRecord = function(r) {
+            currentEditId = r.id;
+            document.getElementById('modal-add-title').innerHTML = '<i class="fa fa-pencil" style="color:#3b82f6;margin-inline-end:8px"></i>' + t('Edit Student Memorization Record', 'تعديل سجل حفظ الطالب');
+            document.getElementById('edit-record-id').value = r.id;
+            document.getElementById('add-cycle-select').value = r.formation_id || '';
+            populateAddGroupOptions(r.formation_id, r.group_id);
+            document.getElementById('add-group').value = r.group_id || '';
+            document.getElementById('add-date').value = r.session_date ? String(r.session_date).slice(0, 10) : '';
+            document.getElementById('add-level').value = r.level || '';
+            document.getElementById('add-amount').value = r.amount || '';
+            document.getElementById('add-notes').value = r.notes || '';
+
+            var name = (r.first_name || '') + ' ' + (r.last_name || '');
+            var avatar = avatarFallback(r.photo, r.gender);
+            selectStudent(r.student_id, name, r.registration_number, avatar, r.group_name, null, true);
+
+            openModal('modal-add');
+        };
+
+        window.saveRecord = function() {
+            var student_id    = document.getElementById('add-student-id').value;
+            var formation_id  = document.getElementById('add-cycle-select').value;
+            var formation_obj = (allFormations || []).find(function(f) { return String(f.id) === String(formation_id); });
+            var cycle         = formation_obj ? formation_obj.title : '';
+            var session_date = document.getElementById('add-date').value;
+            var amount       = (document.getElementById('add-amount').value || '').trim();
+            var level        = document.getElementById('add-level').value;
+            var notes        = (document.getElementById('add-notes').value || '').trim();
+            var group_id     = document.getElementById('add-group').value;
+
+            if (!student_id) {
+                alert(t('Please select a student from the list', 'يرجى اختيار الطالب من القائمة'));
+                return;
+            }
+            if (!session_date || !amount) {
+                alert(t('Please fill in required fields: Date and Memorized Amount', 'يرجى ملء الحقول الإلزامية: التاريخ ومقدار الحفظ'));
+                return;
+            }
+
+            var btn = document.getElementById('btn-save-record');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> ' + t('Saving...', 'جاري الحفظ...');
+
+            var body = {
+                student_id: student_id,
+                formation_id: formation_id || null,
+                cycle: cycle,
+                session_date: session_date,
+                amount: amount,
+                level: level,
+                notes: notes,
+                group_id: group_id
+            };
+            var method = currentEditId ? 'PUT' : 'POST';
+            var url = currentEditId ? '/api/quran/' + currentEditId : '/api/quran';
+
+            request(url, { method: method, body: JSON.stringify(body) }).then(function() {
+                closeModal('modal-add');
+                showStatus(currentEditId ? t('Memorization record updated successfully ✓', 'تم تحديث سجل الحفظ بنجاح ✓') : t('Memorization record added successfully ✓', 'تم إضافة سجل الحفظ بنجاح ✓'), 'success');
+                loadCycles();
+                loadRecords();
+            }).catch(function(err) {
+                alert(t('Error: ', 'خطأ: ') + err.message);
+            }).finally(function() {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa fa-check"></i> ' + t('Save Record', 'حفظ السجل');
+            });
+        };
+
+        window.deleteRecord = function(id) {
+            if (typeof window.showDeleteConfirmModal === 'function') {
+                window.showDeleteConfirmModal({
+                    title: t('Delete Memorization Record', 'حذف سجل الحفظ'),
+                    message: t('Are you sure you want to permanently delete this record?', 'هل أنت متأكد من حذف هذا السجل نهائياً؟'),
+                    confirmText: t('Yes, Delete', 'نعم، احذف'),
+                    cancelText: t('Cancel', 'إلغاء'),
+                    onConfirm: function() {
+                        request('/api/quran/' + id, { method: 'DELETE' }).then(function() {
+                            showStatus(t('Record deleted successfully', 'تم حذف السجل بنجاح'), 'success');
+                            loadRecords();
+                        }).catch(function(err) { alert(t('Error: ', 'خطأ: ') + err.message); });
+                    }
+                });
+            } else if (confirm(t('Are you sure you want to delete this record?', 'هل أنت متأكد من حذف هذا السجل؟'))) {
+                request('/api/quran/' + id, { method: 'DELETE' }).then(function() {
+                    showStatus(t('Record deleted successfully', 'تم حذف السجل بنجاح'), 'success');
+                    loadRecords();
+                }).catch(function(err) { alert(t('Error: ', 'خطأ: ') + err.message); });
+            }
+        };
+
+        window.updateDeleteSelectedBtn = function() {
+            var checked = document.querySelectorAll('#records-tbody .row-chk:checked');
+            var btn = document.getElementById('btn-delete-selected');
+            var lbl = document.getElementById('delete-selected-count');
+            var chkAll = document.getElementById('chk-select-all');
+            if (!btn) return;
+            if (checked.length > 0) {
+                btn.style.display = '';
+                lbl.textContent = t('Delete ' + checked.length + ' Selected', 'حذف ' + checked.length + ' محدد');
+            } else {
+                btn.style.display = 'none';
+            }
+            // Update select-all indeterminate state
+            var all = document.querySelectorAll('#records-tbody .row-chk');
+            if (chkAll) {
+                chkAll.indeterminate = checked.length > 0 && checked.length < all.length;
+                chkAll.checked = all.length > 0 && checked.length === all.length;
+            }
+        };
+
+        window.toggleSelectAllRecords = function(checked) {
+            document.querySelectorAll('#records-tbody .row-chk').forEach(function(chk) {
+                chk.checked = checked;
+            });
+            updateDeleteSelectedBtn();
+        };
+
+        window.deleteSelectedRecords = function() {
+            var checked = document.querySelectorAll('#records-tbody .row-chk:checked');
+            if (checked.length === 0) return;
+            var ids = Array.from(checked).map(function(c) { return c.getAttribute('data-id'); });
+            var doDelete = function() {
+                var promises = ids.map(function(id) {
+                    return request('/api/quran/' + id, { method: 'DELETE' });
+                });
+                Promise.all(promises).then(function() {
+                    showStatus(t('Deleted ' + ids.length + ' records successfully ✓', 'تم حذف ' + ids.length + ' سجل بنجاح ✓'), 'success');
+                    loadRecords();
+                }).catch(function(err) {
+                    alert(t('Error deleting: ', 'خطأ في الحذف: ') + err.message);
+                    loadRecords();
+                });
+            };
+            if (typeof window.showDeleteConfirmModal === 'function') {
+                window.showDeleteConfirmModal({
+                    title: t('Delete Selected Records', 'حذف السجلات المحددة'),
+                    message: t('Are you sure you want to permanently delete ' + ids.length + ' records? This action cannot be undone.', 'هل أنت متأكد من حذف ' + ids.length + ' سجل نهائياً؟ لا يمكن التراجع عن هذا الإجراء.'),
+                    confirmText: t('Yes, Delete All', 'نعم، احذف الكل'),
+                    cancelText: t('Cancel', 'إلغاء'),
+                    onConfirm: doDelete
+                });
+            } else if (confirm(t('Are you sure you want to delete ' + ids.length + ' records?', 'هل أنت متأكد من حذف ' + ids.length + ' سجل؟'))) {
+                doDelete();
+            }
+        };
+
+        // ── Bulk Group Entry Modal ────────────────────────────────────────────
+        window.openBulkModal = function(preselectedGid) {
+            var targetGid = preselectedGid || document.getElementById('filter-group').value || '';
+            var filterFid = document.getElementById('filter-formation') ? document.getElementById('filter-formation').value : '';
+
+            // Ensure bulk-formation options are loaded
+            var bulkFormSel = document.getElementById('bulk-formation');
+            var filterFormSel = document.getElementById('filter-formation');
+            if (bulkFormSel && filterFormSel && filterFormSel.innerHTML && bulkFormSel.options.length <= 1) {
+                bulkFormSel.innerHTML = '<option value="">' + t('— Select Course —', '— اختر الدورة —') + '</option>' + filterFormSel.innerHTML.split('</option>').slice(1).join('</option>');
+            }
+
+            var grp = targetGid ? (allGroups || []).find(function(g) { return String(g.id) === String(targetGid); }) : null;
+            var initialFid = (grp && grp.formation_id) ? grp.formation_id : (filterFid || '');
+
+            if (bulkFormSel) {
+                bulkFormSel.value = initialFid || '';
+            }
+
+            // Populate bulk-group options based on initialFid
+            var groupSel = document.getElementById('bulk-group');
+            if (groupSel) {
+                var filtered = initialFid ? (allGroups || []).filter(function(g) { return String(g.formation_id) === String(initialFid); }) : (allGroups || []);
+                var opts = '<option value="">' + t('— Select Group —', '— اختر الفوج —') + '</option>';
+                filtered.forEach(function(g) {
+                    var extra = '';
+                    if (g.formation_title) extra += ' (' + esc(g.formation_title) + ')';
+                    if (g.formation_niveau) extra += ' [' + esc(getLevelDisplay(normalizeLevel(g.formation_niveau))) + ']';
+                    opts += '<option value="' + g.id + '">' + esc(g.name) + extra + ' — ' + (g.student_count || 0) + ' ' + t('students', 'طالب') + '</option>';
+                });
+                groupSel.innerHTML = opts;
+                groupSel.value = targetGid || '';
+            }
+
+            document.getElementById('bulk-date').value = new Date().toISOString().slice(0, 10);
+            document.getElementById('bulk-quick-amount').value = '';
+            document.getElementById('bulk-tbody').innerHTML = '';
+
+            if (targetGid) {
+                onBulkGroupChange();
+            } else if (initialFid) {
+                onBulkFormationChange();
+            } else {
+                document.getElementById('bulk-default-level').value = '';
+                document.getElementById('bulk-students-wrap').style.display = 'none';
+                renderBulkDefaultHint();
+            }
+            openModal('modal-bulk');
+            if (window.AppI18n && typeof window.AppI18n.translateAll === 'function') {
+                window.AppI18n.translateAll(document.getElementById('modal-bulk'));
+            }
+        };
+
+        function renderBulkDefaultHint() {
+            var hint = document.getElementById('bulk-hint');
+            if (!hint) return;
+            hint.className = 'bulk-hint-box';
+            var arrowIcon = isAr() ? 'fa-arrow-left' : 'fa-arrow-right';
+            hint.innerHTML = '<div class="bulk-hint-icon"><i class="fa fa-users"></i></div>' +
+                '<div class="bulk-hint-title">' + t('Select Course and Group to continue', 'اختر الدورة ثم الفوج للمتابعة') + '</div>' +
+                '<div class="bulk-hint-text">' + t('Choose a group to display its student list and record memorized amounts all at once', 'حدد الفوج لعرض قائمة الطلاب وإدخال مقدار الحفظ لكل طالب دفعة واحدة') + '</div>' +
+                '<div class="bulk-hint-steps">' +
+                    '<span class="bulk-step-pill"><span class="step-num">1</span> ' + t('Choose Course', 'اختر الدورة') + '</span>' +
+                    '<i class="fa ' + arrowIcon + ' bulk-step-arr"></i>' +
+                    '<span class="bulk-step-pill"><span class="step-num">2</span> ' + t('Choose Group', 'اختر الفوج') + '</span>' +
+                    '<i class="fa ' + arrowIcon + ' bulk-step-arr"></i>' +
+                    '<span class="bulk-step-pill"><span class="step-num">3</span> ' + t('Enter Amount', 'أدخل مقدار الحفظ') + '</span>' +
+                    '<i class="fa ' + arrowIcon + ' bulk-step-arr"></i>' +
+                    '<span class="bulk-step-pill"><span class="step-num">4</span> ' + t('Save Group', 'حفظ الفوج') + '</span>' +
+                '</div>';
+            hint.style.display = 'block';
+        }
+
+        window.updateBulkFilledCounter = function() {
+            var rows = document.querySelectorAll('#bulk-tbody tr');
+            var total = rows.length;
+            var filled = 0;
+            rows.forEach(function(tr) {
+                var inp = tr.querySelector('.bulk-amount');
+                var val = inp ? (inp.value || '').trim() : '';
+                if (val) {
+                    filled++;
+                    tr.classList.add('has-amount');
+                } else {
+                    tr.classList.remove('has-amount');
+                }
+            });
+            var filledEl = document.getElementById('bulk-filled-counter');
+            if (filledEl) {
+                filledEl.innerHTML = '<i class="fa fa-check-circle"></i> <strong>' + filled + '</strong> / ' + total + ' ' + t('Filled', 'تم التحديد');
+            }
+            var totalEl = document.getElementById('bulk-total-counter');
+            if (totalEl) {
+                totalEl.innerHTML = '<i class="fa fa-users"></i> <strong>' + total + '</strong> ' + t('Students', 'طلاب');
+            }
+        };
+
+        window.setBulkQuickChip = function(txt) {
+            var inp = document.getElementById('bulk-quick-amount');
+            if (inp) inp.value = txt;
+            applyQuickAmountToAll();
+        };
+
+        window.onBulkFormationChange = function() {
+            var fid = document.getElementById('bulk-formation').value;
+            var form = (allFormations || []).find(function(f) { return String(f.id) === String(fid); });
+            var defaultLvlEl = document.getElementById('bulk-default-level');
+
+            // Auto-detect and set default level from formation
+            if (form && form.niveau && defaultLvlEl) {
+                var norm = normalizeLevel(form.niveau);
+                ensureOptionExists(defaultLvlEl, norm);
+                defaultLvlEl.value = norm;
+            }
+
+            // Filter groups in #bulk-group
+            var groupSel = document.getElementById('bulk-group');
+            if (groupSel) {
+                var filtered = fid ? (allGroups || []).filter(function(g) { return String(g.formation_id) === String(fid); }) : (allGroups || []);
+                var opts = '<option value="">' + t('— Select Group —', '— اختر الفوج —') + '</option>';
+                filtered.forEach(function(g) {
+                    var extra = '';
+                    if (g.formation_title) extra += ' (' + esc(g.formation_title) + ')';
+                    if (g.formation_niveau) extra += ' [' + esc(getLevelDisplay(normalizeLevel(g.formation_niveau))) + ']';
+                    opts += '<option value="' + g.id + '">' + esc(g.name) + extra + ' — ' + (g.student_count || 0) + ' ' + t('students', 'طالب') + '</option>';
+                });
+                groupSel.innerHTML = opts;
+
+                // If only 1 group in this formation, auto-select it!
+                if (filtered.length === 1) {
+                    groupSel.value = filtered[0].id;
+                    onBulkGroupChange();
+                } else {
+                    groupSel.value = '';
+                    document.getElementById('bulk-students-wrap').style.display = 'none';
+                    renderBulkDefaultHint();
+                }
+            }
+        };
+
+        window.onBulkGroupChange = function() {
+            var gid = document.getElementById('bulk-group').value;
+            var defaultLvlEl = document.getElementById('bulk-default-level');
+            var bulkFormSel = document.getElementById('bulk-formation');
+
+            if (!gid) {
+                if (defaultLvlEl && (!bulkFormSel || !bulkFormSel.value)) defaultLvlEl.value = '';
+                document.getElementById('bulk-students-wrap').style.display = 'none';
+                renderBulkDefaultHint();
+                return;
+            }
+
+            // Find group details
+            var grp = (allGroups || []).find(function(g) { return String(g.id) === String(gid); });
+
+            // Auto-select formation in #bulk-formation if not yet chosen
+            if (grp && grp.formation_id && bulkFormSel && String(bulkFormSel.value) !== String(grp.formation_id)) {
+                bulkFormSel.value = grp.formation_id;
+            }
+
+            // Auto-detect group's formation level
+            if (grp && grp.formation_niveau && defaultLvlEl) {
+                var norm = normalizeLevel(grp.formation_niveau);
+                ensureOptionExists(defaultLvlEl, norm);
+                defaultLvlEl.value = norm;
+            } else if (defaultLvlEl && !defaultLvlEl.value) {
+                var fid = bulkFormSel ? bulkFormSel.value : (grp ? grp.formation_id : '');
+                var form = (allFormations || []).find(function(f) { return String(f.id) === String(fid); });
+                if (form && form.niveau) {
+                    var normF = normalizeLevel(form.niveau);
+                    ensureOptionExists(defaultLvlEl, normF);
+                    defaultLvlEl.value = normF;
+                }
+            }
+
+            loadBulkStudents();
+        };
+
+        window.loadBulkStudents = function() {
+            var gid = document.getElementById('bulk-group').value;
+            if (!gid) {
+                document.getElementById('bulk-students-wrap').style.display = 'none';
+                renderBulkDefaultHint();
+                return;
+            }
+            var hintEl = document.getElementById('bulk-hint');
+            hintEl.className = 'bulk-hint-box';
+            hintEl.innerHTML = '<div class="bulk-hint-icon"><i class="fa fa-spinner fa-spin"></i></div>' +
+                '<div class="bulk-hint-title">' + t('Loading group students...', 'جاري تحميل طلاب الفوج...') + '</div>' +
+                '<div class="bulk-hint-text">' + t('Please wait while fetching the student list', 'يرجى الانتظار لحظات ريثما يتم جلب قائمة الطلاب') + '</div>';
+            hintEl.style.display = 'block';
+            document.getElementById('bulk-students-wrap').style.display = 'none';
+
+            request('/api/quran/students-in-group/' + gid).then(function(data) {
+                var students = data.students || [];
+                hintEl.style.display = 'none';
+                if (students.length === 0) {
+                    hintEl.innerHTML = '<div class="bulk-hint-icon" style="color:#ef4444;background:rgba(239,68,68,0.1)"><i class="fa fa-exclamation-circle"></i></div>' +
+                        '<div class="bulk-hint-title">' + t('No students currently registered in this group', 'لا يوجد طلاب مسجلون في هذا الفوج حالياً') + '</div>' +
+                        '<div class="bulk-hint-text">' + t('Please ensure students are enrolled and assigned to this group to proceed.', 'يرجى التأكد من تسجيل الطلاب وتعيينهم في هذا الفوج للمتابعة.') + '</div>';
+                    hintEl.style.display = 'block';
+                    return;
+                }
+
+                var defaultLevel = document.getElementById('bulk-default-level').value;
+                var bulkFormSel  = document.getElementById('bulk-formation');
+                var grp = (allGroups || []).find(function(g) { return String(g.id) === String(gid); });
+                var formTitle = (grp && grp.formation_title) ? grp.formation_title : '';
+                if (!formTitle && bulkFormSel && bulkFormSel.value) {
+                    var fObj = (allFormations || []).find(function(f) { return String(f.id) === String(bulkFormSel.value); });
+                    if (fObj) formTitle = fObj.title;
+                }
+                var displayFormation = formTitle || '—';
+
+                var bulkLvlEl = document.getElementById('bulk-default-level');
+                var levelOpts = bulkLvlEl ? bulkLvlEl.innerHTML : buildNiveauOptionsHtml('', t('— Select Level —', '— اختر المستوى —'));
+                var html = '';
+
+                students.forEach(function(s, i) {
+                    var name = esc((s.first_name || '') + ' ' + (s.last_name || ''));
+                    var avatar = avatarFallback(s.photo, s.gender);
+                    var sid = s.id || s.student_id;
+
+                    html += '<tr data-student-id="' + sid + '">' +
+                        '<td style="text-align:center;color:#64748b;font-weight:700;font-size:12px">' + (i + 1) + '</td>' +
+                        '<td>' +
+                            '<div class="stu-cell">' +
+                                '<img src="' + esc(avatar) + '" class="stu-avatar" style="width:34px;height:34px;border-radius:50%;object-fit:cover" onerror="this.src=\'img/طالب.webp\'">' +
+                                '<div>' +
+                                    '<div class="stu-name" style="font-weight:700;color:#0f172a;font-size:13px">' + name + '</div>' +
+                                    '<div class="stu-reg" style="font-size:11px;color:#64748b">' + esc(s.registration_number || '') + '</div>' +
+                                '</div>' +
+                            '</div>' +
+                        '</td>' +
+                        '<td><span class="cycle-badge bulk-cycle-cell" style="font-size:11.5px">' + esc(displayFormation) + '</span></td>' +
+                        '<td><input type="text" class="bulk-amount" placeholder="' + t('e.g. Surah An-Naba, Hizb 60...', 'مثال: سورة النبأ، حزب 60...') + '"></td>' +
+                        '<td>' +
+                            '<select class="bulk-level">' +
+                                levelOpts +
+                            '</select>' +
+                        '</td>' +
+                        '<td><input type="text" class="bulk-notes" placeholder="' + t('Memorization & Tajweed notes...', 'ملاحظات الحفظ والتجويد...') + '"></td>' +
+                    '</tr>';
+                });
+
+                document.getElementById('bulk-tbody').innerHTML = html;
+                document.querySelectorAll('#bulk-tbody tr').forEach(function(tr, idx) {
+                    var sel = tr.querySelector('.bulk-level');
+                    var s = students[idx];
+                    var stuNiveau = s && s.student_formation_niveau ? normalizeLevel(s.student_formation_niveau) : '';
+                    var targetVal = defaultLevel || stuNiveau || '';
+                    if (targetVal) {
+                        ensureOptionExists(sel, targetVal);
+                        sel.value = targetVal;
+                    }
+                });
+
+                // Attach live typing listener for interactive counter and active row state
+                var bulkTbody = document.getElementById('bulk-tbody');
+                if (!bulkTbody._inputBound) {
+                    bulkTbody.addEventListener('input', function(e) {
+                        if (e.target && e.target.classList.contains('bulk-amount')) {
+                            updateBulkFilledCounter();
+                        }
+                    });
+                    bulkTbody._inputBound = true;
+                }
+
+                updateBulkFilledCounter();
+                document.getElementById('bulk-students-wrap').style.display = 'block';
+            }).catch(function(err) {
+                console.error(err);
+                hintEl.innerHTML = '<div class="bulk-hint-icon" style="color:#ef4444;background:rgba(239,68,68,0.1)"><i class="fa fa-times-circle"></i></div>' +
+                    '<div class="bulk-hint-title">' + t('Error loading group students', 'خطأ في تحميل طلاب الفوج') + '</div>' +
+                    '<div class="bulk-hint-text">' + t('Failed to retrieve student data. Please try again.', 'تعذر جلب بيانات الطلاب. يرجى إعادة المحاولة.') + '</div>';
+                hintEl.style.display = 'block';
+            });
+        };
+
+        window.applyDefaultLevel = function() {
+            var lvl = document.getElementById('bulk-default-level').value;
+            document.querySelectorAll('#bulk-tbody .bulk-level').forEach(function(sel) {
+                if (lvl) ensureOptionExists(sel, lvl);
+                sel.value = lvl;
+            });
+        };
+
+        window.applyQuickAmountToAll = function() {
+            var txt = (document.getElementById('bulk-quick-amount').value || '').trim();
+            if (!txt) { alert(t('Please enter or select a memorization amount first', 'يرجى كتابة أو اختيار مقدار الحفظ أولاً')); return; }
+            document.querySelectorAll('#bulk-tbody .bulk-amount').forEach(function(inp) {
+                inp.value = txt;
+            });
+            updateBulkFilledCounter();
+        };
+
+        window.saveBulk = function() {
+            var fid   = document.getElementById('bulk-formation') ? document.getElementById('bulk-formation').value : '';
+            var gid   = document.getElementById('bulk-group').value;
+            var date  = document.getElementById('bulk-date').value;
+
+            if (!gid || !date) {
+                alert(t('Please select a group and session date', 'يرجى اختيار الفوج وتاريخ التسميع'));
+                return;
+            }
+
+            var grp = (allGroups || []).find(function(g) { return String(g.id) === String(gid); });
+            var finalFid = fid || (grp ? grp.formation_id : null);
+
+            var records = [];
+            document.querySelectorAll('#bulk-tbody tr').forEach(function(tr) {
+                var sid    = tr.getAttribute('data-student-id');
+                var amount = (tr.querySelector('.bulk-amount').value || '').trim();
+                var level  = tr.querySelector('.bulk-level').value;
+                var notes  = (tr.querySelector('.bulk-notes').value || '').trim();
+
+                if (amount) {
+                    records.push({ student_id: sid, amount: amount, level: level, notes: notes });
+                }
+            });
+
+            if (records.length === 0) {
+                alert(t('Please enter memorized amount for at least one student', 'يرجى إدخال مقدار الحفظ لطالب واحد على الأقل'));
+                return;
+            }
+
+            var btn = document.getElementById('btn-save-bulk');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> ' + t('Saving...', 'جاري الحفظ...');
+
+            request('/api/quran/bulk', {
+                method: 'POST',
+                body: JSON.stringify({
+                    formation_id: finalFid || null,
+                    group_id: gid,
+                    cycle: grp ? grp.formation_title : null,
+                    session_date: date,
+                    records: records
+                })
+            }).then(function() {
+                closeModal('modal-bulk');
+                var grpName = document.getElementById('bulk-group').selectedOptions[0] ? document.getElementById('bulk-group').selectedOptions[0].text : '';
+                showStatus(t('Saved ' + records.length + ' records successfully for ' + grpName + ' ✓', 'تم حفظ ' + records.length + ' سجل بنجاح لفوج ' + grpName + ' ✓'), 'success');
+                loadCycles();
+                loadRecords();
+            }).catch(function(err) {
+                alert(t('Error saving group records: ', 'خطأ في حفظ الفوج: ') + err.message);
+            }).finally(function() {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa fa-check"></i> ' + t('Save Group All at Once', 'حفظ الفوج دفعة واحدة');
+            });
+        };
+
+        // ── Student History Portfolio Modal ───────────────────────────────────
+        window.openStudentHistory = function(studentId) {
+            var tbody = document.getElementById('hist-tbody');
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center" style="padding:24px;color:#94a3b8"><i class="fa fa-spinner fa-spin"></i> ' + t('Loading student history...', 'جاري تحميل سجل الطالب...') + '</td></tr>';
+            openModal('modal-history');
+            if (window.AppI18n && typeof window.AppI18n.translateAll === 'function') {
+                window.AppI18n.translateAll(document.getElementById('modal-history'));
+            }
+
+            request('/api/quran/student-history/' + studentId).then(function(data) {
+                var stu = data.student || {};
+                var records = data.records || [];
+
+                document.getElementById('hist-name').textContent = (stu.first_name || '') + ' ' + (stu.last_name || '');
+                document.getElementById('hist-meta').textContent = t('Reg #: ', 'رقم التسجيل: ') + (stu.registration_number || '—') + (stu.group_name ? ' | ' + t('Group: ', 'الفوج: ') + stu.group_name : '');
+                document.getElementById('hist-avatar').src = avatarFallback(stu.photo, stu.gender);
+                document.getElementById('hist-total').textContent = records.length;
+
+                if (records.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" class="text-center" style="padding:30px;color:#94a3b8"><i class="fa fa-book"></i><br>' + t('No memorization records found for this student yet', 'لا توجد سجلات حفظ مسجلة لهذا الطالب بعد') + '</td></tr>';
+                    return;
+                }
+
+                var html = '';
+                records.forEach(function(r, i) {
+                    html += '<tr>' +
+                        '<td style="color:#94a3b8;font-size:12px">' + (i + 1) + '</td>' +
+                        '<td>' + (r.cycle ? '<span class="cycle-badge">' + esc(r.cycle) + '</span>' : '—') + '</td>' +
+                        '<td style="white-space:nowrap">' + fmtDate(r.session_date) + '</td>' +
+                        '<td><span class="amount-badge">' + esc(r.amount) + '</span></td>' +
+                        '<td>' + lvlBadge(r.level) + '</td>' +
+                        '<td>' + (r.group_name ? '<span class="group-badge">' + esc(r.group_name) + '</span>' : '—') + '</td>' +
+                        '<td style="color:#64748b;font-size:12px">' + esc(r.notes || '—') + '</td>' +
+                    '</tr>';
+                });
+                tbody.innerHTML = html;
+            }).catch(function(err) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center text-danger">' + t('Error: ', 'خطأ: ') + esc(err.message) + '</td></tr>';
+            });
+        };
+
+        // ── Keyboard Shortcuts ────────────────────────────────────────────────
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal('modal-add');
+                closeModal('modal-bulk');
+                closeModal('modal-history');
+            }
+        });
+
+        // ── Initialization ───────────────────────────────────────────────────
+        function init() {
+            if (!getToken()) {
+                showStatus(t('Notice: No login token found. Please <a href="login.html" style="text-decoration:underline;font-weight:700">log in</a> first to view and manage school data.', 'تنبيه: لم يتم العثور على رمز تسجيل الدخول. يرجى <a href="login.html" style="text-decoration:underline;font-weight:700">تسجيل الدخول</a> أولاً لعرض وتعديل بيانات المدرسة.'), 'warning');
+            }
+
+            var now = new Date();
+            var y = now.getFullYear();
+            var m = String(now.getMonth() + 1).padStart(2, '0');
+            var df = document.getElementById('filter-date-from');
+            if (df && !df.value) df.value = y + '-' + m + '-01';
+
+            loadFormations();
+            loadNiveaux();
+            loadGroups();
+            loadCycles();
+            loadAllStudents();
+            loadRecords();
+
+            if (window.AppI18n && typeof window.AppI18n.translateAll === 'function') {
+                window.AppI18n.translateAll(document.body);
+            }
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+
+    })();
+    </script>
+</body>
+</html>

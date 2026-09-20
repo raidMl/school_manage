@@ -11,12 +11,13 @@ const errorHandler = require('./middleware/errorHandler');
 const { query } = require('./config/db');
 
 const app = express();
+const projectRoot = path.resolve(__dirname, '../../');
 const adminUiPath = path.resolve(__dirname, '../../admin-ui');
+const clientUiPath = path.resolve(__dirname, '../../client_ui');
 
 app.use(
   cors({
-    // origin: process.env.FRONTEND_ORIGIN || '*',
-   origin: '*'
+    origin: '*'
   })
 );
 app.use(
@@ -30,6 +31,15 @@ app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 
 app.use(express.static(adminUiPath));
+app.use('/admin-ui', express.static(adminUiPath));
+app.use('/client_ui', express.static(clientUiPath));
+app.use('/css', express.static(path.resolve(projectRoot, 'css')));
+app.use('/js', express.static(path.resolve(projectRoot, 'js')));
+
+app.get('/landing', (req, res) => {
+  res.sendFile(path.join(projectRoot, 'index.html'));
+});
+
 
 app.get('/api/health', async (req, res, next) => {
   try {

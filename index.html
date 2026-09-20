@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-i18n="site_title">مدرسة الرضوان لعلوم القرآن | الصرح التعليمي الرائد</title>
+  <meta name="description" content="مدرسة الرضوان لعلوم القرآن والتعليم ببلدية قجال - ولاية سطيف. تحفيظ القرآن الكريم، القسم التحضيري، والدعم المدرسي.">
+  
+  <!-- Favicon -->
+  <link rel="shortcut icon" type="image/x-icon" href="client_ui/img/favicon.ico">
+  
+  <!-- Google Fonts: Cairo (Arabic) & Inter (English) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="client_ui/css/font-awesome.min.css">
+  
+  <!-- Landing Custom Modern Stylesheet -->
+  <link rel="stylesheet" href="css/landing.css">
+
+  
+</head>
+
+<body dir="rtl">
+  <!-- Background Ambient Glow Mesh -->
+  <div class="bg-mesh" aria-hidden="true">
+    <div class="glow-orb glow-orb-1"></div>
+    <div class="glow-orb glow-orb-2"></div>
+    <div class="glow-orb glow-orb-3"></div>
+  </div>
+
+  <!-- ========================================================================
+       Sticky Glassmorphic Header
+       ======================================================================== -->
+  <header class="site-header" id="site-header">
+    <div class="container header-inner">
+      <!-- School Logo & Brand Name -->
+      <a href="#home" class="logo-brand" title="مدرسة الرضوان لعلوم القرآن">
+        <div class="logo-brand-img-wrap">
+          <img src="https://res.cloudinary.com/p0mhhcjg/image/upload/v1788176562/school_management/bgqqlyiwkzs7ja5zuxpt.png" 
+               alt="شعار مدرسة الرضوان" 
+               id="nav-school-logo"
+               onerror="this.onerror=null; this.src='client_ui/img/logo/elridwan-logo.svg'">
+        </div>
+        <div class="logo-brand-text">
+          <h1 data-i18n="school_name">مدرسة الرضوان لعلوم القرآن</h1>
+          <span data-i18n="school_tagline">قجال - ولاية سطيف</span>
+        </div>
+      </a>
+
+      <!-- Navigation Menu -->
+      <nav>
+        <ul class="nav-menu" id="nav-menu">
+          <li><a href="#home" class="nav-link active" data-i18n="nav_home">الرئيسية</a></li>
+          <li><a href="#formations" class="nav-link" data-i18n="nav_formations">تكويناتنا وبرامجنا</a></li>
+          <li><a href="#statistics" class="nav-link" data-i18n="nav_stats">إحصائياتنا</a></li>
+          <li><a href="#features" class="nav-link" data-i18n="nav_features">مميزاتنا</a></li>
+          <li><a href="#order-system" class="nav-link nav-highlight-badge" data-i18n="nav_order_system">طلب النظام 🚀</a></li>
+          <li><a href="#contact" class="nav-link" data-i18n="nav_contact">اتصل بنا</a></li>
+        </ul>
+      </nav>
+
+      <!-- Header Actions: Language Switcher & Client Portal Login Button -->
+      <div class="header-actions">
+        <!-- Language Switcher -->
+        <button id="btn-lang-toggle" class="btn-lang" type="button" aria-label="Toggle Language">
+          <i class="fa fa-globe"></i>
+          <span id="lang-switch-text">English</span>
+        </button>
+
+        <!-- Login in top: Leads strictly to client_ui, Admin UI remains private -->
+        <a href="client_ui/index.html" class="btn-portal-login" id="btn-portal-login" title="دخول فضاء التلميذ والأستاذ">
+          <i class="fa fa-graduation-cap"></i>
+          <span data-i18n="login_portal_btn">فضاء التلميذ والأستاذ</span>
+        </a>
+
+        <!-- Mobile Menu Toggle Button -->
+        <button class="mobile-toggle" id="mobile-menu-btn" type="button" aria-label="Open Menu">
+          <i class="fa fa-bars"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================================================
+       Hero Section
+       ======================================================================== -->
+  <section class="hero-section" id="home">
+    <div class="container hero-grid">
+      <!-- Left / Primary Content Column -->
+      <div class="hero-content">
+        <div class="hero-badge-pill">
+          <span class="pulse-dot"></span>
+          <span data-i18n="hero_badge">الصرح الرائد في علوم القرآن والتربية والتعليم</span>
+        </div>
+
+        <h2 class="hero-title">
+          <span data-i18n="hero_title_1">نغرس القيم، نعلّم القرآن،</span><br>
+          <span class="gradient-text" data-i18n="hero_title_gradient">ونبني أجيال المستقبل</span>
+        </h2>
+
+        <p class="hero-description" data-i18n="hero_desc">
+          مرحباً بكم في مدرسة الرضوان لعلوم القرآن بقجال. نجمع بين أصالة تحفيظ كتاب الله والأساليب التربوية والتقنية الحديثة لبناء شخصية متكاملة تسعى للإتقان والتميز.
+        </p>
+
+        <div class="hero-actions">
+          <a href="#formations" class="btn-hero-primary">
+            <i class="fa fa-book"></i>
+            <span data-i18n="hero_btn_formations">استكشف التكوينات والبرامج</span>
+          </a>
+          <a href="client_ui/index.html" class="btn-hero-secondary">
+            <i class="fa fa-user-circle-o"></i>
+            <span data-i18n="hero_btn_portal">دخول الفضاء التعليمي</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Right Column: Interactive School Showcase Card -->
+      <div class="hero-visual">
+        <div class="hero-visual-card">
+          <!-- Floating Badge 1: Quran Sanad -->
+          <div class="floating-chip floating-chip-1">
+            <div class="chip-icon chip-icon-green">
+              <i class="fa fa-check-circle"></i>
+            </div>
+            <span data-i18n="floating_chip_quran">حفظ وتجويد بإسناد متصل</span>
+          </div>
+
+          <!-- Large School Logo with Ambient Halo -->
+          <div class="hero-school-logo-large">
+            <img src="https://res.cloudinary.com/p0mhhcjg/image/upload/v1788176562/school_management/bgqqlyiwkzs7ja5zuxpt.png" 
+                 alt="شعار المدرسة" 
+                 id="hero-school-logo"
+                 onerror="this.onerror=null; this.src='client_ui/img/logo/elridwan-logo.svg'">
+          </div>
+
+          <h3 class="hero-visual-school-name" data-i18n="school_name">مدرسة الرضوان لعلوم القرآن</h3>
+          <div class="hero-visual-school-loc">
+            <i class="fa fa-map-marker text-emerald"></i>
+            <span data-i18n="school_tagline">قجال - ولاية سطيف</span>
+          </div>
+
+          <div style="border-top: 1px solid var(--border-light); padding-top: 18px; display: flex; justify-content: space-around;">
+            <div>
+              <div style="font-size: 1.3rem; font-weight: 800; color: var(--emerald-light);">2026</div>
+              <div style="font-size: 0.78rem; color: var(--text-muted);">الموسم الدراسي</div>
+            </div>
+            <div>
+              <div style="font-size: 1.3rem; font-weight: 800; color: #60a5fa;">معتمدة</div>
+              <div style="font-size: 0.78rem; color: var(--text-muted);">بيئة تربوية</div>
+            </div>
+          </div>
+
+          <!-- Floating Badge 2: Digital Tracking -->
+          <div class="floating-chip floating-chip-2">
+            <div class="chip-icon chip-icon-blue">
+              <i class="fa fa-laptop"></i>
+            </div>
+            <span data-i18n="floating_chip_portal">منصة رقمية ذكية للمتابعة</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       Statistics Counters Section (Animated On Viewport Enter)
+       ======================================================================== -->
+  <section class="stats-section" id="statistics">
+    <div class="container">
+      <div class="stats-grid">
+        <!-- Students Count Card -->
+        <div class="stat-card">
+          <div class="stat-icon stat-icon-emerald">
+            <i class="fa fa-graduation-cap"></i>
+          </div>
+          <div class="stat-number" id="stat-students-num" data-target="158">0</div>
+          <div class="stat-label" data-i18n="stats_students_label">طالب وطالبة مسجلين</div>
+        </div>
+
+        <!-- Teachers Count Card -->
+        <div class="stat-card">
+          <div class="stat-icon stat-icon-primary">
+            <i class="fa fa-users"></i>
+          </div>
+          <div class="stat-number" id="stat-teachers-num" data-target="17">0</div>
+          <div class="stat-label" data-i18n="stats_teachers_label">نخبة الأساتذة والمشايخ</div>
+        </div>
+
+        <!-- Formations Count Card -->
+        <div class="stat-card">
+          <div class="stat-icon stat-icon-gold">
+            <i class="fa fa-book"></i>
+          </div>
+          <div class="stat-number" id="stat-formations-num" data-target="7">0</div>
+          <div class="stat-label" data-i18n="stats_formations_label">برامج وتكوينات معتمدة</div>
+        </div>
+
+        <!-- Success & Memorization Rate Card -->
+        <div class="stat-card">
+          <div class="stat-icon stat-icon-cyan">
+            <i class="fa fa-star"></i>
+          </div>
+          <div class="stat-number" id="stat-success-num" data-target="99">0</div>
+          <div class="stat-label" data-i18n="stats_success_label">نسبة النجاح والإتقان</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       Formations & Programs Showcase Section
+       ======================================================================== -->
+  <section class="formations-section" id="formations">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-pill">
+          <i class="fa fa-th-large"></i>
+          <span data-i18n="formations_pill">بوابتك نحو التميز العلمي والروحي</span>
+        </div>
+        <h3 class="section-title" data-i18n="formations_title">التكوينات والبرامج المتاحة</h3>
+        <p class="section-subtitle" data-i18n="formations_subtitle">
+          برامج متكاملة مصممة بعناية فائقة لتناسب مختلف الأعمار والمستويات التعليمية
+        </p>
+      </div>
+
+      <!-- Filter Controls -->
+      <div class="filter-tabs">
+        <button class="filter-btn active" data-filter="all">
+          <i class="fa fa-th"></i>
+          <span data-i18n="tab_all">جميع البرامج</span>
+        </button>
+        <button class="filter-btn" data-filter="quran">
+          <i class="fa fa-book"></i>
+          <span data-i18n="tab_quran">علوم القرآن الكريم</span>
+        </button>
+        <button class="filter-btn" data-filter="preparatory">
+          <i class="fa fa-child"></i>
+          <span data-i18n="tab_preparatory">القسم التحضيري</span>
+        </button>
+        <button class="filter-btn" data-filter="support">
+          <i class="fa fa-pencil"></i>
+          <span data-i18n="tab_support">الدعم ومحو الأمية</span>
+        </button>
+      </div>
+
+      <!-- Formations Dynamic Grid -->
+      <div class="formations-grid" id="formations-grid">
+        <!-- Rendered via js/landing.js with real formations and fallback -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       Features / Why Us Section
+       ======================================================================== -->
+  <section class="features-section" id="features">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-pill">
+          <i class="fa fa-shield"></i>
+          <span data-i18n="features_pill">لماذا مدرسة الرضوان؟</span>
+        </div>
+        <h3 class="section-title" data-i18n="features_title">بيئة تعليمية رائدة تجمع بين الأصالة والمعاصرة</h3>
+        <p class="section-subtitle" data-i18n="features_subtitle">
+          نحرص على تقديم أعلى معايير الجودة الأكاديمية والتربوية لأبنائنا الطلبة
+        </p>
+      </div>
+
+      <div class="features-grid">
+        <!-- Feature 1 -->
+        <div class="feature-box">
+          <div class="feature-box-icon stat-icon-emerald">
+            <i class="fa fa-graduation-cap"></i>
+          </div>
+          <h4 data-i18n="f1_title">شيوخ وأساتذة أكفاء</h4>
+          <p data-i18n="f1_desc">نخبة من خيرة المعلمين والمشايخ المجازين ذوي الخبرة الطويلة والأساليب البيداغوجية المحفزة.</p>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="feature-box">
+          <div class="feature-box-icon stat-icon-primary">
+            <i class="fa fa-qrcode"></i>
+          </div>
+          <h4 data-i18n="f2_title">متابعة رقمية للحضور والتقدم</h4>
+          <p data-i18n="f2_desc">نظام إلكتروني ذكي لتسجيل الحضور، ومتابعة الحفظ، والتواصل المستمر مع أولياء الأمور.</p>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="feature-box">
+          <div class="feature-box-icon stat-icon-gold">
+            <i class="fa fa-balance-scale"></i>
+          </div>
+          <h4 data-i18n="f3_title">مناهج متوازنة وشاملة</h4>
+          <p data-i18n="f3_desc">مواءمة محكمة بين حفظ القرآن الكريم والتربية الأخلاقية، والتحصيل الدراسي المتفوق.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       Order School Manager System Section
+       ======================================================================== -->
+  <section class="order-system-section" id="order-system">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-pill section-pill-system">
+          <i class="fa fa-cubes"></i>
+          <span data-i18n="order_sys_pill">حلول برمجية للمؤسسات التعليمية</span>
+        </div>
+        <h3 class="section-title" data-i18n="order_sys_title">هل أعجبك نظام إدارة المدرسة؟ اطلبه لمؤسستك الآن!</h3>
+        <p class="section-subtitle" data-i18n="order_sys_subtitle">
+          احصل على نسختك المخصصة من منصة School Manager لإدارة مدرسة قرآنية، مدرسة خاصة، أو مركز تعليمي بأعلى معايير الاحترافية والسهولة.
+        </p>
+      </div>
+
+      <div class="order-system-grid">
+        <!-- Left Column: System Overview & Feature Highlights -->
+        <div class="sys-overview-card">
+          <div class="sys-logo-banner">
+            <div class="sys-logo-wrap">
+              <img src="client_ui/img/logo/school-manager-logo.png" alt="School Manager System" class="sys-brand-logo">
+            </div>
+            <div class="sys-brand-meta">
+              <span class="sys-edition-tag" data-i18n="sys_edition_tag">الإصدار المؤسساتي 2026</span>
+              <h4 class="sys-brand-name">School Manager Platform</h4>
+              <p class="sys-brand-lead" data-i18n="sys_brand_lead">نظام متكامل صُمم لرقمنة إدارة المدارس القرآنية والتعليمية بأحدث التقنيات</p>
+            </div>
+          </div>
+
+          <div class="sys-features-list">
+            <div class="sys-feature-item">
+              <div class="sys-feature-icon stat-icon-primary"><i class="fa fa-graduation-cap"></i></div>
+              <div class="sys-feature-text">
+                <strong data-i18n="sys_f1_title">إدارة شاملة وشخصية لمؤسستك</strong>
+                <span data-i18n="sys_f1_desc">شعاركم، هويتكم البصرية، وبياناتكم الخاصة في بيئة آمنة ومستقلة تماماً.</span>
+              </div>
+            </div>
+
+            <div class="sys-feature-item">
+              <div class="sys-feature-icon stat-icon-emerald"><i class="fa fa-book"></i></div>
+              <div class="sys-feature-text">
+                <strong data-i18n="sys_f2_title">متابعة حلقات القرآن والتسميع</strong>
+                <span data-i18n="sys_f2_desc">بطاقات متابعة فردية، تتبع الأحزاب، التجويد، والإسناد المتصل.</span>
+              </div>
+            </div>
+
+            <div class="sys-feature-item">
+              <div class="sys-feature-icon stat-icon-gold"><i class="fa fa-check-square-o"></i></div>
+              <div class="sys-feature-text">
+                <strong data-i18n="sys_f3_title">تسجيل الحضور الذكي</strong>
+                <span data-i18n="sys_f3_desc">رصد فوري لغياب وتأخر الطلاب والأساتذة مع طباعة تقارير فورية.</span>
+              </div>
+            </div>
+
+            <div class="sys-feature-item">
+              <div class="sys-feature-icon stat-icon-primary"><i class="fa fa-credit-card"></i></div>
+              <div class="sys-feature-text">
+                <strong data-i18n="sys_f4_title">إدارة الاشتراكات والمالية</strong>
+                <span data-i18n="sys_f4_desc">سندات قبض، متابعة الديون، تقارير المصاريف والأرباح الدورية.</span>
+              </div>
+            </div>
+
+            <div class="sys-feature-item">
+              <div class="sys-feature-icon stat-icon-emerald"><i class="fa fa-users"></i></div>
+              <div class="sys-feature-text">
+                <strong data-i18n="sys_f5_title">فضاءات رقمية للتلميذ والأستاذ</strong>
+                <span data-i18n="sys_f5_desc">واجهة تفاعلية سهلة الاستخدام ومتوافقة كلياً مع جميع الهواتف الذكية.</span>
+              </div>
+            </div>
+
+            <div class="sys-feature-item">
+              <div class="sys-feature-icon stat-icon-gold"><i class="fa fa-shield"></i></div>
+              <div class="sys-feature-text">
+                <strong data-i18n="sys_f6_title">تثبيت سريع ودعم فني مستمر</strong>
+                <span data-i18n="sys_f6_desc">استضافة سحابية فائقة السرعة أو تثبيت محلي مع تدريب مجاني للطاقم.</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Contact Bar -->
+          <div class="sys-quick-contact">
+            <a href="https://wa.me/213669453240?text=%D8%A7%D9%84%D8%B3%D9%84%D8%A7%D9%85%20%D8%B9%D9%84%D9%8A%D9%83%D9%85%D8%8C%20%D8%A3%D9%88%D8%AF%20%D8%B7%D9%84%D8%A8%20%D9%86%D8%B8%D8%A7%D9%85%20School%20Manager%20%D9%84%D9%85%D8%A4%D8%B3%D8%B3%D8%AA%D9%86%D8%A7%20%D8%A7%D9%84%D8%AA%D8%B9%D9%84%D9%8A%D9%85%D9%8A%D8%A9" target="_blank" rel="noopener" class="btn-sys-wa">
+              <i class="fa fa-whatsapp"></i>
+              <span data-i18n="btn_sys_whatsapp">واتساب (+213669453240)</span>
+            </a>
+            <a href="tel:+213669453240" class="btn-sys-tel">
+              <i class="fa fa-phone"></i>
+              <span data-i18n="btn_sys_call">اتصال (+213669453240)</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Right Column: Interactive System Order Form -->
+        <div class="sys-order-card">
+          <div class="sys-card-header">
+            <div class="sys-card-header-icon"><i class="fa fa-bolt"></i></div>
+            <div>
+              <h4 data-i18n="order_form_heading">استمارة طلب النظام أو حجز عرض توضيحي (Demo)</h4>
+              <p data-i18n="order_form_subheading">املأ الاستمارة وسيتواصل معك فريق التطوير لتقديم العرض المالي والعرض التجريبي مجاناً.</p>
+            </div>
+          </div>
+
+          <form id="system-order-form" class="sys-order-form">
+            <div class="form-group-row">
+              <div class="form-group">
+                <label for="sys-name" class="form-label" data-i18n="order_form_name_label">الاسم الكامل واللقب</label>
+                <div class="input-wrap">
+                  <i class="fa fa-user"></i>
+                  <input type="text" id="sys-name" class="form-control" required placeholder="مثال: ذ. عبد الرحمن أحمد" data-i18n-ph="form_name_placeholder">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="sys-phone" class="form-label" data-i18n="order_form_phone_label">رقم الهاتف / واتساب</label>
+                <div class="input-wrap">
+                  <i class="fa fa-phone"></i>
+                  <input type="tel" id="sys-phone" class="form-control" required placeholder="مثال: 0696002541">
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group-row">
+              <div class="form-group">
+                <label for="sys-school" class="form-label" data-i18n="order_form_school_label">اسم المؤسسة أو المدرسة</label>
+                <div class="input-wrap">
+                  <i class="fa fa-institution"></i>
+                  <input type="text" id="sys-school" class="form-control" required placeholder="مثال: مدرسة الفرقان القرآنية">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="sys-type" class="form-label" data-i18n="order_form_type_label">نوع المؤسسة التعليمية</label>
+                <div class="input-wrap">
+                  <i class="fa fa-tags"></i>
+                  <select id="sys-type" class="form-control" required>
+                    <option value="مدرسة قرآنية / زاوية تعليمية">مدرسة قرآنية / زاوية تعليمية</option>
+                    <option value="مدرسة خاصة (ابتدائي/متوسط/ثانوي)">مدرسة خاصة (ابتدائي / متوسط / ثانوي)</option>
+                    <option value="مركز تكوين ودعم مدرسي">مركز تكوين ودعم مدرسي</option>
+                    <option value="روضة أطفال / تحضيري">روضة أطفال / قسم تحضيري</option>
+                    <option value="جمعية تربوية أو خيرية">جمعية تربوية أو خيرية</option>
+                    <option value="أخرى">أخرى</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="sys-wilaya" class="form-label" data-i18n="order_form_wilaya_label">الولاية أو المدينة</label>
+              <div class="input-wrap">
+                <i class="fa fa-map-marker"></i>
+                <input type="text" id="sys-wilaya" class="form-control" placeholder="مثال: سطيف، الجزائر العاصمة، وهران، قسنطينة...">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="sys-notes" class="form-label" data-i18n="order_form_notes_label">ملاحظات أو متطلبات خاصة (اختياري)</label>
+              <div class="input-wrap">
+                <i class="fa fa-commenting-o"></i>
+                <textarea id="sys-notes" class="form-control" rows="3" placeholder="هل لديك استفسار عن عدد التلاميذ أو متطلبات مخصصة؟"></textarea>
+              </div>
+            </div>
+
+            <div id="sys-order-status" class="sys-order-status" style="display:none;"></div>
+
+            <button type="submit" id="btn-sys-submit" class="btn-sys-submit">
+              <i class="fa fa-paper-plane"></i>
+              <span data-i18n="btn_submit_order_sys">إرسال طلب النظام الآن</span>
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       Contact & Social Media Section
+       ======================================================================== -->
+  <section class="contact-section" id="contact">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-pill">
+          <i class="fa fa-phone"></i>
+          <span data-i18n="contact_pill">نحن هنا لمساعدتكم</span>
+        </div>
+        <h3 class="section-title" data-i18n="contact_title">تواصل معنا واستفسر عن التسجيل</h3>
+        <p class="section-subtitle" data-i18n="contact_subtitle">
+          أبواب مدرستنا مفتوحة دائماً لاستقبالكم والإجابة عن جميع استفساراتكم
+        </p>
+      </div>
+
+      <div class="contact-grid">
+        <!-- Left: Contact Details & Social Links -->
+        <div class="contact-info-card">
+          <h3 data-i18n="contact_info_title">معلومات التواصل المباشر</h3>
+          <p data-i18n="contact_info_desc">يمكنكم زيارتنا في مقر المدرسة أو التواصل معنا عبر الهاتف أو المنصات الرقمية.</p>
+
+          <div class="contact-channels">
+            <!-- Phone Link -->
+            <a href="tel:0696002541" class="contact-channel-item">
+              <div class="channel-icon stat-icon-emerald">
+                <i class="fa fa-phone"></i>
+              </div>
+              <div>
+                <span class="channel-title" data-i18n="contact_phone_label">رقم الهاتف</span>
+                <span class="channel-val" dir="ltr">0696002541</span>
+              </div>
+            </a>
+
+            <!-- Email Link -->
+            <a href="mailto:ing.otmani.billel@gmail.com" class="contact-channel-item">
+              <div class="channel-icon stat-icon-primary">
+                <i class="fa fa-envelope-o"></i>
+              </div>
+              <div>
+                <span class="channel-title" data-i18n="contact_email_label">البريد الإلكتروني</span>
+                <span class="channel-val" dir="ltr">ing.otmani.billel@gmail.com</span>
+              </div>
+            </a>
+
+            <!-- Address Card -->
+            <div class="contact-channel-item">
+              <div class="channel-icon stat-icon-gold">
+                <i class="fa fa-map-marker"></i>
+              </div>
+              <div>
+                <span class="channel-title" data-i18n="contact_address_label">عنوان المدرسة</span>
+                <span class="channel-val" data-i18n="school_tagline">قجال، ولاية سطيف - الجزائر</span>
+              </div>
+            </div>
+
+            <!-- Working Hours -->
+            <div class="contact-channel-item">
+              <div class="channel-icon stat-icon-cyan">
+                <i class="fa fa-clock-o"></i>
+              </div>
+              <div>
+                <span class="channel-title" data-i18n="contact_hours_label">أوقات العمل</span>
+                <span class="channel-val" data-i18n="contact_hours_val">السبت - الخميس: 08:00 ص - 17:00 م</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Social Media Block -->
+          <div class="social-media-block">
+            <h5 data-i18n="social_title">تابعونا على منصات التواصل الاجتماعي</h5>
+            <div class="social-links-row">
+              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" class="social-link-btn social-link-fb" title="Facebook">
+                <i class="fa fa-facebook"></i>
+              </a>
+              <a href="https://wa.me/213696002541" target="_blank" rel="noopener noreferrer" class="social-link-btn social-link-wa" title="WhatsApp">
+                <i class="fa fa-whatsapp"></i>
+              </a>
+              <a href="https://t.me" target="_blank" rel="noopener noreferrer" class="social-link-btn social-link-tg" title="Telegram">
+                <i class="fa fa-paper-plane"></i>
+              </a>
+              <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" class="social-link-btn social-link-yt" title="YouTube">
+                <i class="fa fa-youtube-play"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Inquiry / Pre-Registration Form -->
+        <div class="contact-form-card">
+          <h3 data-i18n="form_title">أرسل لنا استفسارك أو طلب التسجيل</h3>
+          
+          <form id="main-contact-form">
+            <div class="form-group-row">
+              <div class="form-group">
+                <label class="form-label" for="contact-name" data-i18n="form_name_label">الاسم الكامل</label>
+                <input type="text" id="contact-name" class="form-control" required placeholder="أدخل اسمك الكريم..." data-i18n="form_name_placeholder">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="contact-phone" data-i18n="form_phone_label">رقم الهاتف</label>
+                <input type="tel" id="contact-phone" class="form-control" required placeholder="مثال: 0696002541" data-i18n="form_phone_placeholder">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="inquiry-formation-select" data-i18n="form_formation_label">البرنامج أو التكوين المطلوب</label>
+              <select id="inquiry-formation-select" class="form-control">
+                <option value="" data-i18n="form_formation_select" id="opmsgsend">اختر البرنامج المطلوب...</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="contact-msg" data-i18n="form_msg_label">رسالتك أو استفسارك</label>
+              <textarea id="contact-msg" class="form-control" rows="4" required placeholder="اكتب استفسارك هنا وسنتواصل معك في أقرب وقت..." data-i18n="form_msg_placeholder"></textarea>
+            </div>
+
+            <button type="submit" class="btn-form-submit">
+              <i class="fa fa-paper-plane"></i>
+              <span data-i18n="form_submit_btn">إرسال الاستفسار الآن</span>
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       Footer
+       ======================================================================== -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <div class="logo-brand">
+          <div class="logo-brand-img-wrap">
+            <img src="https://res.cloudinary.com/p0mhhcjg/image/upload/v1788176562/school_management/bgqqlyiwkzs7ja5zuxpt.png" 
+                 alt="شعار المدرسة" 
+                 id="footer-school-logo"
+                 onerror="this.onerror=null; this.src='client_ui/img/logo/elridwan-logo.svg'">
+          </div>
+          <div class="logo-brand-text">
+            <h4 style="color:#fff; margin:0;" data-i18n="school_name">مدرسة الرضوان لعلوم القرآن</h4>
+            <span style="font-size:0.8rem; color:var(--emerald-light);" data-i18n="school_tagline">قجال - ولاية سطيف</span>
+          </div>
+        </div>
+
+        <ul class="footer-links">
+          <li><a href="#home" data-i18n="nav_home">الرئيسية</a></li>
+          <li><a href="#formations" data-i18n="nav_formations">التكوينات</a></li>
+          <li><a href="#statistics" data-i18n="nav_stats">الإحصائيات</a></li>
+          <li><a href="#order-system" style="color: var(--primary-light); font-weight: 700;" data-i18n="nav_order_system">طلب نظام School Manager</a></li>
+          <li><a href="#contact" data-i18n="nav_contact">اتصل بنا</a></li>
+          <li><a href="client_ui/index.html" style="color: var(--emerald-light); font-weight: 700;" data-i18n="login_portal_btn">فضاء التلميذ والأستاذ</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-bottom">
+        <span data-i18n="footer_rights">جميع الحقوق محفوظة لمدرسة الرضوان © 2026 - نظام School Manager تم التطوير بواسطة شركة RDesign</span>
+        <span data-i18n="footer_privacy">نظام الإدارة المدرسية المتطور</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ========================================================================
+       Inquire & Pre-Registration Modal
+       ======================================================================== -->
+  <div class="modal-overlay" id="inquire-modal" aria-hidden="true">
+    <div class="modal-box">
+      <button class="modal-close-btn" data-close-modal aria-label="Close">
+        <i class="fa fa-times"></i>
+      </button>
+      <h3 style="font-size: 1.3rem; margin-bottom: 8px; color: #fff;" data-i18n="modal_title">طلب التسجيل والاستفسار عن البرنامج</h3>
+      <p style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 20px;">
+        يرجى ملء النموذج وسيقوم فريق الاستقبال بالمدرسة بالتواصل معكم لتأكيد التسجيل.
+      </p>
+
+      <form id="modal-inquire-form">
+        <div class="form-group">
+          <label class="form-label" data-i18n="form_name_label">الاسم الكامل</label>
+          <input type="text" class="form-control" required placeholder="أدخل اسمك الكريم...">
+        </div>
+        <div class="form-group">
+          <label class="form-label" data-i18n="form_phone_label">رقم الهاتف</label>
+          <input type="tel" class="form-control" required placeholder="مثال: 0696002541">
+        </div>
+        <div class="form-group">
+          <label class="form-label" data-i18n="form_msg_label">ملاحظات أو أسئلة إضافية</label>
+          <textarea class="form-control" rows="3" placeholder="أي استفسار بخصوص الأوقات أو المستوى..."></textarea>
+        </div>
+        <button type="submit" class="btn-form-submit">
+          <i class="fa fa-check"></i>
+          <span data-i18n="form_submit_btn">إرسال الطلب الآن</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/landing.js"></script>
+</body>
+</html>

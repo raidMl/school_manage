@@ -146,8 +146,29 @@ document.write('<script src="js/table-features.js?v=' + new Date().getTime() + '
     if (title && activeLink) title.textContent = activeLink.textContent.trim();
   }
 
+  // ── Module preferences (Quran Department, etc.) ─────────────────────────────
+  window.applyModulePreferences = function () {
+    var quranEnabled = localStorage.getItem('app_module_quran') !== 'false';
+    var quranElements = document.querySelectorAll('[data-module="quran"], [data-menu="quran"]');
+    quranElements.forEach(function (el) {
+      el.style.display = quranEnabled ? '' : 'none';
+    });
+  };
+
+  window.addEventListener('storage', function (e) {
+    if (e.key === 'app_module_quran') {
+      window.applyModulePreferences();
+    }
+  });
+  window.addEventListener('app_modules_changed', function () {
+    window.applyModulePreferences();
+  });
+
   // ── Partial loader ───────────────────────────────────────────────────────────
   function afterLoad(name, el) {
+    if (name === 'sidebar') {
+      window.applyModulePreferences();
+    }
     // Translate the newly-injected partial element only
     if (window.AppI18n && el) {
       window.AppI18n.translateAll(el);

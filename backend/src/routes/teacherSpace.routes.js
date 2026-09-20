@@ -14,7 +14,7 @@ router.get('/me', asyncHandler(async (req, res) => {
   // Get teacher info
   const teacherInfo = await query(`
     SELECT t.id as teacher_id, t.employee_number, t.speciality, t.hire_date,
-           u.first_name, u.last_name, u.email, u.phone, u.photo
+           u.first_name, u.last_name, u.email, u.phone, u.photo, u.gender
     FROM teachers t
     JOIN users u ON t.user_id = u.id
     WHERE u.id = ?
@@ -47,12 +47,15 @@ router.get('/me', asyncHandler(async (req, res) => {
 router.put('/update-profile', asyncHandler(async (req, res) => {
   if (req.auth.role !== 'teacher') return res.status(403).json({ message: 'Forbidden' });
 
-  const { email, password, photo } = req.body;
+  const { email, password, photo, phone } = req.body;
   
   if (email) {
     await query('UPDATE users SET email = ? WHERE id = ?', [email, req.auth.userId]);
   }
-  if (photo) {
+  if (phone !== undefined) {
+    await query('UPDATE users SET phone = ? WHERE id = ?', [phone, req.auth.userId]);
+  }
+  if (photo !== undefined) {
     await query('UPDATE users SET photo = ? WHERE id = ?', [photo, req.auth.userId]);
   }
   if (password) {
@@ -70,9 +73,10 @@ router.get('/attendance', asyncHandler(async (req, res) => {
   if (!teacher.length) return res.json({ data: [] });
 
   const attendance = await query(`
-    SELECT a.date, a.status, a.scan_time, g.name as group_name
+    SELECT a.date, a.status, a.scan_time, g.name as group_name, f.title as formation_title
     FROM attendance a
     LEFT JOIN \`groups\` g ON a.group_id = g.id
+    LEFT JOIN formations f ON g.formation_id = f.id
     WHERE a.user_type = 'teacher' AND a.user_id = ?
     ORDER BY a.date DESC
   `, [teacher[0].id]);

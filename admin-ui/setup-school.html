@@ -548,7 +548,7 @@
                 </li>
                 <li><a href="#tab-admins" role="tab" data-toggle="tab"><i class="fa fa-users"></i> <span data-i18n="Manage Admins">Manage Admins</span></a>
                 </li>
-                <li><a href="#tab-preferences" role="tab" data-toggle="tab"><i class="fa fa-cogs"></i> UI Preferences</a>
+                <li><a href="#tab-preferences" role="tab" data-toggle="tab"><i class="fa fa-cogs"></i> <span data-i18n="UI Preferences">UI Preferences</span></a>
                 </li>
               </ul>
             </div>
@@ -871,29 +871,31 @@
 
                 <!-- TAB: UI Preferences -->
                 <div role="tabpanel" class="tab-pane" id="tab-preferences">
-                  <h4 class="tab-title"><i class="fa fa-cogs text-muted"></i> UI Preferences</h4>
-                  <p class="text-muted" style="margin-bottom:20px;font-size:13px">Customize the look and feel of your admin panel. These settings are saved on this device only.</p>
+                  <h4 class="tab-title"><i class="fa fa-cogs text-muted"></i> <span data-i18n="UI Preferences">UI Preferences</span></h4>
+                  <p class="text-muted" style="margin-bottom:20px;font-size:13px" data-i18n="Customize the look and feel of your admin panel. These settings are saved on this device only.">Customize the look and feel of your admin panel. These settings are saved on this device only.</p>
+                  
                   <div class="row">
                     <div class="col-md-12">
+                      <!-- Setting 1: Sidebar Mode -->
                       <div class="form-group">
                         <label style="font-size:15px; font-weight:600; color:#1e293b; margin-bottom:14px; display:block;">
-                          <i class="fa fa-columns" style="color:#4f6eff;"></i> Sidebar Mode
+                          <i class="fa fa-columns" style="color:#4f6eff;"></i> <span data-i18n="Sidebar Mode">Sidebar Mode</span>
                         </label>
                         <div style="display:flex; gap:16px; flex-wrap:wrap;">
 
                           <label id="pref-overlay-card" style="flex:1; min-width:200px; cursor:pointer; border-radius:12px; border:2px solid #e2e8f0; padding:18px; transition:all .2s; display:flex; gap:14px; align-items:flex-start;">
                             <input type="radio" name="sidebar_mode" id="pref-sidebar-overlay" value="false" style="margin-top:4px; accent-color:#4f6eff;">
                             <div>
-                              <div style="font-weight:600; color:#1e293b; margin-bottom:4px;"><i class="fa fa-window-maximize" style="color:#4f6eff;"></i> Overlay (Default)</div>
-                              <div style="font-size:13px; color:#64748b;">Sidebar slides over the page. Content stays full width. Click the toggle button to show/hide it.</div>
+                              <div style="font-weight:600; color:#1e293b; margin-bottom:4px;"><i class="fa fa-window-maximize" style="color:#4f6eff;"></i> <span data-i18n="Overlay (Default)">Overlay (Default)</span></div>
+                              <div style="font-size:13px; color:#64748b;" data-i18n="Sidebar slides over the page. Content stays full width. Click the toggle button to show/hide it.">Sidebar slides over the page. Content stays full width. Click the toggle button to show/hide it.</div>
                             </div>
                           </label>
 
                           <label id="pref-fixed-card" style="flex:1; min-width:200px; cursor:pointer; border-radius:12px; border:2px solid #e2e8f0; padding:18px; transition:all .2s; display:flex; gap:14px; align-items:flex-start;">
                             <input type="radio" name="sidebar_mode" id="pref-sidebar-fixed" value="true" style="margin-top:4px; accent-color:#4f6eff;">
                             <div>
-                              <div style="font-weight:600; color:#1e293b; margin-bottom:4px;"><i class="fa fa-columns" style="color:#4f6eff;"></i> Fixed (Push Layout)</div>
-                              <div style="font-size:13px; color:#64748b;">Sidebar is always visible and pushes the page content to the right. Toggle to collapse/expand.</div>
+                              <div style="font-weight:600; color:#1e293b; margin-bottom:4px;"><i class="fa fa-columns" style="color:#4f6eff;"></i> <span data-i18n="Fixed (Push Layout)">Fixed (Push Layout)</span></div>
+                              <div style="font-size:13px; color:#64748b;" data-i18n="Sidebar is always visible and pushes the page content to the right. Toggle to collapse/expand.">Sidebar is always visible and pushes the page content to the right. Toggle to collapse/expand.</div>
                             </div>
                           </label>
 
@@ -901,8 +903,54 @@
                       </div>
                     </div>
                   </div>
+
+                  <hr style="margin:22px 0; border:0; border-top:1px solid #e2e8f0;">
+
+                  <!-- Setting 2: Quran Department Module -->
+                  <div class="row">
+                    <div class="col-md-12">
+                      <div class="form-group" style="margin-bottom:10px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+                          <label style="font-size:15px; font-weight:600; color:#1e293b; margin-bottom:0;">
+                            <i class="fa fa-star" style="color:#f59e0b;"></i> <span data-i18n="Quran Department">Quran Department</span>
+                          </label>
+                          <span id="quran-status-badge" class="badge" style="background:#10b981; color:#fff; font-weight:600; font-size:12px; padding:4px 10px; border-radius:6px;" data-i18n="Active">Active</span>
+                        </div>
+                        <p class="text-muted" style="font-size:13px; margin-bottom:14px;" data-i18n="Enable or disable the Quran memorization and tracking module in the sidebar navigation.">Enable or disable the Quran memorization and tracking module in the sidebar navigation.</p>
+
+                        <div style="display:flex; gap:16px; flex-wrap:wrap;">
+
+                          <label id="pref-quran-active-card" style="flex:1; min-width:200px; cursor:pointer; border-radius:12px; border:2px solid #10b981; padding:18px; transition:all .2s; display:flex; gap:14px; align-items:flex-start; background:#f0fdf4;">
+                            <input type="radio" name="quran_department_status" id="pref-quran-active" value="true" checked style="margin-top:4px; accent-color:#10b981;">
+                            <div>
+                              <div style="font-weight:600; color:#1e293b; margin-bottom:4px;">
+                                <i class="fa fa-check-circle" style="color:#10b981;"></i> <span data-i18n="Active (Enabled)">Active (Enabled)</span>
+                              </div>
+                              <div style="font-size:13px; color:#64748b;" data-i18n="Quran Department and memorization levels are visible in the sidebar navigation.">
+                                Quran Department and memorization levels are visible in the sidebar navigation.
+                              </div>
+                            </div>
+                          </label>
+
+                          <label id="pref-quran-disabled-card" style="flex:1; min-width:200px; cursor:pointer; border-radius:12px; border:2px solid #e2e8f0; padding:18px; transition:all .2s; display:flex; gap:14px; align-items:flex-start; background:#fff;">
+                            <input type="radio" name="quran_department_status" id="pref-quran-disabled" value="false" style="margin-top:4px; accent-color:#ef4444;">
+                            <div>
+                              <div style="font-weight:600; color:#1e293b; margin-bottom:4px;">
+                                <i class="fa fa-ban" style="color:#ef4444;"></i> <span data-i18n="Disabled (Hidden)">Disabled (Hidden)</span>
+                              </div>
+                              <div style="font-size:13px; color:#64748b;" data-i18n="Hide Quran Department and memorization levels from the sidebar navigation.">
+                                Hide Quran Department and memorization levels from the sidebar navigation.
+                              </div>
+                            </div>
+                          </label>
+
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
                   <div class="text-right" style="margin-top:20px;">
-                    <button type="button" id="btn-save-preferences" class="btn btn-save-settings"><i class="fa fa-save"></i> Save &amp; Apply</button>
+                    <button type="button" id="btn-save-preferences" class="btn btn-save-settings"><i class="fa fa-save"></i> <span data-i18n="Save & Apply">Save &amp; Apply</span></button>
                   </div>
                 </div>
 
@@ -939,31 +987,82 @@
         fixedCard.style.background    = isFixed ? '#f0f3ff' : '#fff';
       }
 
+      function highlightQuranCards() {
+        var activeCard = document.getElementById('pref-quran-active-card');
+        var disabledCard = document.getElementById('pref-quran-disabled-card');
+        var activeRadio = document.getElementById('pref-quran-active');
+        var badge = document.getElementById('quran-status-badge');
+        if (!activeCard || !disabledCard || !activeRadio) return;
+
+        var isActive = activeRadio.checked;
+        if (isActive) {
+          activeCard.style.borderColor = '#10b981';
+          activeCard.style.background = '#f0fdf4';
+          disabledCard.style.borderColor = '#e2e8f0';
+          disabledCard.style.background = '#fff';
+          if (badge) {
+            badge.style.background = '#10b981';
+            badge.setAttribute('data-i18n', 'Active');
+            badge.textContent = window.AppI18n ? window.AppI18n.t('Active') : 'Active';
+          }
+        } else {
+          activeCard.style.borderColor = '#e2e8f0';
+          activeCard.style.background = '#fff';
+          disabledCard.style.borderColor = '#ef4444';
+          disabledCard.style.background = '#fef2f2';
+          if (badge) {
+            badge.style.background = '#ef4444';
+            badge.setAttribute('data-i18n', 'Disabled');
+            badge.textContent = window.AppI18n ? window.AppI18n.t('Disabled') : 'Disabled';
+          }
+        }
+      }
+
       function initPreferences() {
         var overlayRadio = document.getElementById('pref-sidebar-overlay');
         var fixedRadio   = document.getElementById('pref-sidebar-fixed');
-        if (!overlayRadio || !fixedRadio) return;
+        var quranActiveRadio   = document.getElementById('pref-quran-active');
+        var quranDisabledRadio = document.getElementById('pref-quran-disabled');
 
-        // Reflect current setting
-        var isFixed = localStorage.getItem('app_sb_fixed') === 'true';
-        if (isFixed) {
-          fixedRadio.checked = true;
-        } else {
-          overlayRadio.checked = true;
+        // Reflect current sidebar mode setting
+        if (overlayRadio && fixedRadio) {
+          var isFixed = localStorage.getItem('app_sb_fixed') === 'true';
+          if (isFixed) {
+            fixedRadio.checked = true;
+          } else {
+            overlayRadio.checked = true;
+          }
+          highlightCards();
+
+          overlayRadio.addEventListener('change', highlightCards);
+          fixedRadio.addEventListener('change', highlightCards);
         }
-        highlightCards();
 
-        // Update highlight when user picks a different option
-        overlayRadio.addEventListener('change', highlightCards);
-        fixedRadio.addEventListener('change', highlightCards);
+        // Reflect current Quran Department module setting (default: true)
+        if (quranActiveRadio && quranDisabledRadio) {
+          var isQuranActive = localStorage.getItem('app_module_quran') !== 'false';
+          if (isQuranActive) {
+            quranActiveRadio.checked = true;
+          } else {
+            quranDisabledRadio.checked = true;
+          }
+          highlightQuranCards();
+
+          quranActiveRadio.addEventListener('change', highlightQuranCards);
+          quranDisabledRadio.addEventListener('change', highlightQuranCards);
+        }
 
         // Save button
         var btn = document.getElementById('btn-save-preferences');
         if (btn) {
           btn.addEventListener('click', function() {
-            var wantFixed = fixedRadio.checked;
+            var wantFixed = fixedRadio ? fixedRadio.checked : false;
             localStorage.setItem('app_sb_fixed', wantFixed ? 'true' : 'false');
 
+            var wantQuran = quranActiveRadio ? quranActiveRadio.checked : true;
+            localStorage.setItem('app_module_quran', wantQuran ? 'true' : 'false');
+
+            // Apply sidebar fixed/overlay mode
             var sbMain = document.querySelector('.sb-main');
             var sbSidebar = document.getElementById('app-sidebar');
             var isRtl = document.documentElement.dir === 'rtl';
@@ -996,11 +1095,17 @@
               if (sbSidebar) sbSidebar.style.transform = '';
             }
 
-            btn.innerHTML = '<i class="fa fa-check"></i> Saved!';
+            // Apply module visibility immediately
+            if (typeof window.applyModulePreferences === 'function') {
+              window.applyModulePreferences();
+            }
+            window.dispatchEvent(new Event('app_modules_changed'));
+
+            btn.innerHTML = '<i class="fa fa-check"></i> ' + (window.AppI18n ? window.AppI18n.t('Saved!') : 'Saved!');
             btn.style.background = '#10b981';
             btn.style.color = '#fff';
             setTimeout(function() {
-              btn.innerHTML = '<i class="fa fa-save"></i> Save & Apply';
+              btn.innerHTML = '<i class="fa fa-save"></i> ' + (window.AppI18n ? window.AppI18n.t('Save & Apply') : 'Save & Apply');
               btn.style.background = '';
               btn.style.color = '';
             }, 2000);

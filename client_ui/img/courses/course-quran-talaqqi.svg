@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgQuran1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#064e3b"/>
+      <stop offset="50%" stop-color="#047857"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="50%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#b45309"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#6ee7b7" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#047857" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="600" height="400" fill="url(#bgQuran1)"/>
+  <circle cx="300" cy="180" r="160" fill="url(#glow)"/>
+  
+  <!-- Islamic Arch Decoration -->
+  <path d="M 160 320 C 160 140, 210 100, 300 80 C 390 100, 440 140, 440 320" fill="none" stroke="url(#gold)" stroke-width="2.5" opacity="0.4"/>
+  <path d="M 180 320 C 180 160, 220 120, 300 105 C 380 120, 420 160, 420 320" fill="none" stroke="#34d399" stroke-width="1" opacity="0.3"/>
+
+  <!-- Quran Rehal & Book -->
+  <g transform="translate(300, 200)">
+    <!-- Stand -->
+    <path d="M -70 50 L 70 -10 L 85 0 L -55 60 Z" fill="#78350f" stroke="url(#gold)" stroke-width="1.5"/>
+    <path d="M 70 50 L -70 -10 L -85 0 L 55 60 Z" fill="#92400e" stroke="url(#gold)" stroke-width="1.5"/>
+    <!-- Book Pages -->
+    <path d="M 0 -10 C -45 -40, -90 -35, -120 -15 C -122 25, -80 32, 0 38 Z" fill="#fffbeb" stroke="url(#gold)" stroke-width="2.5"/>
+    <path d="M 0 -10 C 45 -40, 90 -35, 120 -15 C 122 25, 80 32, 0 38 Z" fill="#fef3c7" stroke="url(#gold)" stroke-width="2.5"/>
+    <line x1="0" y1="-10" x2="0" y2="38" stroke="#b45309" stroke-width="4"/>
+    <path d="M 0 38 Q -6 52, 0 65 Q 6 52, 0 38" fill="#dc2626"/>
+    <!-- Simulated verses -->
+    <path d="M -95 -5 Q -60 -20, -20 -5 M -100 10 Q -60 -5, -20 10 M -90 22 Q -60 10, -20 23" stroke="#b45309" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+    <path d="M 20 -5 Q 60 -20, 95 -5 M 20 10 Q 60 -5, 100 10 M 20 23 Q 60 10, 90 22" stroke="#b45309" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+    <circle cx="0" cy="14" r="7" fill="url(#gold)"/>
+  </g>
+
+  <!-- Young Student Motif (Talaqqi) -->
+  <g transform="translate(300, 340)">
+    <rect x="-170" y="-22" width="340" height="42" rx="21" fill="rgba(15, 23, 42, 0.75)" stroke="url(#gold)" stroke-width="1.5"/>
+    <text x="0" y="6" font-family="'Cairo', 'Amiri', sans-serif" font-weight="800" font-size="20" fill="#fef08a" text-anchor="middle">التعليم القرآني تلقين للأطفال</text>
+  </g>
+</svg>

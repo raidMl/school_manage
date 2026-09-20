@@ -1064,7 +1064,8 @@
       request('/api/auth/login', { method: 'POST', body: JSON.stringify({ email: fd.get('email'), password: fd.get('password') }) })
         .then(function (r) {
           if (r.user.role === 'student' || r.user.role === 'teacher') {
-            showAlert('#backend-auth-status', 'Students and teachers must use the student/teacher portal.');
+            setToken(r.token);
+            redirect(r.user.role === 'student' ? '../client_ui/student-space.html' : '../client_ui/teacher-space.html');
             return;
           }
           setToken(r.token); redirect(r.needsSchoolSetup ? 'setup-school.html' : 'index.html');

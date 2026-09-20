@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Update Profile | Teacher Space</title>
+    <link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/sidebar.css">
+    <link rel="stylesheet" href="css/portal.css">
+
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#4f6eff">
+    <link rel="apple-touch-icon" href="img/icon-512.jpg">
+</head>
+
+<body data-page="teacher-profile">
+    <div id="sidebar-placeholder"></div>
+
+    <div class="sb-main">
+        <div id="header-placeholder"></div>
+
+        <div class="sb-content" style="padding: 24px;">
+            <div class="sb-breadcrumb">
+                <i class="fa fa-user-circle-o"></i>
+                <span data-i18n="Teacher Space">Teacher Space</span>
+                <span style="color: #cbd5e1;">/</span>
+                <span data-i18n="Update Profile">Update Profile</span>
+            </div>
+
+            <!-- Page Header Card -->
+            <div class="portal-hero-banner" style="padding: 24px 30px;">
+                <div class="portal-hero-content">
+                    <div class="portal-hero-user">
+                        <div class="portal-hero-avatar-wrap">
+                            <img id="header-teacher-avatar" class="portal-hero-avatar" src="https://ui-avatars.com/api/?name=Teacher&background=11998e&color=fff&size=150" alt="Teacher">
+                        </div>
+                        <div class="portal-hero-text">
+                            <h2 id="header-teacher-name">Loading...</h2>
+                            <p>
+                                <span><i class="fa fa-briefcase"></i> <span id="header-teacher-emp">—</span></span>
+                                <span class="portal-chip portal-chip-primary"><i class="fa fa-bookmark"></i> <span id="header-teacher-spec">—</span></span>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="portal-hero-actions">
+                        <a href="teacher-space.html" class="portal-btn portal-btn-secondary" style="background: rgba(255,255,255,0.15); color: #fff !important; border: 1px solid rgba(255,255,255,0.25);">
+                            <i class="fa fa-arrow-left"></i> <span data-i18n="My Dashboard">Back to Dashboard</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Profile Settings Form -->
+                <div class="col-md-8">
+                    <div class="portal-card">
+                        <div class="portal-card-header">
+                            <div>
+                                <h3 class="portal-card-title"><i class="fa fa-sliders"></i> <span data-i18n="Profile Information">Profile Information</span></h3>
+                                <p class="portal-card-subtitle" data-i18n="Update your account credentials and personal preferences">Update your account email, contact phone, and security credentials</p>
+                            </div>
+                        </div>
+
+                        <!-- Feedback Alert -->
+                        <div id="teacher-profile-alert" style="display:none; margin-bottom: 20px;"></div>
+
+                        <form id="teacher-profile-form">
+                            <!-- Live Avatar Preview Card -->
+                            <div class="profile-photo-preview-wrap">
+                                <img id="live-photo-preview" class="profile-photo-preview-img" src="https://ui-avatars.com/api/?name=User&background=11998e&color=fff&size=150" alt="Avatar Preview">
+                                <div class="profile-photo-preview-info" style="flex:1;">
+                                    <h4 id="preview-teacher-fullname">Professor Name</h4>
+                                    <p data-i18n="Enter an image URL below to update your faculty portrait, or select a preset color.">Enter an image URL below to update your faculty portrait, or select a preset color.</p>
+                                    <div style="margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+                                        <button type="button" class="avatar-char-btn portal-btn portal-btn-secondary" data-avatar="img/معلم.webp" style="height:34px; padding:2px 12px; font-size:12px; display:inline-flex; align-items:center; gap:8px;">
+                                            <img src="img/معلم.webp" style="width:22px; height:22px; border-radius:50%; object-fit:cover;" alt="Man Teacher">
+                                            <span data-i18n="Man Teacher">Man Teacher</span>
+                                        </button>
+                                        <button type="button" class="avatar-char-btn portal-btn portal-btn-secondary" data-avatar="img/معلمة مسلمة.webp" style="height:34px; padding:2px 12px; font-size:12px; display:inline-flex; align-items:center; gap:8px;">
+                                            <img src="img/معلمة مسلمة.webp" style="width:22px; height:22px; border-radius:50%; object-fit:cover;" alt="Woman Teacher">
+                                            <span data-i18n="Woman Teacher">Woman Teacher</span>
+                                        </button>
+                                        <span style="color:#cbd5e1; font-size:12px; margin: 0 4px;">|</span>
+                                        <button type="button" class="avatar-preset-btn portal-btn portal-btn-secondary" style="height:28px; padding:0 10px; font-size:11px;" data-bg="11998e" data-i18n="Emerald">Emerald</button>
+                                        <button type="button" class="avatar-preset-btn portal-btn portal-btn-secondary" style="height:28px; padding:0 10px; font-size:11px;" data-bg="4f6eff" data-i18n="Blue">Blue</button>
+                                        <button type="button" class="avatar-preset-btn portal-btn portal-btn-secondary" style="height:28px; padding:0 10px; font-size:11px;" data-bg="8b5cf6" data-i18n="Purple">Purple</button>
+                                        <button type="button" class="avatar-preset-btn portal-btn portal-btn-secondary" style="height:28px; padding:0 10px; font-size:11px;" data-bg="f59e0b" data-i18n="Amber">Amber</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="portal-form-group">
+                                        <label class="portal-label" data-i18n="Full Name (Official Record)">Full Name (Official Record)</label>
+                                        <input type="text" id="teacher-fullname" class="portal-input" readonly>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="portal-form-group">
+                                        <label class="portal-label" data-i18n="Employee Number (Official ID)">Employee Number (Official ID)</label>
+                                        <input type="text" id="teacher-emp-input" class="portal-input" readonly>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="portal-form-group">
+                                        <label class="portal-label" data-i18n="Email Address">Email Address <span class="text-danger">*</span></label>
+                                        <input type="email" id="teacher-email" class="portal-input" placeholder="teacher@school.com" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="portal-form-group">
+                                        <label class="portal-label" data-i18n="Phone Number">Phone Number</label>
+                                        <input type="tel" id="teacher-phone" class="portal-input" placeholder="+213 ...">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="portal-form-group">
+                                <label class="portal-label" data-i18n="Avatar Photo URL">Avatar Photo URL</label>
+                                <div class="portal-input-group">
+                                    <input type="url" id="teacher-photo-url" class="portal-input" placeholder="https://example.com/photo.jpg">
+                                    <button type="button" id="btn-clear-photo" class="portal-input-icon-btn" title="Clear photo"><i class="fa fa-times"></i></button>
+                                </div>
+                                <small style="display:block; margin-top:5px; color:#94a3b8; font-size:12px;" data-i18n="Direct HTTPS link to your profile picture.">Direct HTTPS link to your profile picture.</small>
+                            </div>
+
+                            <hr style="border-color: #f1f5f9; margin: 24px 0;">
+
+                            <h4 style="font-size: 15px; font-weight: 700; color: #1e293b; margin-bottom: 6px;" data-i18n="Security & Password">Security & Password</h4>
+                            <p style="font-size: 13px; color: #64748b; margin-bottom: 16px;" data-i18n="Leave the password fields blank if you do not wish to change your password.">Leave the password fields blank if you do not wish to change your password.</p>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="portal-form-group">
+                                        <label class="portal-label" data-i18n="New Password">New Password</label>
+                                        <div class="portal-input-group">
+                                            <input type="password" id="teacher-password" class="portal-input" placeholder="••••••••">
+                                            <button type="button" class="portal-input-icon-btn" onclick="togglePass('teacher-password', this)"><i class="fa fa-eye"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="portal-form-group">
+                                        <label class="portal-label" data-i18n="Confirm New Password">Confirm New Password</label>
+                                        <div class="portal-input-group">
+                                            <input type="password" id="teacher-confirm-password" class="portal-input" placeholder="••••••••">
+                                            <button type="button" class="portal-input-icon-btn" onclick="togglePass('teacher-confirm-password', this)"><i class="fa fa-eye"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="display:flex; justify-content: flex-end; gap: 12px; margin-top: 10px;">
+                                <a href="teacher-space.html" class="portal-btn portal-btn-secondary" data-i18n="Cancel">Cancel</a>
+                                <button type="submit" id="btn-save-profile" class="portal-btn portal-btn-primary">
+                                    <i class="fa fa-check"></i> <span data-i18n="Save Changes">Save Changes</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Teacher Faculty Info Card -->
+                <div class="col-md-4">
+                    <div class="portal-card">
+                        <div class="portal-card-header">
+                            <div>
+                                <h3 class="portal-card-title"><i class="fa fa-info-circle"></i> <span data-i18n="Faculty Profile">Faculty Profile</span></h3>
+                                <p class="portal-card-subtitle" data-i18n="Employment & teaching details">Employment & teaching details</p>
+                            </div>
+                        </div>
+
+                        <div style="font-size: 13.5px;">
+                            <div style="padding: 12px 0; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between;">
+                                <span class="text-muted" data-i18n="Speciality:">Speciality:</span>
+                                <strong id="acad-spec">—</strong>
+                            </div>
+                            <div style="padding: 12px 0; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between;">
+                                <span class="text-muted" data-i18n="Employee Number:">Employee Number:</span>
+                                <strong id="acad-emp">—</strong>
+                            </div>
+                            <div style="padding: 12px 0; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between;">
+                                <span class="text-muted" data-i18n="Hire Date:">Hire Date:</span>
+                                <strong id="acad-hire">—</strong>
+                            </div>
+                            <div style="padding: 12px 0; display: flex; justify-content: space-between; align-items: center;">
+                                <span class="text-muted" data-i18n="Faculty Status:">Faculty Status:</span>
+                                <span class="portal-badge portal-badge-present"><span class="portal-dot"></span> <span data-i18n="Active Faculty">Active Faculty</span></span>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 24px; padding: 16px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0; font-size: 12.5px; color: #64748b;" data-i18n="Changes to your official employee identifier, contract status, or primary department must be authorized through the administration office.">
+                            <i class="fa fa-shield" style="color: #4f6eff; margin-right: 6px;"></i>
+                            Changes to your official employee identifier, contract status, or primary department must be authorized through the administration office.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div id="footer-placeholder"></div>
+    </div>
+
+    <script src="js/vendor/jquery-1.12.4.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/i18n.js"></script>
+    <script src="js/components.js"></script>
+    <script src="js/backend.js"></script>
+    
+    <script>
+        function togglePass(inputId, btn) {
+            var input = document.getElementById(inputId);
+            var icon = btn.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'fa fa-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'fa fa-eye';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var currentTeacherName = 'Teacher';
+
+            window.onAuthReady = function() {
+                if (!window._ctx || window._ctx.user.role !== 'teacher') return;
+
+                SchoolBackend.request('/api/teacher-space/me').then(function(res) {
+                    var p = res.profile;
+                    currentTeacherName = [p.first_name, p.last_name].filter(Boolean).join(' ');
+                    currentTeacherGender = p.gender;
+                    
+                    // Banner
+                    document.getElementById('header-teacher-name').textContent = currentTeacherName;
+                    var empPrefix = window.AppI18n ? window.AppI18n.t('Emp:') : 'Emp:';
+                    document.getElementById('header-teacher-emp').textContent = p.employee_number ? (empPrefix + ' ' + p.employee_number) : (window.AppI18n ? window.AppI18n.t('Teacher') : 'Teacher');
+                    var specVal = p.speciality || 'Faculty Instructor';
+                    document.getElementById('header-teacher-spec').textContent = window.AppI18n ? window.AppI18n.t(specVal) : specVal;
+                    document.getElementById('header-teacher-avatar').src = SchoolBackend.avatarUrl(p.photo, currentTeacherName, 'teacher', p.gender);
+
+                    // Inputs
+                    document.getElementById('preview-teacher-fullname').textContent = currentTeacherName;
+                    document.getElementById('teacher-fullname').value = currentTeacherName;
+                    document.getElementById('teacher-emp-input').value = p.employee_number || '—';
+                    document.getElementById('teacher-email').value = p.email || '';
+                    document.getElementById('teacher-phone').value = p.phone || '';
+                    document.getElementById('teacher-photo-url').value = p.photo || '';
+                    document.getElementById('live-photo-preview').src = SchoolBackend.avatarUrl(p.photo, currentTeacherName, 'teacher', p.gender);
+
+                    // Faculty Details Card
+                    document.getElementById('acad-spec').textContent = p.speciality || 'General';
+                    document.getElementById('acad-emp').textContent = p.employee_number || '—';
+                    document.getElementById('acad-hire').textContent = p.hire_date ? new Date(p.hire_date).toLocaleDateString() : '—';
+                }).catch(function(err) {
+                    console.error(err);
+                });
+            };
+
+            // Live preview photo on URL change
+            var photoInput = document.getElementById('teacher-photo-url');
+            var photoPreview = document.getElementById('live-photo-preview');
+            photoInput.addEventListener('input', function() {
+                var url = photoInput.value.trim();
+                photoPreview.src = SchoolBackend.avatarUrl(url, currentTeacherName, 'teacher', currentTeacherGender);
+            });
+
+            // Clear photo button
+            document.getElementById('btn-clear-photo').addEventListener('click', function() {
+                photoInput.value = '';
+                photoPreview.src = SchoolBackend.avatarUrl('', currentTeacherName, 'teacher', currentTeacherGender);
+            });
+
+            // Character avatar buttons
+            document.querySelectorAll('.avatar-char-btn').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    var av = this.getAttribute('data-avatar');
+                    photoInput.value = av;
+                    photoPreview.src = av;
+                });
+            });
+
+            // Preset avatar buttons
+            document.querySelectorAll('.avatar-preset-btn').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    var bg = this.getAttribute('data-bg');
+                    var initial = currentTeacherName ? currentTeacherName.charAt(0).toUpperCase() : 'T';
+                    var avatarUrl = 'https://ui-avatars.com/api/?name=' + initial + '&background=' + bg + '&color=fff&size=150';
+                    photoInput.value = avatarUrl;
+                    photoPreview.src = avatarUrl;
+                });
+            });
+
+            // Submit Form
+            var form = document.getElementById('teacher-profile-form');
+            var alertBox = document.getElementById('teacher-profile-alert');
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                alertBox.style.display = 'none';
+
+                var newPass = document.getElementById('teacher-password').value;
+                var confirmPass = document.getElementById('teacher-confirm-password').value;
+
+                if (newPass && newPass !== confirmPass) {
+                    alertBox.className = 'alert alert-danger';
+                    alertBox.innerHTML = '<i class="fa fa-exclamation-triangle"></i> Passwords do not match!';
+                    alertBox.style.display = 'block';
+                    return;
+                }
+
+                var btnSave = document.getElementById('btn-save-profile');
+                btnSave.disabled = true;
+                btnSave.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Saving...';
+
+                var payload = {
+                    email: document.getElementById('teacher-email').value.trim(),
+                    phone: document.getElementById('teacher-phone').value.trim(),
+                    photo: photoInput.value.trim()
+                };
+                if (newPass) payload.password = newPass;
+
+                SchoolBackend.request('/api/teacher-space/update-profile', {
+                    method: 'PUT',
+                    body: JSON.stringify(payload)
+                }).then(function() {
+                    alertBox.className = 'alert alert-success';
+                    alertBox.innerHTML = '<i class="fa fa-check-circle"></i> Profile updated successfully!';
+                    alertBox.style.display = 'block';
+
+                    document.getElementById('teacher-password').value = '';
+                    document.getElementById('teacher-confirm-password').value = '';
+
+                    var headerAvatar = document.getElementById('header-teacher-avatar');
+                    if (headerAvatar) headerAvatar.src = SchoolBackend.avatarUrl(payload.photo, currentTeacherName, 'teacher');
+                    var topbarAvatar = document.getElementById('header-user-avatar');
+                    if (topbarAvatar) topbarAvatar.src = SchoolBackend.avatarUrl(payload.photo, currentTeacherName, 'teacher');
+                    var sbAvatar = document.getElementById('sb-user-avatar');
+                    if (sbAvatar) sbAvatar.src = SchoolBackend.avatarUrl(payload.photo, currentTeacherName, 'teacher');
+
+                    setTimeout(function() { alertBox.style.display = 'none'; }, 4000);
+                }).catch(function(err) {
+                    alertBox.className = 'alert alert-danger';
+                    alertBox.innerHTML = '<i class="fa fa-exclamation-triangle"></i> ' + (err.message || 'Failed to update profile');
+                    alertBox.style.display = 'block';
+                }).finally(function() {
+                    btnSave.disabled = false;
+                    btnSave.innerHTML = '<i class="fa fa-check"></i> <span data-i18n="Save Changes">Save Changes</span>';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

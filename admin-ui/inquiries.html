@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <!-- Anti-FOUC & Preloader -->
+    <style id="fouc-style">body { opacity: 0; visibility: hidden; }</style>
+    <script>
+      (function() {
+        var lang = localStorage.getItem('app_lang') || 'ar';
+        if(lang === 'ar') {
+          document.documentElement.dir = 'rtl';
+          document.documentElement.lang = 'ar';
+        } else {
+          document.documentElement.dir = 'ltr';
+          document.documentElement.lang = 'en';
+        }
+      })();
+    </script>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>طلبات تسجيل التلاميذ والاستفسارات | School System Admin</title>
+    <link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/sidebar.css">
+    
+    <style>
+        body {
+            font-family: 'Cairo', 'Inter', sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+        }
+
+        .card-panel {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            margin-bottom: 24px;
+            border: 1px solid #e2e8f0;
+        }
+
+        /* Filter Controls */
+        .filter-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .search-wrap {
+            position: relative;
+            min-width: 280px;
+            flex-grow: 1;
+            max-width: 400px;
+        }
+
+        .search-wrap input {
+            width: 100%;
+            height: 42px;
+            padding: 8px 16px 8px 40px;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+        body[dir="rtl"] .search-wrap input {
+            padding: 8px 40px 8px 16px;
+        }
+
+        .search-wrap input:focus {
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+        }
+
+        .search-wrap i {
+            position: absolute;
+            top: 13px;
+            left: 14px;
+            color: #94a3b8;
+        }
+        body[dir="rtl"] .search-wrap i {
+            left: auto;
+            right: 14px;
+        }
+
+        .status-filter-pills {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .pill-btn {
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            color: #475569;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .pill-btn:hover {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+
+        .pill-btn.active {
+            background: #4f46e5;
+            color: #ffffff;
+            border-color: #4f46e5;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+        }
+
+        /* Custom Table */
+        .table-custom {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .table-custom th {
+            background-color: #f8fafc;
+            color: #475569;
+            font-weight: 700;
+            font-size: 13px;
+            padding: 14px 16px;
+            border-bottom: 2px solid #e2e8f0;
+            text-align: right;
+            white-space: nowrap;
+        }
+        body[dir="ltr"] .table-custom th {
+            text-align: left;
+        }
+
+        .table-custom td {
+            padding: 16px;
+            vertical-align: middle;
+            color: #334155;
+            font-size: 14px;
+            border-bottom: 1px solid #f1f5f9;
+            text-align: right;
+        }
+        body[dir="ltr"] .table-custom td {
+            text-align: left;
+        }
+
+        .table-custom tr:hover td {
+            background-color: #f8fafc;
+        }
+
+        /* Badges */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .status-new {
+            background: #eff6ff;
+            color: #2563eb;
+            border: 1px solid #bfdbfe;
+        }
+
+        .status-contacted {
+            background: #fef3c7;
+            color: #d97706;
+            border: 1px solid #fde68a;
+        }
+
+        .status-enrolled {
+            background: #dcfce7;
+            color: #16a34a;
+            border: 1px solid #bbf7d0;
+        }
+
+        .status-cancelled {
+            background: #fee2e2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+
+        /* Phone & WhatsApp Quick Action */
+        .phone-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            color: #0f172a;
+            background: #f1f5f9;
+            transition: all 0.2s;
+        }
+        .phone-btn:hover {
+            background: #e2e8f0;
+            color: #0f172a;
+        }
+
+        .wa-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            background: #dcfce7;
+            color: #16a34a;
+            font-size: 14px;
+            text-decoration: none;
+            transition: all 0.2s;
+            margin-right: 6px;
+        }
+        .wa-btn:hover {
+            background: #16a34a;
+            color: #fff;
+        }
+
+        .action-select {
+            padding: 6px 10px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            font-size: 13px;
+            font-family: inherit;
+            background: #fff;
+            color: #334155;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .btn-delete {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: none;
+            background: #fee2e2;
+            color: #dc2626;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-delete:hover {
+            background: #dc2626;
+            color: #fff;
+        }
+
+        .inquiry-msg-box {
+            max-width: 260px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            cursor: pointer;
+            color: #475569;
+        }
+        .inquiry-msg-box:hover {
+            color: #2563eb;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body data-page="inquiries">
+    <div id="sidebar-placeholder"></div>
+    <div class="sb-main">
+        <div id="header-placeholder"></div>
+        <div class="sb-content">
+            <div class="sb-breadcrumb">
+                <i class="fa fa-home"></i>
+                <a href="index.html" data-i18n="Home">الرئيسية</a>
+                <span>/</span>
+                <span data-i18n="Landing Inquiries">طلبات تسجيل التلاميذ والاستفسارات</span>
+            </div>
+
+            <!-- Page Hero Card -->
+            <div class="page-hero-card" style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%); border-radius: 20px; padding: 30px; margin-bottom: 24px; color: white;">
+                <div class="hero-top-row" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+                    <div class="hero-info-area" style="display: flex; align-items: center; gap: 20px;">
+                        <div class="page-avatar-badge" style="width: 68px; height: 68px; border-radius: 18px; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; font-size: 30px; border: 2px solid rgba(255,255,255,0.3);">
+                            <i class="fa fa-envelope-open-o"></i>
+                        </div>
+                        <div>
+                            <h2 style="margin: 0 0 6px; font-size: 24px; font-weight: 800; color: #fff;">طلبات تسجيل التلاميذ والاستفسارات</h2>
+                            <p style="margin: 0; color: #c7d2fe; font-size: 14px;">
+                                طلبات التسجيل في البرامج والتكوينات الواردة من صفحة المدرسة — طلبات نظام School Manager تُرسل مباشرةً عبر البريد الإلكتروني
+                            </p>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 12px; align-items: center;">
+                        <button class="btn btn-light btn-sm" id="btn-refresh-inquiries" style="border-radius: 8px; font-weight: 600; padding: 8px 16px;">
+                            <i class="fa fa-refresh"></i> تحديث القائمة
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content Panel -->
+            <div class="card-panel">
+                <!-- Search & Filters -->
+                <div class="filter-bar">
+                    <div class="search-wrap">
+                        <i class="fa fa-search"></i>
+                        <input type="text" id="inquiry-search" placeholder="بحث بالاسم، رقم الهاتف أو التكوين المطلوب...">
+                    </div>
+
+                    <div class="status-filter-pills">
+                        <button class="pill-btn active" data-status="all">الكل (<span id="count-all">0</span>)</button>
+                        <button class="pill-btn" data-status="new">جديدة (<span id="count-new">0</span>)</button>
+                        <button class="pill-btn" data-status="contacted">تم الاتصال (<span id="count-contacted">0</span>)</button>
+                        <button class="pill-btn" data-status="enrolled">تم التسجيل (<span id="count-enrolled">0</span>)</button>
+                        <button class="pill-btn" data-status="cancelled">ملغاة (<span id="count-cancelled">0</span>)</button>
+                    </div>
+                </div>
+
+                <!-- Inquiries Table -->
+                <div class="table-responsive" style="overflow-x: auto;">
+                    <table class="table-custom" id="inquiries-table">
+                        <thead>
+                            <tr>
+                                <th width="60">#</th>
+                                <th>تاريخ الطلب</th>
+                                <th>الاسم الكامل</th>
+                                <th>رقم الهاتف</th>
+                                <th>البرنامج المطلوب</th>
+                                <th>الرسالة / الاستفسار</th>
+                                <th>الحالة</th>
+                                <th width="150">تغيير الحالة</th>
+                                <th width="60">حذف</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inquiries-table-body">
+                            <tr>
+                                <td colspan="9" class="text-center" style="padding: 40px; color: #94a3b8;">
+                                    <i class="fa fa-spinner fa-spin fa-2x"></i><br><br>جاري تحميل طلبات التسجيل...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="footer-placeholder"></div>
+        </div>
+    </div>
+
+    <!-- Message Details Modal -->
+    <div class="modal fade" id="msgDetailsModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content" style="border-radius: 16px; border: none; overflow: hidden;">
+                <div class="modal-header" style="background: #1e1b4b; color: white; border: none;">
+                    <h5 class="modal-title" style="font-weight: 700;">تفاصيل الاستفسار</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: white; opacity: 1;">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" style="padding: 24px;">
+                    <div style="margin-bottom: 16px;">
+                        <label style="font-size: 12px; color: #64748b; font-weight: 600; display: block;">الاسم الكامل:</label>
+                        <strong id="modal-visitor-name" style="font-size: 16px; color: #0f172a;"></strong>
+                    </div>
+                    <div style="margin-bottom: 16px;">
+                        <label style="font-size: 12px; color: #64748b; font-weight: 600; display: block;">رقم الهاتف:</label>
+                        <span id="modal-visitor-phone" style="font-size: 15px; font-weight: 700; color: #4338ca;"></span>
+                    </div>
+                    <div style="margin-bottom: 16px;">
+                        <label style="font-size: 12px; color: #64748b; font-weight: 600; display: block;">البرنامج المطلوب:</label>
+                        <span id="modal-visitor-formation" style="font-size: 14px; font-weight: 600; color: #16a34a;"></span>
+                    </div>
+                    <div>
+                        <label style="font-size: 12px; color: #64748b; font-weight: 600; display: block;">نص الرسالة والاستفسار:</label>
+                        <div id="modal-visitor-message" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; font-size: 14px; line-height: 1.6; color: #334155; white-space: pre-wrap;"></div>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid #f1f5f9;">
+                    <a href="#" id="modal-call-btn" class="btn btn-primary" style="border-radius: 8px; font-weight: 600;">
+                        <i class="fa fa-phone"></i> اتصال
+                    </a>
+                    <a href="#" id="modal-wa-btn" target="_blank" class="btn btn-success" style="border-radius: 8px; font-weight: 600;">
+                        <i class="fa fa-whatsapp"></i> واتساب
+                    </a>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" style="border-radius: 8px;">إغلاق</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/vendor/jquery-1.12.4.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/components.js"></script>
+
+    <script>
+    (function () {
+        'use strict';
+
+        var allInquiries = [];
+        var activeFilter = 'all';
+
+        function base() {
+            var l = window.location;
+            return (l.hostname === 'localhost' || l.hostname === '127.0.0.1')
+                ? l.protocol + '//' + l.hostname + ':5000' : '';
+        }
+
+        function getToken() {
+            return localStorage.getItem('school_system_token') || localStorage.getItem('token');
+        }
+
+        function apiRequest(path, opts) {
+            opts = Object.assign({ headers: {} }, opts);
+            var token = getToken();
+            if (token) opts.headers['Authorization'] = 'Bearer ' + token;
+            if (opts.body && typeof opts.body === 'string') {
+                opts.headers['Content-Type'] = 'application/json';
+            }
+            return fetch(base() + path, opts).then(function (res) {
+                if (!res.ok) throw new Error('Request failed with status ' + res.status);
+                return res.json();
+            });
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            try {
+                var d = new Date(dateStr);
+                return d.toLocaleDateString('ar-DZ', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+            } catch (e) {
+                return dateStr;
+            }
+        }
+
+        function getStatusBadge(status) {
+            switch (status) {
+                case 'new':
+                    return '<span class="status-badge status-new"><i class="fa fa-star"></i> جديد</span>';
+                case 'contacted':
+                    return '<span class="status-badge status-contacted"><i class="fa fa-phone"></i> تم الاتصال</span>';
+                case 'enrolled':
+                    return '<span class="status-badge status-enrolled"><i class="fa fa-check-circle"></i> تم التسجيل</span>';
+                case 'cancelled':
+                    return '<span class="status-badge status-cancelled"><i class="fa fa-times-circle"></i> ملغاة</span>';
+                default:
+                    return '<span class="status-badge status-new">' + (status || 'جديد') + '</span>';
+            }
+        }
+
+        function cleanPhoneForWa(phone) {
+            var cleaned = String(phone).replace(/[^0-9]/g, '');
+            if (cleaned.startsWith('0')) {
+                cleaned = '213' + cleaned.substring(1);
+            }
+            return cleaned;
+        }
+
+        function updateCounts() {
+            var counts = { all: allInquiries.length, new: 0, contacted: 0, enrolled: 0, cancelled: 0 };
+            allInquiries.forEach(function (inq) {
+                var st = inq.status || 'new';
+                if (counts[st] !== undefined) counts[st]++;
+            });
+
+            document.getElementById('count-all').textContent = counts.all;
+            document.getElementById('count-new').textContent = counts.new;
+            document.getElementById('count-contacted').textContent = counts.contacted;
+            document.getElementById('count-enrolled').textContent = counts.enrolled;
+            document.getElementById('count-cancelled').textContent = counts.cancelled;
+        }
+
+        function renderTable() {
+            var tbody = document.getElementById('inquiries-table-body');
+            var searchVal = (document.getElementById('inquiry-search').value || '').toLowerCase().trim();
+
+            var filtered = allInquiries.filter(function (inq) {
+                // Filter by status
+                if (activeFilter !== 'all' && (inq.status || 'new') !== activeFilter) {
+                    return false;
+                }
+                // Filter by search
+                if (searchVal) {
+                    var matchName = (inq.name || '').toLowerCase().indexOf(searchVal) !== -1;
+                    var matchPhone = (inq.phone || '').toLowerCase().indexOf(searchVal) !== -1;
+                    var matchFormation = (inq.formation_title || '').toLowerCase().indexOf(searchVal) !== -1;
+                    var matchMsg = (inq.message || '').toLowerCase().indexOf(searchVal) !== -1;
+                    if (!matchName && !matchPhone && !matchFormation && !matchMsg) {
+                        return false;
+                    }
+                }
+                return true;
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" class="text-center" style="padding: 40px; color: #94a3b8;"><i class="fa fa-inbox fa-2x"></i><br><br>لا توجد طلبات تطابق المعايير المحددة</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(function (inq, index) {
+                var waNum = cleanPhoneForWa(inq.phone);
+                var waLink = 'https://wa.me/' + waNum;
+                var telLink = 'tel:' + inq.phone;
+                var formation = inq.formation_title || '<span style="color:#94a3b8;">غير محدد</span>';
+                var msg = inq.message || '<span style="color:#94a3b8;">لا توجد ملاحظات</span>';
+
+                return '<tr data-id="' + inq.id + '">' +
+                    '<td><strong>' + inq.id + '</strong></td>' +
+                    '<td style="white-space:nowrap; font-size:13px; color:#64748b;">' + formatDate(inq.created_at) + '</td>' +
+                    '<td><strong style="color:#0f172a;">' + inq.name + '</strong></td>' +
+                    '<td>' +
+                        '<div style="display:flex; align-items:center; gap:6px;">' +
+                            '<a href="' + telLink + '" class="phone-btn" title="اتصال مباشر"><i class="fa fa-phone"></i> <span dir="ltr">' + inq.phone + '</span></a>' +
+                            '<a href="' + waLink + '" target="_blank" class="wa-btn" title="مراسلة عبر واتساب"><i class="fa fa-whatsapp"></i></a>' +
+                        '</div>' +
+                    '</td>' +
+                    '<td><span style="font-weight:600; color:#3b82f6;">' + formation + '</span></td>' +
+                    '<td><div class="inquiry-msg-box" onclick="showMsgDetails(' + inq.id + ')" title="اضغط لعرض الرسالة كاملة">' + msg + '</div></td>' +
+                    '<td>' + getStatusBadge(inq.status) + '</td>' +
+                    '<td>' +
+                        '<select class="action-select" onchange="changeStatus(' + inq.id + ', this.value)">' +
+                            '<option value="new"' + (inq.status === 'new' ? ' selected' : '') + '>جديد</option>' +
+                            '<option value="contacted"' + (inq.status === 'contacted' ? ' selected' : '') + '>تم الاتصال</option>' +
+                            '<option value="enrolled"' + (inq.status === 'enrolled' ? ' selected' : '') + '>تم التسجيل</option>' +
+                            '<option value="cancelled"' + (inq.status === 'cancelled' ? ' selected' : '') + '>ملغاة</option>' +
+                        '</select>' +
+                    '</td>' +
+                    '<td>' +
+                        '<button class="btn-delete" onclick="deleteInquiry(' + inq.id + ')" title="حذف الطلب">' +
+                            '<i class="fa fa-trash-o"></i>' +
+                        '</button>' +
+                    '</td>' +
+                '</tr>';
+            }).join('');
+        }
+
+        function loadInquiries() {
+            apiRequest('/api/inquiries')
+                .then(function (res) {
+                    allInquiries = res.data || [];
+                    updateCounts();
+                    renderTable();
+                })
+                .catch(function (err) {
+                    console.error(err);
+                    var tbody = document.getElementById('inquiries-table-body');
+                    tbody.innerHTML = '<tr><td colspan="9" class="text-center text-danger" style="padding: 30px;"><i class="fa fa-exclamation-triangle"></i> تعذر تحميل البيانات. يرجى التأكد من تسجيل الدخول كمسؤول.</td></tr>';
+                });
+        }
+
+        window.changeStatus = function (id, newStatus) {
+            apiRequest('/api/inquiries/' + id + '/status', {
+                method: 'PATCH',
+                body: JSON.stringify({ status: newStatus })
+            }).then(function () {
+                var found = allInquiries.find(function (x) { return x.id === id; });
+                if (found) found.status = newStatus;
+                updateCounts();
+                renderTable();
+            }).catch(function (err) {
+                alert('فشل تحديث الحالة: ' + err.message);
+                loadInquiries();
+            });
+        };
+
+        window.deleteInquiry = function (id) {
+            if (!confirm('هل أنت متأكد من رغبتك في حذف هذا الطلب؟')) return;
+            apiRequest('/api/inquiries/' + id, { method: 'DELETE' })
+                .then(function () {
+                    allInquiries = allInquiries.filter(function (x) { return x.id !== id; });
+                    updateCounts();
+                    renderTable();
+                })
+                .catch(function (err) {
+                    alert('فشل حذف الطلب: ' + err.message);
+                });
+        };
+
+        window.showMsgDetails = function (id) {
+            var item = allInquiries.find(function (x) { return x.id === id; });
+            if (!item) return;
+
+            document.getElementById('modal-visitor-name').textContent = item.name || '-';
+            document.getElementById('modal-visitor-phone').textContent = item.phone || '-';
+            document.getElementById('modal-visitor-formation').textContent = item.formation_title || 'غير محدد';
+            document.getElementById('modal-visitor-message').textContent = item.message || 'لا توجد ملاحظات إضافية.';
+
+            document.getElementById('modal-call-btn').href = 'tel:' + item.phone;
+            document.getElementById('modal-wa-btn').href = 'https://wa.me/' + cleanPhoneForWa(item.phone);
+
+            $('#msgDetailsModal').modal('show');
+        };
+
+        // Filter buttons
+        document.querySelectorAll('.pill-btn').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                document.querySelectorAll('.pill-btn').forEach(function (b) { b.classList.remove('active'); });
+                btn.classList.add('active');
+                activeFilter = btn.getAttribute('data-status');
+                renderTable();
+            });
+        });
+
+        // Search input
+        document.getElementById('inquiry-search').addEventListener('input', function () {
+            renderTable();
+        });
+
+        // Refresh button
+        document.getElementById('btn-refresh-inquiries').addEventListener('click', function () {
+            loadInquiries();
+        });
+
+        // Initial load
+        document.addEventListener('DOMContentLoaded', loadInquiries);
+    })();
+    </script>
+</body>
+</html>

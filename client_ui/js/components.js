@@ -75,7 +75,12 @@ document.write('<script src="js/table-features.js?v=' + new Date().getTime() + '
     // Update topbar page title
     var activeLink = document.querySelector('#app-sidebar .sb-link.active .sb-label');
     var title = document.getElementById('sb-page-title');
-    if (title && activeLink) title.textContent = activeLink.textContent.trim();
+    if (title && activeLink) {
+      var k = activeLink.getAttribute('data-i18n');
+      if (k) title.setAttribute('data-i18n', k);
+      var text = activeLink.textContent.trim();
+      title.textContent = window.AppI18n ? window.AppI18n.t(k || text) : text;
+    }
   }
 
   // ── Partial loader ───────────────────────────────────────────────────────────
@@ -115,9 +120,19 @@ document.write('<script src="js/table-features.js?v=' + new Date().getTime() + '
     // Load sidebar → header → footer in sequence
     loadPartial('sidebar-placeholder', 'sidebar.html', 'sidebar', function () {
       markActiveNav();
+      if (window.AppI18n && typeof window.AppI18n.translateAll === 'function') {
+        window.AppI18n.translateAll(document);
+      }
 
       loadPartial('header-placeholder', 'header.html', 'header', function () {
-        loadPartial('footer-placeholder', 'footer.html', 'footer', null);
+        if (window.AppI18n && typeof window.AppI18n.translateAll === 'function') {
+          window.AppI18n.translateAll(document);
+        }
+        loadPartial('footer-placeholder', 'footer.html', 'footer', function () {
+          if (window.AppI18n && typeof window.AppI18n.translateAll === 'function') {
+            window.AppI18n.translateAll(document);
+          }
+        });
       });
     });
   }

@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Update Profile | Student Space</title>
+    <link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/sidebar.css">
+    <link rel="stylesheet" href="css/portal.css">
+
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#4f6eff">
+    <link rel="apple-touch-icon" href="img/icon-512.jpg">
+</head>
+
+<body data-page="student-profile">
+    <div id="sidebar-placeholder"></div>
+
+    <div class="sb-main">
+        <div id="header-placeholder"></div>
+
+        <div class="sb-content" style="padding: 24px;">
+            <div class="sb-breadcrumb">
+                <i class="fa fa-user-circle-o"></i>
+                <span data-i18n="Student Space">Student Space</span>
+                <span style="color: #cbd5e1;">/</span>
+                <span data-i18n="Update Profile">Update Profile</span>
+            </div>
+
+            <!-- Page Header Card -->
+            <div class="portal-hero-banner" style="padding: 24px 30px;">
+                <div class="portal-hero-content">
+                    <div class="portal-hero-user">
+                        <div class="portal-hero-avatar-wrap">
+                            <img id="header-student-avatar" class="portal-hero-avatar" src="https://ui-avatars.com/api/?name=Student&background=4f6eff&color=fff&size=150" alt="Student">
+                        </div>
+                        <div class="portal-hero-text">
+                            <h2 id="header-student-name">Loading...</h2>
+                            <p>
+                                <span><i class="fa fa-id-card-o"></i> <span id="header-student-reg">—</span></span>
+                                <span class="portal-chip portal-chip-primary"><i class="fa fa-book"></i> <span id="header-student-course">—</span></span>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="portal-hero-actions">
+                        <a href="student-space.html" class="portal-btn portal-btn-secondary" style="background: rgba(255,255,255,0.15); color: #fff !important; border: 1px solid rgba(255,255,255,0.25);">
+                            <i class="fa fa-arrow-left"></i> <span data-i18n="My Dashboard">Back to Dashboard</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Profile Settings Form -->
+                <div class="col-md-8">
+                    <div class="portal-card">
+                        <div class="portal-card-header">
+                            <div>
+                                <h3 class="portal-card-title"><i class="fa fa-sliders"></i> <span data-i18n="Update Profile">Profile Information</span></h3>
+                                <p class="portal-card-subtitle" data-i18n="Update your account credentials and personal preferences">Update your account credentials and personal preferences</p>
+                            </div>
+                        </div>
+
+                        <!-- Feedback Alert -->
+                        <div id="student-profile-alert" style="display:none; margin-bottom: 20px;"></div>
+
+                        <form id="student-profile-form">
+                            <!-- Live Avatar Preview Card -->
+                            <div class="profile-photo-preview-wrap">
+                                <img id="live-photo-preview" class="profile-photo-preview-img" src="https://ui-avatars.com/api/?name=User&background=4f6eff&color=fff&size=150" alt="Avatar Preview">
+                                <div class="profile-photo-preview-info" style="flex:1;">
+                                    <h4 id="preview-student-fullname" data-i18n="Your Name">Your Name</h4>
+                                    <p data-i18n="Enter an image URL below to customize your avatar, or pick a color preset.">Enter an image URL below to customize your avatar, or pick a color preset.</p>
+                                    <div style="margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+                                        <button type="button" class="avatar-char-btn portal-btn portal-btn-secondary" data-avatar="img/طالب.webp" style="height:34px; padding:2px 12px; font-size:12px; display:inline-flex; align-items:center; gap:8px;">
+                                            <img src="img/طالب.webp" style="width:22px; height:22px; border-radius:50%; object-fit:cover;" alt="Boy">
+                                            <span data-i18n="Boy Student">Boy Student</span>
+                                        </button>
+                                        <button type="button" class="avatar-char-btn portal-btn portal-btn-secondary" data-avatar="img/طالبة مسلمة.webp" style="height:34px; padding:2px 12px; font-size:12px; display:inline-flex; align-items:center; gap:8px;">
+                                            <img src="img/طالبة مسلمة.webp" style="width:22px; height:22px; border-radius:50%; object-fit:cover;" alt="Girl">
+                                            <span data-i18n="Girl Student">Girl Student</span>
+                                        </button>
+                                        <span style="color:#cbd5e1; font-size:12px; margin: 0 4px;">|</span>
+                                        <button type="button" class="avatar-preset-btn portal-btn portal-btn-secondary" style="height:28px; padding:0 10px; font-size:11px;" data-bg="4f6eff" data-i18n="Blue">Blue</button>
+                                        <button type="button" class="avatar-preset-btn portal-btn portal-btn-secondary" style="height:28px; padding:0 10px; font-size:11px;" data-bg="10b981" data-i18n="Green">Green</button>
+                                        <button type="button" class="avatar-preset-btn portal-btn portal-btn-secondary" style="height:28px; padding:0 10px; font-size:11px;" data-bg="8b5cf6" data-i18n="Purple">Purple</button>
+                                        <button type="button" class="avatar-preset-btn portal-btn portal-btn-secondary" style="height:28px; padding:0 10px; font-size:11px;" data-bg="f59e0b" data-i18n="Amber">Amber</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="portal-form-group">
+                                        <label class="portal-label"><span data-i18n="Full Name (Official Record)">Full Name (Official Record)</span></label>
+                                        <input type="text" id="student-fullname" class="portal-input" readonly>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="portal-form-group">
+                                        <label class="portal-label"><span data-i18n="Registration Number (Official ID)">Registration Number (Official ID)</span></label>
+                                        <input type="text" id="student-reg-input" class="portal-input" readonly>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="portal-form-group">
+                                        <label class="portal-label"><span data-i18n="Email Address">Email Address</span> <span class="text-danger">*</span></label>
+                                        <input type="email" id="student-email" class="portal-input" placeholder="student@example.com" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="portal-form-group">
+                                        <label class="portal-label" data-i18n="Phone Number">Phone Number</label>
+                                        <input type="tel" id="student-phone" class="portal-input" placeholder="+213 ...">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="portal-form-group">
+                                <label class="portal-label" data-i18n="Avatar Photo URL">Avatar Photo URL</label>
+                                <div class="portal-input-group">
+                                    <input type="url" id="student-photo-url" class="portal-input" placeholder="https://example.com/photo.jpg">
+                                    <button type="button" id="btn-clear-photo" class="portal-input-icon-btn" title="Clear photo"><i class="fa fa-times"></i></button>
+                                </div>
+                                <small style="display:block; margin-top:5px; color:#94a3b8; font-size:12px;" data-i18n="Paste a direct image link or choose a preset color above.">Paste a direct image link or choose a preset color above.</small>
+                            </div>
+
+                            <hr style="border-color: #f1f5f9; margin: 24px 0;">
+
+                            <h4 style="font-size: 15px; font-weight: 700; color: #1e293b; margin-bottom: 6px;" data-i18n="Security & Password">Security & Password</h4>
+                            <p style="font-size: 13px; color: #64748b; margin-bottom: 16px;" data-i18n="Leave the password fields blank if you do not wish to change your password.">Leave the password fields blank if you do not wish to change your password.</p>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="portal-form-group">
+                                        <label class="portal-label" data-i18n="New Password">New Password</label>
+                                        <div class="portal-input-group">
+                                            <input type="password" id="student-password" class="portal-input" placeholder="••••••••">
+                                            <button type="button" class="portal-input-icon-btn" onclick="togglePass('student-password', this)"><i class="fa fa-eye"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="portal-form-group">
+                                        <label class="portal-label" data-i18n="Confirm New Password">Confirm New Password</label>
+                                        <div class="portal-input-group">
+                                            <input type="password" id="student-confirm-password" class="portal-input" placeholder="••••••••">
+                                            <button type="button" class="portal-input-icon-btn" onclick="togglePass('student-confirm-password', this)"><i class="fa fa-eye"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="display:flex; justify-content: flex-end; gap: 12px; margin-top: 10px;">
+                                <a href="student-space.html" class="portal-btn portal-btn-secondary" data-i18n="Cancel">Cancel</a>
+                                <button type="submit" id="btn-save-profile" class="portal-btn portal-btn-primary">
+                                    <i class="fa fa-check"></i> <span data-i18n="Save Changes">Save Changes</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Academic Info Card -->
+                <div class="col-md-4">
+                    <div class="portal-card">
+                        <div class="portal-card-header">
+                            <div>
+                                <h3 class="portal-card-title"><i class="fa fa-info-circle"></i> <span data-i18n="Academic Details">Academic Details</span></h3>
+                                <p class="portal-card-subtitle" data-i18n="Official enrollment data">Official enrollment data</p>
+                            </div>
+                        </div>
+
+                        <div style="font-size: 13.5px;">
+                            <div style="padding: 12px 0; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between;">
+                                <span class="text-muted" data-i18n="Course Formation:">Course Formation:</span>
+                                <strong id="acad-formation">—</strong>
+                            </div>
+                            <div style="padding: 12px 0; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between;">
+                                <span class="text-muted" data-i18n="Formation Type:">Formation Type:</span>
+                                <span class="portal-chip portal-chip-primary" id="acad-type">—</span>
+                            </div>
+                            <div style="padding: 12px 0; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between;">
+                                <span class="text-muted" data-i18n="Enrollment Date:">Enrollment Date:</span>
+                                <strong id="acad-enrolled">—</strong>
+                            </div>
+                            <div style="padding: 12px 0; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between;">
+                                <span class="text-muted" data-i18n="Subscription Plan:">Subscription Plan:</span>
+                                <strong id="acad-plan">—</strong>
+                            </div>
+                            <div style="padding: 12px 0; display: flex; justify-content: space-between; align-items: center;">
+                                <span class="text-muted" data-i18n="Next Payment:">Next Payment:</span>
+                                <span id="acad-payment-status" class="portal-badge portal-badge-present">—</span>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 24px; padding: 16px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0; font-size: 12.5px; color: #64748b;" data-i18n="To request changes to your official name or registration details, please visit the administration office.">
+                            <i class="fa fa-shield" style="color: #4f6eff; margin-right: 6px;"></i>
+                            To request changes to your official name or registration details, please visit the administration office.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div id="footer-placeholder"></div>
+    </div>
+
+    <script src="js/vendor/jquery-1.12.4.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/i18n.js"></script>
+    <script src="js/components.js"></script>
+    <script src="js/backend.js"></script>
+    
+    <script>
+        function togglePass(inputId, btn) {
+            var input = document.getElementById(inputId);
+            var icon = btn.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'fa fa-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'fa fa-eye';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var currentStudentName = 'Student';
+
+            window.onAuthReady = function() {
+                if (!window._ctx || window._ctx.user.role !== 'student') return;
+
+                SchoolBackend.request('/api/student-space/me').then(function(res) {
+                    var p = res.profile;
+                    currentStudentName = [p.first_name, p.last_name].filter(Boolean).join(' ');
+                    
+                    currentStudentGender = p.gender;
+
+                    // Banner
+                    document.getElementById('header-student-name').textContent = currentStudentName;
+                    var regPrefix = window.AppI18n ? window.AppI18n.t('Reg:') : 'Reg:';
+                    document.getElementById('header-student-reg').textContent = p.registration_number ? (regPrefix + ' ' + p.registration_number) : (window.AppI18n ? window.AppI18n.t('Student') : 'Student');
+                    document.getElementById('header-student-course').textContent = p.formation_title || (window.AppI18n ? window.AppI18n.t('Enrolled Student') : 'Enrolled Student');
+                    document.getElementById('header-student-avatar').src = SchoolBackend.avatarUrl(p.photo, currentStudentName, 'student', p.gender);
+
+                    // Inputs
+                    document.getElementById('preview-student-fullname').textContent = currentStudentName;
+                    document.getElementById('student-fullname').value = currentStudentName;
+                    document.getElementById('student-reg-input').value = p.registration_number || '—';
+                    document.getElementById('student-email').value = p.email || '';
+                    document.getElementById('student-phone').value = p.phone || '';
+                    document.getElementById('student-photo-url').value = p.photo || '';
+                    document.getElementById('live-photo-preview').src = SchoolBackend.avatarUrl(p.photo, currentStudentName, 'student', p.gender);
+
+                    // Academic Info Card
+                    document.getElementById('acad-formation').textContent = p.formation_title || '—';
+                    var formType = p.formation_type || 'Standard';
+                    document.getElementById('acad-type').textContent = window.AppI18n ? window.AppI18n.t(formType) : formType;
+                    document.getElementById('acad-enrolled').textContent = p.enrollment_date ? new Date(p.enrollment_date).toLocaleDateString() : '—';
+                    var planType = p.subscription_plan || 'Standard';
+                    document.getElementById('acad-plan').textContent = window.AppI18n ? window.AppI18n.t(planType) : planType;
+                    
+                    var payBadge = document.getElementById('acad-payment-status');
+                    if (p.next_payment_date) {
+                        var days = Number(p.days_left);
+                        if (days < 0) {
+                            payBadge.className = 'portal-badge portal-badge-absent';
+                            payBadge.textContent = (window.AppI18n ? window.AppI18n.t('Overdue') : 'Overdue') + ' (' + p.next_payment_date + ')';
+                        } else {
+                            payBadge.className = 'portal-badge portal-badge-present';
+                            payBadge.textContent = p.next_payment_date;
+                        }
+                    } else {
+                        payBadge.textContent = window.AppI18n ? window.AppI18n.t('Up to date') : 'Up to date';
+                    }
+                }).catch(function(err) {
+                    console.error(err);
+                });
+            };
+
+            // Live preview photo on URL change
+            var photoInput = document.getElementById('student-photo-url');
+            var photoPreview = document.getElementById('live-photo-preview');
+            photoInput.addEventListener('input', function() {
+                var url = photoInput.value.trim();
+                photoPreview.src = SchoolBackend.avatarUrl(url, currentStudentName, 'student', currentStudentGender);
+            });
+
+            // Clear photo button
+            document.getElementById('btn-clear-photo').addEventListener('click', function() {
+                photoInput.value = '';
+                photoPreview.src = SchoolBackend.avatarUrl('', currentStudentName, 'student', currentStudentGender);
+            });
+
+            // Character avatar buttons
+            document.querySelectorAll('.avatar-char-btn').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    var av = this.getAttribute('data-avatar');
+                    photoInput.value = av;
+                    photoPreview.src = av;
+                });
+            });
+
+            // Preset avatar buttons
+            document.querySelectorAll('.avatar-preset-btn').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    var bg = this.getAttribute('data-bg');
+                    var initial = currentStudentName ? currentStudentName.charAt(0).toUpperCase() : 'S';
+                    var avatarUrl = 'https://ui-avatars.com/api/?name=' + initial + '&background=' + bg + '&color=fff&size=150';
+                    photoInput.value = avatarUrl;
+                    photoPreview.src = avatarUrl;
+                });
+            });
+
+            // Submit Form
+            var form = document.getElementById('student-profile-form');
+            var alertBox = document.getElementById('student-profile-alert');
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                alertBox.style.display = 'none';
+
+                var newPass = document.getElementById('student-password').value;
+                var confirmPass = document.getElementById('student-confirm-password').value;
+
+                if (newPass && newPass !== confirmPass) {
+                    alertBox.className = 'alert alert-danger';
+                    alertBox.innerHTML = '<i class="fa fa-exclamation-triangle"></i> Passwords do not match!';
+                    alertBox.style.display = 'block';
+                    return;
+                }
+
+                var btnSave = document.getElementById('btn-save-profile');
+                btnSave.disabled = true;
+                btnSave.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Saving...';
+
+                var payload = {
+                    email: document.getElementById('student-email').value.trim(),
+                    phone: document.getElementById('student-phone').value.trim(),
+                    photo: photoInput.value.trim()
+                };
+                if (newPass) payload.password = newPass;
+
+                SchoolBackend.request('/api/student-space/update-profile', {
+                    method: 'PUT',
+                    body: JSON.stringify(payload)
+                }).then(function() {
+                    alertBox.className = 'alert alert-success';
+                    alertBox.innerHTML = '<i class="fa fa-check-circle"></i> Profile updated successfully!';
+                    alertBox.style.display = 'block';
+
+                    document.getElementById('student-password').value = '';
+                    document.getElementById('student-confirm-password').value = '';
+
+                    // Update header avatar in real-time
+                    var headerAvatar = document.getElementById('header-student-avatar');
+                    if (headerAvatar) headerAvatar.src = SchoolBackend.avatarUrl(payload.photo, currentStudentName, 'student');
+                    var topbarAvatar = document.getElementById('header-user-avatar');
+                    if (topbarAvatar) topbarAvatar.src = SchoolBackend.avatarUrl(payload.photo, currentStudentName, 'student');
+                    var sbAvatar = document.getElementById('sb-user-avatar');
+                    if (sbAvatar) sbAvatar.src = SchoolBackend.avatarUrl(payload.photo, currentStudentName, 'student');
+
+                    setTimeout(function() { alertBox.style.display = 'none'; }, 4000);
+                }).catch(function(err) {
+                    alertBox.className = 'alert alert-danger';
+                    alertBox.innerHTML = '<i class="fa fa-exclamation-triangle"></i> ' + (err.message || 'Failed to update profile');
+                    alertBox.style.display = 'block';
+                }).finally(function() {
+                    btnSave.disabled = false;
+                    btnSave.innerHTML = '<i class="fa fa-check"></i> <span data-i18n="Save Changes">Save Changes</span>';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,181 +1,417 @@
-
-  <!DOCTYPE html>
-  <!----
-
-  ██     ██ ███████ ██████  ████████ ██   ██ ███████ ███    ███ ███████    ████████  ██████  ██████  
-  ██     ██ ██      ██   ██    ██    ██   ██ ██      ████  ████ ██            ██    ██    ██ ██   ██ 
-  ██  █  ██ █████   ██████     ██    ███████ █████   ██ ████ ██ █████         ██    ██    ██ ██████  
-  ██ ███ ██ ██      ██   ██    ██    ██   ██ ██      ██  ██  ██ ██            ██    ██    ██ ██      
-   ███ ███  ███████ ██████     ██    ██   ██ ███████ ██      ██ ███████ ██    ██     ██████  ██      
-     
-              __Collect and Distribute__
-                https://www.webtheme.top
-  ---->
-  
-<html class="no-js" lang="en">
-
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <title>Login | Student & Teacher Portal</title>
-    <meta name="description" content="">
+    <meta name="description" content="School Management Portal for Students and Teachers">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- favicon
-		============================================ -->
     <link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico">
-    <!-- Google Fonts
-		============================================ -->
-    <link href="https://fonts.googleapis.com/css?family=Play:400,700" rel="stylesheet">
-    <!-- Bootstrap CSS
-		============================================ -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/bootstrap.min.css">
-    <!-- Bootstrap CSS
-		============================================ -->
     <link rel="stylesheet" href="css/font-awesome.min.css">
-    <!-- owl.carousel CSS
-		============================================ -->
-    <link rel="stylesheet" href="css/owl.carousel.css">
-    <link rel="stylesheet" href="css/owl.theme.css">
-    <link rel="stylesheet" href="css/owl.transitions.css">
-    <!-- animate CSS
-		============================================ -->
-    <link rel="stylesheet" href="css/animate.css">
-    <!-- normalize CSS
-		============================================ -->
-    <link rel="stylesheet" href="css/normalize.css">
-    <!-- main CSS
-		============================================ -->
-    <link rel="stylesheet" href="css/main.css">
-    <!-- morrisjs CSS
-		============================================ -->
-    <link rel="stylesheet" href="css/morrisjs/morris.css">
-    <!-- mCustomScrollbar CSS
-		============================================ -->
-    <link rel="stylesheet" href="css/scrollbar/jquery.mCustomScrollbar.min.css">
-    <!-- metisMenu CSS
-		============================================ -->
-    <link rel="stylesheet" href="css/metisMenu/metisMenu.min.css">
-    <link rel="stylesheet" href="css/metisMenu/metisMenu-vertical.css">
-    <!-- calendar CSS
-		============================================ -->
-    <link rel="stylesheet" href="css/calendar/fullcalendar.min.css">
-    <link rel="stylesheet" href="css/calendar/fullcalendar.print.min.css">
-    <!-- forms CSS
-		============================================ -->
-    <link rel="stylesheet" href="css/form/all-type-forms.css">
-    <!-- style CSS
-		============================================ -->
-    <link rel="stylesheet" href="style.css">
-    <!-- responsive CSS
-		============================================ -->
-    <link rel="stylesheet" href="css/responsive.css">
-    <!-- modernizr JS
-		============================================ -->
-    <script src="js/vendor/modernizr-2.8.3.min.js"></script>
+    <link rel="stylesheet" href="css/portal.css">
+
+    <style>
+        body[data-page="login"] {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #312e81 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+        body[data-page="login"]::before {
+            content: '';
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            top: -150px;
+            right: -150px;
+            background: radial-gradient(circle, rgba(79, 110, 255, 0.25) 0%, rgba(79, 110, 255, 0) 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        body[data-page="login"]::after {
+            content: '';
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            bottom: -100px;
+            left: -100px;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.2) 0%, rgba(16, 185, 129, 0) 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        .portal-login-card {
+            width: 100%;
+            max-width: 440px;
+            background: rgba(255, 255, 255, 0.07);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 40px 36px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.45);
+            color: #ffffff;
+            position: relative;
+            z-index: 10;
+        }
+        .portal-login-brand {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+        .portal-login-icon {
+            width: 58px;
+            height: 58px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #4f6eff, #38ef7d);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            color: #fff;
+            box-shadow: 0 10px 20px rgba(79, 110, 255, 0.35);
+            margin-bottom: 16px;
+        }
+        .portal-login-brand h3 {
+            margin: 0 0 6px;
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: #ffffff;
+        }
+        .portal-login-brand p {
+            margin: 0;
+            font-size: 13.5px;
+            color: #94a3b8;
+        }
+        .portal-role-badges {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .portal-login-input-wrap {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        .portal-login-label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #e2e8f0;
+        }
+        .portal-login-input {
+            width: 100%;
+            height: 46px;
+            padding: 10px 14px 10px 42px;
+            font-size: 14px;
+            background: rgba(255, 255, 255, 0.08) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            border-radius: 12px;
+            color: #ffffff !important;
+            outline: none;
+            transition: all 0.2s ease;
+            box-sizing: border-box;
+        }
+        .portal-login-input:focus {
+            background: rgba(255, 255, 255, 0.12) !important;
+            border-color: #4f6eff !important;
+            box-shadow: 0 0 0 3px rgba(79, 110, 255, 0.3) !important;
+        }
+        .portal-login-input::placeholder {
+            color: #94a3b8;
+        }
+        .portal-login-icon-left {
+            position: absolute;
+            left: 14px;
+            bottom: 14px;
+            color: #94a3b8;
+            font-size: 16px;
+            pointer-events: none;
+        }
+        .portal-login-btn-toggle {
+            position: absolute;
+            right: 14px;
+            bottom: 12px;
+            background: none;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            padding: 4px;
+        }
+        .portal-login-btn-toggle:hover {
+            color: #ffffff;
+        }
+        .portal-login-btn {
+            width: 100%;
+            height: 48px;
+            background: linear-gradient(135deg, #4f6eff 0%, #3d5bf6 100%);
+            border: none;
+            border-radius: 12px;
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(79, 110, 255, 0.35);
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 24px;
+        }
+        .portal-login-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 12px 24px rgba(79, 110, 255, 0.45);
+        }
+        .portal-admin-link {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 13px;
+            color: #94a3b8;
+        }
+        .portal-admin-link a {
+            color: #93c5fd;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .portal-admin-link a:hover {
+            text-decoration: underline;
+        }
+        #backend-auth-status:not(:empty) {
+            margin-top: 16px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            display: block;
+        }
+
+        /* ── Modern Language Switcher ── */
+        .portal-lang-container {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 12px;
+        }
+        html[dir="rtl"] .portal-lang-container {
+            justify-content: flex-start;
+        }
+        .lang-wrap {
+            position: relative;
+            user-select: none;
+        }
+        .lang-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            color: #f1f5f9;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12.5px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            font-family: inherit;
+        }
+        .lang-btn:hover {
+            background: rgba(255, 255, 255, 0.16);
+            border-color: rgba(255, 255, 255, 0.32);
+            color: #ffffff;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+        }
+        .lang-wrap.open .lang-btn {
+            background: rgba(79, 110, 255, 0.22);
+            border-color: #4f6eff;
+            color: #ffffff;
+            box-shadow: 0 0 0 3px rgba(79, 110, 255, 0.3);
+        }
+        .lang-btn .fa-globe {
+            color: #93c5fd;
+            font-size: 13px;
+        }
+        .lang-btn .lang-caret {
+            font-size: 11px;
+            color: #94a3b8;
+            margin-left: 2px;
+            transition: transform 0.25s ease;
+        }
+        html[dir="rtl"] .lang-btn .lang-caret {
+            margin-left: 0;
+            margin-right: 2px;
+        }
+        .lang-wrap.open .lang-btn .lang-caret {
+            transform: rotate(180deg);
+            color: #93c5fd;
+        }
+        .lang-dropdown {
+            display: none;
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            background: rgba(15, 23, 42, 0.94);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 14px;
+            box-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.6), 0 4px 12px rgba(0, 0, 0, 0.3);
+            min-width: 145px;
+            padding: 6px;
+            z-index: 100;
+            flex-direction: column;
+            gap: 3px;
+        }
+        html[dir="rtl"] .lang-dropdown {
+            right: auto;
+            left: 0;
+        }
+        .lang-wrap.open .lang-dropdown {
+            display: flex;
+            animation: langFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes langFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-6px) scale(0.96);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        .lang-dropdown a.lang-switch-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            border-radius: 9px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #e2e8f0;
+            text-decoration: none;
+            transition: all 0.18s ease;
+            white-space: nowrap;
+        }
+        .lang-dropdown a.lang-switch-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: #ffffff;
+            transform: translateX(2px);
+        }
+        html[dir="rtl"] .lang-dropdown a.lang-switch-btn:hover {
+            transform: translateX(-2px);
+        }
+        .lang-dropdown a.lang-switch-btn .lang-flag {
+            font-size: 14px;
+            line-height: 1;
+        }
+    </style>
 
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#28a745">
+    <meta name="theme-color" content="#4f6eff">
     <link rel="apple-touch-icon" href="img/icon-512.jpg">
-    <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('sw.js');
-        });
-      }
-    </script>
 </head>
 
-
 <body data-page="login">
-    <!--[if lt IE 8]>
-		<p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
-	<![endif]-->
-	<div class="error-pagewrap">
-		<div class="error-page-int">
-			<div class="text-center m-b-md custom-login">
-				<h3>STUDENT & TEACHER PORTAL</h3>
-				<p>Login with your student or teacher account</p>
-			</div>
-			<div class="content-error">
-				<div class="hpanel">
-                    <div class="panel-body">
-                        <form action="#" id="backend-login-form">
-                          <div class="form-group">
-                            <label class="control-label" for="email">Email</label>
-                            <input type="email" placeholder="example@gmail.com" title="Please enter your email" required="" value="" name="email" id="email" class="form-control">
-                            <span class="help-block small">Use your student or teacher email</span>
-                          </div>
-                            <div class="form-group">
-                                <label class="control-label" for="password">Password</label>
-                                <input type="password" title="Please enter your password" placeholder="******" required="" value="" name="password" id="password" class="form-control">
-                            <span class="help-block small">Your strong password</span>
-                            </div>
-                          <p id="backend-auth-status" class="help-block small"></p>
-                            <div class="checkbox login-checkbox">
-                                <label>
-										<input type="checkbox" class="i-checks"> Remember me </label>
-                                <p class="help-block small">(if this is a private computer)</p>
-                            </div>
-                            <button class="btn btn-success btn-block loginbtn">Login</button>
-
-                        </form>
-                    </div>
+    <div class="portal-login-card">
+        <!-- Lang Switcher in Card -->
+        <div class="portal-lang-container">
+            <div class="lang-wrap" id="lang-wrap">
+                <button class="lang-btn" onclick="this.closest('.lang-wrap').classList.toggle('open')" type="button" aria-label="Select Language">
+                    <i class="fa fa-globe"></i>
+                    <span id="lang-current-label">EN</span>
+                    <i class="fa fa-angle-down lang-caret"></i>
+                </button>
+                <div class="lang-dropdown">
+                    <a href="#" class="lang-switch-btn" data-lang="en">
+                        <span class="lang-flag">🇬🇧</span>
+                        <span>English</span>
+                    </a>
+                    <a href="#" class="lang-switch-btn" data-lang="ar">
+                        <span class="lang-flag">🇩🇿</span>
+                        <span>العربية</span>
+                    </a>
                 </div>
-			</div>
-			<div class="text-center login-footer">
-				<p>Copyright © 2018. All rights reserved. Template by <a href="https://colorlib.com/wp/templates/">Colorlib</a></p>
-			</div>
-		</div>   
-    </div>
-    <!-- jquery
-		============================================ -->
-    <script src="js/vendor/jquery-1.12.4.min.js"></script>
-    <!-- bootstrap JS
-		============================================ -->
-    <script src="js/bootstrap.min.js"></script>
-    <!-- wow JS
-		============================================ -->
-    <script src="js/wow.min.js"></script>
-    <!-- price-slider JS
-		============================================ -->
-    <script src="js/jquery-price-slider.js"></script>
-    <!-- meanmenu JS
-		============================================ -->
-    <script src="js/jquery.meanmenu.js"></script>
-    <!-- owl.carousel JS
-		============================================ -->
-    <script src="js/owl.carousel.min.js"></script>
-    <!-- sticky JS
-		============================================ -->
-    <script src="js/jquery.sticky.js"></script>
-    <!-- scrollUp JS
-		============================================ -->
-    <script src="js/jquery.scrollUp.min.js"></script>
-    <!-- mCustomScrollbar JS
-		============================================ -->
-    <script src="js/scrollbar/jquery.mCustomScrollbar.concat.min.js"></script>
-    <script src="js/scrollbar/mCustomScrollbar-active.js"></script>
-    <!-- metisMenu JS
-		============================================ -->
-    <script src="js/metisMenu/metisMenu.min.js"></script>
-    <script src="js/metisMenu/metisMenu-active.js"></script>
-    <!-- tab JS
-		============================================ -->
-    <script src="js/tab.js"></script>
-    <!-- icheck JS
-		============================================ -->
-    <script src="js/icheck/icheck.min.js"></script>
-    <script src="js/icheck/icheck-active.js"></script>
-    <!-- plugins JS
-		============================================ -->
-    <script src="js/plugins.js"></script>
-    <!-- main JS
-		============================================ -->
-    <script src="js/main.js"></script>
-    <script src="js/backend.js"></script>
-    <!-- tawk chat JS
-		============================================ -->
-    <script src="js/tawk-chat.js"></script>
-</body>
+            </div>
+        </div>
 
+        <div class="portal-login-brand">
+            <div class="portal-login-icon">
+                <i class="fa fa-graduation-cap"></i>
+            </div>
+            <h3 data-i18n="Student & Teacher Portal">Student & Teacher Portal</h3>
+            <p data-i18n="Access your timetable, attendance & courses">Access your timetable, attendance & courses</p>
+            <div class="portal-role-badges">
+                <span class="portal-chip portal-chip-primary"><i class="fa fa-user"></i> <span data-i18n="Students">Students</span></span>
+                <span class="portal-chip portal-chip-success"><i class="fa fa-briefcase"></i> <span data-i18n="Teachers">Teachers</span></span>
+            </div>
+        </div>
+
+        <form action="#" id="backend-login-form">
+            <div class="portal-login-input-wrap">
+                <label class="portal-login-label" for="email" data-i18n="Email Address">Email Address</label>
+                <i class="fa fa-envelope-o portal-login-icon-left"></i>
+                <input type="email" placeholder="student@school.com or teacher@school.com" required name="email" id="email" class="portal-login-input" autocomplete="email">
+            </div>
+
+            <div class="portal-login-input-wrap">
+                <label class="portal-login-label" for="password" data-i18n="Password">Password</label>
+                <i class="fa fa-lock portal-login-icon-left"></i>
+                <input type="password" placeholder="••••••••" required name="password" id="password" class="portal-login-input" autocomplete="current-password">
+                <button type="button" class="portal-login-btn-toggle" onclick="toggleLoginPass()" title="Toggle visibility">
+                    <i class="fa fa-eye" id="toggle-pass-icon"></i>
+                </button>
+            </div>
+
+            <p id="backend-auth-status" style="display:none;"></p>
+
+            <button type="submit" class="portal-login-btn" id="btn-login-submit">
+                <span data-i18n="Sign In to Portal">Sign In to Portal</span>
+                <i class="fa fa-arrow-right"></i>
+            </button>
+        </form>
+
+        <div class="portal-admin-link">
+            <span data-i18n="Are you a school administrator?">Are you a school administrator?</span> <br>
+            <a href="../admin-ui/login.html"><i class="fa fa-external-link"></i> <span data-i18n="Go to Admin Portal">Go to Admin Portal</span></a>
+        </div>
+    </div>
+
+    <script src="js/vendor/jquery-1.12.4.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/i18n.js"></script>
+    <script src="js/backend.js"></script>
+
+    <script>
+        function toggleLoginPass() {
+            var passInput = document.getElementById('password');
+            var icon = document.getElementById('toggle-pass-icon');
+            if (passInput.type === 'password') {
+                passInput.type = 'text';
+                icon.className = 'fa fa-eye-slash';
+            } else {
+                passInput.type = 'password';
+                icon.className = 'fa fa-eye';
+            }
+        }
+
+        // Close language dropdown on click outside or selection
+        document.addEventListener('click', function (e) {
+            var wrap = document.getElementById('lang-wrap');
+            if (wrap && !wrap.contains(e.target)) {
+                wrap.classList.remove('open');
+            }
+        });
+    </script>
+</body>
 </html>

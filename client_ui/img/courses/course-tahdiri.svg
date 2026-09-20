@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgTahdiri" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ea580c"/>
+      <stop offset="50%" stop-color="#c2410c"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="rainbow" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ef4444"/>
+      <stop offset="25%" stop-color="#f59e0b"/>
+      <stop offset="50%" stop-color="#10b981"/>
+      <stop offset="75%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#8b5cf6"/>
+    </linearGradient>
+  </defs>
+  <rect width="600" height="400" fill="url(#bgTahdiri)"/>
+
+  <!-- Cheerful learning sun & rainbow -->
+  <g transform="translate(480, 80)">
+    <circle cx="0" cy="0" r="45" fill="#fde047" opacity="0.9"/>
+    <g stroke="#fde047" stroke-width="4" stroke-linecap="round" opacity="0.8">
+      <line x1="0" y1="-60" x2="0" y2="-75"/>
+      <line x1="42" y1="-42" x2="53" y2="-53"/>
+      <line x1="60" y1="0" x2="75" y2="0"/>
+      <line x1="42" y1="42" x2="53" y2="53"/>
+      <line x1="0" y1="60" x2="0" y2="75"/>
+      <line x1="-42" y1="42" x2="-53" y2="53"/>
+      <line x1="-60" y1="0" x2="-75" y2="0"/>
+      <line x1="-42" y1="-42" x2="-53" y2="-53"/>
+    </g>
+  </g>
+
+  <!-- Educational Blocks & Rocket / Learning elements -->
+  <g transform="translate(300, 190)">
+    <!-- Block 1: أ -->
+    <g transform="translate(-80, 20)">
+      <rect x="-35" y="-35" width="70" height="70" rx="14" fill="#3b82f6" stroke="#fff" stroke-width="3"/>
+      <text x="0" y="16" font-family="'Cairo', sans-serif" font-size="44" font-weight="900" fill="#fff" text-anchor="middle">أ</text>
+    </g>
+    <!-- Block 2: ب -->
+    <g transform="translate(0, -35)">
+      <rect x="-35" y="-35" width="70" height="70" rx="14" fill="#10b981" stroke="#fff" stroke-width="3"/>
+      <text x="0" y="14" font-family="'Cairo', sans-serif" font-size="42" font-weight="900" fill="#fff" text-anchor="middle">ب</text>
+    </g>
+    <!-- Block 3: ت -->
+    <g transform="translate(80, 20)">
+      <rect x="-35" y="-35" width="70" height="70" rx="14" fill="#ec4899" stroke="#fff" stroke-width="3"/>
+      <text x="0" y="15" font-family="'Cairo', sans-serif" font-size="42" font-weight="900" fill="#fff" text-anchor="middle">ت</text>
+    </g>
+    <!-- Star & Pencil -->
+    <polygon points="0,-95 7,-75 27,-75 11,-62 17,-42 0,-54 -17,-42 -11,-62 -27,-75 -7,-75" fill="#facc15"/>
+  </g>
+
+  <!-- Title Badge -->
+  <g transform="translate(300, 340)">
+    <rect x="-170" y="-22" width="340" height="42" rx="21" fill="rgba(15, 23, 42, 0.75)" stroke="#fb923c" stroke-width="1.5"/>
+    <text x="0" y="6" font-family="'Cairo', sans-serif" font-weight="800" font-size="20" fill="#fed7aa" text-anchor="middle">القسم التحضيري (5 - 6 سنوات)</text>
+  </g>
+</svg>
