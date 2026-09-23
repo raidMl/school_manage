@@ -145,6 +145,92 @@
         </div></div>
       </div>
 
+      <div class="sec-title" style="cursor:pointer;user-select:none;" id="toggle-password-section">
+        <i class="fa fa-lock"></i> <span data-i18n="Change Password">Change Password</span>
+        <span style="float:right;font-size:10px;font-weight:500;color:#6b7280;" data-i18n="(optional)">(optional)</span>
+        <i class="fa fa-chevron-down" id="pwd-chevron" style="float:right;margin-right:6px;font-size:10px;color:#9ca3af;transition:transform .2s;"></i>
+      </div>
+      <div id="password-change-section" style="display:none;">
+        <div style="background:#f0f9ff;border:1.5px solid #bae6fd;border-radius:10px;padding:14px 16px;margin-bottom:10px;">
+          <div class="row">
+            <div class="col-md-6"><div class="form-group" style="margin-bottom:8px;">
+              <label data-i18n="New Password">New Password</label>
+              <div class="input-group">
+                <input type="password" name="new_password" id="teacher-new-password" class="form-control" autocomplete="new-password" placeholder="••••••••">
+                <span class="input-group-btn">
+                  <button type="button" class="btn btn-default" style="height:34px;border-radius:0 8px 8px 0;border:1.5px solid #e5e7eb;border-left:none;background:#f9fafb;padding:0 10px;" onclick="(function(){var i=document.getElementById('teacher-new-password');i.type=i.type==='password'?'text':'password';})()">
+                    <i class="fa fa-eye"></i>
+                  </button>
+                </span>
+              </div>
+              <div id="pwd-strength-bar" style="height:3px;border-radius:2px;background:#e5e7eb;margin-top:5px;transition:all .3s;">
+                <div id="pwd-strength-fill" style="height:100%;width:0;border-radius:2px;background:#e5e7eb;transition:all .3s;"></div>
+              </div>
+              <small id="pwd-strength-label" style="font-size:10px;color:#6b7280;"></small>
+            </div></div>
+            <div class="col-md-6"><div class="form-group" style="margin-bottom:8px;">
+              <label data-i18n="Confirm Password">Confirm Password</label>
+              <div class="input-group">
+                <input type="password" name="confirm_password" id="teacher-confirm-password" class="form-control" autocomplete="new-password" placeholder="••••••••">
+                <span class="input-group-btn">
+                  <button type="button" class="btn btn-default" style="height:34px;border-radius:0 8px 8px 0;border:1.5px solid #e5e7eb;border-left:none;background:#f9fafb;padding:0 10px;" onclick="(function(){var i=document.getElementById('teacher-confirm-password');i.type=i.type==='password'?'text':'password';})()">
+                    <i class="fa fa-eye"></i>
+                  </button>
+                </span>
+              </div>
+              <small id="pwd-match-label" style="font-size:10px;"></small>
+            </div></div>
+          </div>
+          <small style="color:#0369a1;font-size:11px;"><i class="fa fa-info-circle"></i> <span data-i18n="Leave blank to keep the current password.">Leave blank to keep the current password.</span></small>
+        </div>
+      </div>
+      <script>
+        (function(){
+          var toggle = document.getElementById('toggle-password-section');
+          var section = document.getElementById('password-change-section');
+          var chevron = document.getElementById('pwd-chevron');
+          toggle.addEventListener('click', function(){
+            var open = section.style.display === 'block';
+            section.style.display = open ? 'none' : 'block';
+            chevron.style.transform = open ? '' : 'rotate(180deg)';
+          });
+          var newPwd = document.getElementById('teacher-new-password');
+          var confPwd = document.getElementById('teacher-confirm-password');
+          var fill = document.getElementById('pwd-strength-fill');
+          var lbl = document.getElementById('pwd-strength-label');
+          var matchLbl = document.getElementById('pwd-match-label');
+          function strength(p){
+            var s=0;
+            if(p.length>=8)s++;if(p.length>=12)s++;
+            if(/[A-Z]/.test(p))s++;if(/[0-9]/.test(p))s++;if(/[^A-Za-z0-9]/.test(p))s++;
+            return s;
+          }
+          newPwd.addEventListener('input', function(){
+            var p=this.value;
+            if(!p){fill.style.width='0';fill.style.background='#e5e7eb';lbl.textContent='';return;}
+            var s=strength(p);
+            var colors=['#ef4444','#f97316','#eab308','#22c55e','#16a34a'];
+            var _t=function(k){return (window.AppI18n&&window.AppI18n.t)?window.AppI18n.t(k):k;};
+            var labels=[_t('Very Weak'),_t('Weak'),_t('Fair'),_t('Strong'),_t('Very Strong')];
+            fill.style.width=(s/5*100)+'%';
+            fill.style.background=colors[s-1]||'#e5e7eb';
+            lbl.textContent=labels[s-1]||'';
+            lbl.style.color=colors[s-1]||'#6b7280';
+            checkMatch();
+          });
+          confPwd.addEventListener('input', checkMatch);
+          function checkMatch(){
+            var _t=function(k){return (window.AppI18n&&window.AppI18n.t)?window.AppI18n.t(k):k;};
+            if(!confPwd.value){matchLbl.textContent='';return;}
+            if(newPwd.value===confPwd.value){
+              matchLbl.textContent='✓ '+_t('Passwords match');matchLbl.style.color='#16a34a';
+            } else {
+              matchLbl.textContent='✗ '+_t('Passwords do not match');matchLbl.style.color='#ef4444';
+            }
+          }
+        })();
+      </script>
+
       <div class="sec-title"><i class="fa fa-graduation-cap"></i> <span data-i18n="Professional">Professional</span></div>
       <div class="row">
         <div class="col-md-4"><div class="form-group">

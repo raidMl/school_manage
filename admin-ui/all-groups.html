@@ -414,7 +414,31 @@
       background: #e2e8f0;
       color: #1e293b;
     }
+
+    /* ── PDF Download Button Animation ── */
+    .btn-pdf-download {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-pdf-download:hover {
+      background: #fef3c7 !important;
+      box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.2);
+      transform: scale(1.1);
+    }
+
+    .btn-pdf-download:disabled {
+      animation: pdfPulse 0.9s ease-in-out infinite;
+      cursor: wait;
+    }
+
+    @keyframes pdfPulse {
+      0%   { box-shadow: 0 0 0 0px rgba(217, 119, 6, 0.45); }
+      50%  { box-shadow: 0 0 0 6px rgba(217, 119, 6, 0.12); }
+      100% { box-shadow: 0 0 0 0px rgba(217, 119, 6, 0.0); }
+    }
   </style>
+
 
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#007bff">

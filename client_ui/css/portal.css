@@ -726,24 +726,203 @@ html[dir="rtl"] .portal-login-btn i.fa-arrow-right:before {
   content: "\f060";
 }
 
-/* Responsive */
+/* ── Responsive: Tablet & Mobile ─────────────────────────── */
 @media (max-width: 768px) {
+
+  /* Hero banner */
   .portal-hero-banner {
-    padding: 20px;
+    padding: 18px 16px;
+    border-radius: 14px;
+    margin-bottom: 16px;
+  }
+  .portal-hero-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
   }
   .portal-hero-user {
-    flex-direction: column;
-    text-align: center;
+    flex-direction: row;
+    text-align: left;
     width: 100%;
+    gap: 12px;
+    align-items: center;
+  }
+  .portal-hero-avatar-wrap {
+    width: 56px;
+    height: 56px;
+    flex-shrink: 0;
+  }
+  .portal-hero-text h2 {
+    font-size: 17px;
+    margin-bottom: 4px;
+  }
+  .portal-hero-text p {
+    font-size: 12px;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .portal-chip {
+    font-size: 11px;
+    padding: 3px 8px;
   }
   .portal-hero-actions {
     width: 100%;
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+  }
+  .portal-hero-actions .portal-btn {
+    flex: 1;
+    font-size: 12px;
+    padding: 0 10px;
+    height: 38px;
     justify-content: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
+
+  /* Stats grid: 2 columns on mobile */
+  .portal-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .portal-stat-card {
+    padding: 14px 12px;
+    gap: 10px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .portal-stat-icon-wrap {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+  }
+  .portal-stat-value {
+    font-size: 18px;
+  }
+  .portal-stat-label {
+    font-size: 11px;
+  }
+
+  /* Cards */
   .portal-card {
-    padding: 16px;
+    padding: 14px 12px;
+    border-radius: 12px;
+    margin-bottom: 14px;
   }
-  .portal-table th, .portal-table td {
+  .portal-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .portal-card-title {
+    font-size: 15px;
+  }
+
+  /* Breadcrumb */
+  .sb-breadcrumb {
+    font-size: 12px;
+    padding: 0 0 14px 0;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+
+  /* Tables: horizontal scroll */
+  .portal-table-container {
+    border-radius: 10px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .portal-table th,
+  .portal-table td {
     padding: 10px 12px;
+    font-size: 12.5px;
+    white-space: nowrap;
+  }
+
+  /* Filter bar: stack vertically */
+  .portal-filter-bar {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .portal-filter-item {
+    min-width: 100%;
+  }
+
+  /* Formation cards */
+  .formation-card-item {
+    padding: 14px;
+    border-radius: 10px;
+  }
+  .formation-card-header {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  /* Profile photo */
+  .profile-photo-preview-wrap {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 12px;
+    padding: 14px;
+  }
+
+  /* Quick actions */
+  .quick-action-card {
+    padding: 12px 14px;
+  }
+
+  /* Buttons */
+  .portal-btn {
+    height: 40px;
+    font-size: 13px;
+  }
+
+  /* Inner page padding */
+  .sb-content {
+    padding: 12px;
+  }
+}
+
+/* ── Responsive: Small Mobile (≤ 480px) ──────────────────── */
+@media (max-width: 480px) {
+
+  /* Hero: stack avatar + text vertically */
+  .portal-hero-user {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .portal-hero-text h2 {
+    font-size: 15px;
+  }
+
+  /* Hero action buttons: full width stacked */
+  .portal-hero-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .portal-hero-actions .portal-btn {
+    width: 100%;
+    flex: unset;
+  }
+
+  /* Stats: 1 column on tiny screens */
+  .portal-stats-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .portal-stat-card {
+    flex-direction: row;
+    align-items: center;
+    padding: 12px;
+  }
+
+  /* Notification dropdown width */
+  #notif-dropdown {
+    width: calc(100vw - 24px) !important;
+    right: -60px !important;
   }
 }

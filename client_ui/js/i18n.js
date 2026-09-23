@@ -222,6 +222,7 @@
     "Group / Class": "الفوج / القسم",
     "-- All Groups --": "-- جميع الأفواج --",
     "Validate Attendance": "تأكيد وتثبيت الحضور",
+    "Monthly PDF": "PDF شهري",
     "Mark Selected Present": "تحديد المختار كحاضر",
     "Mark Selected Absent": "تحديد المختار كغائب",
     "Photo": "الصورة",

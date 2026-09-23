@@ -693,16 +693,65 @@ body.sb-collapsed #app-sidebar .sb-brand {
     margin-left: 0 !important;
   }
 
-  .sb-content {
-    padding: 16px;
+  /* Override inline style="padding: 24px" on .sb-content in all pages */
+  .sb-content,
+  .sb-content[style] {
+    padding: 12px !important;
+  }
+
+  /* Override inline padded hero banners */
+  .portal-hero-banner[style] {
+    padding: 18px 14px !important;
   }
 
   .sb-topbar {
-    padding: 0 16px;
+    padding: 0 12px;
+    gap: 8px;
   }
 
+  /* Hide user name text on mobile to save space */
   .topbar-user-name {
     display: none;
+  }
+
+  /* Topbar right: compact gap */
+  .sb-topbar-right {
+    gap: 4px;
+  }
+
+  /* Notification dropdown: keep it on screen */
+  #notif-dropdown {
+    width: calc(100vw - 24px) !important;
+    right: -50px !important;
+    left: auto !important;
+  }
+
+  /* Lang dropdown: avoid going off screen on mobile */
+  .lang-dropdown {
+    right: 0;
+  }
+
+  /* Lang button: compact */
+  .lang-btn {
+    padding: 0 10px;
+    font-size: 12px;
+    height: 32px;
+  }
+
+  /* Page title: allow shrinking */
+  .sb-topbar-title {
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+  }
+
+  /* Topbar icon buttons: slightly smaller */
+  .topbar-icon-btn {
+    width: 34px;
+    height: 34px;
+    font-size: 15px;
   }
 }
 
@@ -751,4 +800,33 @@ body.sb-collapsed #app-sidebar .sb-brand {
 
 .mobile-menu-area {
   display: none !important;
+}
+
+/* ── RTL mobile fixes ─────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* In RTL, sidebar slides in from the right */
+  html[dir="rtl"] #app-sidebar {
+    left: auto;
+    right: 0;
+    transform: translateX(100%);
+  }
+  html[dir="rtl"] body.sb-open #app-sidebar {
+    transform: translateX(0);
+  }
+  html[dir="rtl"] body.sb-collapsed #app-sidebar {
+    transform: translateX(100%);
+  }
+
+  /* RTL: notification dropdown stays on-screen */
+  html[dir="rtl"] #notif-dropdown {
+    right: auto !important;
+    left: -50px !important;
+    width: calc(100vw - 24px) !important;
+  }
+
+  /* RTL: lang dropdown opens to the right */
+  html[dir="rtl"] .lang-dropdown {
+    right: auto !important;
+    left: 0 !important;
+  }
 }

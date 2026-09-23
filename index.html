@@ -46,14 +46,15 @@
                id="nav-school-logo"
                onerror="this.onerror=null; this.src='client_ui/img/logo/elridwan-logo.svg'">
         </div>
+        <!-- Hidden on small screens via CSS -->
         <div class="logo-brand-text">
           <h1 data-i18n="school_name">مدرسة الرضوان لعلوم القرآن</h1>
           <span data-i18n="school_tagline">قجال - ولاية سطيف</span>
         </div>
       </a>
 
-      <!-- Navigation Menu -->
-      <nav>
+      <!-- Desktop Navigation Menu -->
+      <nav class="desktop-nav">
         <ul class="nav-menu" id="nav-menu">
           <li><a href="#home" class="nav-link active" data-i18n="nav_home">الرئيسية</a></li>
           <li><a href="#formations" class="nav-link" data-i18n="nav_formations">تكويناتنا وبرامجنا</a></li>
@@ -64,27 +65,75 @@
         </ul>
       </nav>
 
-      <!-- Header Actions: Language Switcher & Client Portal Login Button -->
-      <div class="header-actions">
-        <!-- Language Switcher -->
+      <!-- Desktop Header Actions -->
+      <div class="header-actions desktop-actions">
+        <!-- Language Switcher (desktop only) -->
         <button id="btn-lang-toggle" class="btn-lang" type="button" aria-label="Toggle Language">
           <i class="fa fa-globe"></i>
           <span id="lang-switch-text">English</span>
         </button>
 
-        <!-- Login in top: Leads strictly to client_ui, Admin UI remains private -->
+        <!-- Portal Login (desktop only) -->
         <a href="client_ui/index.html" class="btn-portal-login" id="btn-portal-login" title="دخول فضاء التلميذ والأستاذ">
           <i class="fa fa-graduation-cap"></i>
           <span data-i18n="login_portal_btn">فضاء التلميذ والأستاذ</span>
         </a>
-
-        <!-- Mobile Menu Toggle Button -->
-        <button class="mobile-toggle" id="mobile-menu-btn" type="button" aria-label="Open Menu">
-          <i class="fa fa-bars"></i>
-        </button>
       </div>
+
+      <!-- Mobile Hamburger Button (mobile only) -->
+      <button class="mobile-toggle" id="mobile-menu-btn" type="button" aria-label="Open Menu" aria-expanded="false">
+        <i class="fa fa-bars" id="mobile-menu-icon"></i>
+      </button>
     </div>
   </header>
+
+  <!-- Mobile Drawer Overlay -->
+  <div class="drawer-overlay" id="drawer-overlay" aria-hidden="true"></div>
+
+  <!-- Mobile Slide-in Drawer -->
+  <aside class="mobile-drawer" id="mobile-drawer" role="dialog" aria-modal="true" aria-label="القائمة">
+    <!-- Drawer Header -->
+    <div class="drawer-header">
+      <a href="#home" class="drawer-logo" onclick="closeDrawer()">
+        <img src="https://res.cloudinary.com/p0mhhcjg/image/upload/v1788176562/school_management/bgqqlyiwkzs7ja5zuxpt.png"
+             alt="شعار مدرسة الرضوان"
+             onerror="this.onerror=null; this.src='client_ui/img/logo/elridwan-logo.svg'">
+        <div>
+          <strong data-i18n="school_name">مدرسة الرضوان</strong>
+          <small data-i18n="school_tagline">قجال - ولاية سطيف</small>
+        </div>
+      </a>
+      <button class="drawer-close" id="drawer-close-btn" type="button" aria-label="Close Menu">
+        <i class="fa fa-times"></i>
+      </button>
+    </div>
+
+    <!-- Drawer Nav Links -->
+    <nav class="drawer-nav">
+      <ul>
+        <li><a href="#home" class="drawer-link active" data-i18n="nav_home"><i class="fa fa-home"></i> الرئيسية</a></li>
+        <li><a href="#formations" class="drawer-link" data-i18n="nav_formations"><i class="fa fa-book"></i> تكويناتنا وبرامجنا</a></li>
+        <li><a href="#statistics" class="drawer-link" data-i18n="nav_stats"><i class="fa fa-bar-chart"></i> إحصائياتنا</a></li>
+        <li><a href="#features" class="drawer-link" data-i18n="nav_features"><i class="fa fa-star"></i> مميزاتنا</a></li>
+        <li><a href="#order-system" class="drawer-link drawer-link-highlight" data-i18n="nav_order_system"><i class="fa fa-rocket"></i> طلب النظام 🚀</a></li>
+        <li><a href="#contact" class="drawer-link" data-i18n="nav_contact"><i class="fa fa-envelope"></i> اتصل بنا</a></li>
+      </ul>
+    </nav>
+
+    <!-- Drawer Footer Actions -->
+    <div class="drawer-footer">
+      <!-- Portal Login in Drawer -->
+      <a href="client_ui/index.html" class="drawer-portal-btn" title="دخول فضاء التلميذ والأستاذ">
+        <i class="fa fa-graduation-cap"></i>
+        <span data-i18n="login_portal_btn">فضاء التلميذ والأستاذ</span>
+      </a>
+      <!-- Language Switcher in Drawer -->
+      <button id="btn-lang-toggle-mobile" class="btn-lang drawer-lang-btn" type="button" aria-label="Toggle Language">
+        <i class="fa fa-globe"></i>
+        <span id="lang-switch-text-mobile">English</span>
+      </button>
+    </div>
+  </aside>
 
   <!-- ========================================================================
        Hero Section

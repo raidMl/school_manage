@@ -234,6 +234,77 @@ router.post('/scan', async (req, res, next) => {
     }
 });
 
+// GET /api/attendance/monthly
+// Fetch all daily attendance for a group for a full month (year + month)
+router.get('/monthly', requireAuth, async (req, res, next) => {
+    try {
+        const { group_id, year, month } = req.query;
+        if (!group_id || !year || !month) {
+            return res.status(400).json({ message: 'group_id, year, and month are required' });
+        }
+
+        const schoolId = await getSchoolId(req.auth.userId);
+        const y = parseInt(year, 10);
+        const m = parseInt(month, 10);
+        const daysInMonth = new Date(y, m, 0).getDate();
+
+        // YYYY-MM-01 to YYYY-MM-DD
+        const dateFrom = `${y}-${String(m).padStart(2,'0')}-01`;
+        const dateTo   = `${y}-${String(m).padStart(2,'0')}-${String(daysInMonth).padStart(2,'0')}`;
+
+        // Get all students in the group with their monthly attendance
+        const students = await query(`
+            SELECT s.id, u.first_name, u.last_name, s.registration_number, u.gender
+            FROM student_groups sg
+            JOIN students s ON sg.student_id = s.id
+            JOIN users u ON s.user_id = u.id
+            WHERE sg.group_id = ? AND u.is_active = 1 AND s.school_id = ?
+            ORDER BY u.last_name, u.first_name
+        `, [group_id, schoolId]);
+
+        if (students.length === 0) {
+            return res.json({ students: [], days: daysInMonth });
+        }
+
+        // Fetch attendance records for the whole month for these students
+        const studentIds = students.map(s => s.id);
+        const placeholders = studentIds.map(() => '?').join(',');
+        const records = await query(`
+            SELECT user_id, date, status
+            FROM attendance
+            WHERE user_type = 'student'
+              AND group_id = ?
+              AND date BETWEEN ? AND ?
+              AND user_id IN (${placeholders})
+        `, [group_id, dateFrom, dateTo, ...studentIds]);
+
+        // Build a lookup map: { studentId -> { day -> status } }
+        const lookup = {};
+        for (const rec of records) {
+            const sid = rec.user_id;
+            const day = new Date(rec.date).getDate();
+            if (!lookup[sid]) lookup[sid] = {};
+            lookup[sid][day] = rec.status;
+        }
+
+        // Attach daily array to each student
+        const result = students.map(s => ({
+            id: s.id,
+            name: [(s.last_name || '').trim(), (s.first_name || '').trim()].filter(Boolean).join(' '),
+            registration_number: s.registration_number,
+            gender: s.gender,
+            days: Array.from({ length: daysInMonth }, function(_, i) {
+                var d = i + 1;
+                return (lookup[s.id] && lookup[s.id][d]) ? lookup[s.id][d] : 'pending';
+            })
+        }));
+
+        res.json({ students: result, days: daysInMonth, year: y, month: m });
+    } catch (err) {
+        next(err);
+    }
+});
+
 // POST /api/attendance/validate
 // Admin validates the attendance for a group and date
 router.post('/validate', async (req, res, next) => {

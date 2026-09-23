@@ -365,7 +365,7 @@
 
     var dateInput = document.getElementById('attendance-filter-date');
     var todayStr = new Date().toISOString().split('T')[0];
-    if (dateInput) { dateInput.value = todayStr; }
+    if (dateInput) { dateInput.value = todayStr; dateInput.max = todayStr; } // Prevent future dates
 
     var btnValidate = document.getElementById('btn-validate-attendance');
     if (btnValidate) {
@@ -386,6 +386,19 @@
                 btnValidate.disabled = false;
             });
         });
+    }
+
+    // Monthly PDF button logic
+    var btnMonthlyPdf = document.getElementById('btn-monthly-attendance-pdf');
+    if (btnMonthlyPdf) {
+      btnMonthlyPdf.addEventListener('click', function() {
+        var gId = document.getElementById('attendance-filter-group').value;
+        var dateVal = document.getElementById('attendance-filter-date').value || new Date().toISOString().split('T')[0];
+        var isArBtn = (window.AppI18n && typeof window.AppI18n.getLang === 'function' && window.AppI18n.getLang() === 'ar') || (typeof currentLang !== 'undefined' && currentLang === 'ar');
+        if (!gId) { alert(isArBtn ? 'يرجى اختيار فوج محدد أولاً.' : 'Please select a specific group first.'); return; }
+        var parts = dateVal.split('-');
+        downloadMonthlyAttendancePdf(gId, parseInt(parts[0], 10), parseInt(parts[1], 10));
+      });
     }
 
     populateAttendanceGroups();
@@ -486,6 +499,185 @@
     });
   }
 
+
+  function downloadMonthlyAttendancePdf(groupId, year, month) {
+    var jsPDFLib = window.jspdf && window.jspdf.jsPDF ? window.jspdf.jsPDF : (window.jsPDF || null);
+    if (!jsPDFLib || typeof html2canvas === 'undefined') {
+      alert('PDF libraries not loaded yet. Please wait a moment and try again.');
+      return;
+    }
+    var btnPdf = document.getElementById('btn-monthly-attendance-pdf');
+    var origHtml = btnPdf ? btnPdf.innerHTML : '';
+    if (btnPdf) { btnPdf.innerHTML = '<i class="fa fa-spinner fa-spin"></i> جاري التجهيز...'; btnPdf.disabled = true; }
+    function restore() { if (btnPdf) { btnPdf.innerHTML = origHtml; btnPdf.disabled = false; } }
+
+    var ARABIC_MONTHS = ['','جانفي','فيفري','مارس','أفريل','ماي','جوان','جويلية','أوت','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+    var ARABIC_DAYS   = ['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+    var STATUS_LETTER = { present: 'ح', absent: 'غ', pending: 'م' };
+    var STATUS_COLOR  = { present: '#bbf7d0', absent: '#fca5a5', pending: '#fef08a' };
+
+    Promise.all([
+      request('/api/school-setup/settings'),
+      request('/api/groups/' + groupId),
+      request('/api/attendance/monthly?group_id=' + groupId + '&year=' + year + '&month=' + month)
+    ]).then(function(results) {
+      var school    = (results[0] && results[0].school) ? results[0].school : {};
+      var group     = results[1].data || {};
+      var monthData = results[2];
+      var students  = monthData.students || [];
+      var daysInMonth = monthData.days || new Date(year, month, 0).getDate();
+
+      var dayCols = [];
+      for (var d = 1; d <= daysInMonth; d++) {
+        var dObj = new Date(year, month - 1, d);
+        dayCols.push({ day: d, dayName: ARABIC_DAYS[dObj.getDay()], isFriday: dObj.getDay() === 5 });
+      }
+      var pageSize = 20, pages = [];
+      for (var i = 0; i < Math.max(students.length, 1); i += pageSize) {
+        pages.push({ students: students.slice(i, i + pageSize), startIndex: i });
+      }
+
+      var defaultLogo1 = 'https://res.cloudinary.com/p0mhhcjg/image/upload/v1788176562/school_management/bgqqlyiwkzs7ja5zuxpt.png';
+      var defaultLogo2 = 'https://res.cloudinary.com/p0mhhcjg/image/upload/v1788176568/school_management/hxldtqlgokkrrgasqov8.png';
+
+      function imgToB64(url) {
+        return new Promise(function(resolve) {
+          if (!url) { resolve(''); return; }
+          var done = false;
+          function finish(v) { if (!done) { done = true; resolve(v || ''); } }
+          var t = setTimeout(function() { finish(''); }, 3500);
+          fetch(url, { mode: 'cors' })
+            .then(function(r) { if (!r.ok) throw new Error(); return r.blob(); })
+            .then(function(blob) {
+              var fr = new FileReader();
+              fr.onloadend = function() { clearTimeout(t); finish(fr.result); };
+              fr.onerror   = function() { clearTimeout(t); finish(''); };
+              fr.readAsDataURL(blob);
+            }).catch(function() { clearTimeout(t); finish(''); });
+        });
+      }
+
+      Promise.all([imgToB64(school.logo || defaultLogo1), imgToB64(school.logo2 || defaultLogo2)]).then(function(logos) {
+        var logo1B64 = logos[0] || defaultLogo1;
+        var logo2B64 = logos[1] || defaultLogo2;
+
+        var container = document.getElementById('attendance-pdf-export-container');
+        if (!container) {
+          container = document.createElement('div');
+          container.id = 'attendance-pdf-export-container';
+          container.style.cssText = 'position:fixed;left:-9999px;top:0;z-index:-1;background:#fff;';
+          document.body.appendChild(container);
+        }
+
+        var doc = new jsPDFLib({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+        var pageW = 297, pageH = 210, pageIndex = 0;
+
+        function buildPageHtml(pgCtx) {
+          var pgStudents = pgCtx.students, startIdx = pgCtx.startIndex;
+          var schoolName = school.name || 'مدرسة الريان لعلوم القرآن';
+          var assocName  = 'جمعية العلماء المسلمين الجزائريين - شعبة حي قجال';
+          var schoolAddr = [school.municipality, school.district, school.state].filter(Boolean).join(' - ') || school.address || '';
+          var monthLabel = ARABIC_MONTHS[month] + ' ' + year;
+          var l1 = logo1B64 ? '<img src="' + logo1B64 + '" style="width:60px;height:60px;object-fit:contain;">' : '<div style="width:60px;height:60px;"></div>';
+          var l2 = logo2B64 ? '<img src="' + logo2B64 + '" style="width:60px;height:60px;object-fit:contain;">' : '<div style="width:60px;height:60px;"></div>';
+
+          var dayNameCols = dayCols.map(function(col) {
+            var bg = col.isFriday ? '#fef9c3' : '#fff';
+            return '<th style="border:1px solid #000;width:20px;height:48px;padding:0;background:' + bg + ';text-align:center;vertical-align:middle;"><div style="display:flex;align-items:center;justify-content:center;width:20px;height:48px;"><span style="display:inline-block;transform:rotate(-90deg);white-space:nowrap;font-size:8px;font-weight:700;">' + col.dayName + '</span></div></th>';
+          }).join('');
+
+          var dayNumCols = dayCols.map(function(col) {
+            var bg = col.isFriday ? '#fef9c3' : '#f8fafc';
+            return '<th style="border:1px solid #000;width:20px;padding:0;text-align:center;vertical-align:middle;background:' + bg + ';font-size:9px;font-weight:700;">' + col.day + '</th>';
+          }).join('');
+
+          var displayStudents = pgStudents.slice();
+          if (startIdx === 0 && displayStudents.length < 15) { while (displayStudents.length < 15) displayStudents.push(null); }
+
+          var studentRows = displayStudents.map(function(st, idx) {
+            var num = startIdx + idx + 1;
+            var nameCell = st ? esc(st.name) : '';
+            var dayCells = dayCols.map(function(col, di) {
+              var status = (st && st.days && st.days[di] !== undefined) ? st.days[di] : (st ? 'pending' : '');
+              var letter = status ? (STATUS_LETTER[status] || '') : '';
+              var bg     = status ? (STATUS_COLOR[status] || '#fff') : '#fff';
+              return '<td style="border:1px solid #000;padding:0;text-align:center;vertical-align:middle;background:' + bg + ';font-size:11px;font-weight:700;color:#000;">' + letter + '</td>';
+            }).join('');
+            return '<tr style="height:22px;"><td style="border:1px solid #000;text-align:center;font-size:11px;font-weight:700;padding:0;">' + num + '</td><td style="border:1px solid #000;text-align:right;font-size:11px;font-weight:700;padding:2px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + nameCell + '</td>' + dayCells + '</tr>';
+          }).join('');
+
+          return '<div class="attendance-pdf-page" style="width:1122px;min-height:790px;background:#fff;padding:12px 14px;box-sizing:border-box;font-family:\'Cairo\',\'Tahoma\',\'Arial\',sans-serif;direction:rtl;color:#000;">' +
+            '<style>.attendance-pdf-page,.attendance-pdf-page *{font-family:"Cairo","Tahoma","Arial",sans-serif!important;}</style>' +
+            '<div style="border:1.5px solid #000;padding:10px 12px;box-sizing:border-box;min-height:766px;display:flex;flex-direction:column;justify-content:space-between;">' +
+              '<div>' +
+                '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;">' +
+                  '<div style="flex:0 0 68px;">' + l2 + '</div>' +
+                  '<div style="flex:1;text-align:center;line-height:1.5;">' +
+                    '<div style="font-size:13px;font-weight:700;">' + assocName + '</div>' +
+                    '<div style="font-size:14px;font-weight:700;">' + schoolName + '</div>' +
+                    (schoolAddr ? '<div style="font-size:11px;font-weight:600;"><b>العنوان:</b> ' + esc(schoolAddr) + '</div>' : '') +
+                  '</div>' +
+                  '<div style="flex:0 0 68px;">' + l1 + '</div>' +
+                '</div>' +
+                '<div style="border:1.5px solid #475569;border-radius:10px;background:#cbd5e1;text-align:center;padding:3px 0;font-size:14px;font-weight:700;margin-bottom:6px;">جدول الحضور والغياب الشهري &mdash; ' + monthLabel + '</div>' +
+                '<div style="border:1px solid #64748b;border-radius:4px;padding:5px 12px;margin-bottom:6px;font-size:11.5px;font-weight:600;display:flex;justify-content:space-between;">' +
+                  '<span><b>الفوج:</b> ' + esc(group.name || '-') + '</span>' +
+                  '<span><b>المعلم(ة):</b> ' + esc(group.teacher_name || '-') + '</span>' +
+                  '<span><b>القسم:</b> ' + esc(group.classroom_name || '-') + '</span>' +
+                  '<span><b>العدد الكلي:</b> ' + students.length + '</span>' +
+                '</div>' +
+                '<div style="overflow:hidden;"><table style="width:100%;border-collapse:collapse;table-layout:fixed;">' +
+                  '<thead><tr>' +
+                    '<th rowspan="2" style="border:1px solid #000;width:28px;padding:0;text-align:center;vertical-align:middle;background:#fff;"><span style="display:inline-block;transform:rotate(-90deg);white-space:nowrap;font-size:9px;font-weight:700;">الرقم</span></th>' +
+                    '<th rowspan="2" style="border:1px solid #000;width:130px;padding:0 4px;text-align:center;vertical-align:middle;background:#fff;font-size:11px;font-weight:700;">اللقب والاسم</th>' +
+                    dayNameCols +
+                  '</tr><tr>' + dayNumCols + '</tr></thead>' +
+                  '<tbody>' + studentRows + '</tbody>' +
+                '</table></div>' +
+              '</div>' +
+              '<div style="border:1.5px solid #000;display:flex;align-items:center;justify-content:space-between;padding:3px 10px;margin-top:6px;font-size:11px;font-weight:700;">' +
+                '<div style="display:flex;align-items:center;gap:16px;">' +
+                  '<div style="display:flex;align-items:center;gap:5px;"><span style="background:#fef08a;border:1px solid #000;padding:1px 6px;border-radius:2px;font-weight:700;">م</span><span>معلّق / غير مسجّل</span></div>' +
+                  '<div style="display:flex;align-items:center;gap:5px;"><span style="background:#fca5a5;border:1px solid #000;padding:1px 6px;border-radius:2px;font-weight:700;">غ</span><span>غائب(ة)</span></div>' +
+                  '<div style="display:flex;align-items:center;gap:5px;"><span style="background:#bbf7d0;border:1px solid #000;padding:1px 6px;border-radius:2px;font-weight:700;">ح</span><span>حاضر(ة)</span></div>' +
+                '</div>' +
+                '<div style="border:1px solid #000;display:flex;"><div style="padding:2px 10px;border-right:1px solid #000;">' + students.length + '</div><div style="padding:2px 10px;">العدد</div></div>' +
+              '</div>' +
+            '</div></div>';
+        }
+
+        function renderPage(pIdx) {
+          if (pIdx >= pages.length) {
+            container.innerHTML = '';
+            restore();
+            var gName = (group.name || 'فوج').replace(/[\s\/\\]+/g, '-');
+            doc.save('حضور-شهري-' + gName + '-' + year + '-' + String(month).padStart(2,'0') + '.pdf');
+            return;
+          }
+          container.innerHTML = buildPageHtml(pages[pIdx]);
+          var pageEl = container.querySelector('.attendance-pdf-page');
+          if (!pageEl) { renderPage(pIdx + 1); return; }
+          var doCapture = function() {
+            html2canvas(pageEl, { scale: 2, useCORS: true, allowTaint: false, backgroundColor: '#ffffff', logging: false })
+              .then(function(canvas) {
+                if (pageIndex > 0) doc.addPage();
+                var imgData = canvas.toDataURL('image/jpeg', 0.95);
+                var cW = canvas.width / 2, cH = canvas.height / 2;
+                var ratio = Math.min(pageW / cW, pageH / cH);
+                doc.addImage(imgData, 'JPEG', (pageW - cW*ratio)/2, (pageH - cH*ratio)/2, cW*ratio, cH*ratio);
+                pageIndex++;
+                renderPage(pIdx + 1);
+              }).catch(function() { renderPage(pIdx + 1); });
+          };
+          if (document.fonts && document.fonts.ready) { document.fonts.ready.then(function() { setTimeout(doCapture, 150); }); }
+          else { setTimeout(doCapture, 300); }
+        }
+        renderPage(0);
+      });
+    }).catch(function(err) { restore(); alert('خطأ في تحميل البيانات: ' + (err.message || err)); });
+  }
+
+
   function populateAttendanceGroups() {
     var groupSel = document.getElementById('attendance-filter-group');
     if (!groupSel) return;
@@ -533,17 +725,21 @@
               return;
           }
           var todayStr = new Date().toISOString().split('T')[0];
-          var isLocked = res.is_validated || date !== todayStr;
+          var isLocked = res.is_validated; // Only validated records are locked; past dates remain editable
           var btnValidate = document.getElementById('btn-validate-attendance');
           if (btnValidate) { btnValidate.style.display = 'none'; }
+          var btnMonthlyPdf2 = document.getElementById('btn-monthly-attendance-pdf');
+          if (btnMonthlyPdf2) { btnMonthlyPdf2.style.display = (type === 'student' && groupId) ? 'block' : 'none'; }
           var statusAlert = document.getElementById('attendance-status');
           if (res.is_validated) {
               statusAlert.className = 'alert alert-info';
-              statusAlert.innerHTML = '<i class="fa fa-lock"></i> This attendance record has been validated and cannot be changed.';
+              var isArAlertLocked = (window.AppI18n && typeof window.AppI18n.getLang === 'function' && window.AppI18n.getLang() === 'ar') || (typeof currentLang !== 'undefined' && currentLang === 'ar');
+              statusAlert.innerHTML = '<i class="fa fa-lock"></i> ' + (isArAlertLocked ? 'تم تأكيد سجل الحضور هذا ولا يمكن تعديله.' : 'This attendance record has been validated and cannot be changed.');
               statusAlert.style.display = 'block';
           } else if (date !== todayStr) {
-              statusAlert.className = 'alert alert-warning';
-              statusAlert.innerHTML = '<i class="fa fa-info-circle"></i> You are viewing a past record. Edits are disabled.';
+              statusAlert.className = 'alert alert-success';
+              var isArAlert = (window.AppI18n && typeof window.AppI18n.getLang === 'function' && window.AppI18n.getLang() === 'ar') || (typeof currentLang !== 'undefined' && currentLang === 'ar');
+              statusAlert.innerHTML = '<i class="fa fa-pencil"></i> ' + (isArAlert ? ('أنت تقوم بتعديل سجل سابق (' + date + '). سيتم حفظ التغييرات.') : ('You are editing a past record (' + date + '). Changes will be saved.'));
               statusAlert.style.display = 'block';
           } else {
               statusAlert.style.display = 'none';
@@ -556,8 +752,12 @@
               var img = '<img src="' + esc(avatarUrl(r.photo, name, type)) + '" style="width:36px;height:36px;border-radius:50%;object-fit:cover">';
               var isPresent = r.status === 'present';
               var isPending = r.status === 'pending' || r.status === null;
+              var _isAr = currentLang === 'ar' || (window.AppI18n && typeof window.AppI18n.getLang === 'function' && window.AppI18n.getLang() === 'ar');
+              var _lblPresent = _isAr ? 'حاضر' : 'Present';
+              var _lblAbsent  = _isAr ? 'غائب'  : 'Absent';
+              var _lblPending = _isAr ? 'معلّق' : 'Pending';
               var btnClass = isPresent ? 'status-present' : (isPending ? 'btn-default' : 'status-absent');
-              var btnText = isPresent ? '<i class="fa fa-check"></i> Present' : (isPending ? '<i class="fa fa-clock-o"></i> Pending' : '<i class="fa fa-times"></i> Absent');
+              var btnText = isPresent ? '<i class="fa fa-check"></i> ' + _lblPresent : (isPending ? '<i class="fa fa-clock-o"></i> ' + _lblPending : '<i class="fa fa-times"></i> ' + _lblAbsent);
               var disabledAttr = isLocked ? ' disabled style="opacity:0.6;cursor:not-allowed;"' : '';
               var cbDisabled = isLocked ? ' disabled' : '';
               return '<tr>' +
@@ -598,8 +798,9 @@
       }).then(function() {
           btn.disabled = false;
           btn.setAttribute('data-current-status', newStatus);
-          if (newStatus === 'present') { btn.className = 'status-toggle status-present'; btn.innerHTML = '<i class="fa fa-check"></i> Present'; }
-          else { btn.className = 'status-toggle status-absent'; btn.innerHTML = '<i class="fa fa-times"></i> Absent'; }
+          var _isArT = currentLang === 'ar' || (window.AppI18n && typeof window.AppI18n.getLang === 'function' && window.AppI18n.getLang() === 'ar');
+          if (newStatus === 'present') { btn.className = 'status-toggle status-present'; btn.innerHTML = '<i class="fa fa-check"></i> ' + (_isArT ? 'حاضر' : 'Present'); }
+          else { btn.className = 'status-toggle status-absent'; btn.innerHTML = '<i class="fa fa-times"></i> ' + (_isArT ? 'غائب' : 'Absent'); }
       }).catch(function(err) { btn.disabled = false; alert('Failed to update attendance: ' + err.message); });
   }
 

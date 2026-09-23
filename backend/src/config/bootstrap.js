@@ -150,6 +150,172 @@ async function bootstrapDatabase() {
       await safeAlter(connection, `ALTER TABLE contact_infos ADD COLUMN youtube VARCHAR(255) NULL`);
       await safeAlter(connection, `ALTER TABLE contact_infos ADD COLUMN instagram VARCHAR(255) NULL`);
 
+      // schools extended fields
+      await safeAlter(connection, `ALTER TABLE schools ADD COLUMN logo2 VARCHAR(255) NULL AFTER logo`);
+      await safeAlter(connection, `ALTER TABLE schools ADD COLUMN type VARCHAR(100) NULL`);
+      await safeAlter(connection, `ALTER TABLE schools ADD COLUMN phone_landline VARCHAR(30) NULL`);
+      await safeAlter(connection, `ALTER TABLE schools ADD COLUMN phone_1 VARCHAR(30) NULL`);
+      await safeAlter(connection, `ALTER TABLE schools ADD COLUMN phone_2 VARCHAR(30) NULL`);
+      await safeAlter(connection, `ALTER TABLE schools ADD COLUMN email VARCHAR(191) NULL`);
+      await safeAlter(connection, `ALTER TABLE schools ADD COLUMN fax VARCHAR(30) NULL`);
+      await safeAlter(connection, `ALTER TABLE schools ADD COLUMN state VARCHAR(100) NULL`);
+      await safeAlter(connection, `ALTER TABLE schools ADD COLUMN district VARCHAR(100) NULL`);
+      await safeAlter(connection, `ALTER TABLE schools ADD COLUMN municipality VARCHAR(100) NULL`);
+      await safeAlter(connection, `ALTER TABLE schools ADD COLUMN postal_code VARCHAR(20) NULL`);
+      await safeAlter(connection, `ALTER TABLE schools ADD COLUMN po_box VARCHAR(20) NULL`);
+      await safeAlter(connection, `ALTER TABLE schools ADD COLUMN address TEXT NULL`);
+
+      // teachers payment / RFID fields
+      await safeAlter(connection, `ALTER TABLE teachers ADD COLUMN monthly_salary DECIMAL(10,2) NULL`);
+      await safeAlter(connection, `ALTER TABLE teachers ADD COLUMN ccp_rib VARCHAR(100) NULL`);
+      await safeAlter(connection, `ALTER TABLE teachers ADD COLUMN preferred_pay_method ENUM('cash','ccp') DEFAULT 'cash'`);
+      await safeAlter(connection, `ALTER TABLE teachers ADD COLUMN rfid_tag VARCHAR(100) NULL`);
+
+      // students RFID field
+      await safeAlter(connection, `ALTER TABLE students ADD COLUMN rfid_tag VARCHAR(100) NULL`);
+
+      // attendance columns
+      await safeAlter(connection, `ALTER TABLE attendance ADD COLUMN subject_name VARCHAR(255) NOT NULL DEFAULT '' AFTER group_id`);
+      await safeAlter(connection, `ALTER TABLE attendance ADD COLUMN scan_time TIME NULL`);
+
+      // attendance_validations table + columns
+      await safeAlter(connection, `CREATE TABLE IF NOT EXISTS attendance_validations (
+        id           BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        group_id     BIGINT UNSIGNED NOT NULL,
+        date         DATE            NOT NULL,
+        subject_name VARCHAR(255)    NOT NULL DEFAULT '',
+        validated_by BIGINT UNSIGNED NULL,
+        created_at   TIMESTAMP       DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE KEY idx_val_unique (group_id, date, subject_name)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
+      await safeAlter(connection, `ALTER TABLE attendance_validations ADD COLUMN subject_name VARCHAR(255) NOT NULL DEFAULT ''`);
+      await safeAlter(connection, `ALTER TABLE attendance_validations ADD COLUMN validated_by BIGINT UNSIGNED NULL`);
+
+      // weekly program tables
+      await safeAlter(connection, `CREATE TABLE IF NOT EXISTS weekly_programs (
+        id          BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        school_id   BIGINT UNSIGNED NOT NULL,
+        name        VARCHAR(255)    NOT NULL,
+        description TEXT            NULL,
+        status      ENUM('active','disabled') NOT NULL DEFAULT 'disabled',
+        created_at  TIMESTAMP       DEFAULT CURRENT_TIMESTAMP,
+        updated_at  TIMESTAMP       DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        CONSTRAINT fk_wp_school FOREIGN KEY (school_id) REFERENCES schools(id) ON DELETE CASCADE
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
+      await safeAlter(connection, `CREATE TABLE IF NOT EXISTS weekly_time_slots (
+        id          BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        program_id  BIGINT UNSIGNED NOT NULL,
+        label       VARCHAR(50)     NOT NULL,
+        start_time  TIME            NOT NULL,
+        end_time    TIME            NOT NULL,
+        sort_order  INT             NOT NULL DEFAULT 0,
+        CONSTRAINT fk_wts_program FOREIGN KEY (program_id) REFERENCES weekly_programs(id) ON DELETE CASCADE
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
+      await safeAlter(connection, `CREATE TABLE IF NOT EXISTS weekly_schedule_entries (
+        id           BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        slot_id      BIGINT UNSIGNED NOT NULL,
+        day_of_week  TINYINT         NOT NULL,
+        group_id     BIGINT UNSIGNED NOT NULL,
+        subject_name VARCHAR(255)    NOT NULL,
+        color        VARCHAR(20)     NOT NULL DEFAULT '#4f6eff',
+        classroom_id BIGINT UNSIGNED NULL,
+        CONSTRAINT fk_wse_slot  FOREIGN KEY (slot_id)  REFERENCES weekly_time_slots(id) ON DELETE CASCADE,
+        CONSTRAINT fk_wse_group FOREIGN KEY (group_id) REFERENCES \`groups\`(id)         ON DELETE CASCADE
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
+      await safeAlter(connection, `ALTER TABLE weekly_schedule_entries ADD COLUMN classroom_id BIGINT UNSIGNED NULL`);
+
+      // treasury_transactions table
+      await safeAlter(connection, `CREATE TABLE IF NOT EXISTS treasury_transactions (
+        id               BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        school_id        BIGINT UNSIGNED NOT NULL,
+        type             ENUM('income','expense') NOT NULL,
+        category         VARCHAR(100)    NULL,
+        amount           DECIMAL(10,2)   NOT NULL,
+        transaction_date DATE            NOT NULL,
+        notes            TEXT            NULL,
+        person_name      VARCHAR(255)    NULL,
+        recorded_by      BIGINT UNSIGNED NULL,
+        created_at       TIMESTAMP       DEFAULT CURRENT_TIMESTAMP
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
+
+      // teacher_payments table
+      await safeAlter(connection, `CREATE TABLE IF NOT EXISTS teacher_payments (
+        id              INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        school_id       INT UNSIGNED NOT NULL,
+        teacher_id      INT UNSIGNED NOT NULL,
+        amount          DECIMAL(10,2) NOT NULL,
+        pay_month       TINYINT       NOT NULL,
+        pay_year        YEAR          NOT NULL,
+        payment_date    DATE          NOT NULL,
+        method          ENUM('cash','ccp') DEFAULT 'cash',
+        notes           TEXT          NULL,
+        treasury_tx_id  INT UNSIGNED  NULL,
+        recorded_by     INT UNSIGNED  NULL,
+        created_at      TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE KEY uq_teacher_month (teacher_id, pay_month, pay_year)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
+
+      // notifications table
+      await safeAlter(connection, `CREATE TABLE IF NOT EXISTS notifications (
+        id         BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        user_id    BIGINT UNSIGNED NOT NULL,
+        message    TEXT            NOT NULL,
+        is_read    TINYINT(1)      NOT NULL DEFAULT 0,
+        created_at TIMESTAMP       DEFAULT CURRENT_TIMESTAMP
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
+
+      // promo_codes table
+      await safeAlter(connection, `CREATE TABLE IF NOT EXISTS promo_codes (
+        id               BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        formation_id     BIGINT UNSIGNED NOT NULL,
+        code             VARCHAR(50)     NOT NULL,
+        discount_percent DECIMAL(5,2)    NOT NULL,
+        type             ENUM('many_students','one_student') NOT NULL DEFAULT 'many_students',
+        is_active        TINYINT(1)      NOT NULL DEFAULT 1,
+        created_at       TIMESTAMP       DEFAULT CURRENT_TIMESTAMP,
+        updated_at       TIMESTAMP       DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        UNIQUE KEY uq_promo_code (code)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
+
+      // landing_inquiries table
+      await safeAlter(connection, `CREATE TABLE IF NOT EXISTS landing_inquiries (
+        id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        school_id       BIGINT UNSIGNED NULL,
+        name            VARCHAR(255)    NOT NULL,
+        phone           VARCHAR(30)     NULL,
+        formation_title VARCHAR(255)    NULL,
+        message         TEXT            NULL,
+        status          ENUM('new','contacted','enrolled','cancelled') NOT NULL DEFAULT 'new',
+        created_at      TIMESTAMP       DEFAULT CURRENT_TIMESTAMP,
+        updated_at      TIMESTAMP       DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
+
+      // quran_memorization table
+      await safeAlter(connection, `CREATE TABLE IF NOT EXISTS quran_memorization (
+        id            INT UNSIGNED    NOT NULL AUTO_INCREMENT PRIMARY KEY,
+        school_id     INT             NOT NULL,
+        student_id    INT             NOT NULL,
+        group_id      INT             NULL,
+        formation_id  BIGINT UNSIGNED NULL,
+        cycle         VARCHAR(100)    NULL,
+        session_date  DATE            NOT NULL,
+        amount        VARCHAR(255)    NOT NULL,
+        level         VARCHAR(100)    NULL,
+        notes         TEXT            NULL,
+        created_at    TIMESTAMP       DEFAULT CURRENT_TIMESTAMP,
+        INDEX idx_qm_school  (school_id),
+        INDEX idx_qm_student (student_id),
+        INDEX idx_qm_date    (session_date)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
+      await safeAlter(connection, `ALTER TABLE quran_memorization ADD COLUMN cycle VARCHAR(100) NULL`);
+      await safeAlter(connection, `ALTER TABLE quran_memorization ADD COLUMN formation_id BIGINT UNSIGNED NULL`);
+      await safeAlter(connection, `ALTER TABLE quran_memorization ADD COLUMN level VARCHAR(100) NULL`);
+
+      // payment_history v2 columns
+      await safeAlter(connection, `ALTER TABLE payment_history ADD COLUMN subscription_plan VARCHAR(20) NULL`);
+      await safeAlter(connection, `ALTER TABLE payment_history ADD COLUMN promo_code_id BIGINT UNSIGNED NULL`);
+      await safeAlter(connection, `ALTER TABLE payment_history ADD COLUMN discount_percent DECIMAL(5,2) NOT NULL DEFAULT 0`);
+
       console.log('Database migration completed.');
       return;
     }

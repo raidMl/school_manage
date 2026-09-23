@@ -249,6 +249,7 @@ router.put(
       ccp_rib: ccpRib,
       preferred_pay_method: preferredPayMethod,
       rfid_tag: rfidTag,
+      password: newPassword,
     } = req.body;
 
     const connection = await pool.getConnection();
@@ -266,6 +267,11 @@ router.put(
       if (photo !== undefined)     { userUpdates.push('photo = ?');      userValues.push(photo); }
       if (req.body.blood_type !== undefined) { userUpdates.push('blood_type = ?'); userValues.push(req.body.blood_type || null); }
       if (req.body.is_active !== undefined) { userUpdates.push('is_active = ?'); userValues.push(req.body.is_active ? 1 : 0); }
+      if (newPassword && newPassword.trim().length >= 6) {
+        const hashedPassword = await bcrypt.hash(newPassword.trim(), 10);
+        userUpdates.push('password = ?');
+        userValues.push(hashedPassword);
+      }
 
       if (userUpdates.length) {
         userValues.push(teacher.user_id);

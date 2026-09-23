@@ -633,6 +633,11 @@
     if (langBtnText) {
       langBtnText.textContent = (lang === 'ar') ? 'English' : 'العربية';
     }
+    // Sync mobile drawer language button text
+    const langBtnTextMobile = document.getElementById('lang-switch-text-mobile');
+    if (langBtnTextMobile) {
+      langBtnTextMobile.textContent = (lang === 'ar') ? 'English' : 'العربية';
+    }
 
     renderFormations();
     populateFormSelect();
@@ -1008,34 +1013,91 @@
     });
   }
 
-  // --- Mobile Menu Toggle ---
+  // --- Mobile Drawer ---
+  function openDrawer() {
+    const drawer = document.getElementById('mobile-drawer');
+    const overlay = document.getElementById('drawer-overlay');
+    const btn = document.getElementById('mobile-menu-btn');
+    const icon = document.getElementById('mobile-menu-icon');
+    if (drawer) drawer.classList.add('open');
+    if (overlay) overlay.classList.add('active');
+    if (btn) btn.setAttribute('aria-expanded', 'true');
+    if (icon) { icon.classList.remove('fa-bars'); icon.classList.add('fa-times'); }
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeDrawer() {
+    const drawer = document.getElementById('mobile-drawer');
+    const overlay = document.getElementById('drawer-overlay');
+    const btn = document.getElementById('mobile-menu-btn');
+    const icon = document.getElementById('mobile-menu-icon');
+    if (drawer) drawer.classList.remove('open');
+    if (overlay) overlay.classList.remove('active');
+    if (btn) btn.setAttribute('aria-expanded', 'false');
+    if (icon) { icon.classList.add('fa-bars'); icon.classList.remove('fa-times'); }
+    document.body.style.overflow = '';
+  }
+
+  // Expose globally for inline onclick on drawer-logo
+  window.closeDrawer = closeDrawer;
+
   function setupMobileMenu() {
     const btn = document.getElementById('mobile-menu-btn');
-    const menu = document.getElementById('nav-menu');
-    if (btn && menu) {
-      btn.addEventListener('click', () => {
-        menu.classList.toggle('open');
-      });
+    const overlay = document.getElementById('drawer-overlay');
 
-      menu.querySelectorAll('.nav-link').forEach(link => {
-        link.addEventListener('click', () => {
-          menu.classList.remove('open');
-        });
+    if (btn) {
+      btn.addEventListener('click', () => {
+        const drawer = document.getElementById('mobile-drawer');
+        if (drawer && drawer.classList.contains('open')) {
+          closeDrawer();
+        } else {
+          openDrawer();
+        }
       });
     }
+
+    // Close on overlay click
+    if (overlay) {
+      overlay.addEventListener('click', closeDrawer);
+    }
+
+    // Close drawer when any drawer nav link is clicked
+    document.querySelectorAll('.drawer-link').forEach(link => {
+      link.addEventListener('click', () => {
+        closeDrawer();
+        // Sync active state
+        document.querySelectorAll('.drawer-link').forEach(l => l.classList.remove('active'));
+        link.classList.add('active');
+      });
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeDrawer();
+    });
   }
 
   // --- Language Switcher Button ---
   function setupLangSwitcher() {
-    const btn = document.getElementById('btn-lang-toggle');
-    if (btn) {
-      btn.addEventListener('click', () => {
-        const nextLang = (currentLang === 'ar') ? 'en' : 'ar';
-        localStorage.setItem('school_system_lang', nextLang);
-        localStorage.setItem('app_lang', nextLang);
-        applyLanguage(nextLang);
-      });
+    function applyLangToggle() {
+      const nextLang = (currentLang === 'ar') ? 'en' : 'ar';
+      localStorage.setItem('school_system_lang', nextLang);
+      localStorage.setItem('app_lang', nextLang);
+      applyLanguage(nextLang);
     }
+
+    // Desktop button
+    const btn = document.getElementById('btn-lang-toggle');
+    if (btn) btn.addEventListener('click', applyLangToggle);
+
+    // Mobile drawer button
+    const btnMobile = document.getElementById('btn-lang-toggle-mobile');
+    if (btnMobile) btnMobile.addEventListener('click', () => {
+      applyLangToggle();
+      // Sync text on mobile button
+      const mobileText = document.getElementById('lang-switch-text-mobile');
+      if (mobileText) mobileText.textContent = (currentLang === 'ar') ? 'العربية' : 'English';
+    });
   }
 
   // --- Modal Close Buttons ---
