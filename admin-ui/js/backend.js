@@ -6808,33 +6808,292 @@
         var checked = table.querySelectorAll('.row-checkbox:checked');
         if (checked.length === 0) return;
 
-        btnCards.disabled = true;
-        var originalHtml = btnCards.innerHTML;
-        btnCards.innerHTML = '<i class="fa fa-spinner fa-spin"></i> \u062c\u0627\u0631\u064a \u0627\u0644\u0625\u0646\u0634\u0627\u0621...';
+        // Determine card type from page context
+        var isTeacher = !!document.querySelector('#backend-teachers-table');
 
-        try {
-          // --- Pre-load Cairo Arabic font explicitly ---
-          // This guarantees Arabic letters render as connected glyphs in html2canvas
-          try {
-            // Wait for all fonts (including Cairo loaded via <link>) to be ready
-            await document.fonts.ready;
-            // Check if Cairo is loaded; if not, force-load it
-            var cairoLoaded = false;
-            document.fonts.forEach(function (f) {
-              if (f.family.indexOf('Cairo') !== -1 && f.status === 'loaded') cairoLoaded = true;
-            });
-            if (!cairoLoaded) {
-              // Force load by using check() which triggers loading
-              await document.fonts.load('700 16px Cairo');
-              await document.fonts.load('400 16px Cairo');
-              await document.fonts.ready;
-            }
-          } catch (fontErr) {
-            await new Promise(function (r) { setTimeout(r, 500); });
+        // ── A4 Print Studio Modal ─────────────────────────────────────
+        // Injects a full-screen modal with:
+        //   • Interactive start-slot picker (1-8)
+        //   • Live scaled A4 preview
+        //   • Print A4 (browser print) + Download PDF A4 buttons
+        // A4 = 210mm × 297mm  →  portrait
+        // Cards: 85mm × 54mm (landscape), 2 columns × 4 rows = 8 per page
+        // Margin: 10mm on all sides, gap: 5mm col / 5mm row  → fits perfectly
+
+        var studioId = 'a4-print-studio-modal';
+        var existing = document.getElementById(studioId);
+        if (existing) existing.remove();
+
+        // ── Collect card data from checkboxes ─────────────────────────
+        var cardItems = Array.from(checked).map(function (cb) {
+          return {
+            name: cb.getAttribute('data-name') || (cb.closest('tr') && cb.closest('tr').cells[3] ? cb.closest('tr').cells[3].innerText.trim() : ''),
+            reg: cb.getAttribute('data-reg') || (cb.closest('tr') && cb.closest('tr').cells[2] ? cb.closest('tr').cells[2].innerText.trim() : ''),
+            formation: cb.getAttribute('data-formation') || cb.getAttribute('data-speciality') || '',
+            photo: cb.getAttribute('data-photo') || ''
+          };
+        });
+        var totalCards = cardItems.length;
+
+        // ── Build modal HTML ──────────────────────────────────────────
+        var slotBtns = '';
+        for (var s = 1; s <= 8; s++) {
+          slotBtns += '<button class="a4ps-slot-btn' + (s === 1 ? ' active' : '') + '" data-slot="' + s + '" title="ابدأ من الخانة ' + s + '">' + s + '</button>';
+        }
+
+        var modalHtml = '<div id="' + studioId + '" style="' +
+          'position:fixed;inset:0;z-index:99999;display:flex;flex-direction:column;' +
+          'background:rgba(8,16,36,0.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);' +
+          'font-family:Cairo,sans-serif;direction:rtl;overflow:hidden;">' +
+
+          // ── Header ────────────────────────────────────────────────
+          '<div style="background:linear-gradient(135deg,#0d1f3c 0%,#162d58 100%);' +
+          'border-bottom:2px solid rgba(212,175,55,0.4);padding:16px 28px;' +
+          'display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">' +
+            '<div style="display:flex;align-items:center;gap:14px;">' +
+              '<div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#d4af37,#f5e49c);' +
+              'display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(212,175,55,0.4);">' +
+                '<i class="fa fa-print" style="color:#0d1f3c;font-size:18px;"></i>' +
+              '</div>' +
+              '<div>' +
+                '<h2 style="margin:0;font-size:18px;font-weight:700;color:#fff;">استوديو الطباعة A4</h2>' +
+                '<p style="margin:2px 0 0;font-size:12px;color:#d4af37;">8 بطاقات في صفحة واحدة · توفير الورق</p>' +
+              '</div>' +
+            '</div>' +
+            '<button id="a4ps-close" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);' +
+            'color:#fff;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:18px;' +
+            'display:flex;align-items:center;justify-content:center;transition:all 0.2s;">' +
+              '&times;' +
+            '</button>' +
+          '</div>' +
+
+          // ── Controls bar ──────────────────────────────────────────
+          '<div style="background:rgba(22,45,88,0.7);border-bottom:1px solid rgba(212,175,55,0.15);' +
+          'padding:14px 28px;display:flex;align-items:center;gap:24px;flex-wrap:wrap;flex-shrink:0;">' +
+
+            // Card count info
+            '<div style="display:flex;align-items:center;gap:8px;">' +
+              '<i class="fa fa-id-card" style="color:#d4af37;font-size:15px;"></i>' +
+              '<span style="color:#fff;font-size:13px;font-weight:600;">' + totalCards + ' بطاقة</span>' +
+              '<span style="color:rgba(255,255,255,0.5);font-size:12px;">← سيُنشئ ' +
+                '<span id="a4ps-page-count">?</span> صفحة A4' +
+              '</span>' +
+            '</div>' +
+
+            // Separator
+            '<div style="width:1px;height:30px;background:rgba(255,255,255,0.15);"></div>' +
+
+            // Start slot selector
+            '<div style="display:flex;align-items:center;gap:10px;">' +
+              '<span style="color:rgba(255,255,255,0.7);font-size:12px;white-space:nowrap;">ابدأ من الخانة:</span>' +
+              '<div id="a4ps-slots" style="display:flex;gap:6px;">' + slotBtns + '</div>' +
+            '</div>' +
+
+            // Separator
+            '<div style="width:1px;height:30px;background:rgba(255,255,255,0.15);"></div>' +
+
+            // Cut lines toggle
+            '<label style="display:flex;align-items:center;gap:8px;cursor:pointer;">' +
+              '<input type="checkbox" id="a4ps-cutlines" checked style="width:16px;height:16px;accent-color:#d4af37;cursor:pointer;">' +
+              '<span style="color:rgba(255,255,255,0.7);font-size:12px;">خطوط القطع</span>' +
+            '</label>' +
+
+            // Page nav
+            '<div style="display:flex;align-items:center;gap:6px;margin-right:auto;">' +
+              '<button id="a4ps-prev" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);' +
+              'color:#fff;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:13px;font-family:Cairo,sans-serif;">◀</button>' +
+              '<span id="a4ps-pg-label" style="color:#d4af37;font-size:13px;font-weight:600;min-width:60px;text-align:center;">صفحة 1</span>' +
+              '<button id="a4ps-next" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);' +
+              'color:#fff;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:13px;font-family:Cairo,sans-serif;">▶</button>' +
+            '</div>' +
+          '</div>' +
+
+          // ── Preview area ──────────────────────────────────────────
+          '<div style="flex:1;overflow:auto;display:flex;align-items:center;justify-content:center;padding:28px;">' +
+            '<div id="a4ps-preview-wrap" style="position:relative;">' +
+              // A4 paper (scaled to fit)
+              '<div id="a4ps-paper" style="' +
+              'background:#fff;box-shadow:0 8px 48px rgba(0,0,0,0.6);border-radius:4px;' +
+              'position:relative;overflow:hidden;' +
+              // A4 ratio: 210/297 ≈ 0.707 – we set width in JS
+              '">' +
+                '<div id="a4ps-grid" style="' +
+                'display:grid;grid-template-columns:1fr 1fr;' +
+                'position:absolute;inset:0;' +
+                'box-sizing:border-box;">' +
+                  // 8 slot placeholders injected by JS
+                '</div>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+
+          // ── Footer actions ────────────────────────────────────────
+          '<div style="background:linear-gradient(135deg,#0d1f3c 0%,#162d58 100%);' +
+          'border-top:2px solid rgba(212,175,55,0.4);padding:16px 28px;' +
+          'display:flex;align-items:center;justify-content:flex-end;gap:12px;flex-shrink:0;">' +
+
+            '<button id="a4ps-btn-zip" style="' +
+            'background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);' +
+            'color:rgba(255,255,255,0.8);padding:10px 20px;border-radius:10px;cursor:pointer;' +
+            'font-family:Cairo,sans-serif;font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;' +
+            'transition:all 0.2s;">' +
+              '<i class="fa fa-file-archive-o"></i> تحميل ZIP (فردي)' +
+            '</button>' +
+
+            '<button id="a4ps-btn-pdf" style="' +
+            'background:linear-gradient(135deg,#1a3a6e,#0d2347);border:1px solid rgba(212,175,55,0.4);' +
+            'color:#fff;padding:10px 22px;border-radius:10px;cursor:pointer;' +
+            'font-family:Cairo,sans-serif;font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;' +
+            'box-shadow:0 4px 12px rgba(0,0,0,0.3);transition:all 0.2s;">' +
+              '<i class="fa fa-file-pdf-o" style="color:#d4af37;"></i> تحميل PDF A4' +
+            '</button>' +
+
+            '<button id="a4ps-btn-print" style="' +
+            'background:linear-gradient(135deg,#d4af37,#b8942e);border:none;' +
+            'color:#0d1f3c;padding:10px 24px;border-radius:10px;cursor:pointer;' +
+            'font-family:Cairo,sans-serif;font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px;' +
+            'box-shadow:0 4px 16px rgba(212,175,55,0.45);transition:all 0.2s;">' +
+              '<i class="fa fa-print"></i> طباعة A4' +
+            '</button>' +
+          '</div>' +
+
+          // ── Style block ───────────────────────────────────────────
+          '<style>' +
+            '.a4ps-slot-btn{width:32px;height:32px;border-radius:8px;border:1.5px solid rgba(212,175,55,0.35);' +
+            'background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.7);cursor:pointer;font-size:13px;font-weight:600;' +
+            'display:flex;align-items:center;justify-content:center;transition:all 0.2s;font-family:Cairo,sans-serif;}' +
+            '.a4ps-slot-btn:hover{background:rgba(212,175,55,0.2);border-color:#d4af37;color:#fff;}' +
+            '.a4ps-slot-btn.active{background:linear-gradient(135deg,#d4af37,#b8942e);border-color:#d4af37;color:#0d1f3c;' +
+            'box-shadow:0 2px 10px rgba(212,175,55,0.5);}' +
+            '.a4ps-slot{border-radius:0;position:relative;display:flex;align-items:center;justify-content:center;' +
+            'box-sizing:border-box;overflow:hidden;}' +
+            '.a4ps-slot img{width:100%;height:100%;object-fit:cover;display:block;}' +
+            '.a4ps-slot.empty{background:rgba(240,240,240,0.6);}' +
+            '.a4ps-slot.empty::after{content:attr(data-num);font-size:22px;font-weight:700;color:rgba(0,0,0,0.12);' +
+            'font-family:Cairo,sans-serif;}' +
+            '.a4ps-slot.skip{background:repeating-linear-gradient(45deg,#f7f7f7,#f7f7f7 4px,#ececec 4px,#ececec 8px);}' +
+            '.a4ps-cutline-h{position:absolute;left:50%;top:0;width:0;height:100%;' +
+            'border-left:1px dashed rgba(180,180,180,0.6);pointer-events:none;}' +
+            '.a4ps-cutline-v{position:absolute;top:25%;left:0;height:0;width:100%;' +
+            'border-top:1px dashed rgba(180,180,180,0.6);pointer-events:none;}' +
+            '#a4ps-btn-print:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(212,175,55,0.6);}' +
+            '#a4ps-btn-pdf:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,0.4);}' +
+            '#a4ps-btn-zip:hover{background:rgba(255,255,255,0.14);}' +
+            '#a4ps-close:hover{background:rgba(255,80,80,0.2);}' +
+          '</style>' +
+        '</div>';
+
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+        // ── State ─────────────────────────────────────────────────────
+        var startSlot = 1;  // 1-based
+        var currentPage = 0; // 0-based
+        var showCutLines = true;
+        var cardImages = [];  // cached rendered card images (base64 jpeg)
+        var rendered = false;
+
+        // A4 dimensions (mm): 210 × 297, portrait
+        // Card: 85mm × 54mm, 2 cols × 4 rows
+        // Margins: left/right = (210 - 2*85) / 3 = 13.33mm, top/bot = (297 - 4*54) / 5 = 12.6mm
+        // For preview we compute from paper pixel width
+
+        function calcPageCount() {
+          var totalSlots = (startSlot - 1) + totalCards;
+          return Math.ceil(totalSlots / 8);
+        }
+
+        function updatePageCount() {
+          var pc = calcPageCount();
+          var el = document.getElementById('a4ps-page-count');
+          if (el) el.textContent = pc;
+        }
+
+        function renderPreviewPage() {
+          var paper = document.getElementById('a4ps-paper');
+          var grid = document.getElementById('a4ps-grid');
+          if (!paper || !grid) return;
+
+          // Scale paper to fit
+          var wrap = document.getElementById('a4ps-preview-wrap');
+          var maxH = wrap.parentElement.clientHeight - 20;
+          var maxW = wrap.parentElement.clientWidth - 40;
+          // A4 portrait ratio: 210/297
+          var scale = Math.min(maxW / 210, maxH / 297, 2.4);
+          var paperW = Math.round(210 * scale);
+          var paperH = Math.round(297 * scale);
+
+          paper.style.width = paperW + 'px';
+          paper.style.height = paperH + 'px';
+
+          // Margins in px: proportional to A4 margins
+          var mTop = Math.round(12.6 * scale);
+          var mLeft = Math.round(13.33 * scale);
+          var cardW = Math.round(85 * scale);
+          var cardH = Math.round(54 * scale);
+          var gapH = Math.round(5 * scale);
+          var gapV = Math.round(5 * scale);
+
+          grid.style.gridTemplateColumns = cardW + 'px ' + cardW + 'px';
+          grid.style.gridTemplateRows = 'repeat(4, ' + cardH + 'px)';
+          grid.style.gap = gapV + 'px ' + gapH + 'px';
+          grid.style.padding = mTop + 'px ' + mLeft + 'px';
+
+          // Which global slot indices appear on this page?
+          // Page 0: global slots 0-7, page 1: 8-15, …
+          // Global slot 0 → card index = 0 - (startSlot-1)
+          var pageSlots = [];
+          for (var s = 0; s < 8; s++) {
+            var globalSlot = currentPage * 8 + s;
+            var cardIdx = globalSlot - (startSlot - 1);
+            pageSlots.push(cardIdx);
           }
 
-          // --- Fetch real school name & logo ---
-          var schoolName = '\u0645\u062f\u0631\u0633\u062a\u064a';
+          var html = '';
+          for (var s = 0; s < 8; s++) {
+            var cardIdx = pageSlots[s];
+            if (cardIdx < 0) {
+              // Skipped slot (before start)
+              html += '<div class="a4ps-slot skip" data-num="' + (s + 1) + '"></div>';
+            } else if (cardIdx < cardImages.length) {
+              // Rendered card image
+              html += '<div class="a4ps-slot"><img src="' + cardImages[cardIdx] + '" style="width:' + cardW + 'px;height:' + cardH + 'px;object-fit:cover;display:block;"></div>';
+            } else if (cardIdx < totalCards) {
+              // Will be rendered (loading indicator)
+              html += '<div class="a4ps-slot empty" data-num="' + (cardIdx + 1) + '" style="background:#f0f4ff;"><div style="display:flex;flex-direction:column;align-items:center;gap:4px;"><i class="fa fa-spinner fa-spin" style="color:#d4af37;font-size:18px;"></i><span style="font-size:10px;color:#888;font-family:Cairo,sans-serif;">جاري التحميل</span></div></div>';
+            } else {
+              // Empty slot (no card)
+              html += '<div class="a4ps-slot empty" data-num="' + (s + 1) + '"></div>';
+            }
+          }
+
+          grid.innerHTML = html;
+
+          // Cut lines
+          var existingCuts = paper.querySelectorAll('.a4ps-cutline-h,.a4ps-cutline-v');
+          existingCuts.forEach(function (el) { el.remove(); });
+          if (showCutLines) {
+            // Vertical center line
+            var cl = document.createElement('div');
+            cl.className = 'a4ps-cutline-h';
+            cl.style.left = (mLeft + cardW + gapH / 2) + 'px';
+            paper.appendChild(cl);
+            // Horizontal lines between rows
+            for (var r = 1; r < 4; r++) {
+              var ch = document.createElement('div');
+              ch.className = 'a4ps-cutline-v';
+              ch.style.top = (mTop + r * cardH + (r - 0.5) * gapV) + 'px';
+              paper.appendChild(ch);
+            }
+          }
+
+          // Update page label
+          var lbl = document.getElementById('a4ps-pg-label');
+          if (lbl) lbl.textContent = 'صفحة ' + (currentPage + 1) + ' / ' + calcPageCount();
+        }
+
+        // ── Render all cards to images ─────────────────────────────────
+        async function renderAllCards() {
+          var schoolName = 'مدرستي';
           var schoolLogo = '';
           try {
             var schoolData = await request('/api/school-setup/settings');
@@ -6842,57 +7101,52 @@
               schoolName = schoolData.school.name || schoolName;
               schoolLogo = schoolData.school.logo || '';
             }
-          } catch (e) { /* use defaults */ }
+          } catch (e) {}
 
-          var zip = new JSZip();
-          var jspdfObj = window.jspdf.jsPDF;
+          try {
+            await document.fonts.ready;
+          } catch (e) {}
 
           var templateContainer = document.getElementById('school-card-template-container');
           var template = document.getElementById('school-card-template');
 
-          // Bring template into rendering zone (off-screen but rendered)
           templateContainer.style.position = 'fixed';
           templateContainer.style.left = '-2000px';
           templateContainer.style.top = '0';
           templateContainer.style.zIndex = '1';
           templateContainer.style.opacity = '1';
 
-          // Force a text render to "warm up" the Arabic shaper
           var warmupEl = document.getElementById('card-student-name');
           warmupEl.textContent = 'الاختبار';
-          void template.offsetHeight; // force layout reflow
-          await new Promise(function (r) { setTimeout(r, 80); });
+          void template.offsetHeight;
+          await new Promise(function (r) { setTimeout(r, 60); });
 
+          for (var i = 0; i < cardItems.length; i++) {
+            var item = cardItems[i];
 
-          for (var i = 0; i < checked.length; i++) {
-            var cb = checked[i];
-            var studentName = cb.getAttribute('data-name') || cb.closest('tr').cells[3].innerText;
-            var reg = cb.getAttribute('data-reg') || cb.closest('tr').cells[2].innerText;
-            var formation = cb.getAttribute('data-formation') || cb.getAttribute('data-speciality') || '';
-            var photoSrc = cb.getAttribute('data-photo') || '';
-
-            // --- Populate card ---
             document.getElementById('card-school-name').textContent = schoolName;
-            document.getElementById('card-student-name').textContent = studentName;
-            document.getElementById('card-student-formation').textContent = formation
-              ? '\u0627\u0644\u062f\u0648\u0631\u0629: ' + formation
-              : '\u0637\u0627\u0644\u0628';
+            document.getElementById('card-student-name').textContent = item.name;
+            var formationEl = document.getElementById('card-student-formation');
+            if (formationEl) {
+              formationEl.textContent = item.formation
+                ? (isTeacher ? 'التخصص: ' : 'الدورة: ') + item.formation
+                : (isTeacher ? 'أستاذ' : 'طالب');
+            }
 
-            // --- Generate QR code for registration number ---
             var qrContainer = document.getElementById('card-qr-code');
-            qrContainer.innerHTML = ''; // clear previous
+            qrContainer.innerHTML = '';
             new QRCode(qrContainer, {
-              text: String(reg),
-              width: 88,
-              height: 88,
-              colorDark: '#0d1f3c',
-              colorLight: '#ffffff',
+              text: String(item.reg) || '000',
+              width: 88, height: 88,
+              colorDark: '#0d1f3c', colorLight: '#ffffff',
               correctLevel: QRCode.CorrectLevel.M
             });
-            document.getElementById('card-qr-reg').textContent = reg;
+            var qrRegEl = document.getElementById('card-qr-reg');
+            if (qrRegEl) qrRegEl.textContent = item.reg;
 
             var year = new Date().getFullYear();
-            document.getElementById('card-year').textContent = year + '/' + (year + 1);
+            var yearEl = document.getElementById('card-year');
+            if (yearEl) yearEl.textContent = year + '/' + (year + 1);
 
             var logoEl = document.getElementById('card-school-logo');
             logoEl.crossOrigin = 'anonymous';
@@ -6900,59 +7154,184 @@
 
             var photoEl = document.getElementById('card-student-photo');
             photoEl.crossOrigin = 'anonymous';
-            photoEl.src = photoSrc;
+            photoEl.src = item.photo || '';
 
-            // Wait for images to load
             await new Promise(function (resolve) {
               var pending = 2;
               function done() { if (--pending <= 0) resolve(); }
               if (logoEl.complete) done(); else { logoEl.onload = done; logoEl.onerror = done; }
               if (photoEl.complete) done(); else { photoEl.onload = done; photoEl.onerror = done; }
             });
+            await new Promise(function (r) { setTimeout(r, 200); });
 
-            await new Promise(function (r) { setTimeout(r, 300); });
-
-            // Scale 3x for print-quality output
             var canvas = await html2canvas(template, {
-              scale: 3,
-              useCORS: true,
-              allowTaint: false,
-              logging: false
+              scale: 3, useCORS: true, allowTaint: false, logging: false
             });
+            cardImages.push(canvas.toDataURL('image/jpeg', 0.95));
 
-            var imgData = canvas.toDataURL('image/jpeg', 0.98);
-
-            // Output at exact business card dimensions: 85mm x 54mm (landscape)
-            var pdf = new jspdfObj({
-              orientation: 'landscape',
-              unit: 'mm',
-              format: [85, 54]
-            });
-            pdf.addImage(imgData, 'JPEG', 0, 0, 85, 54);
-            var pdfBlob = pdf.output('blob');
-
-            var safeName = studentName.replace(/[^\u0600-\u06FFa-z0-9]/gi, '_');
-            zip.file('\u0628\u0637\u0627\u0642\u0629_' + safeName + '_' + reg + '.pdf', pdfBlob);
+            // Refresh preview as images arrive
+            renderPreviewPage();
           }
 
-          // Hide template again
           templateContainer.style.position = 'absolute';
           templateContainer.style.left = '-9999px';
+          rendered = true;
+        }
 
-          var zipBlob = await zip.generateAsync({ type: 'blob' });
-          saveAs(zipBlob, '\u0628\u0637\u0627\u0642\u0627\u062a_\u0627\u0644\u0645\u062f\u0631\u0633\u0629.zip');
+        // ── Init modal logic ──────────────────────────────────────────
+        updatePageCount();
+        renderPreviewPage();
 
-        } catch (err) {
-          alert('\u0641\u0634\u0644 \u0625\u0646\u0634\u0627\u0621 \u0627\u0644\u0628\u0637\u0627\u0642\u0627\u062a: ' + err.message);
-          console.error(err);
-        } finally {
-          btnCards.disabled = false;
-          btnCards.innerHTML = originalHtml;
+        // Start rendering in background
+        renderAllCards().catch(function (e) { console.error('Card render error', e); });
+
+        // Close
+        document.getElementById('a4ps-close').addEventListener('click', function () {
+          var m = document.getElementById(studioId);
+          if (m) m.remove();
+          // Reset checkboxes
           table.querySelectorAll('.row-checkbox').forEach(function (cb) { cb.checked = false; });
           if (selectAll) selectAll.checked = false;
           updateBtn();
-        }
+        });
+
+        // Slot buttons
+        document.getElementById('a4ps-slots').addEventListener('click', function (e) {
+          var btn = e.target.closest('.a4ps-slot-btn');
+          if (!btn) return;
+          startSlot = parseInt(btn.getAttribute('data-slot'), 10);
+          document.querySelectorAll('.a4ps-slot-btn').forEach(function (b) { b.classList.remove('active'); });
+          btn.classList.add('active');
+          currentPage = 0;
+          updatePageCount();
+          renderPreviewPage();
+        });
+
+        // Cut lines toggle
+        document.getElementById('a4ps-cutlines').addEventListener('change', function () {
+          showCutLines = this.checked;
+          renderPreviewPage();
+        });
+
+        // Page navigation
+        document.getElementById('a4ps-prev').addEventListener('click', function () {
+          if (currentPage > 0) { currentPage--; renderPreviewPage(); }
+        });
+        document.getElementById('a4ps-next').addEventListener('click', function () {
+          if (currentPage < calcPageCount() - 1) { currentPage++; renderPreviewPage(); }
+        });
+
+        // ── Print A4 ──────────────────────────────────────────────────
+        document.getElementById('a4ps-btn-print').addEventListener('click', async function () {
+          if (!rendered) { alert('لا تزال البطاقات قيد التحميل، يرجى الانتظار...'); return; }
+          var jspdfObj = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : jsPDF;
+          var pdf = buildA4Pdf(jspdfObj, cardImages, startSlot, showCutLines, isTeacher);
+
+          // Open PDF blob in a new window and trigger print
+          var blob = pdf.output('blob');
+          var url = URL.createObjectURL(blob);
+          var win = window.open(url, '_blank');
+          if (win) {
+            win.addEventListener('load', function () {
+              setTimeout(function () { win.print(); }, 400);
+            });
+          } else {
+            // Fallback: download
+            saveAs(blob, 'بطاقات_A4.pdf');
+          }
+        });
+
+        // ── Download PDF A4 ───────────────────────────────────────────
+        document.getElementById('a4ps-btn-pdf').addEventListener('click', async function () {
+          if (!rendered) { alert('لا تزال البطاقات قيد التحميل، يرجى الانتظار...'); return; }
+          var jspdfObj = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : jsPDF;
+          var pdf = buildA4Pdf(jspdfObj, cardImages, startSlot, showCutLines, isTeacher);
+          pdf.save((isTeacher ? 'بطاقات_الأساتذة' : 'بطاقات_الطلاب') + '_A4.pdf');
+        });
+
+        // ── Download ZIP (individual) ─────────────────────────────────
+        document.getElementById('a4ps-btn-zip').addEventListener('click', async function () {
+          if (!rendered) { alert('لا تزال البطاقات قيد التحميل، يرجى الانتظار...'); return; }
+          var jspdfObj = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : jsPDF;
+          var zip = new JSZip();
+          for (var i = 0; i < cardImages.length; i++) {
+            var item = cardItems[i];
+            var singlePdf = new jspdfObj({ orientation: 'landscape', unit: 'mm', format: [85, 54] });
+            singlePdf.addImage(cardImages[i], 'JPEG', 0, 0, 85, 54);
+            var safeName = (item.name || 'card').replace(/[^\u0600-\u06FFa-z0-9]/gi, '_');
+            zip.file('بطاقة_' + safeName + '_' + (item.reg || i) + '.pdf', singlePdf.output('blob'));
+          }
+          var zipBlob = await zip.generateAsync({ type: 'blob' });
+          saveAs(zipBlob, (isTeacher ? 'بطاقات_الأساتذة' : 'بطاقات_الطلاب') + '.zip');
+        });
+
+        // Close on backdrop click
+        document.getElementById(studioId).addEventListener('click', function (e) {
+          if (e.target === this) {
+            this.remove();
+            table.querySelectorAll('.row-checkbox').forEach(function (cb) { cb.checked = false; });
+            if (selectAll) selectAll.checked = false;
+            updateBtn();
+          }
+        });
       });
+    }
+
+    // ── A4 PDF builder (shared by print & download) ────────────────────
+    // A4 portrait: 210×297mm
+    // 2 cols × 4 rows of 85×54mm cards
+    // col margins: (210 - 2*85) / 3 ≈ 13.33mm (left, center, right)
+    // row margins: (297 - 4*54) / 5 ≈ 12.6mm (top, gaps, bottom)
+    function buildA4Pdf(jspdfObj, cardImages, startSlot, showCutLines, isTeacher) {
+      var pdf = new jspdfObj({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      var cardW = 85, cardH = 54;
+      var colGap = (210 - 2 * cardW) / 3;   // ≈13.33
+      var rowGap = (297 - 4 * cardH) / 5;   // ≈12.6
+      var cols = 2, rows = 4;
+
+      // Build slot list: first (startSlot-1) slots are empty, then cards fill
+      var totalSlots = (startSlot - 1) + cardImages.length;
+      var pageCount = Math.ceil(totalSlots / 8);
+      var firstPage = true;
+
+      for (var p = 0; p < pageCount; p++) {
+        if (!firstPage) pdf.addPage();
+        firstPage = false;
+
+        for (var s = 0; s < 8; s++) {
+          var globalSlot = p * 8 + s;
+          var cardIdx = globalSlot - (startSlot - 1);
+          var col = s % cols;
+          var row = Math.floor(s / cols);
+          var x = colGap + col * (cardW + colGap);
+          var y = rowGap + row * (cardH + rowGap);
+
+          if (cardIdx >= 0 && cardIdx < cardImages.length) {
+            pdf.addImage(cardImages[cardIdx], 'JPEG', x, y, cardW, cardH);
+          }
+          // Empty/skip slots: leave blank
+        }
+
+        // Cut lines
+        if (showCutLines) {
+          pdf.setDrawColor(180, 180, 180);
+          try { pdf.setLineDashPattern([1, 2], 0); } catch (e) {
+            try { pdf.setLineDash([1, 2], 0); } catch (e2) {}
+          }
+          pdf.setLineWidth(0.2);
+          // Vertical center line
+          var cx = colGap + cardW + colGap / 2;
+          pdf.line(cx, 5, cx, 292);
+          // Horizontal lines between rows
+          for (var r = 1; r < 4; r++) {
+            var cy = rowGap + r * (cardH + rowGap) - rowGap / 2;
+            pdf.line(5, cy, 205, cy);
+          }
+          try { pdf.setLineDashPattern([], 0); } catch (e) {}
+        }
+      }
+
+      return pdf;
     }
 
     // --- Work Certificate Button Logic ---

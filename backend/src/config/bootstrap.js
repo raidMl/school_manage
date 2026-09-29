@@ -311,6 +311,18 @@ async function bootstrapDatabase() {
       await safeAlter(connection, `ALTER TABLE quran_memorization ADD COLUMN formation_id BIGINT UNSIGNED NULL`);
       await safeAlter(connection, `ALTER TABLE quran_memorization ADD COLUMN level VARCHAR(100) NULL`);
 
+      // quran_levels table
+      await safeAlter(connection, `CREATE TABLE IF NOT EXISTS quran_levels (
+        id          INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+        school_id   INT          NOT NULL,
+        name        VARCHAR(150) NOT NULL,
+        description VARCHAR(255) NULL,
+        order_index INT          NOT NULL DEFAULT 0,
+        created_at  TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
+        updated_at  TIMESTAMP    DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        INDEX idx_ql_school (school_id)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
+
       // payment_history v2 columns
       await safeAlter(connection, `ALTER TABLE payment_history ADD COLUMN subscription_plan VARCHAR(20) NULL`);
       await safeAlter(connection, `ALTER TABLE payment_history ADD COLUMN promo_code_id BIGINT UNSIGNED NULL`);

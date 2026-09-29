@@ -51,11 +51,59 @@ async function ensureTable() {
       await query(`ALTER TABLE quran_memorization ADD COLUMN formation_id BIGINT(20) UNSIGNED DEFAULT NULL AFTER group_id`);
       await query(`ALTER TABLE quran_memorization ADD INDEX idx_formation (formation_id)`);
     }
+
+    await query(`
+      CREATE TABLE IF NOT EXISTS quran_levels (
+        id          INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+        school_id   INT          NOT NULL,
+        name        VARCHAR(150) NOT NULL,
+        description VARCHAR(255) DEFAULT NULL,
+        order_index INT          NOT NULL DEFAULT 0,
+        created_at  TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
+        updated_at  TIMESTAMP    DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        INDEX idx_ql_school (school_id)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    `);
   } catch (err) {
     console.error('[quran.routes] ensureTable error:', err);
   }
 }
 ensureTable().catch(console.error);
+
+const DEFAULT_QURAN_LEVELS = [
+  { name: 'مستوى 1', description: 'من 1 إلى 5 أحزاب', order_index: 1 },
+  { name: 'مستوى 2', description: 'من 5 إلى 10 أحزاب', order_index: 2 },
+  { name: 'مستوى 3', description: 'من 10 إلى 20 حزب', order_index: 3 },
+  { name: 'مستوى 4', description: 'من 20 إلى 30 حزب', order_index: 4 },
+  { name: 'مستوى 5', description: 'من 30 إلى 45 حزب', order_index: 5 },
+  { name: 'مستوى 6', description: 'من 45 إلى 60 حزب', order_index: 6 },
+];
+
+function getLevelDisplayName(lvl) {
+  if (!lvl) return '';
+  const name = (lvl.name || '').trim();
+  const desc = (lvl.description || '').trim();
+  if (desc && !name.includes(desc)) {
+    return `${name} (${desc})`;
+  }
+  return name;
+}
+
+async function ensureDefaultLevels(schoolId) {
+  if (!schoolId) return;
+  const existing = await query(
+    `SELECT COUNT(*) AS cnt FROM quran_levels WHERE school_id = ?`,
+    [schoolId]
+  );
+  if (existing[0] && Number(existing[0].cnt) === 0) {
+    for (const lvl of DEFAULT_QURAN_LEVELS) {
+      await query(
+        `INSERT INTO quran_levels (school_id, name, description, order_index) VALUES (?, ?, ?, ?)`,
+        [schoolId, lvl.name, lvl.description, lvl.order_index]
+      );
+    }
+  }
+}
 
 /* GET /api/quran ─────────────────────────────────────────────────────── */
 router.get('/', requireAuth, async (req, res, next) => {
@@ -131,6 +179,8 @@ router.get('/niveaux', requireAuth, async (req, res, next) => {
     const schoolId = await getSchoolId(req.auth.userId);
     if (!schoolId) return res.status(403).json({ message: 'School not found' });
 
+    await ensureDefaultLevels(schoolId);
+
     const rows = await query(
       `SELECT DISTINCT TRIM(niveau) AS niveau, type
        FROM formations
@@ -145,10 +195,184 @@ router.get('/niveaux', requireAuth, async (req, res, next) => {
       [schoolId]
     );
 
+    const customLevels = await query(
+      `SELECT id, school_id, name, description, order_index
+       FROM quran_levels
+       WHERE school_id = ?
+       ORDER BY order_index ASC, id ASC`,
+      [schoolId]
+    );
+
+    const formattedLevels = customLevels.map(lvl => ({
+      ...lvl,
+      display_name: getLevelDisplayName(lvl)
+    }));
+
     res.json({
       db_niveaux:     rows.map(r => r.niveau),
-      db_memo_levels: memoLevels.map(r => r.level)
+      db_memo_levels: memoLevels.map(r => r.level),
+      levels:         formattedLevels
     });
+  } catch (err) { next(err); }
+});
+
+/* ── Quran Memorization Levels CRUD ──────────────────────────────────── */
+
+/* GET /api/quran/levels ── List all levels for current school ─────────── */
+router.get('/levels', requireAuth, async (req, res, next) => {
+  try {
+    const schoolId = await getSchoolId(req.auth.userId);
+    if (!schoolId) return res.status(403).json({ message: 'School not found' });
+
+    await ensureDefaultLevels(schoolId);
+
+    const rows = await query(
+      `SELECT ql.*,
+              (SELECT COUNT(*) FROM quran_memorization qm
+               WHERE qm.school_id = ql.school_id
+                 AND (qm.level = ql.name
+                      OR (ql.description IS NOT NULL AND ql.description != '' AND qm.level = CONCAT(ql.name, ' (', ql.description, ')'))
+                      OR (ql.description IS NOT NULL AND ql.description != '' AND qm.level LIKE CONCAT(ql.name, '%'))
+                     )
+              ) AS usage_count
+       FROM quran_levels ql
+       WHERE ql.school_id = ?
+       ORDER BY ql.order_index ASC, ql.id ASC`,
+      [schoolId]
+    );
+
+    const levels = rows.map(r => ({
+      ...r,
+      display_name: getLevelDisplayName(r)
+    }));
+
+    res.json({ levels });
+  } catch (err) { next(err); }
+});
+
+/* POST /api/quran/levels ── Create a new level ────────────────────────── */
+router.post('/levels', requireAuth, async (req, res, next) => {
+  try {
+    const schoolId = await getSchoolId(req.auth.userId);
+    if (!schoolId) return res.status(403).json({ message: 'School not found' });
+
+    const { name, description, order_index } = req.body;
+    if (!name || !name.trim()) {
+      return res.status(400).json({ message: 'Level name is required' });
+    }
+
+    let order = order_index !== undefined && order_index !== null && order_index !== '' ? parseInt(order_index, 10) : null;
+    if (order === null || isNaN(order)) {
+      const maxRows = await query(
+        `SELECT COALESCE(MAX(order_index), 0) AS max_order FROM quran_levels WHERE school_id = ?`,
+        [schoolId]
+      );
+      order = (maxRows[0]?.max_order || 0) + 1;
+    }
+
+    const result = await query(
+      `INSERT INTO quran_levels (school_id, name, description, order_index) VALUES (?, ?, ?, ?)`,
+      [schoolId, name.trim(), (description || '').trim() || null, order]
+    );
+
+    const newLevel = {
+      id: result.insertId,
+      school_id: schoolId,
+      name: name.trim(),
+      description: (description || '').trim() || null,
+      order_index: order
+    };
+    newLevel.display_name = getLevelDisplayName(newLevel);
+
+    res.status(201).json({ message: 'Level created successfully', level: newLevel });
+  } catch (err) { next(err); }
+});
+
+/* PUT /api/quran/levels/:id ── Update level ───────────────────────────── */
+router.put('/levels/:id', requireAuth, async (req, res, next) => {
+  try {
+    const schoolId = await getSchoolId(req.auth.userId);
+    if (!schoolId) return res.status(403).json({ message: 'School not found' });
+
+    const levelId = req.params.id;
+    const { name, description, order_index } = req.body;
+    if (!name || !name.trim()) {
+      return res.status(400).json({ message: 'Level name is required' });
+    }
+
+    const existingRows = await query(
+      `SELECT * FROM quran_levels WHERE id = ? AND school_id = ?`,
+      [levelId, schoolId]
+    );
+    if (!existingRows || existingRows.length === 0) {
+      return res.status(404).json({ message: 'Level not found' });
+    }
+    const oldLevel = existingRows[0];
+    const oldDisplayName = getLevelDisplayName(oldLevel);
+
+    const order = (order_index !== undefined && order_index !== null && order_index !== '') ? parseInt(order_index, 10) : oldLevel.order_index;
+
+    await query(
+      `UPDATE quran_levels SET name = ?, description = ?, order_index = ? WHERE id = ? AND school_id = ?`,
+      [name.trim(), (description || '').trim() || null, order, levelId, schoolId]
+    );
+
+    const updatedLevel = {
+      id: parseInt(levelId, 10),
+      school_id: schoolId,
+      name: name.trim(),
+      description: (description || '').trim() || null,
+      order_index: order
+    };
+    const newDisplayName = getLevelDisplayName(updatedLevel);
+
+    // If display name changed, update recorded memorization levels in quran_memorization
+    if (oldDisplayName !== newDisplayName) {
+      await query(
+        `UPDATE quran_memorization SET level = ? WHERE school_id = ? AND (level = ? OR level = ?)`,
+        [newDisplayName, schoolId, oldDisplayName, oldLevel.name]
+      );
+    }
+
+    updatedLevel.display_name = newDisplayName;
+    res.json({ message: 'Level updated successfully', level: updatedLevel });
+  } catch (err) { next(err); }
+});
+
+/* DELETE /api/quran/levels/:id ── Delete level ────────────────────────── */
+router.delete('/levels/:id', requireAuth, async (req, res, next) => {
+  try {
+    const schoolId = await getSchoolId(req.auth.userId);
+    if (!schoolId) return res.status(403).json({ message: 'School not found' });
+
+    const levelId = req.params.id;
+    await query(`DELETE FROM quran_levels WHERE id = ? AND school_id = ?`, [levelId, schoolId]);
+    res.json({ message: 'Level deleted successfully' });
+  } catch (err) { next(err); }
+});
+
+/* POST /api/quran/levels/reset ── Reset to default 6 levels ───────────── */
+router.post('/levels/reset', requireAuth, async (req, res, next) => {
+  try {
+    const schoolId = await getSchoolId(req.auth.userId);
+    if (!schoolId) return res.status(403).json({ message: 'School not found' });
+
+    await query(`DELETE FROM quran_levels WHERE school_id = ?`, [schoolId]);
+
+    for (const lvl of DEFAULT_QURAN_LEVELS) {
+      await query(
+        `INSERT INTO quran_levels (school_id, name, description, order_index) VALUES (?, ?, ?, ?)`,
+        [schoolId, lvl.name, lvl.description, lvl.order_index]
+      );
+    }
+
+    const rows = await query(
+      `SELECT * FROM quran_levels WHERE school_id = ? ORDER BY order_index ASC, id ASC`,
+      [schoolId]
+    );
+    const levels = rows.map(r => ({ ...r, display_name: getLevelDisplayName(r) }));
+
+    res.json({ message: 'Default levels restored successfully', levels });
   } catch (err) { next(err); }
 });
 
