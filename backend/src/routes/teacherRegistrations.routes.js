@@ -106,7 +106,25 @@ router.get(
     const schoolId = await getSchoolId(req.auth.userId);
     const rows = await query(SELECT_TEACHER + ' WHERE teachers.id = ? AND teachers.school_id = ? LIMIT 1', [req.params.id, schoolId]);
     if (!rows.length) throw new HttpError(404, 'Teacher not found');
-    res.json({ data: rows[0] });
+
+    const groups = await query(
+      `SELECT
+        g.id, g.name, g.formation_id, g.classroom_id, g.teacher_id,
+        g.start_date, g.end_date, g.max_students, g.created_at,
+        f.title AS formation_title, f.price AS formation_price, f.image AS formation_image,
+        f.type AS formation_type, f.niveau AS formation_niveau,
+        c.name AS classroom_name,
+        COUNT(DISTINCT sg.student_id) AS student_count
+      FROM \`groups\` g
+      LEFT JOIN formations f ON f.id = g.formation_id
+      LEFT JOIN classrooms c ON c.id = g.classroom_id
+      LEFT JOIN student_groups sg ON sg.group_id = g.id
+      WHERE f.school_id = ? AND (g.teacher_id = ? OR f.teacher_id = ?)
+      GROUP BY g.id ORDER BY g.id DESC`,
+      [schoolId, req.params.id, req.params.id]
+    );
+
+    res.json({ data: { ...rows[0], groups } });
   })
 );
 
@@ -131,6 +149,7 @@ router.post(
       national_id: nationalId = null,
       social_security_number: socialSecurityNumber = null,
       hire_date: hireDate = null,
+      rfid_tag: rfidTag = null,
     } = req.body;
 
     if (!firstName || !lastName || !email || !password || !employeeNumber) {
@@ -172,9 +191,9 @@ router.post(
       const userId = userResult.insertId;
 
       await connection.execute(
-        `INSERT INTO teachers (user_id, school_id, employee_number, phone, speciality, diploma, national_id, social_security_number, hire_date)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [userId, schoolId, employeeNumber, phone || null, speciality, diploma, nationalId, socialSecurityNumber, hireDate]
+        `INSERT INTO teachers (user_id, school_id, employee_number, phone, speciality, diploma, national_id, social_security_number, hire_date, rfid_tag)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [userId, schoolId, employeeNumber, phone || null, speciality, diploma, nationalId, socialSecurityNumber, hireDate, rfidTag || null]
       );
 
       // Link user to school_users for permission/count queries

@@ -11,7 +11,12 @@ async function getSchoolId(userId) {
      ORDER BY s.created_at DESC LIMIT 1`,
     [userId, userId]
   );
-  return rows[0] ? rows[0].id : null;
+  if (rows[0] && rows[0].id) return rows[0].id;
+  const tRow = await query('SELECT school_id FROM teachers WHERE user_id = ? LIMIT 1', [userId]);
+  if (tRow[0] && tRow[0].school_id) return tRow[0].school_id;
+  const sRow = await query('SELECT school_id FROM students WHERE user_id = ? LIMIT 1', [userId]);
+  if (sRow[0] && sRow[0].school_id) return sRow[0].school_id;
+  return null;
 }
 
 // GET /api/attendance
@@ -30,48 +35,102 @@ router.get('/', requireAuth, async (req, res, next) => {
         let teachers = [];
         let subject_name = req.query.subject_name || '';
 
-        if (type === 'student' || !type) {
-            if (group_id) {
-                // Get students in the group
-                const queryStr = `
-                    SELECT s.id, u.first_name, u.last_name, u.photo, s.registration_number, s.rfid_tag,
-                           COALESCE(a.status, 'pending') as status, a.scan_time, a.notes
-                    FROM student_groups sg
-                    JOIN students s ON sg.student_id = s.id
-                    JOIN users u ON s.user_id = u.id
-                    LEFT JOIN attendance a ON a.user_id = s.id 
-                                           AND a.user_type = 'student' 
-                                           AND a.date = ? 
-                                           AND a.group_id = ?
-                                           AND a.subject_name = ?
-                    WHERE sg.group_id = ? AND u.is_active = 1 AND s.school_id = ?
-                `;
-                students = await query(queryStr, [date, group_id, subject_name, group_id, schoolId]);
-            } else {
-                // If no group_id, list all students in the school
-                const queryStr = `
-                    SELECT s.id, u.first_name, u.last_name, u.photo, s.registration_number, s.rfid_tag,
-                           COALESCE(a.status, 'pending') as status, a.scan_time, a.notes
-                    FROM students s
-                    JOIN users u ON s.user_id = u.id
-                    LEFT JOIN attendance a ON a.user_id = s.id 
-                                           AND a.user_type = 'student' 
-                                           AND a.date = ?
-                                           AND a.subject_name = ?
-                    WHERE u.is_active = 1 AND s.school_id = ?
-                `;
-                students = await query(queryStr, [date, subject_name, schoolId]);
+        // Check if requester is a teacher
+        let teacherId = null;
+        if (req.auth.role === 'teacher') {
+            const tRows = await query('SELECT id FROM teachers WHERE user_id = ? LIMIT 1', [req.auth.userId]);
+            if (tRows.length > 0) {
+                teacherId = tRows[0].id;
             }
         }
 
-        if (type === 'teacher' || !type) {
+        if (type === 'student' || !type) {
+            if (teacherId) {
+                // Teacher: ONLY see students belonging to groups they teach
+                if (group_id) {
+                    const queryStr = `
+                        SELECT s.id, u.first_name, u.last_name, u.photo, COALESCE(s.gender, u.gender) as gender, s.registration_number, s.rfid_tag,
+                               COALESCE(a.status, 'pending') as status, a.scan_time, a.notes
+                        FROM student_groups sg
+                        JOIN students s ON sg.student_id = s.id
+                        JOIN users u ON s.user_id = u.id
+                        JOIN \`groups\` g ON sg.group_id = g.id
+                        JOIN formations f ON g.formation_id = f.id
+                        LEFT JOIN attendance a ON a.user_id = s.id 
+                                               AND a.user_type = 'student' 
+                                               AND a.date = ? 
+                                               AND a.group_id = ?
+                                               AND a.subject_name = ?
+                        WHERE sg.group_id = ? AND (g.teacher_id = ? OR f.teacher_id = ?) AND u.is_active = 1 AND s.school_id = ?
+                        ORDER BY u.last_name ASC, u.first_name ASC
+                    `;
+                    students = await query(queryStr, [date, group_id, subject_name, group_id, teacherId, teacherId, schoolId]);
+                } else {
+                    // No group specified: show only students in any group taught by this teacher
+                    const queryStr = `
+                        SELECT s.id, u.first_name, u.last_name, u.photo, COALESCE(s.gender, u.gender) as gender, s.registration_number, s.rfid_tag,
+                               COALESCE(a.status, 'pending') as status, a.scan_time, a.notes
+                        FROM student_groups sg
+                        JOIN students s ON sg.student_id = s.id
+                        JOIN users u ON s.user_id = u.id
+                        JOIN \`groups\` g ON sg.group_id = g.id
+                        JOIN formations f ON g.formation_id = f.id
+                        LEFT JOIN attendance a ON a.user_id = s.id 
+                                               AND a.user_type = 'student' 
+                                               AND a.date = ? 
+                                               AND a.group_id = sg.group_id
+                                               AND a.subject_name = ?
+                        WHERE (g.teacher_id = ? OR f.teacher_id = ?) AND u.is_active = 1 AND s.school_id = ?
+                        GROUP BY s.id
+                        ORDER BY u.last_name ASC, u.first_name ASC
+                    `;
+                    students = await query(queryStr, [date, subject_name, teacherId, teacherId, schoolId]);
+                }
+            } else {
+                // Admin / Super admin
+                if (group_id) {
+                    const queryStr = `
+                        SELECT s.id, u.first_name, u.last_name, u.photo, COALESCE(s.gender, u.gender) as gender, s.registration_number, s.rfid_tag,
+                               COALESCE(a.status, 'pending') as status, a.scan_time, a.notes
+                        FROM student_groups sg
+                        JOIN students s ON sg.student_id = s.id
+                        JOIN users u ON s.user_id = u.id
+                        LEFT JOIN attendance a ON a.user_id = s.id 
+                                               AND a.user_type = 'student' 
+                                               AND a.date = ? 
+                                               AND a.group_id = ?
+                                               AND a.subject_name = ?
+                        WHERE sg.group_id = ? AND u.is_active = 1 AND s.school_id = ?
+                        ORDER BY u.last_name ASC, u.first_name ASC
+                    `;
+                    students = await query(queryStr, [date, group_id, subject_name, group_id, schoolId]);
+                } else {
+                    const queryStr = `
+                        SELECT s.id, u.first_name, u.last_name, u.photo, COALESCE(s.gender, u.gender) as gender, s.registration_number, s.rfid_tag,
+                               COALESCE(a.status, 'pending') as status, a.scan_time, a.notes
+                        FROM students s
+                        JOIN users u ON s.user_id = u.id
+                        LEFT JOIN attendance a ON a.user_id = s.id 
+                                               AND a.user_type = 'student' 
+                                               AND a.date = ?
+                                               AND a.subject_name = ?
+                        WHERE u.is_active = 1 AND s.school_id = ?
+                        ORDER BY u.last_name ASC, u.first_name ASC
+                    `;
+                    students = await query(queryStr, [date, subject_name, schoolId]);
+                }
+            }
+        }
+
+        if (req.auth.role !== 'teacher' && (type === 'teacher' || !type)) {
             const queryStr = `
-                SELECT t.id, u.first_name, u.last_name, u.photo, t.employee_number, t.rfid_tag,
+                SELECT t.id, u.first_name, u.last_name, u.photo, u.gender as gender, t.employee_number, t.rfid_tag,
                        COALESCE(a.status, 'pending') as status, a.scan_time, a.notes
                 FROM teachers t
                 JOIN users u ON t.user_id = u.id
                 LEFT JOIN attendance a ON a.user_id = t.id AND a.user_type = 'teacher' AND a.date = ? AND a.subject_name = ?
                 WHERE u.is_active = 1 AND t.school_id = ?
+                ORDER BY u.last_name ASC, u.first_name ASC
             `;
             teachers = await query(queryStr, [date, subject_name, schoolId]);
         }
@@ -182,7 +241,7 @@ router.post('/scan', async (req, res, next) => {
         let user = null;
 
         let students = await query(`
-            SELECT s.*, u.first_name, u.last_name, u.photo 
+            SELECT s.*, u.first_name, u.last_name, u.photo, COALESCE(s.gender, u.gender) as gender 
             FROM students s 
             JOIN users u ON s.user_id = u.id 
             WHERE s.rfid_tag = ? OR s.registration_number = ? LIMIT 1
@@ -191,7 +250,7 @@ router.post('/scan', async (req, res, next) => {
             user = students[0];
         } else {
             let teachers = await query(`
-                SELECT t.*, u.first_name, u.last_name, u.photo 
+                SELECT t.*, u.first_name, u.last_name, u.photo, u.gender as gender 
                 FROM teachers t 
                 JOIN users u ON t.user_id = u.id 
                 WHERE t.rfid_tag = ? OR t.employee_number = ? LIMIT 1
@@ -225,7 +284,8 @@ router.post('/scan', async (req, res, next) => {
                 first_name: user.first_name,
                 last_name: user.last_name,
                 type: userType,
-                photo: user.photo
+                photo: user.photo,
+                gender: user.gender
             }
         });
 

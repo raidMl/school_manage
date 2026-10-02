@@ -29,6 +29,8 @@ const teacherPaymentsRoutes = require('./teacherPayments.routes');
 const quranRoutes = require('./quran.routes');
 const publicLandingRoutes = require('./publicLanding.routes');
 const inquiriesRoutes = require('./inquiries.routes');
+const nfcRoutes = require('./nfc.routes');
+const inventoryRoutes = require('./inventory.routes');
 
 const router = express.Router();
 
@@ -60,6 +62,8 @@ router.use('/teacher-payments', teacherPaymentsRoutes);
 router.use('/image-search', imageSearchRoutes);
 router.use('/cloudinary',   cloudinaryRoutes);
 router.use('/quran', quranRoutes);
+router.use('/nfc', nfcRoutes);
+router.use('/inventory', inventoryRoutes);
 router.use('/', classroomsGroupsRoutes);
 
 module.exports = router;

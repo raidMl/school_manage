@@ -10,6 +10,10 @@
     'selected': 'محدد',
     'Home': 'الرئيسية', 'Dashboard': 'لوحة التحكم', 'Teachers': 'الأساتذة',
     'All Teachers': 'جميع الأساتذة', 'Add Teacher': 'إضافة أستاذ', 'Salaries & Payments': 'رواتب الأساتذة',
+    'Teacher Groups': 'الأفواج المسندة', 'teacher groups': 'الأفواج المسندة', 'Assigned Groups': 'الأفواج المسندة',
+    'No groups assigned to this teacher yet': 'لا توجد أفواج مسندة لهذا الأستاذ بعد',
+    'When class groups are assigned to this teacher, they will appear here.': 'عند إسناد أفواج لهذا الأستاذ، ستظهر هنا.',
+    'Manage Groups': 'إدارة الأفواج', 'Assign Group': 'إسناد فوج', 'View Group': 'عرض الفوج',
     'Students': 'الطلاب', 'All Students': 'جميع الطلاب', 'Add Student': 'إضافة طالب',
     'Formations': 'الدورات', 'All Formations': 'جميع الدورات', 'Add Formation': 'إضافة دورة',
     'Classrooms': 'الأقسام', 'Groups': 'الأفواج', 'School Settings': 'إعدادات المدرسة',
@@ -242,6 +246,13 @@
     'Total Expense': 'إجمالي المصاريف',
     'Balance': 'الرصيد',
     'Treasury Management': 'تسيير الخزينة',
+    'Financial tracking & balance': 'المداخيل، المصاريف والرصيد',
+    'Financial tracking &amp; balance': 'المداخيل، المصاريف والرصيد',
+    'Incomes, Expenses & Balance': 'المداخيل، المصاريف والرصيد',
+    'Incomes, Expenses &amp; Balance': 'المداخيل، المصاريف والرصيد',
+    'Add new': 'إضافة جديد',
+    'Add New': 'إضافة جديد',
+    'Formations Subscriptions': 'الدورات والاشتراكات',
     'Add Transaction': 'إضافة معاملة',
     'Transactions History': 'سجل المعاملات',
     'Save': 'حفظ',
@@ -1544,7 +1555,7 @@
     if (!rows.length) { tbody.innerHTML = '<tr><td colspan="10" class="text-center" data-i18n="No records found">' + t('No records found') + '</td></tr>'; return; }
     tbody.innerHTML = rows.map(function (r) {
       var fullName = [r.first_name, r.last_name].filter(Boolean).join(' ');
-      var chk = '<input type="checkbox" class="row-checkbox" value="' + r.id + '" data-type="student" data-name="' + esc(fullName) + '" data-reg="' + esc(r.registration_number) + '" data-photo="' + esc(avatarUrl(r.photo, fullName, 'student', r.gender)) + '" data-formation="' + esc(r.formation_title || '') + '">';
+      var chk = '<input type="checkbox" class="row-checkbox" value="' + r.id + '" data-type="student" data-name="' + esc(fullName) + '" data-reg="' + esc(r.registration_number) + '" data-photo="' + esc(avatarUrl(r.photo, fullName, 'student', r.gender)) + '" data-formation="' + esc(r.formation_title || '') + '" data-rfid="' + esc(r.rfid_tag || '') + '">';
       var name = esc(fullName);
       var img = '<img src="' + esc(avatarUrl(r.photo, fullName, 'student', r.gender)) + '" style="width:36px;height:36px;border-radius:50%;object-fit:cover" onerror="this.src=\'https://ui-avatars.com/api/?name=S&background=27ae60&color=fff&size=36\'">';
       var payStatus = formatPaymentStatus(r.payment_status);
@@ -2035,7 +2046,7 @@
             blood_type: fd.get('blood_type') || null,
             formation_id: fd.get('formation_id'),
             group_id: selectedGroupId ? parseInt(selectedGroupId, 10) : null,
-            registration_number: Math.floor(1000000000 + Math.random() * 9000000000).toString(),
+            registration_number: (function() { var rn = Math.floor(1000000000 + Math.random() * 9000000000).toString(); window.__newStudentRegNum = rn; return rn; })(),
             parent_name: fd.get('parent_name') || null,
             parent_phone: fd.get('parent_phone') || null,
             phone1_has_whatsapp: fd.get('phone1_has_whatsapp') === '1' ? 1 : 0,
@@ -2055,6 +2066,7 @@
             payment_status: fd.get('payment_status') || 'not_paid',
             subscription_plan: fd.get('subscription_plan') || null,
             promo_code: fd.get('promo_code') || null,
+            rfid_tag: fd.get('rfid_tag') || window.__newStudentRegNum || null,
           })
         }).then(function (resp) {
           var isDuplicate = resp && resp.duplicate_detected;
@@ -2127,6 +2139,11 @@
           }
         }
       });
+      // Auto-fill rfid_tag with registration_number if the student has no tag set
+      var rfidEl = form.querySelector('[name="rfid_tag"]');
+      if (rfidEl && !rfidEl.value && s.registration_number) {
+        rfidEl.value = s.registration_number;
+      }
 
       // App badges / checkboxes for Phone 1 and Phone 2
       ['phone1_has_whatsapp','phone1_has_viber','phone1_has_telegram','phone2_has_whatsapp','phone2_has_viber','phone2_has_telegram'].forEach(function(f) {
@@ -2302,7 +2319,7 @@
     tbody.innerHTML = rows.map(function (r) {
       var name = esc([r.first_name, r.last_name].filter(Boolean).join(' '));
       var img = '<img src="' + esc(avatarUrl(r.photo, [r.first_name, r.last_name].join(' '), 'teacher', r.gender)) + '" style="width:36px;height:36px;border-radius:50%;object-fit:cover">';
-      var chk = '<input type="checkbox" class="row-checkbox" value="' + r.id + '" data-type="teacher" data-name="' + name + '" data-reg="' + esc(r.employee_number || '') + '" data-photo="' + esc(avatarUrl(r.photo, name, 'teacher', r.gender)) + '" data-speciality="' + esc(r.speciality || r.specialization || '') + '" data-hire-date="' + esc(r.hire_date || '') + '" data-birth-date="' + esc(r.birth_date || '') + '" data-gender="' + esc(r.gender || '') + '" data-diploma="' + esc(r.diploma || '') + '">';
+      var chk = '<input type="checkbox" class="row-checkbox" value="' + r.id + '" data-type="teacher" data-name="' + name + '" data-reg="' + esc(r.employee_number || '') + '" data-photo="' + esc(avatarUrl(r.photo, name, 'teacher', r.gender)) + '" data-speciality="' + esc(r.speciality || r.specialization || '') + '" data-hire-date="' + esc(r.hire_date || '') + '" data-birth-date="' + esc(r.birth_date || '') + '" data-gender="' + esc(r.gender || '') + '" data-diploma="' + esc(r.diploma || '') + '" data-rfid="' + esc(r.rfid_tag || '') + '">';
       var statusBadge = r.is_active
         ? '<span class="label label-success" data-i18n="Active">' + t('Active') + '</span>'
         : '<span class="label label-danger" data-i18n="Inactive">' + t('Inactive') + '</span>';
@@ -2546,10 +2563,11 @@
             phone: fd.get('phone') || null,
             gender: fd.get('gender') || null, birth_date: fd.get('birth_date') || null, photo: fd.get('photo') || null,
             blood_type: fd.get('blood_type') || null,
-            employee_number: Math.floor(1000000000 + Math.random() * 9000000000).toString(), speciality: fd.get('speciality') || null,
+            employee_number: (function() { var en = Math.floor(1000000000 + Math.random() * 9000000000).toString(); window.__newTeacherEmpNum = en; return en; })(), speciality: fd.get('speciality') || null,
             diploma: fd.get('diploma') || null, hire_date: fd.get('hire_date') || null,
             national_id: fd.get('national_id') || null,
             social_security_number: fd.get('social_security_number') || null,
+            rfid_tag: fd.get('rfid_tag') || window.__newTeacherEmpNum || null,
           })
         }).then(function (resp) {
           var isDuplicate = resp && resp.duplicate_detected;
@@ -2591,6 +2609,11 @@
           }
         }
       });
+      // Auto-fill rfid_tag with employee_number if the teacher has no tag set
+      var tRfidEl = form.querySelector('[name="rfid_tag"]');
+      if (tRfidEl && !tRfidEl.value && tc.employee_number) {
+        tRfidEl.value = tc.employee_number;
+      }
       var statusEl = form.querySelector('[name="is_active"]');
       if (statusEl) statusEl.value = tc.is_active ? '1' : '0';
       var bloodTypeEl = form.querySelector('[name="blood_type"]');
@@ -4329,6 +4352,8 @@
       document.getElementById('sp-payment-status').innerHTML = formatPaymentStatus(tc.payment_status);
       document.getElementById('sp-next-payment-date').textContent = fmtDate(tc.next_payment_date);
       document.getElementById('sp-status').innerHTML = tc.is_active ? '<span class="label label-success">' + t('Active') + '</span>' : '<span class="label label-danger">' + t('Inactive') + '</span>';
+      var spRfid = document.getElementById('sp-rfid-tag');
+      if (spRfid) spRfid.textContent = tc.rfid_tag || '-';
 
       document.getElementById('sp-parent-name').textContent = tc.parent_name || '-';
       
@@ -4397,6 +4422,8 @@
       document.getElementById('tp-birth-date').textContent = fmtDate(tc.birth_date);
       var phoneEl = document.getElementById('tp-phone');
       if (phoneEl) phoneEl.textContent = tc.phone || tc.parent_phone || '-';
+      var tpRfid = document.getElementById('tp-rfid-tag');
+      if (tpRfid) tpRfid.textContent = tc.rfid_tag || '-';
 
       // Status in header & card
       var statusBadge = tc.is_active
@@ -4414,6 +4441,96 @@
       // Edit link
       var editLink = document.getElementById('tp-edit-link');
       if (editLink) editLink.href = 'edit-professor.html?id=' + id;
+
+      // Teacher Groups / الأفواج المسندة
+      var groups = tc.groups;
+      function renderTeacherGroups(grpList) {
+        var groupsCont = document.getElementById('tp-groups-container');
+        var heroCount = document.getElementById('tp-hero-groups-count');
+        var badgeCount = document.getElementById('tp-groups-count-badge');
+        var count = (grpList && grpList.length) || 0;
+        if (heroCount) heroCount.textContent = count;
+        if (badgeCount) badgeCount.textContent = count;
+        if (!groupsCont) return;
+
+        if (!grpList || !grpList.length) {
+          groupsCont.innerHTML =
+            '<div class="text-center" style="padding:32px 20px; background:#f8fafc; border:2px dashed #e2e8f0; border-radius:14px; margin-top:8px;">' +
+              '<div style="width:48px; height:48px; border-radius:50%; background:#ecfdf5; color:#10b981; display:inline-flex; align-items:center; justify-content:center; font-size:20px; margin-bottom:10px;"><i class="fa fa-cubes"></i></div>' +
+              '<h5 style="margin:0 0 6px; font-weight:700; color:#374151; font-size:14px;" data-i18n="No groups assigned to this teacher yet">' + t('No groups assigned to this teacher yet') + '</h5>' +
+              '<p style="margin:0 0 14px; color:#6b7280; font-size:13px;" data-i18n="When class groups are assigned to this teacher, they will appear here.">' + t('When class groups are assigned to this teacher, they will appear here.') + '</p>' +
+              '<a href="all-groups.html" class="btn btn-sm btn-default" style="border-radius:8px; font-size:12.5px; font-weight:600; display:inline-flex; align-items:center; gap:5px;"><i class="fa fa-plus-circle" style="color:#10b981;"></i> <span data-i18n="Assign Group">' + t('Assign Group') + '</span></a>' +
+            '</div>';
+        } else {
+          var rows = grpList.map(function (g) {
+            var dates = (g.start_date || g.end_date)
+              ? (fmtDate(g.start_date) + ' - ' + fmtDate(g.end_date))
+              : '-';
+            return '<tr>' +
+              '<td style="vertical-align:middle;">' +
+                '<div style="display:flex; align-items:center; gap:10px;">' +
+                  '<div style="width:34px; height:34px; border-radius:9px; background:#ecfdf5; color:#059669; display:inline-flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0;">' +
+                    '<i class="fa fa-cubes"></i>' +
+                  '</div>' +
+                  '<a href="group-info.html?id=' + g.id + '" style="font-weight:700; color:#064e3b; text-decoration:none; font-size:14px;">' + esc(g.name) + '</a>' +
+                '</div>' +
+              '</td>' +
+              '<td style="vertical-align:middle;">' +
+                '<span class="label-formation" style="background:#f0fdf4; color:#166534; border:1px solid #bbf7d0; padding:4px 10px; border-radius:20px; font-size:12px; font-weight:600; display:inline-flex; align-items:center; gap:5px;">' +
+                  '<i class="fa fa-book"></i> ' + esc(g.formation_title || '-') +
+                '</span>' +
+              '</td>' +
+              '<td style="vertical-align:middle;">' +
+                '<span style="color:#475569; font-weight:500; font-size:13px; display:inline-flex; align-items:center; gap:6px;">' +
+                  '<i class="fa fa-building" style="color:#10b981;"></i> ' + esc(g.classroom_name || t('No classroom')) +
+                '</span>' +
+              '</td>' +
+              '<td style="vertical-align:middle;">' +
+                '<a href="group-info.html?id=' + g.id + '" style="display:inline-flex; align-items:center; gap:6px; background:#f1f5f9; color:#334155; padding:4px 10px; border-radius:20px; font-size:12px; font-weight:600; text-decoration:none;">' +
+                  '<i class="fa fa-users" style="color:#6366f1;"></i> ' + (g.student_count || 0) + (g.max_students ? (' / ' + g.max_students) : '') +
+                '</a>' +
+              '</td>' +
+              '<td style="vertical-align:middle;"><small class="text-muted" style="font-weight:500;">' + dates + '</small></td>' +
+              '<td class="text-center" style="vertical-align:middle; white-space:nowrap; min-width:110px;">' +
+                '<div style="display:inline-flex; align-items:center; justify-content:center; gap:6px;">' +
+                  '<a href="group-info.html?id=' + g.id + '" class="btn btn-default btn-sm" style="border-radius:8px; width:32px; height:32px; display:inline-flex; align-items:center; justify-content:center; padding:0;" title="' + t('View Details') + '"><i class="fa fa-eye text-info"></i></a>' +
+                  '<a href="edit-group.html?id=' + g.id + '" class="btn btn-default btn-sm" style="border-radius:8px; width:32px; height:32px; display:inline-flex; align-items:center; justify-content:center; padding:0;" title="' + t('Edit Group') + '"><i class="fa fa-pencil text-primary"></i></a>' +
+                '</div>' +
+              '</td>' +
+            '</tr>';
+          }).join('');
+
+          groupsCont.innerHTML =
+            '<div class="table-responsive" style="border:1px solid #e5e7eb; border-radius:12px; overflow:hidden; margin-top:8px;">' +
+              '<table class="table table-hover" style="margin-bottom:0; background:#fff;">' +
+                '<thead style="background:#f8fafc; border-bottom:2px solid #e5e7eb;">' +
+                  '<tr>' +
+                    '<th style="font-size:12px; font-weight:700; text-transform:uppercase; color:#475569; padding:12px 16px;" data-i18n="Group Name">' + t('Group Name') + '</th>' +
+                    '<th style="font-size:12px; font-weight:700; text-transform:uppercase; color:#475569; padding:12px 16px;" data-i18n="Formation">' + t('Formation') + '</th>' +
+                    '<th style="font-size:12px; font-weight:700; text-transform:uppercase; color:#475569; padding:12px 16px;" data-i18n="Classroom">' + t('Classroom') + '</th>' +
+                    '<th style="font-size:12px; font-weight:700; text-transform:uppercase; color:#475569; padding:12px 16px;" data-i18n="Students">' + t('Students') + '</th>' +
+                    '<th style="font-size:12px; font-weight:700; text-transform:uppercase; color:#475569; padding:12px 16px;" data-i18n="Dates">' + t('Dates') + '</th>' +
+                    '<th style="font-size:12px; font-weight:700; text-transform:uppercase; color:#475569; padding:12px 16px; text-align:center;" data-i18n="Actions">' + t('Actions') + '</th>' +
+                  '</tr>' +
+                '</thead>' +
+                '<tbody>' + rows + '</tbody>' +
+              '</table>' +
+            '</div>';
+        }
+
+        applyTranslations(groupsCont);
+        if (window.AppI18n) window.AppI18n.translateAll(groupsCont);
+      }
+
+      if (groups !== undefined) {
+        renderTeacherGroups(groups);
+      } else {
+        request('/api/groups?teacher_id=' + id).then(function (res) {
+          renderTeacherGroups(res.data || []);
+        }).catch(function () {
+          renderTeacherGroups([]);
+        });
+      }
 
       // Apply i18n translations (include hero card outside tp-content)
       if (window.AppI18n) window.AppI18n.translateAll(document.body);
@@ -4596,7 +4713,7 @@
       }
       tbody.innerHTML = rows.map(function(r) {
           var fullName = [r.first_name, r.last_name].filter(Boolean).join(' ');
-          var chk = '<input type="checkbox" class="gp-row-checkbox" value="' + r.id + '" data-type="student" data-name="' + esc(fullName) + '" data-reg="' + esc(r.registration_number) + '" data-photo="' + esc(avatarUrl(r.photo, fullName, 'student', r.gender)) + '" data-formation="' + esc(r.formation_title || '') + '" style="cursor:pointer; transform:scale(1.2); margin:0;">';
+          var chk = '<input type="checkbox" class="gp-row-checkbox" value="' + r.id + '" data-type="student" data-name="' + esc(fullName) + '" data-reg="' + esc(r.registration_number) + '" data-photo="' + esc(avatarUrl(r.photo, fullName, 'student', r.gender)) + '" data-formation="' + esc(r.formation_title || '') + '" data-rfid="' + esc(r.rfid_tag || '') + '" style="cursor:pointer; transform:scale(1.2); margin:0;">';
           var img = '<img class="student-photo-circle" src="' + esc(avatarUrl(r.photo, fullName, 'student', r.gender)) + '" onerror="this.src=\'https://ui-avatars.com/api/?name=S&background=27ae60&color=fff&size=38\'">';
           var statusBadge = r.is_active 
               ? '<span class="label label-success" style="border-radius:20px; padding:3px 10px; font-weight:600;"><i class="fa fa-check-circle"></i> ' + t('Active') + '</span>'
@@ -4672,7 +4789,8 @@
                       name: cb.getAttribute('data-name'),
                       reg: cb.getAttribute('data-reg'),
                       photo: cb.getAttribute('data-photo'),
-                      formation: cb.getAttribute('data-formation')
+                      formation: cb.getAttribute('data-formation'),
+                      rfid: cb.getAttribute('data-rfid') || ''
                   };
               });
               if (!selected.length) return alert('No students selected.');
@@ -4721,6 +4839,10 @@
               document.getElementById('card-student-photo').src = st.photo;
               document.getElementById('card-qr-reg').textContent = st.reg;
               document.getElementById('card-student-formation').textContent = st.formation || 'Student';
+              var rfidBadge = document.getElementById('card-nfc-badge');
+              var rfidEl = document.getElementById('card-rfid-tag');
+              if (rfidEl) rfidEl.textContent = st.rfid || '—';
+              if (rfidBadge) rfidBadge.style.display = st.rfid ? 'flex' : 'none';
               
               var qrContainer = document.getElementById('card-qr-code');
               qrContainer.innerHTML = '';
@@ -5471,9 +5593,16 @@
     badge.innerHTML = p.status === 'active'
       ? '<span class="badge-active"><i class="fa fa-circle"></i> Active</span>'
       : '<span class="badge-disabled">Disabled</span>';
-    // Toggle activate button visibility
+    // Toggle activate button — always visible, label & style switch based on status
     var activateBtn = document.getElementById('wp-btn-activate');
-    activateBtn.style.display = p.status === 'active' ? 'none' : '';
+    if (p.status === 'active') {
+      activateBtn.className = 'btn btn-warning btn-sm no-print';
+      activateBtn.innerHTML = '<i class="fa fa-times-circle"></i> Deactivate';
+    } else {
+      activateBtn.className = 'btn btn-success btn-sm no-print';
+      activateBtn.innerHTML = '<i class="fa fa-check-circle"></i> Activate';
+    }
+    activateBtn.style.display = '';
   }
 
   // ── Render the timetable grid ──────────────────────────────────────────────
@@ -5782,18 +5911,24 @@
       $('#modalProgram').modal('show');
     });
 
-    // Activate
+    // Activate / Deactivate toggle
     var activateBtn = document.getElementById('wp-btn-activate');
     if (activateBtn) activateBtn.addEventListener('click', function () {
       if (!WP.current) return;
-      if (!confirm('Activate "' + WP.current.name + '"? All other programs will be disabled.')) return;
+      var isActive = WP.current.status === 'active';
+      var confirmMsg = isActive
+        ? 'Deactivate "' + WP.current.name + '"?'
+        : 'Activate "' + WP.current.name + '"? (other active programs will remain active)';
+      if (!confirm(confirmMsg)) return;
       request('/api/weekly-programs/' + WP.current.id + '/activate', { method: 'POST' })
-        .then(function () {
-          return Promise.all([
-            request('/api/weekly-programs').then(function (p) { WP.programs = p.data || []; }),
-            loadProgramDetail(WP.current.id)
-          ]);
-        }).then(function () { renderProgList(); })
+        .then(function (res) {
+          // Update WP.current status and the programs list item
+          WP.current.status = res.data.status;
+          var idx = WP.programs.findIndex(function (p) { return p.id === WP.current.id; });
+          if (idx !== -1) WP.programs[idx].status = res.data.status;
+          renderProgDetail();
+          renderProgList();
+        })
         .catch(function (err) { showAlert('#wp-global-alert', err.message, 'danger'); });
     });
 
@@ -6637,7 +6772,12 @@
         var idNumber = esc(type === 'student' ? r.registration_number : r.employee_number);
         var tag = esc(r.rfid_tag || '-');
         var scanTime = esc(r.scan_time || '-');
-        var img = '<img src="' + esc(avatarUrl(r.photo, name, type, r.gender)) + '" style="width:36px;height:36px;border-radius:50%;object-fit:cover">';
+        var g = String(r.gender || '').toLowerCase().trim();
+        var isFemale = (g === 'female' || g === 'f' || g === 'woman' || g === 'girl' || g === 'أنثى');
+        var fallbackImg = (type === 'teacher')
+            ? (isFemale ? 'img/معلمة مسلمة.webp' : 'img/معلم.webp')
+            : (isFemale ? 'img/طالبة مسلمة.webp' : 'img/طالب.webp');
+        var img = '<img src="' + esc(avatarUrl(r.photo, name, type, r.gender)) + '" style="width:36px;height:36px;border-radius:50%;object-fit:cover" onerror="this.onerror=null;this.src=\'' + fallbackImg + '\';">';
 
         var isPresent = r.status === 'present';
         var isPending = r.status === 'pending' || r.status === null;
@@ -6830,7 +6970,8 @@
             name: cb.getAttribute('data-name') || (cb.closest('tr') && cb.closest('tr').cells[3] ? cb.closest('tr').cells[3].innerText.trim() : ''),
             reg: cb.getAttribute('data-reg') || (cb.closest('tr') && cb.closest('tr').cells[2] ? cb.closest('tr').cells[2].innerText.trim() : ''),
             formation: cb.getAttribute('data-formation') || cb.getAttribute('data-speciality') || '',
-            photo: cb.getAttribute('data-photo') || ''
+            photo: cb.getAttribute('data-photo') || '',
+            rfid: cb.getAttribute('data-rfid') || ''
           };
         });
         var totalCards = cardItems.length;
@@ -7143,6 +7284,8 @@
             });
             var qrRegEl = document.getElementById('card-qr-reg');
             if (qrRegEl) qrRegEl.textContent = item.reg;
+            var rfidTagEl = document.getElementById('card-rfid-tag');
+            if (rfidTagEl) rfidTagEl.textContent = item.rfid || item.reg || '—';
 
             var year = new Date().getFullYear();
             var yearEl = document.getElementById('card-year');

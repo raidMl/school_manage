@@ -47,11 +47,14 @@
 
   // ── Avatar helper ────────────────────────────────────────────────────────────
   function avatarUrl(photo, name, type, gender) {
-    if (photo && photo.trim() && photo.indexOf('/img/avatar-') === -1 && photo.indexOf('ui-avatars.com') === -1) {
+    if (photo && photo.trim() && photo.indexOf('/img/avatar-') === -1 && photo.indexOf('ui-avatars.com') === -1 && photo.indexOf('base64') === -1) {
       return photo.trim();
     }
-    var userGender = gender || (window._ctx && window._ctx.user && window._ctx.user.gender) || '';
-    var g = String(userGender).toLowerCase();
+    var userGender = gender;
+    if (!userGender && (!type || (!name && window._ctx && window._ctx.user && window._ctx.user.role === type))) {
+      userGender = (window._ctx && window._ctx.user && window._ctx.user.gender) || '';
+    }
+    var g = String(userGender || '').toLowerCase().trim();
     var isFemale = (g === 'female' || g === 'f' || g === 'woman' || g === 'girl' || g === 'أنثى');
 
     if (type === 'student') {
@@ -118,8 +121,8 @@
 
   // ── Auth ─────────────────────────────────────────────────────────────────────
   var ALLOWED_PAGES = {
-    'student': ['student-space', 'student-profile', 'student-attendance'],
-    'teacher': ['teacher-space', 'attendance', 'teacher-profile', 'teacher-attendance']
+    'student': ['student-space', 'student-profile', 'student-attendance', 'student-payments'],
+    'teacher': ['teacher-space', 'attendance', 'teacher-profile', 'teacher-attendance', 'teacher-payments']
   };
 
   function ensureAuth() {
@@ -401,20 +404,27 @@
       });
     }
 
-    populateAttendanceGroups();
     bindAttendanceFilters();
 
-    // For teachers: hide the type filter and lock to students
-    setTimeout(function() {
-        if (window._ctx && window._ctx.user && window._ctx.user.role === 'teacher') {
-            var typeFilter = document.getElementById('attendance-filter-type');
-            if (typeFilter) {
-                typeFilter.value = 'student';
-                typeFilter.parentElement.style.display = 'none';
-            }
+    function setupAttendanceAfterAuth() {
+        var isTeacher = window._ctx && window._ctx.user && window._ctx.user.role === 'teacher';
+        var typeFilter = document.getElementById('attendance-filter-type');
+        if (isTeacher && typeFilter) {
+            typeFilter.value = 'student';
+            if (typeFilter.parentElement) typeFilter.parentElement.style.display = 'none';
         }
-        loadAttendanceData();
-    }, 500);
+        populateAttendanceGroups();
+    }
+
+    if (window._ctx) {
+        setupAttendanceAfterAuth();
+    } else {
+        var prevOnAuthReady = window.onAuthReady;
+        window.onAuthReady = function() {
+            if (typeof prevOnAuthReady === 'function') prevOnAuthReady();
+            setupAttendanceAfterAuth();
+        };
+    }
 
     // Bulk selection
     var selectAllCb = document.getElementById('attendance-select-all');
@@ -681,12 +691,34 @@
   function populateAttendanceGroups() {
     var groupSel = document.getElementById('attendance-filter-group');
     if (!groupSel) return;
-    request('/api/groups').then(function(res) {
-        var groups = res.data || [];
-        var html = '<option value="">-- All Groups --</option>';
+    var isTeacher = window._ctx && window._ctx.user && window._ctx.user.role === 'teacher';
+    var isAr = (window.AppI18n && typeof window.AppI18n.getLang === 'function' && window.AppI18n.getLang() === 'ar') || (typeof currentLang !== 'undefined' && currentLang === 'ar');
+
+    // For teachers, fetch ONLY their own assigned groups via /api/teacher-space/me
+    var fetchGroupsPromise = isTeacher
+        ? request('/api/teacher-space/me').then(function(res) { return res.groups || []; })
+        : request('/api/groups').then(function(res) { return res.data || []; });
+
+    fetchGroupsPromise.then(function(groups) {
+        var allGroupsLabel = isTeacher 
+            ? (isAr ? '-- كل أفواجي --' : '-- All My Groups --')
+            : (isAr ? '-- كل الأفواج --' : '-- All Groups --');
+        var html = '<option value="">' + allGroupsLabel + '</option>';
         html += groups.map(function(g) { return '<option value="' + g.id + '">' + esc(g.name) + '</option>'; }).join('');
         groupSel.innerHTML = html;
-    }).catch(function(){});
+
+        var urlParams = new URLSearchParams(window.location.search);
+        var urlGroupId = urlParams.get('group_id');
+        if (urlGroupId) {
+            groupSel.value = urlGroupId;
+        } else if (isTeacher && groups.length === 1) {
+            groupSel.value = groups[0].id;
+        }
+        loadAttendanceData();
+    }).catch(function(err) {
+        console.error('Failed to populate groups:', err);
+        loadAttendanceData();
+    });
   }
 
   function bindAttendanceFilters() {
@@ -711,16 +743,21 @@
       var tbody = document.querySelector('#backend-attendance-table tbody');
       if (!tbody) return;
       var date = document.getElementById('attendance-filter-date').value;
-      var type = document.getElementById('attendance-filter-type').value;
+      var typeEl = document.getElementById('attendance-filter-type');
+      var type = (typeEl && typeEl.value) || 'student';
       var groupId = document.getElementById('attendance-filter-group').value;
       if (!date) return;
-      tbody.innerHTML = '<tr><td colspan="6" class="text-center">Loading...</td></tr>';
+      var isAr = (window.AppI18n && typeof window.AppI18n.getLang === 'function' && window.AppI18n.getLang() === 'ar') || (typeof currentLang !== 'undefined' && currentLang === 'ar');
+      tbody.innerHTML = '<tr><td colspan="7" class="text-center" style="padding:20px;">' + (isAr ? 'جارٍ التحميل...' : 'Loading...') + '</td></tr>';
       var params = new URLSearchParams({ date: date, type: type });
       if (groupId) params.append('group_id', groupId);
       request('/api/attendance?' + params.toString()).then(function(res) {
           var items = type === 'student' ? res.students : res.teachers;
           if (!items || !items.length) {
-              tbody.innerHTML = '<tr><td colspan="7" class="text-center">No records found</td></tr>';
+              var emptyMsg = isAr
+                  ? '<i class="fa fa-info-circle"></i> لا توجد سجلات لعرضها في هذا الفوج / التاريخ'
+                  : '<i class="fa fa-info-circle"></i> No records found for this group / date';
+              tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted" style="padding: 24px; font-size: 15px;">' + emptyMsg + '</td></tr>';
               updateBulkActionVisibility();
               return;
           }
@@ -749,7 +786,12 @@
               var idNumber = esc(type === 'student' ? r.registration_number : r.employee_number);
               var tag = esc(r.rfid_tag || '-');
               var scanTime = esc(r.scan_time || '-');
-              var img = '<img src="' + esc(avatarUrl(r.photo, name, type)) + '" style="width:36px;height:36px;border-radius:50%;object-fit:cover">';
+              var g = String(r.gender || '').toLowerCase().trim();
+              var isFemale = (g === 'female' || g === 'f' || g === 'woman' || g === 'girl' || g === 'أنثى');
+              var fallbackImg = (type === 'teacher')
+                  ? (isFemale ? 'img/معلمة مسلمة.webp' : 'img/معلم.webp')
+                  : (isFemale ? 'img/طالبة مسلمة.webp' : 'img/طالب.webp');
+              var img = '<img src="' + esc(avatarUrl(r.photo, name, type, r.gender)) + '" style="width:36px;height:36px;border-radius:50%;object-fit:cover" onerror="this.onerror=null;this.src=\'' + fallbackImg + '\';">';
               var isPresent = r.status === 'present';
               var isPending = r.status === 'pending' || r.status === null;
               var _isAr = currentLang === 'ar' || (window.AppI18n && typeof window.AppI18n.getLang === 'function' && window.AppI18n.getLang() === 'ar');

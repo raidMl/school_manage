@@ -86,28 +86,82 @@ router.get('/attendance', asyncHandler(async (req, res) => {
 router.get('/planning', asyncHandler(async (req, res) => {
   if (req.auth.role !== 'student') return res.status(403).json({ message: 'Forbidden' });
 
-  const student = await query('SELECT id, school_id FROM students WHERE user_id = ?', [req.auth.userId]);
-  if (!student.length) return res.json({ planning: [] });
+  const student = await query('SELECT id, school_id, formation_id FROM students WHERE user_id = ?', [req.auth.userId]);
+  if (!student.length) return res.json({ planning: [], slots: [], programs: [] });
 
-  // Find active program
-  const programs = await query('SELECT id FROM weekly_programs WHERE school_id = ? AND status = "active" LIMIT 1', [student[0].school_id]);
-  if (!programs.length) return res.json({ planning: [] });
+  const studentId = student[0].id;
+  const schoolId = student[0].school_id;
+
+  // Find active programs for this school (fallback to all programs if none marked active)
+  let programs = await query(
+    'SELECT id, name, description, status FROM weekly_programs WHERE school_id = ? AND status = "active"',
+    [schoolId]
+  );
+  if (!programs.length) {
+    programs = await query(
+      'SELECT id, name, description, status FROM weekly_programs WHERE school_id = ?',
+      [schoolId]
+    );
+  }
+  if (!programs.length) return res.json({ planning: [], slots: [], programs: [] });
+
+  const programIds = programs.map(p => p.id);
+  const placeholders = programIds.map(() => '?').join(',');
 
   const planning = await query(`
-    SELECT wse.day_of_week, wts.label as time_slot, wse.subject_name, cr.name as room_name, g.name as group_name, CONCAT(t.first_name, ' ', t.last_name) as teacher_name, f.title as formation_name
+    SELECT DISTINCT wse.id, wse.slot_id, wse.day_of_week, wse.subject_name,
+           COALESCE(wse.color, '#4f6eff') AS color,
+           wts.label AS time_slot, wts.start_time, wts.end_time, wts.sort_order,
+           COALESCE(cr.name, cr_grp.name, cr_form.name, '—') AS room_name,
+           g.id AS group_id, g.name AS group_name,
+           f.id AS formation_id, f.title AS formation_title,
+           CONCAT(COALESCE(tu.first_name, ''), ' ', COALESCE(tu.last_name, '')) AS teacher_name,
+           wp.id AS program_id, wp.name AS program_name
     FROM weekly_schedule_entries wse
     JOIN weekly_time_slots wts ON wse.slot_id = wts.id
+    JOIN weekly_programs wp ON wts.program_id = wp.id
     JOIN \`groups\` g ON wse.group_id = g.id
-    JOIN student_groups sg ON sg.group_id = g.id
-    LEFT JOIN classrooms cr ON wse.classroom_id = cr.id
-    LEFT JOIN teachers tch ON g.teacher_id = tch.id
-    LEFT JOIN users t ON tch.user_id = t.id
     LEFT JOIN formations f ON g.formation_id = f.id
-    WHERE wts.program_id = ? AND sg.student_id = ?
-    ORDER BY wse.day_of_week, wts.sort_order
-  `, [programs[0].id, student[0].id]);
+    LEFT JOIN student_groups sg ON sg.group_id = g.id
+    LEFT JOIN classrooms cr ON wse.classroom_id = cr.id
+    LEFT JOIN classrooms cr_grp ON g.classroom_id = cr_grp.id
+    LEFT JOIN classrooms cr_form ON f.classroom_id = cr_form.id
+    LEFT JOIN teachers tch ON COALESCE(g.teacher_id, f.teacher_id) = tch.id
+    LEFT JOIN users tu ON tch.user_id = tu.id
+    WHERE wp.id IN (${placeholders})
+      AND (sg.student_id = ? OR (sg.student_id IS NULL AND g.formation_id = ?))
+    ORDER BY wse.day_of_week ASC, wts.start_time ASC, wts.sort_order ASC
+  `, [...programIds, studentId, student[0].formation_id || 0]);
 
-  res.json({ planning });
+  const slots = await query(`
+    SELECT DISTINCT label, start_time, end_time, sort_order
+    FROM weekly_time_slots
+    WHERE program_id IN (${placeholders})
+    ORDER BY start_time ASC, sort_order ASC
+  `, programIds);
+
+  res.json({ planning, slots, programs });
+}));
+
+router.get('/payments', asyncHandler(async (req, res) => {
+  if (req.auth.role !== 'student') return res.status(403).json({ message: 'Forbidden: Students only' });
+
+  const student = await query('SELECT id FROM students WHERE user_id = ?', [req.auth.userId]);
+  if (!student.length) return res.json({ data: [], total: 0 });
+
+  const rows = await query(`
+    SELECT ph.id, ph.amount, ph.payment_date, ph.payment_method, ph.notes,
+           ph.subscription_plan, ph.discount_percent,
+           ru.first_name AS recorded_by_first, ru.last_name AS recorded_by_last
+    FROM payment_history ph
+    LEFT JOIN users ru ON ru.id = ph.recorded_by_user_id
+    WHERE ph.student_id = ?
+    ORDER BY ph.payment_date DESC, ph.created_at DESC
+  `, [student[0].id]);
+
+  const total = rows.reduce((s, r) => s + Number(r.amount || 0), 0);
+  res.json({ data: rows, total });
 }));
 
 module.exports = router;
+

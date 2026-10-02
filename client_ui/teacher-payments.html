@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>&#1571;&#1585;&#1588;&#1610;&#1601; &#1575;&#1604;&#1571;&#1580;&#1608;&#1585; | Teacher Space</title>
+    <link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/sidebar.css">
+    <link rel="stylesheet" href="css/portal.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#4f6eff">
+    <link rel="apple-touch-icon" href="img/icon-512.jpg">
+    <style>
+        .pay-hero {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-radius: 16px; padding: 30px 32px; margin-bottom: 28px;
+            display: flex; align-items: center; gap: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+        }
+        .pay-hero-icon {
+            width: 64px; height: 64px;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            border-radius: 16px; display: flex; align-items: center;
+            justify-content: center; font-size: 28px; color: #fff; flex-shrink: 0;
+            box-shadow: 0 4px 16px rgba(245,158,11,0.4);
+        }
+        .pay-hero-text h1 { font-size: 22px; font-weight: 700; color: #fff; margin: 0 0 6px; }
+        .pay-hero-text p  { color: #94a3b8; margin: 0; font-size: 14px; }
+        .pay-stats-row { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 28px; }
+        .pay-stat-box {
+            flex: 1; min-width: 140px; background: #fff;
+            border: 1px solid #f1f5f9; border-radius: 14px; padding: 20px 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        .pay-stat-box .val { font-size: 22px; font-weight: 800; color: #1e293b; line-height: 1.1; }
+        .pay-stat-box .lbl { font-size: 11px; font-weight: 600; color: #64748b; margin-top: 4px; text-transform: uppercase; letter-spacing: .5px; }
+        .pay-stat-box.amber .val { color: #f59e0b; }
+        .pay-stat-box.green  .val { color: #10b981; }
+        .pay-filter-bar {
+            background: #fff; border: 1px solid #e8edf4; border-radius: 14px;
+            padding: 18px 22px; margin-bottom: 22px;
+            display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        .pay-filter-bar label { font-size: 13px; font-weight: 600; color: #475569; margin: 0; }
+        .pay-filter-bar select {
+            border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 8px 14px;
+            font-size: 13px; color: #1e293b; background: #f8fafc; cursor: pointer;
+        }
+        .pay-filter-bar select:focus { outline: none; border-color: #f59e0b; }
+        .btn-filter-apply {
+            padding: 8px 22px; background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #fff; border: none; border-radius: 8px; font-size: 13px; font-weight: 600;
+            cursor: pointer; transition: opacity .2s;
+        }
+        .btn-filter-apply:hover { opacity: .88; }
+        .pay-table-card {
+            background: #fff; border: 1px solid #e8edf4; border-radius: 16px;
+            overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+        }
+        .pay-table-card .card-hdr {
+            padding: 20px 24px; border-bottom: 1px solid #f1f5f9;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .pay-table-card .card-hdr h3 { font-size: 16px; font-weight: 700; color: #1e293b; margin: 0; }
+        .count-badge {
+            background: rgba(245,158,11,0.1); color: #d97706;
+            border-radius: 99px; padding: 4px 12px; font-size: 12px; font-weight: 600;
+        }
+        .pay-table { width: 100%; border-collapse: collapse; }
+        .pay-table thead th {
+            background: #f8fafc; padding: 12px 18px;
+            font-size: 11px; font-weight: 700; color: #64748b;
+            text-transform: uppercase; letter-spacing: .6px;
+            border-bottom: 1px solid #e8edf4; text-align: left;
+        }
+        .pay-table tbody tr { border-bottom: 1px solid #f8fafc; transition: background .15s; }
+        .pay-table tbody tr:hover { background: #fffbeb; }
+        .pay-table tbody td { padding: 14px 18px; font-size: 14px; color: #1e293b; vertical-align: middle; }
+        .pay-table tbody td:last-child { text-align: right; }
+        .month-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: linear-gradient(135deg, #1e293b, #334155);
+            color: #fff; border-radius: 8px; padding: 5px 12px;
+            font-size: 13px; font-weight: 700;
+        }
+        .method-pill { display: inline-block; padding: 3px 12px; border-radius: 99px; font-size: 12px; font-weight: 600; }
+        .method-cash     { background: #dcfce7; color: #166534; }
+        .method-virement { background: #dbeafe; color: #1e40af; }
+        .method-cheque   { background: #fef9c3; color: #854d0e; }
+        .amount-cell { font-size: 16px; font-weight: 800; color: #059669; }
+        .empty-state { text-align: center; padding: 60px 20px; }
+        .empty-state i { font-size: 48px; color: #e2e8f0; display: block; margin-bottom: 16px; }
+        .empty-state p { color: #94a3b8; font-size: 15px; }
+        .back-btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            color: #64748b; font-size: 14px; font-weight: 500;
+            text-decoration: none; margin-bottom: 20px; transition: color .2s;
+        }
+        .back-btn:hover { color: #f59e0b; }
+        [dir="rtl"] .pay-table thead th { text-align: right; }
+        [dir="rtl"] .pay-table thead th:last-child { text-align: left; }
+        [dir="rtl"] .pay-table tbody td:last-child { text-align: left; }
+        [dir="rtl"] .back-btn i.fa-arrow-left { transform: rotate(180deg); }
+    </style>
+</head>
+<body data-page="teacher-payments">
+    <div id="sidebar-placeholder"></div>
+    <div class="sb-main">
+        <div id="header-placeholder"></div>
+        <div class="sb-content" style="padding: 24px;">
+
+            <!-- <div class="sb-breadcrumb">
+                <i class="fa fa-money"></i>
+                <span data-i18n="Teacher Space">Teacher Space</span>
+                <span style="color:#cbd5e1;">/</span>
+                <span data-i18n="Salary Archive">أرشيف الأجور</span>
+            </div> -->
+
+            <!-- <a href="teacher-space.html" class="back-btn">
+                <i class="fa fa-arrow-left"></i> <span data-i18n="Back to Dashboard">Back to Dashboard</span>
+            </a> -->
+
+            <!-- Hero -->
+            <div class="pay-hero">
+                <div class="pay-hero-icon"><i class="fa fa-money"></i></div>
+                <div class="pay-hero-text">
+                    <h1 data-i18n="Salary Archive">أرشيف الأجور</h1>
+                    <p data-i18n="Complete history of all your salary payments recorded by the administration">Complete history of all your salary payments recorded by the administration</p>
+                </div>
+            </div>
+
+            <!-- Summary Stats -->
+            <div class="pay-stats-row">
+                <div class="pay-stat-box">
+                    <div class="val" id="stat-total-payments">&#8212;</div>
+                    <div class="lbl" data-i18n="Total Payments">Total Payments</div>
+                </div>
+                <div class="pay-stat-box amber">
+                    <div class="val" id="stat-total-amount">&#8212;</div>
+                    <div class="lbl" data-i18n="Total Received">Total Received</div>
+                </div>
+                <div class="pay-stat-box green">
+                    <div class="val" id="stat-latest-month">&#8212;</div>
+                    <div class="lbl" data-i18n="Latest Payment">Latest Payment</div>
+                </div>
+                <div class="pay-stat-box">
+                    <div class="val" id="stat-this-year">&#8212;</div>
+                    <div class="lbl" data-i18n="This Year">This Year</div>
+                </div>
+            </div>
+
+            <!-- Year Filter -->
+            <div class="pay-filter-bar">
+                <label><i class="fa fa-filter"></i>&nbsp; <span data-i18n="Filter by Year:">Filter by Year:</span></label>
+                <select id="year-filter">
+                    <option value="" data-i18n="All Years">All Years</option>
+                </select>
+                <button class="btn-filter-apply" onclick="loadPayments()" data-i18n="Apply">Apply</button>
+            </div>
+
+            <!-- Table Card -->
+            <div class="pay-table-card">
+                <div class="card-hdr">
+                    <h3><i class="fa fa-list-alt" style="color:#f59e0b;"></i>&nbsp; <span data-i18n="Payment Records">Payment Records</span></h3>
+                    <span class="count-badge" id="records-count">0 records</span>
+                </div>
+                <div style="overflow-x:auto;">
+                    <table class="pay-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th data-i18n="Month / Year">Month / Year</th>
+                                <th data-i18n="Payment Date">Payment Date</th>
+                                <th data-i18n="Method">Method</th>
+                                <th data-i18n="Notes">Notes</th>
+                                <th data-i18n="Recorded By">Recorded By</th>
+                                <th style="text-align:right;" data-i18n="Amount">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pay-tbody">
+                            <tr><td colspan="7" class="text-center" style="padding:40px;">
+                                <i class="fa fa-spinner fa-spin" style="color:#f59e0b;"></i> Loading...
+                            </td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+        <div id="footer-placeholder"></div>
+    </div>
+
+    <script src="js/vendor/jquery-1.12.4.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/i18n.js"></script>
+    <script src="js/components.js"></script>
+    <script src="js/backend.js"></script>
+    <script>
+    var MONTH_NAMES_EN = ['','January','February','March','April','May','June','July','August','September','October','November','December'];
+    var MONTH_NAMES_AR = ['','جانفي','فيفري','مارس','أفريل','ماي','جوان','جويلية','أوت','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+
+    function isArabic() {
+        return (window.AppI18n && typeof window.AppI18n.getLang === 'function')
+            ? (window.AppI18n.getLang() === 'ar')
+            : (localStorage.getItem('app_lang') === 'ar' || localStorage.getItem('school_system_lang') === 'ar');
+    }
+
+    function getMonthName(m) {
+        var names = isArabic() ? MONTH_NAMES_AR : MONTH_NAMES_EN;
+        return names[m] || m;
+    }
+
+    function fmtAmount(v) {
+        var n = parseFloat(v || 0).toLocaleString(isArabic() ? 'ar-DZ' : 'fr-DZ', {minimumFractionDigits: 2});
+        return isArabic() ? (n + ' د.ج') : (n + ' DA');
+    }
+
+    function fmtDate(d) {
+        if (!d) return '&mdash;';
+        var dt = new Date(d);
+        return isNaN(dt) ? d : dt.toLocaleDateString(isArabic() ? 'ar-DZ' : 'en-GB', {day:'2-digit',month:'short',year:'numeric'});
+    }
+
+    function methodPill(m) {
+        var cls = m === 'cash' ? 'method-cash' : m === 'virement' ? 'method-virement' : 'method-cheque';
+        var label = '';
+        if (isArabic()) {
+            label = m === 'cash' ? 'نقداً' : m === 'virement' ? 'تحويل بنكي' : m === 'cheque' ? 'صك / شيك' : (m || '&mdash;');
+        } else {
+            label = m === 'cash' ? 'Cash' : m === 'virement' ? 'Virement' : m === 'cheque' ? 'Cheque' : (m || '&mdash;');
+        }
+        return '<span class="method-pill ' + cls + '">' + label + '</span>';
+    }
+
+    function loadPayments() {
+        var year = document.getElementById('year-filter').value;
+        var url = '/api/teacher-space/payments' + (year ? '?year=' + year : '');
+        var tbody = document.getElementById('pay-tbody');
+        var ar = isArabic();
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center" style="padding:40px;"><i class="fa fa-spinner fa-spin" style="color:#f59e0b;"></i> ' + (ar ? 'جارٍ التحميل...' : 'Loading...') + '</td></tr>';
+
+        SchoolBackend.request(url).then(function(res) {
+            var rows = res.data || [];
+            document.getElementById('records-count').textContent = rows.length + ' ' + (ar ? 'سجلات' : 'records');
+
+            if (!rows.length) {
+                tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><i class="fa fa-inbox"></i><p>' + (ar ? 'لا توجد سجلات أجور مسجلة حالياً.' : 'No salary payment records found.') + '</p></div></td></tr>';
+                document.getElementById('stat-total-payments').textContent = '0';
+                document.getElementById('stat-total-amount').textContent = fmtAmount(0);
+                document.getElementById('stat-latest-month').textContent = '\u2014';
+                document.getElementById('stat-this-year').textContent = fmtAmount(0);
+                return;
+            }
+
+            var total = rows.reduce(function(s, r){ return s + parseFloat(r.amount || 0); }, 0);
+            document.getElementById('stat-total-payments').textContent = rows.length;
+            document.getElementById('stat-total-amount').textContent = fmtAmount(total);
+
+            var latest = rows[0];
+            document.getElementById('stat-latest-month').textContent = getMonthName(latest.pay_month) + ' ' + latest.pay_year;
+
+            var thisYear = new Date().getFullYear();
+            var ytd = rows.filter(function(r){ return r.pay_year == thisYear; }).reduce(function(s,r){ return s + parseFloat(r.amount||0); }, 0);
+            document.getElementById('stat-this-year').textContent = fmtAmount(ytd);
+
+            tbody.innerHTML = rows.map(function(r, i) {
+                var recBy = [r.recorded_by_first, r.recorded_by_last].filter(Boolean).join(' ') || '\u2014';
+                var pd = fmtDate(r.payment_date);
+                return '<tr>' +
+                    '<td style="color:#94a3b8;font-size:12px;">' + (i+1) + '</td>' +
+                    '<td><span class="month-badge"><i class="fa fa-calendar"></i> ' + getMonthName(r.pay_month) + ' ' + r.pay_year + '</span></td>' +
+                    '<td>' + pd + '</td>' +
+                    '<td>' + methodPill(r.method) + '</td>' +
+                    '<td style="color:#64748b;font-size:13px;">' + (r.notes || '\u2014') + '</td>' +
+                    '<td style="color:#64748b;font-size:13px;">' + recBy + '</td>' +
+                    '<td class="amount-cell">' + fmtAmount(r.amount) + '</td>' +
+                '</tr>';
+            }).join('');
+
+            if (window.AppI18n && typeof window.AppI18n.translateAll === 'function') {
+                window.AppI18n.translateAll(document);
+            }
+
+        }).catch(function() {
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center" style="padding:40px;color:#ef4444;"><i class="fa fa-exclamation-circle"></i> ' + (ar ? 'فشل تحميل سجلات الأجور.' : 'Failed to load payments.') + '</td></tr>';
+        });
+    }
+
+    function populateYearFilter() {
+        var curYear = new Date().getFullYear();
+        var sel = document.getElementById('year-filter');
+        sel.innerHTML = '<option value="" data-i18n="All Years">' + (isArabic() ? 'جميع السنوات' : 'All Years') + '</option>';
+        for (var y = curYear; y >= curYear - 5; y--) {
+            var opt = document.createElement('option');
+            opt.value = y; opt.textContent = y;
+            sel.appendChild(opt);
+        }
+        sel.value = curYear;
+    }
+
+    function initPage() {
+        if (!window._ctx || window._ctx.user.role !== 'teacher') return;
+        populateYearFilter();
+        loadPayments();
+    }
+
+    window.onAuthReady = initPage;
+    if (window._ctx) {
+        initPage();
+    } else {
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window._ctx) initPage();
+        });
+    }
+    </script>
+</body>
+</html>

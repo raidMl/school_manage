@@ -154,18 +154,50 @@
                             </div>
                             <div class="quick-action-arrow"><i class="fa fa-arrow-right"></i></div>
                         </a>
+
+                        <a href="student-schedule.html" class="quick-action-card">
+                            <div class="quick-action-left">
+                                <div class="quick-action-icon" style="background: rgba(79,110,255,0.12); color: #4f6eff;"><i class="fa fa-calendar"></i></div>
+                                <div class="quick-action-text">
+                                    <h4 data-i18n="My Weekly Planning">جدول التوقيت الأسبوعي</h4>
+                                    <p data-i18n="Interactive weekly timetable & class sessions">جدول تفاعلي للحصص الأسبوعية والأفواج والقاعات</p>
+                                </div>
+                            </div>
+                            <div class="quick-action-arrow"><i class="fa fa-arrow-right"></i></div>
+                        </a>
+
+                        <a href="student-payments.html" class="quick-action-card">
+                            <div class="quick-action-left">
+                                <div class="quick-action-icon" style="background: rgba(251,191,36,0.12); color: #f59e0b;"><i class="fa fa-credit-card"></i></div>
+                                <div class="quick-action-text">
+                                    <h4 data-i18n="Payment Archive">أرشيف المدفوعات</h4>
+                                    <p data-i18n="View your full payment history">سجل جميع المدفوعات والاشتراكات</p>
+                                </div>
+                            </div>
+                            <div class="quick-action-arrow"><i class="fa fa-arrow-right"></i></div>
+                        </a>
                     </div>
                 </div>
 
                 <!-- Weekly Planning -->
                 <div class="col-md-7">
                     <div class="portal-card">
-                        <div class="portal-card-header">
+                        <div class="portal-card-header" style="flex-wrap: wrap; gap: 10px;">
                             <div>
                                 <h3 class="portal-card-title"><i class="fa fa-calendar-o"></i> <span data-i18n="My Weekly Planning">My Weekly Planning</span></h3>
                                 <p class="portal-card-subtitle" data-i18n="Timetable schedule for your enrolled groups">Timetable schedule for your enrolled groups</p>
                             </div>
-                            <span class="portal-chip portal-chip-primary"><i class="fa fa-clock-o"></i> <span data-i18n="Active Program">Active Program</span></span>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span class="portal-chip portal-chip-primary" id="student-program-badge"><i class="fa fa-clock-o"></i> <span data-i18n="Active Program">Active Program</span></span>
+                                <a href="student-schedule.html" class="portal-btn portal-btn-outline portal-btn-sm" style="text-decoration:none; padding:5px 12px; font-weight:600;">
+                                    <i class="fa fa-th"></i> <span data-i18n="View Full Timetable">Full Timetable</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Day filter tabs -->
+                        <div class="portal-filter-tabs" id="student-day-tabs" style="border-bottom: 1px solid #f1f5f9;">
+                            <!-- populated by JS -->
                         </div>
 
                         <div class="portal-table-container">
@@ -175,12 +207,13 @@
                                         <th data-i18n="Day">Day</th>
                                         <th data-i18n="Time Slot">Time Slot</th>
                                         <th data-i18n="Subject">Subject</th>
+                                        <th data-i18n="Group">Group</th>
                                         <th data-i18n="Classroom">Classroom</th>
                                         <th data-i18n="Teacher">Teacher</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr><td colspan="5" class="text-center" style="padding: 30px;"><i class="fa fa-spinner fa-spin" style="color: #4f6eff;"></i> <span data-i18n="Loading timetable...">Loading timetable...</span></td></tr>
+                                    <tr><td colspan="6" class="text-center" style="padding: 30px;"><i class="fa fa-spinner fa-spin" style="color: #4f6eff;"></i> <span data-i18n="Loading timetable...">Loading timetable...</span></td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -277,16 +310,29 @@
                 }).catch(function(e) { console.error(e); });
 
                 // Load Planning
-                SchoolBackend.request('/api/student-space/planning').then(function(res) {
+                var allStudentPlanning = [];
+                var activeStudentDayFilter = 'all';
+
+                function renderStudentPlanning() {
                     var tb = document.querySelector('#student-planning-table tbody');
-                    if (!res.planning || !res.planning.length) {
+                    var days = ['', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+                    var todayIdx = ((new Date().getDay() + 1) % 7) + 1; // 1=Sat .. 7=Fri
+
+                    var filtered = allStudentPlanning;
+                    if (activeStudentDayFilter === 'today') {
+                        filtered = allStudentPlanning.filter(function(p) { return Number(p.day_of_week) === todayIdx; });
+                    } else if (activeStudentDayFilter !== 'all') {
+                        filtered = allStudentPlanning.filter(function(p) { return Number(p.day_of_week) === Number(activeStudentDayFilter); });
+                    }
+
+                    if (!filtered || !filtered.length) {
                         tb.innerHTML = `
                             <tr>
-                                <td colspan="5">
-                                    <div class="portal-empty-state">
+                                <td colspan="6">
+                                    <div class="portal-empty-state" style="padding: 30px 20px;">
                                         <div class="portal-empty-icon"><i class="fa fa-calendar-times-o"></i></div>
-                                        <div class="portal-empty-title" data-i18n="No weekly classes scheduled">No weekly classes scheduled</div>
-                                        <div class="portal-empty-desc" data-i18n="You currently have no classes scheduled in the active program.">You currently have no classes scheduled in the active program.</div>
+                                        <div class="portal-empty-title" data-i18n="${activeStudentDayFilter === 'today' ? 'No sessions today' : 'No weekly classes scheduled'}">${activeStudentDayFilter === 'today' ? 'No sessions today' : 'No weekly classes scheduled'}</div>
+                                        <div class="portal-empty-desc" data-i18n="There are no classes scheduled for this day.">There are no classes scheduled for this day.</div>
                                     </div>
                                 </td>
                             </tr>
@@ -294,22 +340,79 @@
                         if (window.AppI18n) window.AppI18n.translateAll(tb);
                         return;
                     }
-                    var days = ['', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-                    tb.innerHTML = res.planning.map(function(p) {
-                        var dayName = days[p.day_of_week] || p.day_of_week;
+
+                    tb.innerHTML = filtered.map(function(p) {
+                        var dayNum = Number(p.day_of_week);
+                        var isToday = (dayNum === todayIdx);
+                        var dayName = days[dayNum] || ('Day ' + dayNum);
                         var dayDisplay = window.AppI18n ? window.AppI18n.t(dayName) : dayName;
-                        return '<tr>' +
-                            '<td><strong style="color:#1e293b;">' + dayDisplay + '</strong></td>' +
-                            '<td><span class="portal-chip portal-chip-primary"><i class="fa fa-clock-o"></i> ' + (p.time_slot || '—') + '</span></td>' +
-                            '<td><span style="font-weight:600; color:#0f172a;">' + (p.subject_name || '—') + '</span></td>' +
+                        var todayBadge = isToday ? (' <span class="portal-chip portal-chip-primary" style="font-size:10px; padding:2px 6px; margin-inline-start:4px;" data-i18n="Today">' + (window.AppI18n ? window.AppI18n.t('Today') : 'Today') + '</span>') : '';
+                        var rowBg = isToday ? 'style="background: rgba(79, 110, 255, 0.03);"' : '';
+                        var color = p.color || '#4f6eff';
+                        var timeSlotText = p.time_slot || (p.start_time ? p.start_time.slice(0,5) + ' - ' + p.end_time.slice(0,5) : '—');
+
+                        return '<tr ' + rowBg + '>' +
+                            '<td><strong style="color:#1e293b;">' + dayDisplay + '</strong>' + todayBadge + '</td>' +
+                            '<td><span class="portal-chip portal-chip-primary"><i class="fa fa-clock-o"></i> ' + timeSlotText + '</span></td>' +
+                            '<td><span style="font-weight:600; color:#0f172a; display:inline-flex; align-items:center; gap:6px;"><span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:' + color + ';"></span>' + (p.subject_name || '—') + '</span></td>' +
+                            '<td><span class="portal-chip"><i class="fa fa-users"></i> ' + (p.group_name || '—') + '</span></td>' +
                             '<td><i class="fa fa-map-marker text-muted"></i> ' + (p.room_name || '—') + '</td>' +
                             '<td><i class="fa fa-user-circle-o text-muted"></i> ' + (p.teacher_name || '—') + '</td>' +
                         '</tr>';
                     }).join('');
                     if (window.AppI18n) window.AppI18n.translateAll(tb);
+                }
+
+                function renderStudentDayTabs() {
+                    var tabsWrap = document.getElementById('student-day-tabs');
+                    if (!tabsWrap) return;
+                    var days = ['', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+                    var todayIdx = ((new Date().getDay() + 1) % 7) + 1;
+
+                    var daysWithCount = {};
+                    allStudentPlanning.forEach(function(p) {
+                        var d = Number(p.day_of_week);
+                        daysWithCount[d] = (daysWithCount[d] || 0) + 1;
+                    });
+
+                    var tabsHtml = '<button type="button" class="portal-filter-tab ' + (activeStudentDayFilter === 'all' ? 'active' : '') + '" data-day="all"><span data-i18n="All Week">All Week</span> (' + allStudentPlanning.length + ')</button>';
+                    
+                    var todayCount = daysWithCount[todayIdx] || 0;
+                    tabsHtml += '<button type="button" class="portal-filter-tab ' + (activeStudentDayFilter === 'today' ? 'active' : '') + '" data-day="today"><i class="fa fa-star text-warning"></i> <span data-i18n="Today">Today</span> (' + todayCount + ')</button>';
+
+                    for (var d = 1; d <= 7; d++) {
+                        var cnt = daysWithCount[d] || 0;
+                        if (cnt > 0) {
+                            var dName = days[d];
+                            var dTrans = window.AppI18n ? window.AppI18n.t(dName) : dName;
+                            tabsHtml += '<button type="button" class="portal-filter-tab ' + (activeStudentDayFilter == d ? 'active' : '') + '" data-day="' + d + '">' + dTrans + ' (' + cnt + ')</button>';
+                        }
+                    }
+
+                    tabsWrap.innerHTML = tabsHtml;
+                    if (window.AppI18n) window.AppI18n.translateAll(tabsWrap);
+
+                    tabsWrap.querySelectorAll('.portal-filter-tab').forEach(function(btn) {
+                        btn.addEventListener('click', function() {
+                            activeStudentDayFilter = this.getAttribute('data-day');
+                            tabsWrap.querySelectorAll('.portal-filter-tab').forEach(function(b) { b.classList.remove('active'); });
+                            this.classList.add('active');
+                            renderStudentPlanning();
+                        });
+                    });
+                }
+
+                SchoolBackend.request('/api/student-space/planning').then(function(res) {
+                    allStudentPlanning = res.planning || [];
+                    if (res.programs && res.programs.length) {
+                        var badge = document.getElementById('student-program-badge');
+                        if (badge) badge.innerHTML = '<i class="fa fa-clock-o"></i> ' + (res.programs.length === 1 ? res.programs[0].name : (res.programs.length + ' ' + (window.AppI18n ? window.AppI18n.t('Active Programs') : 'Active Programs')));
+                    }
+                    renderStudentDayTabs();
+                    renderStudentPlanning();
                 }).catch(function(err) {
                     var tb = document.querySelector('#student-planning-table tbody');
-                    if (tb) tb.innerHTML = '<tr><td colspan="5" class="text-center text-danger" style="padding:20px;">Failed to load timetable: ' + err.message + '</td></tr>';
+                    if (tb) tb.innerHTML = '<tr><td colspan="6" class="text-center text-danger" style="padding:20px;">Failed to load timetable: ' + err.message + '</td></tr>';
                 });
 
                 // Attendance quick summary stat

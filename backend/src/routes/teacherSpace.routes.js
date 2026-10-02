@@ -88,23 +88,82 @@ router.get('/planning', asyncHandler(async (req, res) => {
   if (req.auth.role !== 'teacher') return res.status(403).json({ message: 'Forbidden' });
 
   const teacher = await query('SELECT id, school_id FROM teachers WHERE user_id = ?', [req.auth.userId]);
-  if (!teacher.length) return res.json({ planning: [] });
+  if (!teacher.length) return res.json({ planning: [], slots: [], programs: [] });
 
-  const programs = await query('SELECT id FROM weekly_programs WHERE school_id = ? AND status = "active" LIMIT 1', [teacher[0].school_id]);
-  if (!programs.length) return res.json({ planning: [] });
+  const teacherId = teacher[0].id;
+  const schoolId = teacher[0].school_id;
+
+  // Find active programs for this school (fallback to all programs if none marked active)
+  let programs = await query(
+    'SELECT id, name, description, status FROM weekly_programs WHERE school_id = ? AND status = "active"',
+    [schoolId]
+  );
+  if (!programs.length) {
+    programs = await query(
+      'SELECT id, name, description, status FROM weekly_programs WHERE school_id = ?',
+      [schoolId]
+    );
+  }
+  if (!programs.length) return res.json({ planning: [], slots: [], programs: [] });
+
+  const programIds = programs.map(p => p.id);
+  const placeholders = programIds.map(() => '?').join(',');
 
   const planning = await query(`
-    SELECT wse.day_of_week, wts.label as time_slot, wse.subject_name, cr.name as room_name, g.name as group_name, f.title as formation_name
+    SELECT DISTINCT wse.id, wse.slot_id, wse.day_of_week, wse.subject_name,
+           COALESCE(wse.color, '#4f6eff') AS color,
+           wts.label AS time_slot, wts.start_time, wts.end_time, wts.sort_order,
+           COALESCE(cr.name, cr_grp.name, cr_form.name, '—') AS room_name,
+           g.id AS group_id, g.name AS group_name,
+           f.id AS formation_id, f.title AS formation_title,
+           wp.id AS program_id, wp.name AS program_name
     FROM weekly_schedule_entries wse
     JOIN weekly_time_slots wts ON wse.slot_id = wts.id
-    LEFT JOIN \`groups\` g ON wse.group_id = g.id
-    LEFT JOIN classrooms cr ON wse.classroom_id = cr.id
+    JOIN weekly_programs wp ON wts.program_id = wp.id
+    JOIN \`groups\` g ON wse.group_id = g.id
     LEFT JOIN formations f ON g.formation_id = f.id
-    WHERE wts.program_id = ? AND g.teacher_id = ?
-    ORDER BY wse.day_of_week, wts.sort_order
-  `, [programs[0].id, teacher[0].id]);
+    LEFT JOIN classrooms cr ON wse.classroom_id = cr.id
+    LEFT JOIN classrooms cr_grp ON g.classroom_id = cr_grp.id
+    LEFT JOIN classrooms cr_form ON f.classroom_id = cr_form.id
+    WHERE wp.id IN (${placeholders})
+      AND (g.teacher_id = ? OR f.teacher_id = ?)
+    ORDER BY wse.day_of_week ASC, wts.start_time ASC, wts.sort_order ASC
+  `, [...programIds, teacherId, teacherId]);
 
-  res.json({ planning });
+  const slots = await query(`
+    SELECT DISTINCT label, start_time, end_time, sort_order
+    FROM weekly_time_slots
+    WHERE program_id IN (${placeholders})
+    ORDER BY start_time ASC, sort_order ASC
+  `, programIds);
+
+  res.json({ planning, slots, programs });
+}));
+
+router.get('/payments', asyncHandler(async (req, res) => {
+  if (req.auth.role !== 'teacher') return res.status(403).json({ message: 'Forbidden: Teachers only' });
+
+  const teacher = await query('SELECT id FROM teachers WHERE user_id = ?', [req.auth.userId]);
+  if (!teacher.length) return res.json({ data: [], total: 0 });
+
+  const { year } = req.query;
+  let sql = `
+    SELECT tp.id, tp.amount, tp.pay_month, tp.pay_year, tp.payment_date,
+           tp.method, tp.notes,
+           ru.first_name AS recorded_by_first, ru.last_name AS recorded_by_last
+    FROM teacher_payments tp
+    LEFT JOIN users ru ON ru.id = tp.recorded_by
+    WHERE tp.teacher_id = ?
+  `;
+  const params = [teacher[0].id];
+
+  if (year) { sql += ' AND tp.pay_year = ?'; params.push(year); }
+  sql += ' ORDER BY tp.pay_year DESC, tp.pay_month DESC';
+
+  const rows = await query(sql, params);
+  const total = rows.reduce((s, r) => s + Number(r.amount || 0), 0);
+  res.json({ data: rows, total });
 }));
 
 module.exports = router;
+

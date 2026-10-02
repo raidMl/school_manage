@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title data-i18n="Weekly Schedule">جدول التوقيت الأسبوعي | Student Space</title>
+    <link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/sidebar.css">
+    <link rel="stylesheet" href="css/portal.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#4f6eff">
+    <link rel="apple-touch-icon" href="img/icon-512.jpg">
+    <style>
+        .schedule-hero {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-radius: 16px;
+            padding: 26px 30px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+            box-shadow: 0 10px 28px rgba(15, 23, 42, 0.16);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            position: relative;
+            overflow: hidden;
+        }
+        .schedule-hero::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20px;
+            width: 260px;
+            height: 260px;
+            background: radial-gradient(circle, rgba(79, 110, 255, 0.22) 0%, rgba(79, 110, 255, 0) 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        .schedule-hero-left {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            z-index: 1;
+        }
+        .schedule-hero-icon {
+            width: 58px;
+            height: 58px;
+            background: linear-gradient(135deg, #4f6eff 0%, #3753e8 100%);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            color: #ffffff;
+            box-shadow: 0 4px 16px rgba(79, 110, 255, 0.4);
+            flex-shrink: 0;
+        }
+        .schedule-hero-text h1 {
+            font-size: 22px;
+            font-weight: 800;
+            color: #ffffff;
+            margin: 0 0 6px;
+        }
+        .schedule-hero-text p {
+            color: #94a3b8;
+            margin: 0;
+            font-size: 13.5px;
+        }
+        .schedule-hero-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 1;
+        }
+        .btn-schedule-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 18px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none !important;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: none;
+        }
+        .btn-schedule-action.print-btn {
+            background: rgba(255, 255, 255, 0.12);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(4px);
+        }
+        .btn-schedule-action.print-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+        }
+
+        .sched-stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .sched-stat-box {
+            background: #ffffff;
+            border: 1px solid #e8edf4;
+            border-radius: 14px;
+            padding: 18px 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .sched-stat-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+        .sched-stat-val {
+            font-size: 22px;
+            font-weight: 800;
+            color: #0f172a;
+            line-height: 1.1;
+        }
+        .sched-stat-lbl {
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        .sched-control-bar {
+            background: #ffffff;
+            border: 1px solid #e8edf4;
+            border-radius: 14px;
+            padding: 14px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 14px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        }
+    </style>
+</head>
+<body data-page="student-schedule">
+    <div id="sidebar-placeholder"></div>
+
+    <div class="portal-main">
+        <div id="header-placeholder"></div>
+
+        <div class="portal-content">
+            <!-- Breadcrumb -->
+            <div class="sb-breadcrumb">
+                <a href="student-space.html" style="color: inherit; text-decoration: none;">
+                    <i class="fa fa-th-large"></i> <span data-i18n="Student Space">Student Space</span>
+                </a>
+                <i class="fa fa-angle-left" style="font-size: 13px; margin: 0 4px;"></i>
+                <span data-i18n="Weekly Schedule">Weekly Schedule</span>
+            </div>
+
+            <!-- Hero Banner -->
+            <div class="schedule-hero">
+                <div class="schedule-hero-left">
+                    <div class="schedule-hero-icon">
+                        <i class="fa fa-calendar"></i>
+                    </div>
+                    <div class="schedule-hero-text">
+                        <h1 data-i18n="Weekly Schedule">جدول التوقيت الأسبوعي</h1>
+                        <p data-i18n="Interactive weekly timetable & class sessions">أوقات الحصص والدروس الأسبوعية، القاعات وهيئة التدريس</p>
+                    </div>
+                </div>
+                <div class="schedule-hero-actions no-print">
+                    <button class="btn-schedule-action print-btn" onclick="window.print()">
+                        <i class="fa fa-print"></i> <span data-i18n="Print Schedule">Print Schedule</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- KPI Summary Stats -->
+            <div class="sched-stats-row">
+                <div class="sched-stat-box">
+                    <div class="sched-stat-icon" style="background: rgba(79,110,255,0.1); color: #4f6eff;">
+                        <i class="fa fa-calendar-check-o"></i>
+                    </div>
+                    <div>
+                        <div class="sched-stat-val" id="kpi-stu-sessions">—</div>
+                        <div class="sched-stat-lbl" data-i18n="Weekly Sessions">Weekly Sessions</div>
+                    </div>
+                </div>
+
+                <div class="sched-stat-box">
+                    <div class="sched-stat-icon" style="background: rgba(16,185,129,0.1); color: #10b981;">
+                        <i class="fa fa-users"></i>
+                    </div>
+                    <div>
+                        <div class="sched-stat-val" id="kpi-stu-groups">—</div>
+                        <div class="sched-stat-lbl" data-i18n="Assigned Groups">Assigned Groups</div>
+                    </div>
+                </div>
+
+                <div class="sched-stat-box">
+                    <div class="sched-stat-icon" style="background: rgba(245,158,11,0.1); color: #f59e0b;">
+                        <i class="fa fa-clock-o"></i>
+                    </div>
+                    <div>
+                        <div class="sched-stat-val" id="kpi-stu-hours">—</div>
+                        <div class="sched-stat-lbl" data-i18n="Weekly Hours">Weekly Hours</div>
+                    </div>
+                </div>
+
+                <div class="sched-stat-box">
+                    <div class="sched-stat-icon" style="background: rgba(14,165,233,0.1); color: #0ea5e9;">
+                        <i class="fa fa-book"></i>
+                    </div>
+                    <div>
+                        <div class="sched-stat-val" id="kpi-stu-program" style="font-size: 16px;">—</div>
+                        <div class="sched-stat-lbl" data-i18n="Active Program">Active Program</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Control Bar (Filter tabs & View switcher) -->
+            <div class="sched-control-bar no-print">
+                <div style="font-weight: 600; font-size: 14px; color: #1e293b; display: flex; align-items: center; gap: 8px;">
+                    <i class="fa fa-clock-o text-primary"></i> <span data-i18n="Filter by Day">Filter by Day</span>
+                </div>
+
+                <!-- View Switcher -->
+                <div class="view-mode-pill">
+                    <button type="button" class="view-mode-btn active" id="view-mode-cards" onclick="switchViewMode('cards')">
+                        <i class="fa fa-th-list"></i> <span data-i18n="Cards View">Cards View</span>
+                    </button>
+                    <button type="button" class="view-mode-btn" id="view-mode-grid" onclick="switchViewMode('grid')">
+                        <i class="fa fa-table"></i> <span data-i18n="Grid View">Grid View</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Day Filter Tabs Card -->
+            <div class="portal-card" style="margin-bottom: 24px; padding: 0;">
+                <div class="portal-filter-tabs no-print" id="student-full-day-tabs">
+                    <!-- Populated by JS -->
+                </div>
+
+                <!-- Main Schedule View Containers -->
+                <div style="padding: 20px;">
+                    <!-- Loading Indicator -->
+                    <div id="sched-loading" class="text-center" style="padding: 40px;">
+                        <i class="fa fa-spinner fa-spin" style="font-size: 28px; color: #4f6eff;"></i>
+                        <div style="margin-top: 10px; color: #64748b; font-weight: 500;" data-i18n="Loading timetable...">Loading timetable...</div>
+                    </div>
+
+                    <!-- Cards / Agenda View Container -->
+                    <div id="student-cards-container" style="display: none;"></div>
+
+                    <!-- Grid Timetable View Container -->
+                    <div id="student-grid-container" style="display: none;"></div>
+                </div>
+            </div>
+
+        </div>
+
+        <div id="footer-placeholder"></div>
+    </div>
+
+    <script src="js/vendor/jquery-1.12.4.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/i18n.js"></script>
+    <script src="js/components.js"></script>
+    <script src="js/backend.js"></script>
+
+    <script>
+        var rawPlanningData = [];
+        var rawSlotsData = [];
+        var rawProgramsData = [];
+        var activeDayFilter = 'all';
+        var currentViewMode = 'cards';
+
+        var DAYS = ['', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+
+        function getTodayIdx() {
+            return ((new Date().getDay() + 1) % 7) + 1; // 1=Sat .. 7=Fri
+        }
+
+        function switchViewMode(mode) {
+            currentViewMode = mode;
+            document.getElementById('view-mode-cards').classList.toggle('active', mode === 'cards');
+            document.getElementById('view-mode-grid').classList.toggle('active', mode === 'grid');
+            renderScheduleViews();
+        }
+
+        function getFilteredEntries() {
+            var list = rawPlanningData;
+            var todayIdx = getTodayIdx();
+
+            if (activeDayFilter === 'today') {
+                list = list.filter(function(e) { return Number(e.day_of_week) === todayIdx; });
+            } else if (activeDayFilter !== 'all') {
+                list = list.filter(function(e) { return Number(e.day_of_week) === Number(activeDayFilter); });
+            }
+
+            return list;
+        }
+
+        function renderKPIs() {
+            document.getElementById('kpi-stu-sessions').textContent = rawPlanningData.length || '0';
+
+            // Distinct groups
+            var groupsMap = {};
+            rawPlanningData.forEach(function(e) { if (e.group_name) groupsMap[e.group_name] = true; });
+            document.getElementById('kpi-stu-groups').textContent = Object.keys(groupsMap).length || '1';
+
+            // Estimated hours
+            var totalMinutes = 0;
+            rawPlanningData.forEach(function(e) {
+                if (e.start_time && e.end_time) {
+                    var s = e.start_time.split(':');
+                    var en = e.end_time.split(':');
+                    var m = (parseInt(en[0]) * 60 + parseInt(en[1])) - (parseInt(s[0]) * 60 + parseInt(s[1]));
+                    if (m > 0) totalMinutes += m;
+                    else totalMinutes += 120; // default 2h
+                } else {
+                    totalMinutes += 120;
+                }
+            });
+            var hrs = (totalMinutes / 60).toFixed(1).replace('.0', '');
+            document.getElementById('kpi-stu-hours').textContent = (hrs || '0') + 'h';
+
+            // Program name
+            var progName = '—';
+            if (rawPlanningData.length && rawPlanningData[0].program_name) {
+                progName = rawPlanningData[0].program_name;
+            } else if (rawProgramsData && rawProgramsData.length) {
+                progName = rawProgramsData[0].name;
+            }
+            document.getElementById('kpi-stu-program').textContent = progName;
+        }
+
+        function renderDayTabs() {
+            var tabsWrap = document.getElementById('student-full-day-tabs');
+            var todayIdx = getTodayIdx();
+
+            var countsByDay = {};
+            rawPlanningData.forEach(function(e) {
+                var d = Number(e.day_of_week);
+                countsByDay[d] = (countsByDay[d] || 0) + 1;
+            });
+
+            var tabsHtml = '<button type="button" class="portal-filter-tab ' + (activeDayFilter === 'all' ? 'active' : '') + '" data-day="all"><span data-i18n="All Week">' + (window.AppI18n ? window.AppI18n.t('All Week') : 'All Week') + '</span> (' + rawPlanningData.length + ')</button>';
+
+            var todayCount = countsByDay[todayIdx] || 0;
+            tabsHtml += '<button type="button" class="portal-filter-tab ' + (activeDayFilter === 'today' ? 'active' : '') + '" data-day="today"><i class="fa fa-star text-warning"></i> <span data-i18n="Today">' + (window.AppI18n ? window.AppI18n.t('Today') : 'Today') + '</span> (' + todayCount + ')</button>';
+
+            for (var d = 1; d <= 7; d++) {
+                var cnt = countsByDay[d] || 0;
+                var dName = DAYS[d];
+                var dTrans = window.AppI18n ? window.AppI18n.t(dName) : dName;
+                tabsHtml += '<button type="button" class="portal-filter-tab ' + (activeDayFilter == d ? 'active' : '') + '" data-day="' + d + '">' + dTrans + ' (' + cnt + ')</button>';
+            }
+
+            tabsWrap.innerHTML = tabsHtml;
+            if (window.AppI18n) window.AppI18n.translateAll(tabsWrap);
+
+            tabsWrap.querySelectorAll('.portal-filter-tab').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    activeDayFilter = this.getAttribute('data-day');
+                    tabsWrap.querySelectorAll('.portal-filter-tab').forEach(function(b) { b.classList.remove('active'); });
+                    this.classList.add('active');
+                    renderScheduleViews();
+                });
+            });
+        }
+
+        function renderCardsView(filtered) {
+            var container = document.getElementById('student-cards-container');
+            var todayIdx = getTodayIdx();
+
+            if (!filtered.length) {
+                container.innerHTML = `
+                    <div class="portal-empty-state" style="padding: 40px 20px;">
+                        <div class="portal-empty-icon"><i class="fa fa-calendar-times-o"></i></div>
+                        <div class="portal-empty-title" data-i18n="No classes scheduled">No classes scheduled</div>
+                        <div class="portal-empty-desc" data-i18n="There are no classes scheduled matching the selected filter.">There are no classes scheduled matching the selected filter.</div>
+                    </div>
+                `;
+                if (window.AppI18n) window.AppI18n.translateAll(container);
+                return;
+            }
+
+            // Group by day_of_week
+            var dayGroups = {};
+            filtered.forEach(function(e) {
+                var d = Number(e.day_of_week);
+                if (!dayGroups[d]) dayGroups[d] = [];
+                dayGroups[d].push(e);
+            });
+
+            var html = '';
+            var sortedDays = Object.keys(dayGroups).sort(function(a,b) { return Number(a) - Number(b); });
+
+            sortedDays.forEach(function(dayNum) {
+                var dInt = Number(dayNum);
+                var isToday = (dInt === todayIdx);
+                var dayName = DAYS[dInt] || ('Day ' + dInt);
+                var dayDisplay = window.AppI18n ? window.AppI18n.t(dayName) : dayName;
+                var todayBadge = isToday ? (' <span class="portal-chip portal-chip-primary" style="font-size:11px; padding:3px 8px; margin-inline-start:6px;"><i class="fa fa-star text-warning"></i> ' + (window.AppI18n ? window.AppI18n.t('Today') : 'Today') + '</span>') : '';
+
+                html += '<div style="margin-bottom: 24px;">';
+                html += '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; padding-bottom:6px; border-bottom: 2px solid #f1f5f9;">' +
+                    '<h3 style="font-size:16px; font-weight:700; color:#1e293b; margin:0; display:flex; align-items:center;">' +
+                    '<i class="fa fa-calendar-check-o text-primary" style="margin-inline-end:8px;"></i> ' + dayDisplay + todayBadge +
+                    '</h3>' +
+                    '<span class="portal-chip" style="font-size:11.5px;">' + dayGroups[dayNum].length + ' ' + (window.AppI18n ? window.AppI18n.t('Sessions') : 'Sessions') + '</span>' +
+                '</div>';
+
+                html += '<div style="display:flex; flex-direction:column; gap:10px;">';
+                dayGroups[dayNum].forEach(function(seance) {
+                    var color = seance.color || '#4f6eff';
+                    var timeSlotText = seance.time_slot || (seance.start_time ? seance.start_time.slice(0,5) + ' - ' + seance.end_time.slice(0,5) : '—');
+
+                    html += `
+                        <div class="seance-agenda-card ${isToday ? 'is-today' : ''}">
+                            <div class="seance-time-box">
+                                <span class="time-range"><i class="fa fa-clock-o text-primary"></i> ${timeSlotText}</span>
+                                <span class="day-label">${dayDisplay}</span>
+                            </div>
+
+                            <div class="seance-main-info">
+                                <h4 class="subj-title">
+                                    <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:${color};"></span>
+                                    ${seance.subject_name || 'Subject'}
+                                </h4>
+                                <div class="chips-row">
+                                    <span class="portal-chip portal-chip-primary"><i class="fa fa-users"></i> ${seance.group_name || '—'}</span>
+                                    <span class="portal-chip"><i class="fa fa-map-marker text-muted"></i> ${seance.room_name || '—'}</span>
+                                    ${seance.teacher_name ? ('<span class="portal-chip"><i class="fa fa-user-circle-o text-muted"></i> ' + seance.teacher_name + '</span>') : ''}
+                                    ${seance.formation_title ? ('<span class="portal-chip"><i class="fa fa-book text-muted"></i> ' + seance.formation_title + '</span>') : ''}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div></div>';
+            });
+
+            container.innerHTML = html;
+            if (window.AppI18n) window.AppI18n.translateAll(container);
+        }
+
+        function renderGridView(filtered) {
+            var container = document.getElementById('student-grid-container');
+            var todayIdx = getTodayIdx();
+
+            // Extract distinct time slots
+            var slotsMap = {};
+            filtered.forEach(function(e) {
+                var slotKey = e.time_slot || (e.start_time + '–' + e.end_time);
+                if (!slotsMap[slotKey]) {
+                    slotsMap[slotKey] = {
+                        label: slotKey,
+                        start_time: e.start_time || '00:00:00',
+                        end_time: e.end_time || '00:00:00',
+                        sort_order: e.sort_order || 0
+                    };
+                }
+            });
+
+            // Also merge with rawSlotsData
+            rawSlotsData.forEach(function(s) {
+                if (!slotsMap[s.label]) {
+                    slotsMap[s.label] = s;
+                }
+            });
+
+            var sortedSlots = Object.values(slotsMap).sort(function(a, b) {
+                if (a.start_time !== b.start_time) return a.start_time.localeCompare(b.start_time);
+                return (a.sort_order || 0) - (b.sort_order || 0);
+            });
+
+            if (!sortedSlots.length) {
+                sortedSlots = [{ label: 'Morning Session', start_time: '08:00', end_time: '12:00' }];
+            }
+
+            // Build matrix: slot_day -> list of entries
+            var matrix = {};
+            filtered.forEach(function(e) {
+                var slotKey = e.time_slot || (e.start_time + '–' + e.end_time);
+                var k = slotKey + '_' + e.day_of_week;
+                if (!matrix[k]) matrix[k] = [];
+                matrix[k].push(e);
+            });
+
+            var html = '<div class="timetable-wrap"><table class="tt-grid"><thead><tr>';
+            html += '<th class="time-col-header" data-i18n="Time Slot">' + (window.AppI18n ? window.AppI18n.t('Time Slot') : 'Time') + '</th>';
+
+            for (var d = 1; d <= 7; d++) {
+                var isToday = (d === todayIdx);
+                var dName = DAYS[d];
+                var dTrans = window.AppI18n ? window.AppI18n.t(dName) : dName;
+                html += '<th class="' + (isToday ? 'today-th' : '') + '">' + dTrans + (isToday ? ' <span style="font-size:10px; font-weight:normal;">(' + (window.AppI18n ? window.AppI18n.t('Today') : 'Today') + ')</span>' : '') + '</th>';
+            }
+            html += '</tr></thead><tbody>';
+
+            sortedSlots.forEach(function(slot) {
+                html += '<tr>';
+                html += '<td class="time-cell">' +
+                    '<div class="time-lbl">' + slot.label + '</div>' +
+                    (slot.start_time ? ('<div class="time-sub">' + slot.start_time.slice(0,5) + ' – ' + slot.end_time.slice(0,5) + '</div>') : '') +
+                '</td>';
+
+                for (var d = 1; d <= 7; d++) {
+                    var isToday = (d === todayIdx);
+                    var k = slot.label + '_' + d;
+                    var entries = matrix[k] || [];
+
+                    html += '<td class="' + (isToday ? 'today-cell' : '') + '">';
+                    if (entries.length) {
+                        entries.forEach(function(e) {
+                            var bg = e.color || '#4f6eff';
+                            html += `
+                                <div class="seance-chip" style="background: ${bg};">
+                                    <span class="sc-subject">${e.subject_name || 'Subject'}</span>
+                                    <span class="sc-group"><i class="fa fa-users"></i> ${e.group_name || 'Group'}</span>
+                                    <div class="sc-meta">
+                                        <span><i class="fa fa-map-marker"></i> ${e.room_name || '—'}</span>
+                                        ${e.teacher_name ? ('<span><i class="fa fa-user"></i> ' + e.teacher_name + '</span>') : ''}
+                                    </div>
+                                </div>
+                            `;
+                        });
+                    }
+                    html += '</td>';
+                }
+                html += '</tr>';
+            });
+
+            html += '</tbody></table></div>';
+            container.innerHTML = html;
+            if (window.AppI18n) window.AppI18n.translateAll(container);
+        }
+
+        function renderScheduleViews() {
+            var filtered = getFilteredEntries();
+            if (currentViewMode === 'cards') {
+                document.getElementById('student-cards-container').style.display = 'block';
+                document.getElementById('student-grid-container').style.display = 'none';
+                renderCardsView(filtered);
+            } else {
+                document.getElementById('student-cards-container').style.display = 'none';
+                document.getElementById('student-grid-container').style.display = 'block';
+                renderGridView(filtered);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            window.onAuthReady = function() {
+                if (!window._ctx || window._ctx.user.role !== 'student') {
+                    window.location.href = 'index.html';
+                    return;
+                }
+
+                SchoolBackend.request('/api/student-space/planning').then(function(res) {
+                    document.getElementById('sched-loading').style.display = 'none';
+                    rawPlanningData = res.planning || [];
+                    rawSlotsData = res.slots || [];
+                    rawProgramsData = res.programs || [];
+
+                    renderKPIs();
+                    renderDayTabs();
+                    renderScheduleViews();
+                }).catch(function(err) {
+                    document.getElementById('sched-loading').innerHTML = `
+                        <div class="text-danger" style="padding: 30px;">
+                            <i class="fa fa-exclamation-triangle" style="font-size: 24px;"></i>
+                            <div style="margin-top: 10px;">Failed to load schedule: ${err.message}</div>
+                        </div>
+                    `;
+                });
+            };
+        });
+    </script>
+</body>
+</html>

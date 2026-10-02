@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Anti-FOUC & Preloader -->
+    <style id="fouc-style">body { opacity: 0; visibility: hidden; }</style>
+    <script>
+      (function() {
+        var lang = localStorage.getItem('app_lang') || 'ar';
+        if(lang === 'ar') {
+          document.documentElement.dir = 'rtl';
+          document.documentElement.lang = 'ar';
+        } else {
+          document.documentElement.dir = 'ltr';
+          document.documentElement.lang = 'en';
+        }
+      })();
+    </script>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Pending Student Registrations | School System Admin</title>
+    <link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/sidebar.css">
+
+    <style>
+        body { font-family: 'Inter', 'Cairo', sans-serif; background: #f8fafc; color: #1e293b; }
+
+        /* ── Hero Banner ── */
+        .page-hero-card {
+            background: linear-gradient(135deg, #064e3b 0%, #065f46 45%, #059669 100%);
+            border-radius: 20px;
+            padding: 32px 36px;
+            color: #ffffff;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 12px 35px -8px rgba(6,95,70,0.45);
+            margin-bottom: 24px;
+        }
+        .page-hero-card::before {
+            content: '';
+            position: absolute; top: -60px; right: -60px;
+            width: 220px; height: 220px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(52,211,153,0.3) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .page-hero-card::after {
+            content: '';
+            position: absolute; bottom: -50px; left: 20%;
+            width: 180px; height: 180px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(16,185,129,0.2) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .hero-top-row {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            position: relative; z-index: 2;
+        }
+        .hero-info-area { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; }
+        .page-avatar-badge {
+            width: 64px; height: 64px;
+            border-radius: 18px;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(6px);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 26px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+            flex-shrink: 0;
+        }
+        .hero-text h2 { font-size: 24px; font-weight: 800; margin: 0 0 4px; text-shadow: 0 1px 4px rgba(0,0,0,.3); }
+        .hero-badges-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+        .hero-pill {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.25);
+            border-radius: 20px;
+            padding: 4px 14px;
+            font-size: 12.5px; font-weight: 600;
+        }
+        .hero-action-btns { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .btn-hero-primary {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(255,255,255,0.95);
+            color: #065f46;
+            border: none; border-radius: 12px;
+            padding: 10px 20px;
+            font-size: 13.5px; font-weight: 700;
+            text-decoration: none; cursor: pointer;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+            transition: all .2s;
+        }
+        .btn-hero-primary:hover { transform: translateY(-1px); background: #fff; color: #047857; }
+        .btn-hero-glass {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(255,255,255,0.12);
+            border: 1.5px solid rgba(255,255,255,0.3);
+            color: #fff; border-radius: 12px;
+            padding: 9px 18px; font-size: 13.5px; font-weight: 600;
+            cursor: pointer; transition: all .2s;
+        }
+        .btn-hero-glass:hover { background: rgba(255,255,255,0.22); }
+
+        /* ── Metrics ── */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px; margin-bottom: 24px;
+        }
+        .metric-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 20px 22px;
+            display: flex; align-items: center; gap: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+            border: 1px solid #e2e8f0;
+            transition: box-shadow .2s;
+        }
+        .metric-card:hover { box-shadow: 0 6px 24px rgba(0,0,0,0.08); }
+        .metric-icon-wrap {
+            width: 46px; height: 46px;
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; flex-shrink: 0;
+        }
+        .metric-icon-amber { background: #fef3c7; color: #d97706; }
+        .metric-icon-green { background: #d1fae5; color: #059669; }
+        .metric-icon-red   { background: #fee2e2; color: #dc2626; }
+        .metric-icon-blue  { background: #dbeafe; color: #2563eb; }
+        .metric-info label { font-size: 11.5px; font-weight: 600; color: #9ca3af; text-transform: uppercase; letter-spacing: .05em; display: block; }
+        .metric-info .val  { font-size: 26px; font-weight: 800; color: #1e293b; line-height: 1.2; }
+
+        /* ── Card panel ── */
+        .card-panel {
+            background: #fff;
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+            border: 1px solid #e2e8f0;
+            margin-bottom: 24px;
+        }
+        .section-header-bar {
+            display: flex; align-items: flex-start; justify-content: space-between;
+            flex-wrap: wrap; gap: 16px; margin-bottom: 20px;
+        }
+        .section-title h3 { font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; margin: 0 0 4px; }
+        .section-title p { font-size: 12.5px; color: #64748b; margin: 0; }
+
+        /* ── Controls ── */
+        .controls-toolbar {
+            display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+        }
+        .search-input-wrapper { position: relative; min-width: 220px; flex: 1; }
+        .search-input-wrapper .form-control { padding-left: 36px; border-radius: 10px; height: 38px; font-size: 13px; border: 1.5px solid #e2e8f0; }
+        body[dir="rtl"] .search-input-wrapper .form-control { padding-left: 12px; padding-right: 36px; }
+        .search-icon { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: #9ca3af; font-size: 13px; }
+        body[dir="rtl"] .search-icon { left: auto; right: 11px; }
+
+        /* ── Table ── */
+        .modern-table { width: 100%; border-collapse: collapse; }
+        .modern-table thead tr { border-bottom: 2px solid #f1f5f9; }
+        .modern-table th { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: #9ca3af; padding: 10px 14px; white-space: nowrap; }
+        .modern-table td { padding: 13px 14px; font-size: 13px; color: #334155; border-bottom: 1px solid #f8fafc; vertical-align: middle; }
+        .modern-table tbody tr { transition: background .15s; }
+        .modern-table tbody tr:hover { background: #f8fafc; }
+        .modern-table .student-avatar {
+            width: 38px; height: 38px; border-radius: 50%; object-fit: cover;
+            background: linear-gradient(135deg,#e0f2fe,#bfdbfe);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 13px; color: #2563eb;
+            flex-shrink: 0;
+        }
+        .avatar-wrap { display: flex; align-items: center; gap: 10px; }
+        .student-name { font-weight: 600; color: #1e293b; font-size: 13.5px; }
+        .student-email { font-size: 11.5px; color: #9ca3af; }
+
+        .label { border-radius: 20px; padding: 4px 11px; font-size: 11.5px; font-weight: 600; display: inline-block; }
+        .label-warning { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+        .label-success { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+        .label-danger  { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+        .label-info    { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+
+        /* Action buttons */
+        .btn-xs {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 32px; height: 32px; border-radius: 8px;
+            font-size: 12px; transition: all .18s; margin: 0 2px;
+            text-decoration: none; padding: 0; border: 1px solid transparent;
+        }
+        .btn-xs:hover { transform: translateY(-1.5px); box-shadow: 0 3px 8px rgba(0,0,0,.12); }
+        .btn-activate { background: #f0fdf4; border-color: #bbf7d0; color: #16a34a; }
+        .btn-activate:hover { background: #16a34a; border-color: #16a34a; color: #fff; }
+        .btn-reject { background: #fef2f2; border-color: #fecaca; color: #dc2626; }
+        .btn-reject:hover { background: #dc2626; border-color: #dc2626; color: #fff; }
+        .btn-view { background: #eff6ff; border-color: #bfdbfe; color: #2563eb; }
+        .btn-view:hover { background: #2563eb; border-color: #2563eb; color: #fff; }
+
+        /* ── Filter tabs ── */
+        .filter-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+        .filter-tab {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 6px 16px; border-radius: 20px;
+            font-size: 12.5px; font-weight: 600;
+            border: 1.5px solid #e2e8f0; background: #f8fafc;
+            color: #64748b; cursor: pointer; transition: all .18s;
+        }
+        .filter-tab.active { background: #059669; border-color: #059669; color: #fff; }
+        .filter-tab .tab-count {
+            background: rgba(0,0,0,.1);
+            border-radius: 10px; padding: 1px 7px;
+            font-size: 11px;
+        }
+        .filter-tab.active .tab-count { background: rgba(255,255,255,.25); }
+
+        /* ── Empty state ── */
+        .empty-state { text-align: center; padding: 60px 24px; }
+        .empty-state i { font-size: 52px; color: #d1d5db; margin-bottom: 18px; display: block; }
+        .empty-state h4 { font-size: 17px; font-weight: 700; color: #374151; margin-bottom: 8px; }
+        .empty-state p { font-size: 13.5px; color: #9ca3af; max-width: 340px; margin: 0 auto; }
+
+        /* ── Detail modal ── */
+        .modal-card {
+            background: #fff;
+            border-radius: 20px;
+            max-width: 560px;
+            width: 100%;
+            box-shadow: 0 25px 60px -12px rgba(0,0,0,0.35);
+            overflow: hidden;
+        }
+        .modal-card-header {
+            background: linear-gradient(135deg, #064e3b, #059669);
+            padding: 20px 24px;
+            color: #fff;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .modal-card-header h4 { margin: 0; font-size: 16px; font-weight: 700; }
+        .modal-close { background: rgba(255,255,255,.15); border: none; color: #fff; width: 32px; height: 32px; border-radius: 8px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; }
+        .modal-card-body { padding: 24px; }
+        .detail-row { display: flex; padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 13.5px; }
+        .detail-row:last-child { border-bottom: none; }
+        .detail-label { width: 160px; flex-shrink: 0; font-weight: 600; color: #64748b; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; }
+        .detail-val { flex: 1; color: #1e293b; }
+        .modal-footer-btns { padding: 16px 24px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; gap: 10px; justify-content: flex-end; }
+        .btn-modal-activate {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: linear-gradient(135deg, #059669, #10b981);
+            color: #fff; border: none; border-radius: 10px;
+            padding: 10px 22px; font-size: 13.5px; font-weight: 700;
+            cursor: pointer; box-shadow: 0 4px 14px rgba(16,185,129,.35);
+            transition: all .2s;
+        }
+        .btn-modal-activate:hover { opacity: .9; transform: translateY(-1px); }
+        .btn-modal-reject {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: #fef2f2; color: #dc2626;
+            border: 1.5px solid #fecaca; border-radius: 10px;
+            padding: 10px 22px; font-size: 13.5px; font-weight: 700;
+            cursor: pointer; transition: all .2s;
+        }
+        .btn-modal-reject:hover { background: #dc2626; color: #fff; border-color: #dc2626; }
+        .btn-modal-close {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: #f1f5f9; color: #475569;
+            border: 1px solid #e2e8f0; border-radius: 10px;
+            padding: 10px 18px; font-size: 13.5px; font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* ── Toast ── */
+        .toast-container { position: fixed; top: 20px; right: 20px; z-index: 99999; display: flex; flex-direction: column; gap: 10px; }
+        body[dir="rtl"] .toast-container { right: auto; left: 20px; }
+        .toast {
+            min-width: 280px; max-width: 380px;
+            background: #fff; border-radius: 14px;
+            padding: 14px 18px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.14);
+            border-left: 4px solid #059669;
+            display: flex; align-items: center; gap: 12px;
+            animation: toastIn .3s cubic-bezier(.16,1,.3,1);
+            font-size: 13.5px; font-weight: 500;
+        }
+        body[dir="rtl"] .toast { border-left: none; border-right: 4px solid #059669; }
+        .toast.toast-error { border-color: #dc2626; }
+        .toast i { font-size: 18px; flex-shrink: 0; }
+        .toast.toast-success i { color: #059669; }
+        .toast.toast-error i { color: #dc2626; }
+        @keyframes toastIn { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+
+        #backend-status { border-radius: 10px; }
+    </style>
+
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#059669">
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => navigator.serviceWorker.register('sw.js'));
+      }
+    </script>
+</head>
+
+<body data-page="pending-students">
+    <div id="sidebar-placeholder"></div>
+    <div class="sb-main">
+        <div id="header-placeholder"></div>
+        <div class="sb-content">
+            <div class="sb-breadcrumb">
+                <i class="fa fa-home"></i>
+                <a href="index.html" data-i18n="Home">Home</a>
+                <span>/</span>
+                <a href="all-students.html" data-i18n="Students">Students</a>
+                <span>/</span>
+                <span data-i18n="Pending Registrations">Pending Registrations</span>
+            </div>
+
+            <!-- ── Hero Banner ── -->
+            <div class="page-hero-card">
+                <div class="hero-top-row">
+                    <div class="hero-info-area">
+                        <div class="page-avatar-badge"><i class="fa fa-user-plus"></i></div>
+                        <div class="hero-text">
+                            <h2 data-i18n="Pending Student Registrations">Pending Student Registrations</h2>
+                            <div class="hero-badges-row">
+                                <span class="hero-pill"><i class="fa fa-clock-o"></i> <span id="hero-pending-count">0</span> <span data-i18n="Pending">Pending</span></span>
+                                <span class="hero-pill"><i class="fa fa-check-circle"></i> <span id="hero-activated-today">0</span> <span data-i18n="Activated Today">Activated Today</span></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="hero-action-btns">
+                        <button class="btn-hero-glass" id="btn-refresh" title="Refresh">
+                            <i class="fa fa-refresh"></i> <span data-i18n="Refresh">Refresh</span>
+                        </button>
+                        <a href="all-students.html" class="btn-hero-primary">
+                            <i class="fa fa-list"></i> <span data-i18n="All Students">All Students</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── Metrics ── -->
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-icon-wrap metric-icon-amber"><i class="fa fa-clock-o"></i></div>
+                    <div class="metric-info">
+                        <label data-i18n="Total Pending">Total Pending</label>
+                        <div class="val" id="stat-total-pending">0</div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon-wrap metric-icon-green"><i class="fa fa-check-circle"></i></div>
+                    <div class="metric-info">
+                        <label data-i18n="Activated">Activated</label>
+                        <div class="val" id="stat-total-activated">0</div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon-wrap metric-icon-red"><i class="fa fa-times-circle"></i></div>
+                    <div class="metric-info">
+                        <label data-i18n="Rejected / Deleted">Rejected / Deleted</label>
+                        <div class="val" id="stat-total-rejected">0</div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon-wrap metric-icon-blue"><i class="fa fa-calendar"></i></div>
+                    <div class="metric-info">
+                        <label data-i18n="Registered Today">Registered Today</label>
+                        <div class="val" id="stat-today">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── Table Panel ── -->
+            <div class="card-panel">
+                <div class="section-header-bar">
+                    <div class="section-title">
+                        <h3><i class="fa fa-user-plus" style="color:#059669;"></i> <span data-i18n="Pending Registrations">Pending Registrations</span></h3>
+                        <p data-i18n="Students who self-registered and are waiting for admin approval to activate their accounts.">Students who self-registered and are waiting for admin approval to activate their accounts.</p>
+                    </div>
+                    <div class="controls-toolbar">
+                        <div class="search-input-wrapper">
+                            <i class="fa fa-search search-icon"></i>
+                            <input type="text" id="search-input" class="form-control" placeholder="Search by name, email..." data-i18n-ph="Search by name, email...">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filter tabs -->
+                <div class="filter-tabs">
+                    <button class="filter-tab active" data-filter="pending" id="tab-pending">
+                        <i class="fa fa-clock-o"></i> <span data-i18n="Pending">Pending</span>
+                        <span class="tab-count" id="tab-count-pending">0</span>
+                    </button>
+                    <button class="filter-tab" data-filter="all" id="tab-all">
+                        <i class="fa fa-list"></i> <span data-i18n="All Pre-Registrations">All Pre-Registrations</span>
+                        <span class="tab-count" id="tab-count-all">0</span>
+                    </button>
+                </div>
+
+                <div id="backend-status" class="alert" style="display:none"></div>
+
+                <div class="table-responsive">
+                    <table class="table modern-table" id="pending-table">
+                        <thead>
+                            <tr>
+                                <th width="50" data-i18n="Photo">Photo</th>
+                                <th data-i18n="Student">Student</th>
+                                <th data-i18n="Phone">Phone</th>
+                                <th data-i18n="Formation">Formation</th>
+                                <th data-i18n="Parent">Parent</th>
+                                <th data-i18n="Registered">Registered</th>
+                                <th data-i18n="Status">Status</th>
+                                <th width="130" data-i18n="Actions">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body">
+                            <tr><td colspan="8" class="text-center" style="padding:40px; color:#9ca3af;">
+                                <i class="fa fa-spinner fa-spin" style="font-size:24px; margin-bottom:10px; display:block;"></i>
+                                <span data-i18n="Loading pending registrations...">Loading pending registrations...</span>
+                            </td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="footer-placeholder"></div>
+        </div>
+    </div>
+
+    <!-- ── Detail / Activation Modal ── -->
+    <div id="detail-modal" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.6); backdrop-filter:blur(5px); z-index:9999; align-items:center; justify-content:center; padding:16px;">
+        <div class="modal-card">
+            <div class="modal-card-header">
+                <h4><i class="fa fa-user-circle"></i> <span data-i18n="Student Registration Details">Student Registration Details</span></h4>
+                <button class="modal-close" id="modal-close-btn"><i class="fa fa-times"></i></button>
+            </div>
+            <div class="modal-card-body" id="modal-body">
+                <!-- filled dynamically -->
+            </div>
+            <div class="modal-footer-btns">
+                <button class="btn-modal-close" id="modal-cancel-btn" data-i18n="Close">Close</button>
+                <button class="btn-modal-reject" id="modal-reject-btn" style="display:none;">
+                    <i class="fa fa-times"></i> <span data-i18n="Reject & Delete">Reject & Delete</span>
+                </button>
+                <button class="btn-modal-activate" id="modal-activate-btn" style="display:none;">
+                    <i class="fa fa-check"></i> <span data-i18n="Activate Account">Activate Account</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Toast container ── -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <script src="js/vendor/jquery-1.12.4.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/components.js"></script>
+    <script src="js/backend.js?v=7"></script>
+
+    <script>
+    (function() {
+        var allStudents = [];
+        var currentFilter = 'pending';
+        var currentStudentId = null;
+        var rejectedCount = parseInt(localStorage.getItem('pending_rejected_count') || '0', 10);
+
+        function t(key) {
+            if (window.AppI18n && typeof window.AppI18n.t === 'function') {
+                return window.AppI18n.t(key);
+            }
+            return key;
+        }
+
+        function esc(s) {
+            if (!s) return '';
+            return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
+        // ── Toast helper ──
+        function toast(msg, type) {
+            var container = document.getElementById('toast-container');
+            var tEl = document.createElement('div');
+            tEl.className = 'toast toast-' + (type || 'success');
+            tEl.innerHTML = '<i class="fa fa-' + (type === 'error' ? 'times-circle' : 'check-circle') + '"></i><span>' + msg + '</span>';
+            container.appendChild(tEl);
+            setTimeout(function() {
+                if (tEl.parentNode) tEl.parentNode.removeChild(tEl);
+            }, 3500);
+        }
+
+        // ── Format date ──
+        function fmtDate(v) {
+            if (!v) return '—';
+            var d = new Date(v);
+            if (isNaN(d.getTime())) return v.slice ? v.slice(0,10) : '—';
+            return d.toLocaleDateString(t('Date') === 'التاريخ' ? 'ar-DZ' : 'en-GB');
+        }
+
+        function isToday(v) {
+            if (!v) return false;
+            var d = new Date(v);
+            var now = new Date();
+            return d.getDate() === now.getDate() && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+        }
+
+        function avatarHtml(s) {
+            var initials = ((s.first_name || '')[0] || '') + ((s.last_name || '')[0] || '');
+            if (s.photo && s.photo.trim()) {
+                return '<img src="' + s.photo + '" class="student-avatar" style="object-fit:cover;" onerror="this.style.display=\'none\';">';
+            }
+            return '<div class="student-avatar">' + initials.toUpperCase() + '</div>';
+        }
+
+        // ── Load students ──
+        function loadStudents() {
+            document.getElementById('table-body').innerHTML =
+                '<tr><td colspan="8" class="text-center" style="padding:40px;color:#9ca3af;">' +
+                '<i class="fa fa-spinner fa-spin" style="font-size:24px;display:block;margin-bottom:10px;"></i>' + t('Loading pending registrations...') + '</td></tr>';
+
+            request('/api/student-registrations')
+                .then(function(data) {
+                    allStudents = (data.data || []).filter(function(s) {
+                        return s.registration_number && s.registration_number.indexOf('PRE-') === 0;
+                    });
+                    updateStats();
+                    renderTable();
+                })
+                .catch(function(err) {
+                    document.getElementById('backend-status').style.display = 'block';
+                    document.getElementById('backend-status').className = 'alert alert-danger';
+                    document.getElementById('backend-status').textContent = t('Failed to load students: ') + (err.message || '');
+                    document.getElementById('table-body').innerHTML =
+                        '<tr><td colspan="8" class="text-center" style="padding:40px;color:#9ca3af;">' + t('Failed to load data.') + '</td></tr>';
+                });
+        }
+
+        function updateStats() {
+            var pending   = allStudents.filter(function(s) { return !s.is_active || s.is_active == 0; });
+            var activated = allStudents.filter(function(s) { return s.is_active == 1; });
+            var today     = allStudents.filter(function(s) { return isToday(s.created_at); });
+
+            document.getElementById('stat-total-pending').textContent   = pending.length;
+            document.getElementById('stat-total-activated').textContent  = activated.length;
+            document.getElementById('stat-total-rejected').textContent   = rejectedCount;
+            document.getElementById('stat-today').textContent            = today.length;
+            document.getElementById('hero-pending-count').textContent    = pending.length;
+            document.getElementById('hero-activated-today').textContent  = activated.filter(function(s){return isToday(s.created_at);}).length;
+
+            document.getElementById('tab-count-pending').textContent = pending.length;
+            document.getElementById('tab-count-all').textContent     = allStudents.length;
+        }
+
+        function getFiltered() {
+            var q = (document.getElementById('search-input').value || '').toLowerCase().trim();
+            var list = currentFilter === 'pending'
+                ? allStudents.filter(function(s) { return !s.is_active || s.is_active == 0; })
+                : allStudents;
+
+            if (q) {
+                list = list.filter(function(s) {
+                    return ((s.first_name || '') + ' ' + (s.last_name || '')).toLowerCase().includes(q)
+                        || (s.email || '').toLowerCase().includes(q)
+                        || (s.parent_name || '').toLowerCase().includes(q);
+                });
+            }
+            return list;
+        }
+
+        function renderTable() {
+            var list = getFiltered();
+            var tbody = document.getElementById('table-body');
+
+            if (!list.length) {
+                tbody.innerHTML =
+                    '<tr><td colspan="8"><div class="empty-state">' +
+                    '<i class="fa fa-user-plus"></i>' +
+                    '<h4>' + (currentFilter === 'pending' ? t('No Pending Registrations') : t('No Pre-Registrations Found')) + '</h4>' +
+                    '<p>' + (currentFilter === 'pending'
+                        ? t('All student registrations have been reviewed. New self-registrations will appear here.')
+                        : t('No self-registration records found.')) + '</p>' +
+                    '</div></td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = list.map(function(s) {
+                var isActive = s.is_active == 1;
+                var statusLabel = isActive
+                    ? '<span class="label label-success"><i class="fa fa-check-circle"></i> ' + t('Active') + '</span>'
+                    : '<span class="label label-warning"><i class="fa fa-clock-o"></i> ' + t('Pending') + '</span>';
+
+                var actions = '';
+                if (!isActive) {
+                    actions += '<button class="btn-xs btn-activate" title="' + t('Activate Account') + '" onclick="openDetail(' + s.id + ')"><i class="fa fa-check"></i></button>';
+                    actions += '<button class="btn-xs btn-reject" title="' + t('Reject & Delete') + '" onclick="rejectStudent(' + s.id + ', this)"><i class="fa fa-times"></i></button>';
+                } else {
+                    actions += '<a href="student-profile.html?id=' + s.id + '" class="btn-xs btn-view" title="' + t('View Profile') + '"><i class="fa fa-eye"></i></a>';
+                    actions += '<a href="edit-student.html?id=' + s.id + '" class="btn-xs" style="background:#f5f3ff;border-color:#ddd6fe;color:#7c3aed;" title="' + t('Edit') + '"><i class="fa fa-pencil"></i></a>';
+                }
+
+                return '<tr data-id="' + s.id + '">' +
+                    '<td>' + avatarHtml(s) + '</td>' +
+                    '<td>' +
+                        '<div class="avatar-wrap">' +
+                        '<div>' +
+                            '<div class="student-name">' + (s.first_name || '') + ' ' + (s.last_name || '') + '</div>' +
+                            '<div class="student-email">' + (s.email || '—') + '</div>' +
+                        '</div></div>' +
+                    '</td>' +
+                    '<td>' + (s.phone || s.parent_phone || '—') + '</td>' +
+                    '<td>' + (s.formation_title ? '<span class="label label-info">' + s.formation_title + '</span>' : '<span style="color:#9ca3af;">—</span>') + '</td>' +
+                    '<td>' + (s.parent_name ? s.parent_name + (s.parent_phone ? '<br><small style="color:#9ca3af;">' + s.parent_phone + '</small>' : '') : '—') + '</td>' +
+                    '<td>' + fmtDate(s.created_at) + '</td>' +
+                    '<td>' + statusLabel + '</td>' +
+                    '<td>' + actions + '</td>' +
+                    '</tr>';
+            }).join('');
+        }
+
+        // ── Open detail modal ──
+        window.openDetail = function(studentId) {
+            var s = allStudents.find(function(x) { return x.id == studentId; });
+            if (!s) return;
+            currentStudentId = studentId;
+            var isActive = s.is_active == 1;
+
+            var body = document.getElementById('modal-body');
+            body.innerHTML = [
+                detailRow(t('Full Name'), (s.first_name || '') + ' ' + (s.last_name || '')),
+                detailRow(t('Email'), s.email || '—'),
+                detailRow(t('Phone'), s.phone || '—'),
+                detailRow(t('Gender'), s.gender ? t(s.gender === 'MALE' ? 'Male' : s.gender === 'FEMALE' ? 'Female' : s.gender) : '—'),
+                detailRow(t('Date of Birth'), fmtDate(s.birth_date)),
+                detailRow(t('Formation'), s.formation_title || t('— Not specified —')),
+                detailRow(t('Parent Name'), s.parent_name || '—'),
+                detailRow(t('Parent Phone'), s.parent_phone || '—'),
+                detailRow(t('Notes'), s.health_notes || '—'),
+                detailRow(t('Registration #'), s.registration_number || '—'),
+                detailRow(t('NFC / RFID Tag ID'), s.rfid_tag || '—'),
+                detailRow(t('Registered On'), fmtDate(s.created_at)),
+                detailRow(t('Account Status'),
+                    isActive
+                    ? '<span class="label label-success">' + t('Active') + '</span>'
+                    : '<span class="label label-warning">' + t('Pending Approval') + '</span>'),
+                (!isActive ? 
+                '<div style="margin-top:14px; padding:12px 14px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:10px;">' +
+                    '<label style="font-size:12px; font-weight:700; color:#166534; margin-bottom:6px; display:flex; align-items:center; gap:6px;">' +
+                        '<i class="fa fa-id-badge"></i> <span data-i18n="NFC / RFID Tag ID">' + t('NFC / RFID Tag ID') + '</span> <small style="color:#64748b; font-weight:normal;">(' + t('Optional') + ')</small>' +
+                    '</label>' +
+                    '<input type="text" id="modal-rfid-input" class="form-control" style="background:#fff; border:1px solid #86efac; border-radius:8px; font-size:13px;" placeholder="' + t('Scan or enter NFC/RFID Tag ID...') + '" value="' + (s.rfid_tag ? esc(s.rfid_tag) : '') + '">' +
+                '</div>' : '')
+            ].join('');
+
+            var activateBtn = document.getElementById('modal-activate-btn');
+            var rejectBtn   = document.getElementById('modal-reject-btn');
+
+            if (!isActive) {
+                activateBtn.style.display = 'inline-flex';
+                rejectBtn.style.display   = 'inline-flex';
+            } else {
+                activateBtn.style.display = 'none';
+                rejectBtn.style.display   = 'none';
+            }
+
+            activateBtn.onclick = function() { activateStudent(studentId); };
+            rejectBtn.onclick   = function() {
+                closeModal();
+                rejectStudent(studentId, null);
+            };
+
+            document.getElementById('detail-modal').style.display = 'flex';
+        };
+
+        function detailRow(label, val) {
+            return '<div class="detail-row"><div class="detail-label">' + label + '</div><div class="detail-val">' + val + '</div></div>';
+        }
+
+        function closeModal() {
+            document.getElementById('detail-modal').style.display = 'none';
+            currentStudentId = null;
+        }
+
+        // ── Activate student ──
+        window.activateStudent = function(studentId) {
+            var activateBtn = document.getElementById('modal-activate-btn');
+            if (activateBtn) {
+                activateBtn.disabled = true;
+                activateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> ' + t('Activating...');
+            }
+
+            var rfidInp = document.getElementById('modal-rfid-input');
+            var rfidVal = rfidInp ? rfidInp.value.trim() : null;
+            var bodyData = { is_active: 1 };
+            if (rfidVal !== null && rfidVal !== '') {
+                bodyData.rfid_tag = rfidVal;
+            }
+
+            request('/api/student-registrations/' + studentId, {
+                method: 'PUT',
+                body: JSON.stringify(bodyData)
+            })
+            .then(function() {
+                closeModal();
+                toast(t('Student account activated successfully!'), 'success');
+                loadStudents();
+            })
+            .catch(function(err) {
+                toast(t('Failed to activate: ') + (err.message || ''), 'error');
+                if (activateBtn) {
+                    activateBtn.disabled = false;
+                    activateBtn.innerHTML = '<i class="fa fa-check"></i> ' + t('Activate Account');
+                }
+            });
+        };
+
+        // ── Reject (delete) student ──
+        window.rejectStudent = function(studentId, btnEl) {
+            if (typeof showDeleteConfirmModal === 'function') {
+                showDeleteConfirmModal({
+                    title: t('Reject Registration'),
+                    message: t('This will permanently delete this student\'s pre-registration. The applicant\'s account and data will be removed. This action cannot be undone.'),
+                    confirmText: t('Yes, Reject & Delete'),
+                    cancelText: t('Cancel'),
+                    onConfirm: function() {
+                        doReject(studentId, btnEl);
+                    }
+                });
+            } else if (confirm(t('Reject and permanently delete this registration?'))) {
+                doReject(studentId, btnEl);
+            }
+        };
+
+        function doReject(studentId, btnEl) {
+            if (btnEl) { btnEl.disabled = true; btnEl.innerHTML = '<i class="fa fa-spinner fa-spin"></i>'; }
+            var row = document.querySelector('tr[data-id="' + studentId + '"]');
+            if (row) row.style.opacity = '0.4';
+
+            request('/api/student-registrations/' + studentId, { method: 'DELETE' })
+                .then(function() {
+                    toast(t('Registration rejected and deleted.'), 'error');
+                    rejectedCount++;
+                    localStorage.setItem('pending_rejected_count', rejectedCount);
+                    loadStudents();
+                })
+                .catch(function(err) {
+                    toast(t('Failed to delete: ') + (err.message || ''), 'error');
+                    if (btnEl) { btnEl.disabled = false; btnEl.innerHTML = '<i class="fa fa-times"></i>'; }
+                    if (row) row.style.opacity = '1';
+                });
+        }
+
+        // ── Search ──
+        document.getElementById('search-input').addEventListener('input', function() { renderTable(); });
+
+        // ── Filter tabs ──
+        document.querySelectorAll('.filter-tab').forEach(function(tab) {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.filter-tab').forEach(function(t) { t.classList.remove('active'); });
+                tab.classList.add('active');
+                currentFilter = tab.getAttribute('data-filter');
+                renderTable();
+            });
+        });
+
+        // ── Refresh ──
+        document.getElementById('btn-refresh').addEventListener('click', loadStudents);
+
+        // ── Modal close ──
+        document.getElementById('modal-close-btn').addEventListener('click', closeModal);
+        document.getElementById('modal-cancel-btn').addEventListener('click', closeModal);
+        document.getElementById('detail-modal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+
+        // ── Init ──
+        loadStudents();
+    })();
+    </script>
+</body>
+</html>

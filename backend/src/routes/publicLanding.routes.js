@@ -1,6 +1,7 @@
 const express = require('express');
 const asyncHandler = require('../utils/asyncHandler');
-const { query } = require('../config/db');
+const { query, pool } = require('../config/db');
+const bcrypt = require('bcryptjs');
 
 const router = express.Router();
 
@@ -152,6 +153,92 @@ router.post(
     });
   })
 );
+
+
+/**
+ * POST /api/public/student-pre-register
+ * Public self-registration for students.
+ * Creates user (is_active=0) + student record — pending admin approval.
+ */
+router.post(
+  '/student-pre-register',
+  asyncHandler(async (req, res) => {
+    const {
+      first_name,
+      last_name,
+      email,
+      password,
+      phone = null,
+      gender = null,
+      birth_date = null,
+      formation_id = null,
+      parent_name = null,
+      parent_phone = null,
+      message: notes = null,
+    } = req.body;
+
+    if (!first_name || !last_name || !email || !password) {
+      return res.status(400).json({ success: false, message: 'first_name, last_name, email, and password are required' });
+    }
+
+    // Check email uniqueness
+    const existing = await query('SELECT id FROM users WHERE email = ? LIMIT 1', [email]);
+    if (existing.length) {
+      return res.status(409).json({ success: false, message: 'This email is already registered.' });
+    }
+
+    // Resolve school id (use school #1 by default)
+    const schools = await query('SELECT id FROM schools ORDER BY id ASC LIMIT 1');
+    const schoolId = schools[0] ? schools[0].id : 1;
+
+    const connection = await pool.getConnection();
+    try {
+      await connection.beginTransaction();
+
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      // Create user with is_active = 0 (pending approval)
+      const [userResult] = await connection.execute(
+        `INSERT INTO users (first_name, last_name, email, phone, password, role, gender, birth_date, is_active)
+         VALUES (?, ?, ?, ?, ?, 'student', ?, ?, 0)`,
+        [first_name.trim(), last_name.trim(), email.trim().toLowerCase(), phone, hashedPassword, gender, birth_date || null]
+      );
+      const userId = userResult.insertId;
+
+      // Generate a provisional registration number
+      const regNumber = 'PRE-' + Date.now();
+
+      // Create student record
+      const [studentResult] = await connection.execute(
+        `INSERT INTO students (user_id, school_id, formation_id, registration_number, parent_name, parent_phone, health_notes, payment_status)
+         VALUES (?, ?, ?, ?, ?, ?, ?, 'not_paid')`,
+        [userId, schoolId, formation_id || null, regNumber, parent_name || null, parent_phone || null, notes || null]
+      );
+
+      await connection.commit();
+
+      res.status(201).json({
+        success: true,
+        message: 'Registration submitted successfully! Your account is pending admin approval.',
+        student_id: studentResult.insertId,
+      });
+    } catch (err) {
+      await connection.rollback();
+      throw err;
+    } finally {
+      connection.release();
+    }
+  })
+);
+
+/**
+ * GET /api/public/pending-students
+ * (Protected via admin token — used by admin pending-students page)
+ * Returns all students where users.is_active = 0.
+ * NOTE: actual admin activation uses PUT /api/student-registrations/:id (is_active field)
+ * so this is a convenience read-only public endpoint ONLY accessible from admin panel
+ * (no extra route needed — admin uses /api/student-registrations with auth).
+ */
 
 module.exports = router;
 

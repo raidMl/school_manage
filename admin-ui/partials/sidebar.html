@@ -16,26 +16,26 @@
 
     <!-- Navigation -->
     <nav class="sb-nav">
-        <div class="sb-section-label">Main</div>
+        <!-- <div class="sb-section-label" data-i18n="Main">Main</div> -->
 
         <div class="sb-item" data-menu="dashboard">
             <a href="index.html" class="sb-link">
                 <i class="fa fa-home sb-icon"></i>
-                <span class="sb-label">Dashboard</span>
+                <span class="sb-label" data-i18n="Dashboard">Dashboard</span>
             </a>
         </div>
 
-        <div class="sb-section-label">Management</div>
+        <!-- <div class="sb-section-label" data-i18n="Management">Management</div> -->
 
         <div class="sb-item" data-menu="professors">
             <div class="sb-link" onclick="sbToggle(this)">
                 <i class="fa fa-user-tie sb-icon"></i>
-                <span class="sb-label">Teachers</span>
+                <span class="sb-label" data-i18n="Teachers">Teachers</span>
                 <i class="fa fa-chevron-right sb-arrow"></i>
             </div>
             <ul class="sb-submenu">
-                <li><a href="all-professors.html"><i class="fa fa-list"></i> All Teachers</a></li>
-                <li><a href="add-professor.html"><i class="fa fa-plus"></i> Add Teacher</a></li>
+                <li><a href="all-professors.html"><i class="fa fa-list"></i> <span data-i18n="All Teachers">All Teachers</span></a></li>
+                <li><a href="add-professor.html"><i class="fa fa-plus"></i> <span data-i18n="Add Teacher">Add Teacher</span></a></li>
                 <li><a href="teacher-payments.html"><i class="fa fa-money"></i> <span data-i18n="Salaries & Payments">Salaries & Payments</span></a></li>
             </ul>
         </div>
@@ -43,76 +43,66 @@
         <div class="sb-item" data-menu="students">
             <div class="sb-link" onclick="sbToggle(this)">
                 <i class="fa fa-graduation-cap sb-icon"></i>
-                <span class="sb-label">Students</span>
+                <span class="sb-label" data-i18n="Students">Students</span>
                 <i class="fa fa-chevron-right sb-arrow"></i>
             </div>
             <ul class="sb-submenu">
-                <li><a href="all-students.html"><i class="fa fa-list"></i> All Students</a></li>
-                <li><a href="add-student.html"><i class="fa fa-plus"></i> Add Student</a></li>
-                <li><a href="payments.html"><i class="fa fa-credit-card"></i> Payments</a></li>
-                <li><a href="subscription-notifications.html"><i class="fa fa-bell"></i> Subscription Alerts</a></li>
-                <li><a href="inquiries.html"><i class="fa fa-envelope-open-o"></i> <span data-i18n="Landing Inquiries">Registration Inquiries</span></a></li>
-                <li><a href="excelscraper.html"><i class="fa fa-file-excel-o"></i> Excel Scraper</a></li>
+                <li><a href="all-students.html"><i class="fa fa-list"></i> <span data-i18n="All Students">All Students</span></a></li>
+                <li><a href="add-student.html"><i class="fa fa-plus"></i> <span data-i18n="Add Student">Add Student</span></a></li>
+                <li><a href="pending-students.html"><i class="fa fa-user-plus"></i> <span data-i18n="Pending Registrations">Pending Registrations</span> <span id="sb-pending-badge" style="display:none;background:#f59e0b;color:#fff;border-radius:10px;padding:1px 7px;font-size:10px;font-weight:700;margin-left:4px;"></span></a></li>
+                <li><a href="inquiries.html"><i class="fa fa-envelope-open-o"></i> <span data-i18n="Registration Inquiries">Registration Inquiries</span></a></li>
+                <li><a href="payments.html"><i class="fa fa-credit-card"></i> <span data-i18n="Payments">Payments</span></a></li>
+                <li><a href="subscription-notifications.html"><i class="fa fa-bell"></i> <span data-i18n="Subscription Alerts">Subscription Alerts</span></a></li>
+                <li><a href="excelscraper.html"><i class="fa fa-file-excel-o"></i> <span data-i18n="Excel Scraper">Excel Scraper</span></a></li>
             </ul>
         </div>
-
- 
 
         <div class="sb-item" data-menu="courses">
             <div class="sb-link" onclick="sbToggle(this)">
                 <i class="fa fa-book sb-icon"></i>
-                <span class="sb-label">Formations & Subscriptions</span>
+                <span class="sb-label" data-i18n="Formations & Subscriptions">Formations & Subscriptions</span>
                 <i class="fa fa-chevron-right sb-arrow"></i>
             </div>
             <ul class="sb-submenu">
-                <li><a href="all-courses.html"><i class="fa fa-list"></i> All Formations & Subscriptions</a></li>
-                <li><a href="add-course.html"><i class="fa fa-plus"></i> Add New</a></li>
-                <li><a href="promo-codes.html"><i class="fa fa-tags"></i> Promo Codes</a></li>
+                <li><a href="all-courses.html"><i class="fa fa-list"></i> <span data-i18n="All Formations & Subscriptions">All Formations & Subscriptions</span></a></li>
+                <li><a href="add-course.html"><i class="fa fa-plus"></i> <span data-i18n="Add New">Add New</span></a></li>
+                <li><a href="promo-codes.html"><i class="fa fa-tags"></i> <span data-i18n="Promo Codes">Promo Codes</span></a></li>
+            </ul>
+        </div>
+
+        <div class="sb-item" data-menu="certificate">
+            <a href="certificate.html" class="sb-link">
+                <i class="fa fa-certificate sb-icon"></i>
+                <span class="sb-label" data-i18n="Certificate">Certificate</span>
+            </a>
+        </div>
+
+        <div class="sb-item" data-menu="organization classrooms groups weekly-program attendance nfc-writer statistics inventory">
+
+            <div class="sb-link" onclick="sbToggle(this)">
+                <i class="fa fa-sitemap sb-icon"></i>
+                <span class="sb-label" data-i18n="Organization">Organization</span>
+                <i class="fa fa-chevron-right sb-arrow"></i>
+            </div>
+            <ul class="sb-submenu">
+                <li><a href="all-classrooms.html" data-page="classrooms"><i class="fa fa-building"></i> <span data-i18n="Classrooms">Classrooms</span></a></li>
+                <li><a href="all-groups.html" data-page="groups"><i class="fa fa-users"></i> <span data-i18n="Groups & Classes">Groups & Classes</span></a></li>
+                <li><a href="weekly-program.html" data-page="weekly-program"><i class="fa fa-calendar"></i> <span data-i18n="Weekly Program">Weekly Program</span></a></li>
+                <li><a href="attendance.html" data-page="attendance"><i class="fa fa-check-square-o"></i> <span data-i18n="Attendance & Scanning">Attendance & Scanning</span></a></li>
+                <li><a href="nfc-writer.html" data-page="nfc-writer"><i class="fa fa-rss"></i> <span data-i18n="NFC Tag Writer">NFC Tag Writer</span></a></li>
+                <li><a href="statistics.html" data-page="statistics"><i class="fa fa-bar-chart"></i> <span data-i18n="Statistics">Statistics</span></a></li>
+                <li><a href="inventory.html" data-page="inventory"><i class="fa fa-archive"></i> <span data-i18n="Inventory">Inventory</span></a></li>
+
             </ul>
         </div>
 
 
-
-        <div class="sb-section-label">Organization</div>
-
-        <div class="sb-item" data-menu="classrooms">
-            <a href="all-classrooms.html" class="sb-link">
-                <i class="fa fa-building sb-icon"></i>
-                <span class="sb-label">Classrooms</span>
-            </a>
-        </div>
-
-        <div class="sb-item" data-menu="groups">
-            <a href="all-groups.html" class="sb-link">
-                <i class="fa fa-users sb-icon"></i>
-                <span class="sb-label">Groups & Classes</span>
-            </a>
-        </div>
-
-        <div class="sb-item" data-menu="weekly-program">
-            <a href="weekly-program.html" class="sb-link">
-                <i class="fa fa-calendar sb-icon"></i>
-                <span class="sb-label">Weekly Program</span>
-            </a>
-        </div>
-
-        <div class="sb-item" data-menu="attendance">
-            <a href="attendance.html" class="sb-link">
-                <i class="fa fa-check-square-o sb-icon"></i>
-                <span class="sb-label">Attendance & Scanning</span>
-            </a>
-        </div>
+        <div class="sb-section-label" data-i18n="Finance">Finance</div>
 
         <div class="sb-item" data-menu="treasury">
             <a href="treasury.html" class="sb-link">
                 <i class="fa fa-money sb-icon"></i>
                 <span class="sb-label" data-i18n="Treasury Management">Treasury Management</span>
-            </a>
-        </div>
-        <div class="sb-item" data-menu="certificate">
-            <a href="certificate.html" class="sb-link">
-                <i class="fa fa-certificate sb-icon"></i>
-                <span class="sb-label" data-i18n="Certificate">Certificate</span>
             </a>
         </div>
 
@@ -129,19 +119,12 @@
             </ul>
         </div>
 
-        <div class="sb-item" data-menu="inquiries">
-            <a href="inquiries.html" class="sb-link">
-                <i class="fa fa-envelope sb-icon"></i>
-                <span class="sb-label" data-i18n="Inquiries & Registration">Inquiries & Registration</span>
-            </a>
-        </div>
-        
-        <div class="sb-section-label">Settings</div>
+        <div class="sb-section-label" data-i18n="Settings">Settings</div>
 
         <div class="sb-item" data-menu="settings">
             <a href="setup-school.html" class="sb-link">
                 <i class="fa fa-cog sb-icon"></i>
-                <span class="sb-label">School Settings</span>
+                <span class="sb-label" data-i18n="School Settings">School Settings</span>
             </a>
         </div>
     </nav>

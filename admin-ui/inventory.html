@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style id="fouc-style">body { opacity: 0; visibility: hidden; }</style>
+    <script>
+      (function() {
+        var lang = localStorage.getItem('app_lang') || 'ar';
+        if (lang === 'ar') { document.documentElement.dir = 'rtl'; document.documentElement.lang = 'ar'; }
+        else { document.documentElement.dir = 'ltr'; document.documentElement.lang = 'en'; }
+      })();
+    </script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title data-i18n="Inventory Management">Inventory Management | School System Admin</title>
+    <meta name="description" content="School material and inventory management — العتاد والجرد">
+    <link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/sidebar.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#4f6eff">
+    <link rel="apple-touch-icon" href="img/icon-512.jpg">
+    <script>if('serviceWorker' in navigator){window.addEventListener('load',()=>{ navigator.serviceWorker.register('sw.js'); });}</script>
+
+    <style>
+        /* ── Page Variables ── */
+        :root {
+            --inv-primary: #6366f1;
+            --inv-primary-dark: #4f46e5;
+            --inv-success: #10b981;
+            --inv-warning: #f59e0b;
+            --inv-danger: #ef4444;
+            --inv-surface: #ffffff;
+            --inv-bg: #f1f5f9;
+            --inv-border: #e2e8f0;
+            --inv-text: #1e293b;
+            --inv-muted: #64748b;
+            --inv-radius: 14px;
+            --inv-shadow: 0 2px 16px rgba(0,0,0,.07);
+        }
+
+        body { font-family: 'Inter', sans-serif; background: var(--inv-bg); color: var(--inv-text); }
+
+        /* ── Hero card ── */
+        .inv-hero {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #06b6d4 100%);
+            border-radius: var(--inv-radius);
+            padding: 28px 32px;
+            margin-bottom: 22px;
+            color: #fff;
+            position: relative;
+            overflow: hidden;
+        }
+        .inv-hero::before {
+            content: '';
+            position: absolute;
+            top: -40px; right: -40px;
+            width: 200px; height: 200px;
+            border-radius: 50%;
+            background: rgba(255,255,255,.07);
+        }
+        .inv-hero::after {
+            content: '';
+            position: absolute;
+            bottom: -60px; left: 20px;
+            width: 140px; height: 140px;
+            border-radius: 50%;
+            background: rgba(255,255,255,.05);
+        }
+        .inv-hero-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; position: relative; z-index: 1; }
+        .inv-hero-left { display: flex; align-items: center; gap: 18px; }
+        .inv-hero-icon {
+            width: 60px; height: 60px;
+            background: rgba(255,255,255,.2);
+            border-radius: 16px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 26px;
+            backdrop-filter: blur(4px);
+        }
+        .inv-hero h1 { font-size: 22px; font-weight: 700; margin: 0 0 6px; }
+        .inv-hero-desc { font-size: 13px; opacity: .85; margin: 0; }
+        .inv-hero-pills { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+        .inv-hero-pill {
+            background: rgba(255,255,255,.15);
+            border-radius: 20px;
+            padding: 4px 14px;
+            font-size: 12px;
+            font-weight: 500;
+            backdrop-filter: blur(4px);
+            display: flex; align-items: center; gap: 6px;
+        }
+        .inv-hero-actions { display: flex; gap: 10px; }
+        .btn-hero-add {
+            background: #fff;
+            color: var(--inv-primary-dark);
+            border: none;
+            border-radius: 10px;
+            padding: 10px 20px;
+            font-size: 13.5px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex; align-items: center; gap: 8px;
+            transition: transform .15s, box-shadow .15s;
+            box-shadow: 0 4px 14px rgba(0,0,0,.15);
+        }
+        .btn-hero-add:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,.2); }
+        .btn-hero-glass {
+            background: rgba(255,255,255,.15);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,.3);
+            border-radius: 10px;
+            padding: 10px 18px;
+            font-size: 13.5px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex; align-items: center; gap: 8px;
+            backdrop-filter: blur(4px);
+            transition: background .2s;
+        }
+        .btn-hero-glass:hover { background: rgba(255,255,255,.25); }
+
+        /* ── Stats cards ── */
+        .inv-stats { display: flex; gap: 16px; margin-bottom: 22px; flex-wrap: wrap; }
+        .inv-stat {
+            flex: 1; min-width: 140px;
+            background: var(--inv-surface);
+            border-radius: var(--inv-radius);
+            padding: 20px 22px;
+            box-shadow: var(--inv-shadow);
+            display: flex; align-items: center; gap: 16px;
+            transition: transform .2s, box-shadow .2s;
+        }
+        .inv-stat:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(0,0,0,.1); }
+        .inv-stat-icon {
+            width: 48px; height: 48px;
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+        .inv-stat-icon.purple { background: rgba(99,102,241,.12); color: #6366f1; }
+        .inv-stat-icon.green  { background: rgba(16,185,129,.12); color: #10b981; }
+        .inv-stat-icon.amber  { background: rgba(245,158,11,.12); color: #f59e0b; }
+        .inv-stat-icon.red    { background: rgba(239,68,68,.12);  color: #ef4444; }
+        .inv-stat-val { font-size: 26px; font-weight: 800; line-height: 1; margin-bottom: 3px; }
+        .inv-stat-label { font-size: 12px; color: var(--inv-muted); font-weight: 500; }
+
+        /* ── Filter bar ── */
+        .inv-filters {
+            background: var(--inv-surface);
+            border-radius: var(--inv-radius);
+            padding: 18px 22px;
+            margin-bottom: 20px;
+            box-shadow: var(--inv-shadow);
+            display: flex; gap: 14px; flex-wrap: wrap; align-items: flex-end;
+        }
+        .inv-filters .fg { flex: 1; min-width: 160px; }
+        .inv-filters label { font-size: 11.5px; font-weight: 600; color: var(--inv-muted); margin-bottom: 5px; display: block; text-transform: uppercase; letter-spacing: .4px; }
+        .inv-filters .form-control {
+            height: 38px; border-radius: 9px; border: 1.5px solid var(--inv-border);
+            font-size: 13px; font-family: 'Inter', sans-serif;
+            transition: border-color .2s, box-shadow .2s;
+        }
+        .inv-filters .form-control:focus { border-color: var(--inv-primary); box-shadow: 0 0 0 3px rgba(99,102,241,.12); outline: none; }
+        .inv-filter-btn {
+            background: var(--inv-primary);
+            color: #fff;
+            border: none;
+            border-radius: 9px;
+            height: 38px;
+            padding: 0 18px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex; align-items: center; gap: 6px;
+            transition: background .2s;
+        }
+        .inv-filter-btn:hover { background: var(--inv-primary-dark); }
+        .inv-filter-reset {
+            background: #f1f5f9;
+            color: var(--inv-muted);
+            border: 1.5px solid var(--inv-border);
+            border-radius: 9px;
+            height: 38px;
+            padding: 0 14px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .2s;
+        }
+        .inv-filter-reset:hover { background: #e2e8f0; }
+
+        /* ── Table panel ── */
+        .inv-panel {
+            background: var(--inv-surface);
+            border-radius: var(--inv-radius);
+            box-shadow: var(--inv-shadow);
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+        .inv-panel-head {
+            padding: 18px 22px;
+            border-bottom: 1px solid var(--inv-border);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .inv-panel-title { font-size: 15px; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 10px; }
+        .inv-panel-title i { color: var(--inv-primary); }
+        .inv-count-badge {
+            background: var(--inv-primary);
+            color: #fff;
+            border-radius: 20px;
+            padding: 2px 10px;
+            font-size: 11.5px;
+            font-weight: 700;
+        }
+        .inv-table { width: 100%; border-collapse: collapse; }
+        .inv-table thead th {
+            background: #f8fafc;
+            font-size: 11.5px;
+            font-weight: 700;
+            color: var(--inv-muted);
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--inv-border);
+            white-space: nowrap;
+        }
+        .inv-table tbody td {
+            font-size: 13.5px;
+            padding: 13px 16px;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+        }
+        .inv-table tbody tr:last-child td { border-bottom: none; }
+        .inv-table tbody tr:hover td { background: #f8faff; }
+
+        /* status badges */
+        .status-badge {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 11.5px;
+            font-weight: 600;
+        }
+        .status-badge.good     { background: rgba(16,185,129,.12); color: #059669; }
+        .status-badge.bad      { background: rgba(239,68,68,.12);  color: #dc2626; }
+        .status-badge.maint    { background: rgba(245,158,11,.12); color: #d97706; }
+        .status-badge.default  { background: rgba(100,116,139,.1); color: #475569; }
+
+        /* action buttons in table */
+        .tbl-actions { display: flex; gap: 6px; }
+        .tbl-btn {
+            border: none;
+            border-radius: 8px;
+            width: 32px; height: 32px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px;
+            cursor: pointer;
+            transition: transform .15s, box-shadow .15s;
+        }
+        .tbl-btn:hover { transform: scale(1.08); }
+        .tbl-btn.edit { background: rgba(99,102,241,.1); color: #6366f1; }
+        .tbl-btn.del  { background: rgba(239,68,68,.1);  color: #ef4444; }
+
+        /* no-data state */
+        .inv-empty {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--inv-muted);
+        }
+        .inv-empty i { font-size: 48px; opacity: .25; display: block; margin-bottom: 14px; }
+        .inv-empty p { font-size: 14px; margin: 0; }
+
+        /* ── Modal ── */
+        .inv-modal-title { font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+        .inv-modal-title i { color: var(--inv-primary); }
+        .modal-body .form-group label { font-size: 12px; font-weight: 600; color: #555; margin-bottom: 5px; display: block; }
+        .modal-body .form-control {
+            height: 40px; border-radius: 9px; border: 1.5px solid var(--inv-border);
+            font-size: 13.5px; font-family: 'Inter', sans-serif;
+        }
+        .modal-body .form-control:focus { border-color: var(--inv-primary); box-shadow: 0 0 0 3px rgba(99,102,241,.12); outline: none; }
+        .modal-body textarea.form-control { height: auto; }
+        .modal-footer .btn-primary {
+            background: var(--inv-primary);
+            border: none;
+            border-radius: 9px;
+            padding: 8px 22px;
+            font-weight: 600;
+        }
+        .modal-footer .btn-primary:hover { background: var(--inv-primary-dark); }
+        .modal-footer .btn-default { border-radius: 9px; }
+
+        .form-row-2 { display: flex; gap: 14px; flex-wrap: wrap; }
+        .form-row-2 .form-group { flex: 1; min-width: 160px; margin-bottom: 14px; }
+
+        @keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+        .fade-up { animation: fadeUp .3s ease both; }
+
+        /* Qty chip */
+        .qty-chip {
+            display: inline-flex; align-items: center; justify-content: center;
+            min-width: 32px; height: 26px;
+            background: rgba(99,102,241,.1);
+            color: var(--inv-primary-dark);
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 13px;
+            padding: 0 8px;
+        }
+    </style>
+</head>
+<body data-page="inventory">
+    <div id="sidebar-placeholder"></div>
+    <div class="sb-main">
+        <div id="header-placeholder"></div>
+        <div class="sb-content">
+
+            <!-- breadcrumb -->
+            <div class="sb-breadcrumb">
+                <i class="fa fa-home"></i>
+                <a href="index.html" data-i18n="Home">Home</a>
+                <span>/</span>
+                <span data-i18n="Inventory">Inventory</span>
+            </div>
+
+            <!-- Hero -->
+            <div class="inv-hero fade-up">
+                <div class="inv-hero-row">
+                    <div class="inv-hero-left">
+                        <div class="inv-hero-icon"><i class="fa fa-archive"></i></div>
+                        <div>
+                            <h1 data-i18n="School Inventory">School Inventory — العتاد والجرد</h1>
+                            <p class="inv-hero-desc" data-i18n="inventory_hero_desc">Manage school materials & equipment — furniture, devices, and other assets.</p>
+                            <div class="inv-hero-pills">
+                                <span class="inv-hero-pill"><i class="fa fa-cube"></i> <span data-i18n="Material & Inventory">Material &amp; Inventory</span></span>
+                                <span class="inv-hero-pill"><i class="fa fa-check-circle"></i> <span data-i18n="Live Data">Live Data</span></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="inv-hero-actions">
+                        <button class="btn-hero-glass" id="btn-refresh-inv" title="Refresh">
+                            <i class="fa fa-refresh"></i> <span data-i18n="Refresh">Refresh</span>
+                        </button>
+                        <button class="btn-hero-add" id="btn-add-item">
+                            <i class="fa fa-plus"></i> <span data-i18n="Add Item">Add Item</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="inv-stats fade-up">
+                <div class="inv-stat">
+                    <div class="inv-stat-icon purple"><i class="fa fa-archive"></i></div>
+                    <div>
+                        <div class="inv-stat-val" id="stat-total-items">—</div>
+                        <div class="inv-stat-label" data-i18n="Total Items">Total Items</div>
+                    </div>
+                </div>
+                <div class="inv-stat">
+                    <div class="inv-stat-icon green"><i class="fa fa-cubes"></i></div>
+                    <div>
+                        <div class="inv-stat-val" id="stat-total-qty">—</div>
+                        <div class="inv-stat-label" data-i18n="Total Quantity">Total Quantity</div>
+                    </div>
+                </div>
+                <div class="inv-stat">
+                    <div class="inv-stat-icon amber"><i class="fa fa-check-circle"></i></div>
+                    <div>
+                        <div class="inv-stat-val" id="stat-good">—</div>
+                        <div class="inv-stat-label" data-i18n="Good Condition">Good Condition</div>
+                    </div>
+                </div>
+                <div class="inv-stat">
+                    <div class="inv-stat-icon red"><i class="fa fa-exclamation-triangle"></i></div>
+                    <div>
+                        <div class="inv-stat-val" id="stat-attention">—</div>
+                        <div class="inv-stat-label" data-i18n="Need Attention">Need Attention</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="inv-filters fade-up">
+                <div class="fg" style="flex:2;min-width:220px;">
+                    <label data-i18n="Search">Search</label>
+                    <input type="text" id="inv-search" class="form-control" data-i18n-placeholder="Search items..." placeholder="Search items...">
+                </div>
+                <div class="fg">
+                    <label data-i18n="Item Type">Item Type</label>
+                    <select id="inv-filter-type" class="form-control">
+                        <option value="" data-i18n="All Types">All Types</option>
+                    </select>
+                </div>
+                <div class="fg">
+                    <label data-i18n="Item Status">Item Status</label>
+                    <select id="inv-filter-status" class="form-control">
+                        <option value="" data-i18n="All Statuses">All Statuses</option>
+                    </select>
+                </div>
+                <div style="display:flex;align-items:flex-end;gap:8px;">
+                    <button class="inv-filter-btn" id="btn-inv-filter">
+                        <i class="fa fa-filter"></i> <span data-i18n="Filter">Filter</span>
+                    </button>
+                    <button class="inv-filter-reset" id="btn-inv-reset">
+                        <i class="fa fa-refresh"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="inv-panel fade-up">
+                <div class="inv-panel-head">
+                    <h3 class="inv-panel-title">
+                        <i class="fa fa-list-ul"></i>
+                        <span data-i18n="Inventory Management">Inventory Management</span>
+                        <span class="inv-count-badge" id="inv-count">0</span>
+                    </h3>
+                </div>
+                <div class="table-responsive">
+                    <table class="inv-table" id="inv-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th data-i18n="Item Name">Item Name</th>
+                                <th data-i18n="Item Type">Type</th>
+                                <th data-i18n="Quantity">Qty</th>
+                                <th data-i18n="Emplacement">Emplacement</th>
+                                <th data-i18n="Item Status">Status</th>
+                                <th data-i18n="Add Date">Date Added</th>
+                                <th data-i18n="Actions">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inv-tbody">
+                            <tr><td colspan="8" class="text-center" style="padding:40px;color:#94a3b8">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="footer-placeholder"></div>
+        </div>
+    </div>
+
+    <!-- ══ ADD / EDIT MODAL ══════════════════════════════════════════════════ -->
+    <div id="inv-modal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content" style="border-radius:14px;overflow:hidden;">
+                <form id="inv-form" novalidate>
+                    <div class="modal-header" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:none;">
+                        <h4 class="modal-title" style="color:#fff;" id="inv-modal-title">
+                            <i class="fa fa-plus-circle"></i> <span data-i18n="Add Item">Add Item</span>
+                        </h4>
+                        <button type="button" class="close" data-dismiss="modal" style="color:#fff;opacity:.8"><span>&times;</span></button>
+                    </div>
+                    <div class="modal-body" style="padding:24px;">
+                        <input type="hidden" id="inv-edit-id">
+
+                        <div class="form-row-2">
+                            <div class="form-group" style="flex:2;">
+                                <label><span data-i18n="Item Name">Item Name</span> <span class="text-danger">*</span></label>
+                                <input type="text" id="inv-name" class="form-control" data-i18n-placeholder="Item name" placeholder="Item name" required>
+                            </div>
+                            <div class="form-group">
+                                <label><span data-i18n="Item Type">Type</span></label>
+                                <input type="text" id="inv-type" class="form-control" data-i18n-placeholder="e.g. Furniture, Device" placeholder="e.g. Furniture, Device" list="inv-type-datalist">
+                                <datalist id="inv-type-datalist"></datalist>
+                            </div>
+                        </div>
+
+                        <div class="form-row-2">
+                            <div class="form-group">
+                                <label><span data-i18n="Quantity">Quantity</span> <span class="text-danger">*</span></label>
+                                <input type="number" id="inv-qty" class="form-control" min="0" value="1" required>
+                            </div>
+                            <div class="form-group">
+                                <label><span data-i18n="Emplacement">Emplacement / Location</span></label>
+                                <input type="text" id="inv-emplacement" class="form-control" data-i18n-placeholder="e.g. Room 1, Library" placeholder="e.g. Room 1, Library">
+                            </div>
+                        </div>
+
+                        <div class="form-row-2">
+                            <div class="form-group">
+                                <label><span data-i18n="Item Status">Status</span></label>
+                                <input type="text" id="inv-status" class="form-control" data-i18n-placeholder="e.g. Good, Bad, Under Maintenance" placeholder="e.g. Good, Bad, Under Maintenance" list="inv-status-datalist">
+                                <datalist id="inv-status-datalist">
+                                    <option data-i18n="Good" value="Good">Good</option>
+                                    <option data-i18n="Bad" value="Bad">Bad</option>
+                                    <option data-i18n="Under Maintenance" value="Under Maintenance">Under Maintenance</option>
+                                </datalist>
+                            </div>
+                            <div class="form-group">
+                                <label><span data-i18n="Add Date">Date Added</span></label>
+                                <input type="date" id="inv-date" class="form-control">
+                            </div>
+                        </div>
+
+                        <div id="inv-form-status" class="alert" style="display:none;border-radius:9px;"></div>
+                    </div>
+                    <div class="modal-footer" style="border-top:1px solid #f0f0f0;">
+                        <button type="button" class="btn btn-default" data-dismiss="modal" data-i18n="Cancel">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="btn-inv-save">
+                            <i class="fa fa-save"></i> <span data-i18n="Save Item">Save Item</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ DELETE CONFIRM MODAL ══════════════════════════════════════════════ -->
+    <div id="inv-del-modal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content" style="border-radius:14px;overflow:hidden;">
+                <div class="modal-header" style="background:linear-gradient(135deg,#ef4444,#f87171);color:#fff;border:none;">
+                    <h4 class="modal-title" style="color:#fff;font-size:15px;">
+                        <i class="fa fa-trash"></i> <span data-i18n="Delete Item">Delete Item</span>
+                    </h4>
+                    <button type="button" class="close" data-dismiss="modal" style="color:#fff;opacity:.8"><span>&times;</span></button>
+                </div>
+                <div class="modal-body" style="font-size:14px;padding:20px;" data-i18n="Are you sure you want to delete this item?">
+                    Are you sure you want to delete this item?
+                </div>
+                <div class="modal-footer" style="border-top:1px solid #f0f0f0;">
+                    <button type="button" class="btn btn-default btn-sm" data-dismiss="modal" data-i18n="Cancel">Cancel</button>
+                    <button type="button" class="btn btn-danger btn-sm" id="btn-confirm-del-item" style="border-radius:9px;">
+                        <i class="fa fa-trash"></i> <span data-i18n="Delete">Delete</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/vendor/jquery-1.12.4.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/components.js"></script>
+    <script src="js/i18n.js"></script>
+    <script src="js/backend.js?v=6"></script>
+    <script src="js/inventory.js"></script>
+</body>
+</html>

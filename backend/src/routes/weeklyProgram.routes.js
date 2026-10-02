@@ -100,31 +100,18 @@ router.delete('/:id', requireAuth, asyncHandler(async (req, res) => {
   res.status(204).send();
 }));
 
-// POST activate a program (deactivates all others for this school)
+// POST toggle a program active/disabled (multiple programs can be active at the same time)
 router.post('/:id/activate', requireAuth, asyncHandler(async (req, res) => {
-  const schoolId = await getSchoolId(req.auth.userId);
   const rows = await query('SELECT * FROM weekly_programs WHERE id = ? LIMIT 1', [req.params.id]);
   if (!rows.length) throw new HttpError(404, 'Program not found');
 
-  const connection = await pool.getConnection();
-  try {
-    await connection.beginTransaction();
-    // Disable all programs for this school
-    await connection.execute(
-      `UPDATE weekly_programs SET status = 'disabled' WHERE school_id = ?`,
-      [schoolId]
-    );
-    // Activate the selected one
-    await connection.execute(
-      `UPDATE weekly_programs SET status = 'active' WHERE id = ?`,
-      [req.params.id]
-    );
-    await connection.commit();
-  } catch (e) {
-    await connection.rollback(); throw e;
-  } finally {
-    connection.release();
-  }
+  const currentStatus = rows[0].status;
+  const newStatus = currentStatus === 'active' ? 'disabled' : 'active';
+
+  await query(
+    `UPDATE weekly_programs SET status = ? WHERE id = ?`,
+    [newStatus, req.params.id]
+  );
 
   const updated = await query('SELECT * FROM weekly_programs WHERE id = ? LIMIT 1', [req.params.id]);
   res.json({ data: updated[0] });

@@ -305,6 +305,10 @@
                                     <i class="fa fa-envelope"></i>
                                     <span id="tp-email"></span>
                                 </span>
+                                <span class="hero-pill">
+                                    <i class="fa fa-cubes"></i>
+                                    <span id="tp-hero-groups-count">0</span> <span data-i18n="Teacher Groups">Teacher Groups</span>
+                                </span>
                                 <span id="tp-status"></span>
                             </div>
                         </div>
@@ -345,6 +349,10 @@
                             <label data-i18n="Hire Date">Hire Date</label>
                             <div class="val" id="tp-hire-date">-</div>
                         </div>
+                        <div class="detail-item">
+                            <label data-i18n="NFC / RFID Tag ID">NFC / RFID Tag ID</label>
+                            <div class="val" id="tp-rfid-tag">-</div>
+                        </div>
                     </div>
 
                     <!-- Personal Info -->
@@ -372,7 +380,7 @@
                         <i class="fa fa-shield"></i>
                         <span data-i18n="Account">Account</span>
                     </h4>
-                    <div class="detail-grid theme-amber">
+                    <div class="detail-grid theme-amber" style="margin-bottom:30px;">
                         <div class="detail-item">
                             <label data-i18n="Status">Status</label>
                             <div class="val" id="tp-status-card">-</div>
@@ -380,6 +388,25 @@
                         <div class="detail-item">
                             <label data-i18n="Role">Role</label>
                             <div class="val" id="tp-role">-</div>
+                        </div>
+                    </div>
+
+                    <!-- Teacher Groups / الأفواج المسندة -->
+                    <div style="margin-top:35px;">
+                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; padding-bottom:12px; border-bottom:2px solid #f1f5f9; flex-wrap:wrap; gap:10px;">
+                            <h4 class="section-title-h4" style="margin:0; padding:0; border:none; text-transform:uppercase; letter-spacing:0.07em;">
+                                <i class="fa fa-cubes"></i>
+                                <span data-i18n="Teacher Groups">Teacher Groups</span>
+                                <span id="tp-groups-count-badge" class="badge" style="background:#10b981; color:#fff; font-size:12px; padding:3px 9px; border-radius:12px; margin-inline-start:8px; font-weight:700;">0</span>
+                            </h4>
+                            <a href="all-groups.html" class="btn btn-sm btn-default" style="border-radius:10px; font-size:13px; font-weight:600; display:inline-flex; align-items:center; gap:6px; padding:6px 14px; color:#374151; border:1.5px solid #e5e7eb; background:#fff; transition:all 0.2s;" onmouseover="this.style.background='#f9fafb';this.style.borderColor='#d1d5db';" onmouseout="this.style.background='#fff';this.style.borderColor='#e5e7eb';">
+                                <i class="fa fa-cubes" style="color:#10b981;"></i> <span data-i18n="Manage Groups">Manage Groups</span>
+                            </a>
+                        </div>
+                        <div id="tp-groups-container">
+                            <div class="text-center" style="padding:20px; color:#9ca3af;">
+                                <i class="fa fa-spinner fa-spin"></i> <span data-i18n="Loading...">Loading...</span>
+                            </div>
                         </div>
                     </div>
 

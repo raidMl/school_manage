@@ -163,17 +163,49 @@ body {
   border-radius: 20px;
   font-size: 12px;
   font-weight: 600;
-  background: rgba(255, 255, 255, 0.12);
-  color: #f1f5f9;
-  backdrop-filter: blur(8px);
+  background: #f1f5f9;
+  color: #334155;
+  border: 1px solid #e2e8f0;
 }
 .portal-chip-primary {
-  background: rgba(79, 110, 255, 0.25);
-  color: #93c5fd;
+  background: #eef2ff;
+  color: #312e81;
+  border: 1px solid #c7d2fe;
+}
+.portal-chip-primary i {
+  color: #4338ca;
 }
 .portal-chip-success {
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+.portal-chip-success i {
+  color: #059669;
+}
+
+/* Dark Hero Variants */
+.portal-hero .portal-chip {
+  background: rgba(255, 255, 255, 0.12);
+  color: #f1f5f9;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(8px);
+}
+.portal-hero .portal-chip-primary {
+  background: rgba(79, 110, 255, 0.25);
+  color: #bfdbfe;
+  border-color: rgba(79, 110, 255, 0.4);
+}
+.portal-hero .portal-chip-primary i {
+  color: #93c5fd;
+}
+.portal-hero .portal-chip-success {
   background: rgba(16, 185, 129, 0.25);
   color: #6ee7b7;
+  border-color: rgba(16, 185, 129, 0.4);
+}
+.portal-hero .portal-chip-success i {
+  color: #34d399;
 }
 
 .portal-hero-actions {
@@ -354,6 +386,9 @@ body {
 .portal-table tbody tr:hover {
   background-color: #f8fafc;
 }
+.portal-table td .portal-chip {
+  white-space: nowrap;
+}
 
 /* Status Badges */
 .portal-badge {
@@ -492,6 +527,23 @@ body {
 }
 .portal-btn-secondary:hover {
   background: #e2e8f0;
+}
+.portal-btn-outline {
+  background: transparent;
+  color: var(--portal-primary) !important;
+  border: 1.5px solid var(--portal-primary);
+}
+.portal-btn-outline:hover {
+  background: var(--portal-primary);
+  color: #ffffff !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(79, 110, 255, 0.25);
+}
+.portal-btn-sm {
+  height: 32px;
+  padding: 0 12px;
+  font-size: 12px;
+  border-radius: var(--portal-radius-xs, 6px);
 }
 .portal-btn-block {
   width: 100%;
@@ -924,5 +976,319 @@ html[dir="rtl"] .portal-login-btn i.fa-arrow-right:before {
   #notif-dropdown {
     width: calc(100vw - 24px) !important;
     right: -60px !important;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   Weekly Schedule & Timetable System (portal.css additions)
+   ════════════════════════════════════════════════════════════════ */
+
+.portal-filter-tabs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  padding: 12px 20px;
+}
+.portal-filter-tabs::-webkit-scrollbar {
+  height: 4px;
+}
+.portal-filter-tabs::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+.portal-filter-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1.5px solid #e2e8f0;
+  background: #f8fafc;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  outline: none;
+}
+.portal-filter-tab:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+  border-color: #cbd5e1;
+}
+.portal-filter-tab.active {
+  background: var(--portal-primary, #4f6eff);
+  color: #ffffff !important;
+  border-color: var(--portal-primary, #4f6eff);
+  box-shadow: 0 2px 10px rgba(79, 110, 255, 0.35);
+}
+.portal-filter-tab.active i {
+  color: #ffd166 !important;
+}
+
+/* Timetable Grid View */
+.timetable-wrap {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e8edf4;
+  margin-top: 10px;
+}
+.tt-grid {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 820px;
+  table-layout: fixed;
+}
+.tt-grid th {
+  background: #f8fafc;
+  padding: 14px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+  text-align: center;
+  border-bottom: 2px solid #e2e8f0;
+  border-inline-end: 1px solid #f1f5f9;
+}
+.tt-grid th.today-th {
+  background: rgba(79, 110, 255, 0.08);
+  color: #4f6eff;
+  border-bottom-color: #4f6eff;
+  position: relative;
+}
+.tt-grid th.time-col-header {
+  width: 110px;
+  background: #f1f5f9;
+  color: #334155;
+}
+.tt-grid td {
+  padding: 8px 6px;
+  vertical-align: top;
+  border-bottom: 1px solid #f1f5f9;
+  border-inline-end: 1px solid #f1f5f9;
+  min-height: 80px;
+  background: #ffffff;
+  transition: background 0.15s;
+}
+.tt-grid td.today-cell {
+  background: rgba(79, 110, 255, 0.015);
+}
+.tt-grid td.time-cell {
+  background: #f8fafc;
+  text-align: center;
+  vertical-align: middle;
+  padding: 12px 6px;
+  border-inline-end: 2px solid #e2e8f0;
+}
+.tt-grid td.time-cell .time-lbl {
+  font-weight: 700;
+  font-size: 13px;
+  color: #1e293b;
+}
+.tt-grid td.time-cell .time-sub {
+  font-size: 10px;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+
+/* Séance Chip inside Grid */
+.seance-chip {
+  display: block;
+  border-radius: 10px;
+  padding: 9px 11px;
+  margin-bottom: 6px;
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  text-decoration: none !important;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  position: relative;
+  overflow: hidden;
+}
+.seance-chip:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.16);
+  color: #ffffff !important;
+}
+.seance-chip .sc-subject {
+  font-weight: 700;
+  font-size: 12.5px;
+  line-height: 1.25;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+}
+.seance-chip .sc-group {
+  font-size: 11px;
+  opacity: 0.95;
+  display: block;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.seance-chip .sc-meta {
+  font-size: 10.5px;
+  opacity: 0.9;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.seance-chip .sc-action-btn {
+  display: inline-block;
+  margin-top: 6px;
+  background: rgba(255, 255, 255, 0.22);
+  color: #ffffff;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(4px);
+  transition: background 0.15s;
+}
+.seance-chip .sc-action-btn:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+/* Séance Cards Agenda (List View) */
+.seance-agenda-card {
+  background: #ffffff;
+  border: 1px solid #e8edf4;
+  border-radius: 14px;
+  padding: 16px 20px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+.seance-agenda-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+  transform: translateY(-1px);
+}
+.seance-agenda-card.is-today {
+  border-inline-start: 4px solid var(--portal-primary, #4f6eff);
+  background: linear-gradient(to right, rgba(79, 110, 255, 0.02), #ffffff);
+}
+.seance-time-box {
+  min-width: 130px;
+  display: flex;
+  flex-direction: column;
+}
+.seance-time-box .time-range {
+  font-weight: 700;
+  font-size: 14px;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.seance-time-box .day-label {
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 2px;
+}
+.seance-main-info {
+  flex: 1;
+  min-width: 200px;
+}
+.seance-main-info .subj-title {
+  font-weight: 700;
+  font-size: 15px;
+  color: #1e293b;
+  margin: 0 0 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.seance-main-info .chips-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 12.5px;
+}
+
+/* View Switcher Pill */
+.view-mode-pill {
+  display: inline-flex;
+  background: #f1f5f9;
+  border-radius: 10px;
+  padding: 4px;
+  gap: 2px;
+}
+.view-mode-btn {
+  border: none;
+  background: transparent;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+.view-mode-btn.active {
+  background: #ffffff;
+  color: #0f172a;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+
+/* Printable Schedule Mode */
+@media print {
+  #app-sidebar,
+  .portal-header,
+  .sb-breadcrumb,
+  .view-mode-pill,
+  .portal-filter-tabs,
+  .no-print,
+  .btn,
+  .portal-btn,
+  #footer-placeholder {
+    display: none !important;
+  }
+  .portal-layout,
+  .portal-main,
+  .portal-content {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+  .timetable-wrap {
+    border: none !important;
+    box-shadow: none !important;
+  }
+  .tt-grid {
+    min-width: 100% !important;
+  }
+  .tt-grid th,
+  .tt-grid td {
+    border: 1px solid #333 !important;
+    color: #000 !important;
+    padding: 6px 4px !important;
+  }
+  .seance-chip {
+    color: #000 !important;
+    background: #f1f5f9 !important;
+    border: 1px solid #999 !important;
+    box-shadow: none !important;
   }
 }

@@ -1,71 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Anti-FOUC & Preloader -->
     <style id="fouc-style">body { opacity: 0; visibility: hidden; }</style>
     <script>
       (function() {
         var lang = localStorage.getItem('app_lang') || 'ar';
-        if(lang === 'ar') {
-          document.documentElement.dir = 'rtl';
-          document.documentElement.lang = 'ar';
-        } else {
-          document.documentElement.dir = 'ltr';
-          document.documentElement.lang = 'en';
-        }
+        if(lang === 'ar') { document.documentElement.dir = 'rtl'; document.documentElement.lang = 'ar'; }
+        else { document.documentElement.dir = 'ltr'; document.documentElement.lang = 'en'; }
       })();
     </script>
-
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Dashboard | School System Admin</title>
     <meta name="description" content="School management admin dashboard">
     <link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/font-awesome.min.css">
     <link rel="stylesheet" href="css/sidebar.css">
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-        .stat-card { background:#fff; border-radius:14px; padding:10px 8px; display:flex; align-items:center; gap:6px; box-shadow:0 2px 12px rgba(0,0,0,.06); transition:transform .2s,box-shadow .2s; margin-bottom:20px; }
-        .stat-card:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,0,0,.1); }
-        .stat-icon { width:46px; height:46px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:20px; color:#fff; flex-shrink:0; }
-        .stat-info { flex:1; min-width:0; }
-        .stat-value { font-size:32px; font-weight:700; color:#1a1f37; line-height:1; }
-        .stat-label { font-size:11px; color:#888; font-weight:500; margin-top:4px; text-transform:uppercase; letter-spacing:.5px; }
-        .stat-link { font-size:11px; color:#4f6eff; text-decoration:none; }
-        .stat-link:hover { text-decoration:underline; }
-        .card-panel { background:#fff; border-radius:14px; padding:20px; box-shadow:0 2px 12px rgba(0,0,0,.06); margin-bottom:20px; }
-        .section-header { font-size:15px; font-weight:700; color:#1a1f37; margin:0 0 16px; display:flex; align-items:center; justify-content:space-between; }
-        .section-header a { font-size:12px; font-weight:500; color:#4f6eff; text-decoration:none; }
-        .quick-btn { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; background:#fff; border-radius:14px; padding:24px 16px; text-decoration:none; box-shadow:0 2px 12px rgba(0,0,0,.06); transition:transform .2s,box-shadow .2s; color:#333; font-weight:600; font-size:13px; margin-bottom:20px; }
-        .quick-btn:hover { transform:translateY(-3px); box-shadow:0 8px 24px rgba(0,0,0,.12); color:#333; }
-        .quick-btn .qi { width:48px; height:48px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:20px; color:#fff; }
-        .badge.badge-success, .badge-success { background: linear-gradient(135deg, #10b981, #059669) !important; color: #fff !important; font-weight: 600; font-size: 11px; padding: 3px 9px; border-radius: 12px; display: inline-block; }
-        .badge.badge-info, .badge-info { background: linear-gradient(135deg, #0284c7, #0369a1) !important; color: #fff !important; font-weight: 600; font-size: 11px; padding: 3px 9px; border-radius: 12px; display: inline-block; }
-    </style>
-
+    <link rel="stylesheet" href="css/dashboard.css">
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#007bff">
+    <meta name="theme-color" content="#4f6eff">
     <link rel="apple-touch-icon" href="img/icon-512.jpg">
-    <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('sw.js');
-        });
-      }
-    </script>
+    <script>if('serviceWorker' in navigator){window.addEventListener('load',()=>{ navigator.serviceWorker.register('sw.js'); });}</script>
 </head>
-
 <body data-page="dashboard">
-
     <div id="sidebar-placeholder"></div>
-
-    <!-- Main content wrapper -->
     <div class="sb-main">
         <div id="header-placeholder"></div>
-
-        <!-- Page content -->
         <div class="sb-content">
             <div class="sb-breadcrumb">
                 <i class="fa fa-home"></i>
@@ -73,186 +35,149 @@
                 <span>/</span>
                 <span data-i18n="Dashboard">Dashboard</span>
             </div>
-
-            <!-- Hero Banner (Purple Graphic Chart) -->
-            <!-- <div class="page-hero-card">
-              <div class="hero-top-row">
-                <div class="hero-info-area">
-                  <div class="page-avatar-badge">
-                    <i class="fa fa-dashboard"></i>
-                  </div>
-                  <div class="hero-text">
-                    <h2 data-i18n="Dashboard Overview">Dashboard Overview</h2>
-                    <div class="hero-badges-row">
-                      <span class="hero-pill">
-                        <i class="fa fa-institution"></i>
-                        <span data-i18n="School Management System">School Management System</span>
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <div class="hero-action-btns">
-                  <a href="all-students.html" class="btn-hero-glass">
-                    <i class="fa fa-graduation-cap"></i> <span data-i18n="Students">Students</span>
-                  </a>
-                  <a href="all-groups.html" class="btn-hero-primary">
-                    <i class="fa fa-users"></i> <span data-i18n="Groups">Groups</span>
-                  </a>
-                </div>
-              </div>
-            </div> -->
-
-            <!-- Status bar -->
             <div id="backend-dashboard-shell">
 
+                <!-- <div class="dash-hero">
+                    <div class="dash-hero-orb"></div>
+                    <div class="dash-hero-left">
+                        <div class="dash-hero-greeting" data-i18n="Good day">Good day, Admin &#128075;</div>
+                        <div class="dash-hero-title"><span id="backend-school-name" data-i18n="School Dashboard">School Dashboard</span></div>
+                        <div class="dash-hero-pills">
+                            <span class="dash-hero-pill"><i class="fa fa-institution"></i> <span data-i18n="School Management">School Management</span></span>
+                            <span class="dash-hero-pill"><i class="fa fa-circle" style="color:#4ade80;font-size:7px"></i> <span data-i18n="System Online">System Online</span></span>
+                        </div>
+                    </div>
+                    <div class="dash-hero-right">
+                        <a href="all-students.html" class="dash-hero-btn glass"><i class="fa fa-graduation-cap"></i> <span data-i18n="Students">Students</span></a>
+                        <a href="all-groups.html" class="dash-hero-btn primary"><i class="fa fa-users"></i> <span data-i18n="Groups">Groups</span></a>
+                    </div>
+                </div> -->
 
-                <!-- Stat cards -->
-                <div class="row">
-                    <div class="col-lg-2 col-md-4 col-sm-6 col-xs-12">
-                        <div class="stat-card">
-                            <div class="stat-icon" style="background:linear-gradient(135deg,#667eea,#764ba2)"><i class="fa fa-users"></i></div>
-                            <div class="stat-info">
-                                <div class="stat-value" id="backend-count-users">—</div>
-                                <div class="stat-label">Users</div>
-                            </div>
-                        </div>
+                <div class="stats-grid">
+                    <div class="stat-card-v2 sc-purple">
+                        <div class="sc-icon-wrap"><i class="fa fa-users"></i></div>
+                        <div class="sc-value" id="backend-count-users">&#8212;</div>
+                        <div class="sc-label" data-i18n="Users">Users</div>
                     </div>
-                    <div class="col-lg-2 col-md-4 col-sm-6 col-xs-12">
-                        <div class="stat-card">
-                            <div class="stat-icon" style="background:linear-gradient(135deg,#11998e,#38ef7d)"><i class="fa fa-user-tie"></i></div>
-                            <div class="stat-info">
-                                <div class="stat-value" id="backend-count-teachers">—</div>
-                                <div class="stat-label">Teachers</div>
-                                <a href="all-professors.html" class="stat-link">View all →</a>
-                            </div>
-                        </div>
+                    <div class="stat-card-v2 sc-green">
+                        <div class="sc-icon-wrap"><i class="fa fa-user-tie"></i></div>
+                        <div class="sc-value" id="backend-count-teachers">&#8212;</div>
+                        <div class="sc-label" data-i18n="Teachers">Teachers</div>
+                        <a href="all-professors.html" class="sc-link" data-i18n="View all">View all <i class="fa fa-arrow-right"></i></a>
                     </div>
-                    <div class="col-lg-2 col-md-4 col-sm-6 col-xs-12">
-                        <div class="stat-card">
-                            <div class="stat-icon" style="background:linear-gradient(135deg,#f7971e,#ffd200)"><i class="fa fa-graduation-cap"></i></div>
-                            <div class="stat-info">
-                                <div class="stat-value" id="backend-count-students">—</div>
-                                <div class="stat-label">Students</div>
-                                <a href="all-students.html" class="stat-link">View all →</a>
-                            </div>
-                        </div>
+                    <div class="stat-card-v2 sc-yellow">
+                        <div class="sc-icon-wrap"><i class="fa fa-graduation-cap"></i></div>
+                        <div class="sc-value" id="backend-count-students">&#8212;</div>
+                        <div class="sc-label" data-i18n="Students">Students</div>
+                        <a href="all-students.html" class="sc-link" data-i18n="View all">View all <i class="fa fa-arrow-right"></i></a>
                     </div>
-                    <div class="col-lg-2 col-md-4 col-sm-6 col-xs-12">
-                        <div class="stat-card">
-                            <div class="stat-icon" style="background:linear-gradient(135deg,#fc466b,#3f5efb)"><i class="fa fa-building"></i></div>
-                            <div class="stat-info">
-                                <div class="stat-value" id="backend-count-classrooms">—</div>
-                                <div class="stat-label">Classrooms</div>
-                                <a href="all-classrooms.html" class="stat-link">Manage →</a>
-                            </div>
-                        </div>
+                    <div class="stat-card-v2 sc-pink">
+                        <div class="sc-icon-wrap"><i class="fa fa-building"></i></div>
+                        <div class="sc-value" id="backend-count-classrooms">&#8212;</div>
+                        <div class="sc-label" data-i18n="Classrooms">Classrooms</div>
+                        <a href="all-classrooms.html" class="sc-link" data-i18n="Manage">Manage <i class="fa fa-arrow-right"></i></a>
                     </div>
-                    <div class="col-lg-2 col-md-4 col-sm-6 col-xs-12">
-                        <div class="stat-card">
-                            <div class="stat-icon" style="background:linear-gradient(135deg,#4facfe,#00f2fe)"><i class="fa fa-book"></i></div>
-                            <div class="stat-info">
-                                <div class="stat-value" id="backend-count-formations">—</div>
-                                <div class="stat-label">Formations</div>
-                                <a href="all-courses.html" class="stat-link">View all →</a>
-                            </div>
-                        </div>
+                    <div class="stat-card-v2 sc-blue">
+                        <div class="sc-icon-wrap"><i class="fa fa-book"></i></div>
+                        <div class="sc-value" id="backend-count-formations">&#8212;</div>
+                        <div class="sc-label" data-i18n="Formations">Formations</div>
+                        <a href="all-courses.html" class="sc-link" data-i18n="View all">View all <i class="fa fa-arrow-right"></i></a>
                     </div>
-                    <div class="col-lg-2 col-md-4 col-sm-6 col-xs-12">
-                        <div class="stat-card">
-                            <div class="stat-icon" style="background:linear-gradient(135deg,#a18cd1,#fbc2eb)"><i class="fa fa-sitemap"></i></div>
-                            <div class="stat-info">
-                                <div class="stat-value" id="backend-count-groups">—</div>
-                                <div class="stat-label">Groups</div>
-                                <a href="all-groups.html" class="stat-link">Manage →</a>
-                            </div>
-                        </div>
+                    <div class="stat-card-v2 sc-lavender">
+                        <div class="sc-icon-wrap"><i class="fa fa-sitemap"></i></div>
+                        <div class="sc-value" id="backend-count-groups">&#8212;</div>
+                        <div class="sc-label" data-i18n="Groups">Groups</div>
+                        <a href="all-groups.html" class="sc-link" data-i18n="Manage">Manage <i class="fa fa-arrow-right"></i></a>
                     </div>
                 </div>
 
-                <!-- Recent tables -->
                 <div class="row">
-                    <div class="col-lg-7 col-md-12">
-                        <div class="card-panel">
-                            <div class="section-header">Recent Students <a href="all-students.html">View all</a></div>
+                    <div class="col-lg-7 col-md-12" style="margin-bottom:24px">
+                        <div class="dash-panel">
+                            <div class="dash-panel-head">
+                                <h2 class="dash-panel-title">
+                                    <span class="dash-panel-title-icon" style="background:linear-gradient(135deg,#f7971e,#ffd200)"><i class="fa fa-graduation-cap"></i></span>
+                                    <span data-i18n="Recent Students">Recent Students</span>
+                                </h2>
+                                <a href="all-students.html" class="dash-panel-link"><span data-i18n="View all">View all</span> <i class="fa fa-arrow-right"></i></a>
+                            </div>
                             <div class="table-responsive">
-                                <table id="backend-recent-students" class="table table-hover" style="margin:0">
-                                    <thead style="background:#f8f9fc"><tr>
-                                        <th width="46"></th><th>Reg #</th><th>Name</th><th>Email</th><th>Enrolled</th>
-                                    </tr></thead>
-                                    <tbody><tr><td colspan="5" class="text-center text-muted">Loading...</td></tr></tbody>
+                                <table id="backend-recent-students" class="dash-table">
+                                    <thead><tr><th width="46"></th><th data-i18n="Reg">Reg #</th><th data-i18n="Name">Name</th><th data-i18n="Email">Email</th><th data-i18n="Enrolled">Enrolled</th></tr></thead>
+                                    <tbody><tr><td colspan="5" class="text-center" style="padding:28px;color:#94a3b8">Loading...</td></tr></tbody>
                                 </table>
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-5 col-md-12">
-                        <div class="card-panel">
-                            <div class="section-header">Recent Teachers <a href="all-professors.html">View all</a></div>
+                    <div class="col-lg-5 col-md-12" style="margin-bottom:24px">
+                        <div class="dash-panel">
+                            <div class="dash-panel-head">
+                                <h2 class="dash-panel-title">
+                                    <span class="dash-panel-title-icon" style="background:linear-gradient(135deg,#11998e,#38ef7d)"><i class="fa fa-user-tie"></i></span>
+                                    <span data-i18n="Recent Teachers">Recent Teachers</span>
+                                </h2>
+                                <a href="all-professors.html" class="dash-panel-link"><span data-i18n="View all">View all</span> <i class="fa fa-arrow-right"></i></a>
+                            </div>
                             <div class="table-responsive">
-                                <table id="backend-recent-teachers" class="table table-hover" style="margin:0">
-                                    <thead style="background:#f8f9fc"><tr>
-                                        <th width="46"></th> <th>Reg #</th><th>Name</th><th>Speciality</th>
-                                        <th>Hired</th>
-                                    </tr></thead>
-                                    <tbody><tr><td colspan="4" class="text-center text-muted">Loading...</td></tr></tbody>
+                                <table id="backend-recent-teachers" class="dash-table">
+                                    <thead><tr><th width="46"></th><th data-i18n="Reg">Reg #</th><th data-i18n="Name">Name</th><th data-i18n="Speciality">Speciality</th><th data-i18n="Hired">Hired</th></tr></thead>
+                                    <tbody><tr><td colspan="5" class="text-center" style="padding:28px;color:#94a3b8">Loading...</td></tr></tbody>
                                 </table>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Formations summary -->
-                <div class="card-panel">
-                    <div class="section-header">
-                        Formations & Subscriptions 
-                        <a href="add-course.html">+ Add new</a>
+                <div class="dash-panel">
+                    <div class="dash-panel-head">
+                        <h2 class="dash-panel-title">
+                            <span class="dash-panel-title-icon" style="background:linear-gradient(135deg,#4facfe,#00f2fe)"><i class="fa fa-book"></i></span>
+                            <span data-i18n="Formations Subscriptions">Formations &amp; Subscriptions</span>
+                        </h2>
+                        <a href="add-course.html" class="dash-panel-link"><i class="fa fa-plus"></i> <span data-i18n="Add new">Add new</span></a>
                     </div>
-                    <div id="backend-formations-summary" class="row">
-                        <p class="text-muted text-center col-lg-12">Loading formations...</p>
-                    </div>
-                </div>
-
-                <!-- Quick actions -->
-                <div class="card-panel">
-                    <div class="section-header">Quick Actions</div>
-                    <div class="row">
-                        <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                            <a href="add-student.html" class="quick-btn">
-                                <div class="qi" style="background:linear-gradient(135deg,#f7971e,#ffd200)"><i class="fa fa-graduation-cap"></i></div>
-                                Add Student
-                            </a>
-                        </div>
-                        <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                            <a href="add-professor.html" class="quick-btn">
-                                <div class="qi" style="background:linear-gradient(135deg,#11998e,#38ef7d)"><i class="fa fa-user-tie"></i></div>
-                                Add Teacher
-                            </a>
-                        </div>
-                        <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                            <a href="add-course.html" class="quick-btn">
-                                <div class="qi" style="background:linear-gradient(135deg,#4facfe,#00f2fe)"><i class="fa fa-book"></i></div>
-                                Add Formation
-                            </a>
-                        </div>
-                        <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                            <a href="all-groups.html" class="quick-btn">
-                                <div class="qi" style="background:linear-gradient(135deg,#a18cd1,#fbc2eb)"><i class="fa fa-users"></i></div>
-                                Manage Groups
-                            </a>
-                        </div>
+                    <div id="backend-formations-summary" class="row" style="padding:16px 14px 4px">
+                        <p class="text-muted text-center col-lg-12" style="padding:16px">Loading formations...</p>
                     </div>
                 </div>
 
-            </div><!-- /#backend-dashboard-shell -->
+                <div class="dash-panel">
+                    <div class="dash-panel-head">
+                        <h2 class="dash-panel-title">
+                            <span class="dash-panel-title-icon" style="background:linear-gradient(135deg,#667eea,#764ba2)"><i class="fa fa-bolt"></i></span>
+                            <span data-i18n="Quick Actions">Quick Actions</span>
+                        </h2>
+                    </div>
+                    <div style="padding:20px">
+                        <div class="quick-actions-grid">
+                            <a href="add-student.html" class="qa-btn qa-orange">
+                                <div class="qa-icon"><i class="fa fa-graduation-cap"></i></div>
+                                <div class="qa-label" data-i18n="Add Student">Add Student</div>
+                            </a>
+                            <a href="add-professor.html" class="qa-btn qa-green">
+                                <div class="qa-icon"><i class="fa fa-user-tie"></i></div>
+                                <div class="qa-label" data-i18n="Add Teacher">Add Teacher</div>
+                            </a>
+                            <a href="add-course.html" class="qa-btn qa-blue">
+                                <div class="qa-icon"><i class="fa fa-book"></i></div>
+                                <div class="qa-label" data-i18n="Add Formation">Add Formation</div>
+                            </a>
+                            <a href="all-groups.html" class="qa-btn qa-purple">
+                                <div class="qa-icon"><i class="fa fa-users"></i></div>
+                                <div class="qa-label" data-i18n="Manage Groups">Manage Groups</div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
 
-            <!-- Footer -->
+            </div>
             <div id="footer-placeholder"></div>
-        </div><!-- /.sb-content -->
-    </div><!-- /.sb-main -->
-
+        </div>
+    </div>
     <script src="js/vendor/jquery-1.12.4.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/components.js"></script>
-
     <script src="js/backend.js?v=6"></script>
+    <script src="js/dashboard-patch.js"></script>
 </body>
 </html>

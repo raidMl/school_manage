@@ -115,4 +115,138 @@ router.get('/formations-summary', requireAuth, asyncHandler(async (req, res) => 
   res.json({ data: rows });
 }));
 
-module.exports = router;
+// ── Statistics (charts data) ──────────────────────────────────────────────────
+router.get('/statistics', requireAuth, asyncHandler(async (req, res) => {
+  const school = await getSchoolForUser(req.auth.userId);
+  if (!school) throw new HttpError(409, 'School setup required');
+  const sid = school.id;
+
+  const [
+    genderStudents,
+    genderTeachers,
+    studentsPerFormation,
+    enrollmentByMonth,
+    groupSizes,
+    paymentByFormation,
+    attendanceSummary,
+    studentsByAge,
+    [sc],
+    [tc],
+    [fc],
+    [gc]
+  ] = await Promise.all([
+    query(
+      `SELECT LOWER(COALESCE(s.gender, u.gender, 'unknown')) AS gender, COUNT(*) AS n 
+       FROM students s 
+       LEFT JOIN users u ON u.id = s.user_id 
+       WHERE s.school_id = ? 
+       GROUP BY gender`,
+      [sid]
+    ),
+    query(
+      `SELECT LOWER(COALESCE(u.gender, 'unknown')) AS gender, COUNT(*) AS n 
+       FROM teachers t 
+       INNER JOIN users u ON u.id = t.user_id 
+       WHERE t.school_id = ? 
+       GROUP BY gender`,
+      [sid]
+    ),
+    query(
+      `SELECT f.title, COUNT(DISTINCT sg.student_id) AS n 
+       FROM formations f 
+       LEFT JOIN \`groups\` g ON g.formation_id = f.id 
+       LEFT JOIN student_groups sg ON sg.group_id = g.id 
+       WHERE f.school_id = ? 
+       GROUP BY f.id 
+       ORDER BY n DESC 
+       LIMIT 10`,
+      [sid]
+    ),
+    query(
+      `SELECT DATE_FORMAT(COALESCE(s.enrollment_date, s.created_at), '%Y-%m') AS month, COUNT(*) AS n 
+       FROM students s 
+       WHERE s.school_id = ? 
+       GROUP BY month 
+       ORDER BY month ASC 
+       LIMIT 12`,
+      [sid]
+    ),
+    query(
+      `SELECT g.name, COUNT(sg.student_id) AS n 
+       FROM \`groups\` g 
+       INNER JOIN formations f ON f.id = g.formation_id 
+       LEFT JOIN student_groups sg ON sg.group_id = g.id 
+       WHERE f.school_id = ? 
+       GROUP BY g.id 
+       ORDER BY n DESC 
+       LIMIT 10`,
+      [sid]
+    ),
+    query(
+      `SELECT f.title, COALESCE(SUM(ph.amount), 0) AS total 
+       FROM formations f 
+       LEFT JOIN students s ON s.formation_id = f.id 
+       LEFT JOIN payment_history ph ON ph.student_id = s.id 
+       WHERE f.school_id = ? 
+       GROUP BY f.id 
+       ORDER BY total DESC 
+       LIMIT 10`,
+      [sid]
+    ),
+    query(
+      `SELECT a.status, COUNT(*) AS n 
+       FROM attendance a 
+       INNER JOIN \`groups\` g ON g.id = a.group_id 
+       INNER JOIN formations f ON f.id = g.formation_id 
+       WHERE f.school_id = ? 
+       GROUP BY a.status`,
+      [sid]
+    ),
+    query(
+      `SELECT 
+         CASE 
+           WHEN TIMESTAMPDIFF(YEAR, COALESCE(s.birth_date, u.birth_date), CURDATE()) < 10 THEN 'Under 10' 
+           WHEN TIMESTAMPDIFF(YEAR, COALESCE(s.birth_date, u.birth_date), CURDATE()) BETWEEN 10 AND 14 THEN '10-14' 
+           WHEN TIMESTAMPDIFF(YEAR, COALESCE(s.birth_date, u.birth_date), CURDATE()) BETWEEN 15 AND 18 THEN '15-18' 
+           WHEN TIMESTAMPDIFF(YEAR, COALESCE(s.birth_date, u.birth_date), CURDATE()) BETWEEN 19 AND 25 THEN '19-25' 
+           WHEN TIMESTAMPDIFF(YEAR, COALESCE(s.birth_date, u.birth_date), CURDATE()) > 25 THEN 'Over 25' 
+           ELSE 'Unknown' 
+         END AS age_group, 
+         COUNT(*) AS n 
+       FROM students s 
+       LEFT JOIN users u ON u.id = s.user_id 
+       WHERE s.school_id = ? 
+       GROUP BY age_group`,
+      [sid]
+    ),
+    query(`SELECT COUNT(*) AS n FROM students WHERE school_id = ?`, [sid]),
+    query(`SELECT COUNT(*) AS n FROM teachers WHERE school_id = ?`, [sid]),
+    query(`SELECT COUNT(*) AS n FROM formations WHERE school_id = ?`, [sid]),
+    query(
+      `SELECT COUNT(*) AS n FROM \`groups\` g 
+       INNER JOIN formations f ON f.id = g.formation_id 
+       WHERE f.school_id = ?`,
+      [sid]
+    )
+  ]);
+
+  res.json({
+    school,
+    counts: {
+      students: Number(sc?.n || 0),
+      teachers: Number(tc?.n || 0),
+      formations: Number(fc?.n || 0),
+      groups: Number(gc?.n || 0)
+    },
+    genderStudents,
+    genderTeachers,
+    studentsPerFormation,
+    enrollmentByMonth,
+    groupSizes,
+    paymentByFormation,
+    attendanceSummary,
+    studentsByAge
+  });
+}));
+
+module.exports = router;

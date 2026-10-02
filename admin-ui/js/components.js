@@ -120,7 +120,8 @@ document.write('<script src="js/table-features.js?v=' + new Date().getTime() + '
 
     var items = document.querySelectorAll('#app-sidebar [data-menu]');
     items.forEach(function (item) {
-      var isMatch = item.getAttribute('data-menu') === page;
+      var menuVal = item.getAttribute('data-menu') || '';
+      var isMatch = menuVal === page || menuVal.split(/\s+/).indexOf(page) !== -1;
       var link = item.querySelector('.sb-link');
       var submenuLinks = item.querySelectorAll('.sb-submenu a');
 
@@ -131,8 +132,9 @@ document.write('<script src="js/table-features.js?v=' + new Date().getTime() + '
       // Active on submenu link
       submenuLinks.forEach(function (a) {
         var href = a.getAttribute('href') || '';
+        var subPage = a.getAttribute('data-page') || '';
         var currentFile = window.location.pathname.split('/').pop() || 'index.html';
-        if (href === currentFile) {
+        if (href === currentFile || (page && subPage && subPage === page)) {
           a.classList.add('active');
           item.classList.add('open');
           if (link) link.classList.add('active');
@@ -208,6 +210,7 @@ document.write('<script src="js/table-features.js?v=' + new Date().getTime() + '
     // Load sidebar → header → footer in sequence
     loadPartial('sidebar-placeholder', 'sidebar.html', 'sidebar', function () {
       markActiveNav();
+      loadPendingBadge();
 
       loadPartial('header-placeholder', 'header.html', 'header', function () {
         loadPartial('footer-placeholder', 'footer.html', 'footer', function () {
@@ -219,6 +222,43 @@ document.write('<script src="js/table-features.js?v=' + new Date().getTime() + '
       });
     });
   }
+
+  // ── Pending students badge ───────────────────────────────────────────────────
+  function loadPendingBadge() {
+    var token = localStorage.getItem('school_system_token');
+    if (!token) return; // not logged in, skip
+
+    var apiBase = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+      ? window.location.protocol + '//' + window.location.hostname + ':5000'
+      : '';
+
+    fetch(apiBase + '/api/student-registrations', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    })
+    .then(function(r) { return r.ok ? r.json() : null; })
+    .then(function(data) {
+      if (!data || !data.data) return;
+      var pendingCount = data.data.filter(function(s) {
+        return s.registration_number && s.registration_number.indexOf('PRE-') === 0
+          && (!s.is_active || s.is_active == 0);
+      }).length;
+
+      var badge = document.getElementById('sb-pending-badge');
+      if (badge) {
+        if (pendingCount > 0) {
+          badge.textContent = pendingCount;
+          badge.style.display = 'inline-block';
+        } else {
+          badge.style.display = 'none';
+        }
+      }
+    })
+    .catch(function() { /* silently ignore badge errors */ });
+
+    // Refresh badge every 60s
+    setTimeout(loadPendingBadge, 60000);
+  }
+
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', loadComponents);

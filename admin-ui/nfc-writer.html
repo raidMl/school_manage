@@ -1,0 +1,1833 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <style id="fouc-style">body { opacity: 0; visibility: hidden; }</style>
+    <script>
+      (function() {
+        var lang = localStorage.getItem('app_lang') || 'ar';
+        if (lang === 'ar') {
+          document.documentElement.dir = 'rtl';
+          document.documentElement.lang = 'ar';
+        } else {
+          document.documentElement.dir = 'ltr';
+          document.documentElement.lang = 'en';
+        }
+      })();
+    </script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>كاتب ومبرمج بطاقات NFC / RFID | لوحة التحكم</title>
+    <link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&family=Fira+Code:wght@500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/sidebar.css">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --primary-light: #e0e7ff;
+            --success: #10b981;
+            --success-dark: #059669;
+            --success-light: #d1fae5;
+            --warning: #f59e0b;
+            --warning-light: #fef3c7;
+            --danger: #ef4444;
+            --danger-light: #fee2e2;
+            --surface: #ffffff;
+            --bg-page: #f8fafc;
+            --border: #e2e8f0;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+        }
+
+        body {
+            font-family: 'Cairo', 'Inter', sans-serif;
+            background: var(--bg-page);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        /* ── Top Hero Banner ── */
+        .page-hero-card {
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 40%, #312e81 80%, #4338ca 100%);
+            border-radius: 20px;
+            padding: 30px 34px;
+            color: #ffffff;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 12px 35px -8px rgba(49, 46, 129, 0.45);
+            margin-bottom: 24px;
+        }
+
+        .page-hero-card::before {
+            content: '';
+            position: absolute;
+            top: -60px;
+            right: -60px;
+            width: 240px;
+            height: 240px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.35) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero-top-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 18px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-info-area {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .page-avatar-badge {
+            width: 74px;
+            height: 74px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: #ffffff;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            flex-shrink: 0;
+        }
+
+        .hero-text h1 {
+            font-size: 24px;
+            font-weight: 800;
+            margin: 0 0 6px 0;
+            color: #ffffff;
+        }
+
+        .hero-text p {
+            font-size: 13.5px;
+            color: #cbd5e1;
+            margin: 0 0 10px 0;
+            max-width: 680px;
+            line-height: 1.6;
+        }
+
+        .hero-badges-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .hero-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 5px 13px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .hero-pill.pill-success {
+            background: rgba(16, 185, 129, 0.25);
+            border-color: rgba(52, 211, 153, 0.4);
+            color: #a7f3d0;
+        }
+
+        .hero-pill.pill-warning {
+            background: rgba(245, 158, 11, 0.25);
+            border-color: rgba(251, 191, 36, 0.4);
+            color: #fde68a;
+        }
+
+        .hero-action-btns {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-hero-glass {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #ffffff;
+            border-radius: 12px;
+            padding: 10px 18px;
+            font-size: 13px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .btn-hero-glass:hover {
+            background: rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+
+        /* ── Admin Gate Banner ── */
+        .admin-gate-banner {
+            display: none;
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            border: 1.5px solid #f87171;
+            border-radius: 14px;
+            padding: 18px 24px;
+            margin-bottom: 24px;
+            color: #991b1b;
+            font-weight: 700;
+            font-size: 14px;
+            box-shadow: 0 4px 14px rgba(239, 68, 68, 0.12);
+        }
+
+        /* ── Workspace 2-Column Grid ── */
+        .nfc-grid {
+            display: grid;
+            grid-template-columns: 410px 1fr;
+            gap: 24px;
+            margin-bottom: 28px;
+        }
+
+        @media (max-width: 1080px) {
+            .nfc-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ── Modern Card Panels ── */
+        .nfc-panel {
+            background: #ffffff;
+            border-radius: 18px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 20px -3px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .nfc-panel-header {
+            padding: 18px 22px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f8fafc;
+        }
+
+        .nfc-panel-title {
+            font-size: 16px;
+            font-weight: 800;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #1e293b;
+        }
+
+        .nfc-panel-body {
+            padding: 20px;
+            flex: 1;
+        }
+
+        /* ── Role Switcher Tabs ── */
+        .role-switch-nav {
+            display: flex;
+            background: #f1f5f9;
+            padding: 4px;
+            border-radius: 12px;
+            gap: 6px;
+            margin-bottom: 16px;
+        }
+
+        .role-switch-btn {
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 9px 14px;
+            border-radius: 9px;
+            font-weight: 700;
+            font-size: 13px;
+            color: #64748b;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            transition: all 0.18s ease;
+        }
+
+        .role-switch-btn.active {
+            background: #ffffff;
+            color: var(--primary);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        /* ── Search Bar ── */
+        .search-wrapper {
+            position: relative;
+            margin-bottom: 14px;
+        }
+
+        .search-wrapper .search-icon {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 14px;
+            pointer-events: none;
+        }
+
+        .search-wrapper input {
+            width: 100%;
+            height: 44px;
+            padding: 0 42px 0 38px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 12px;
+            background: #f8fafc;
+            font-size: 13.5px;
+            color: #1e293b;
+            transition: all 0.2s;
+            outline: none;
+        }
+
+        .search-wrapper input:focus {
+            background: #ffffff;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+        }
+
+        .search-clear-btn {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 4px 8px;
+            display: none;
+        }
+
+        .search-clear-btn:hover {
+            color: #ef4444;
+        }
+
+        /* ── Filter Chips ── */
+        .filter-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 14px;
+        }
+
+        .filter-chip {
+            padding: 5px 11px;
+            border-radius: 20px;
+            background: #f1f5f9;
+            color: #475569;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.15s;
+        }
+
+        .filter-chip:hover {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+
+        .filter-chip.active {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            border-color: #c7d2fe;
+        }
+
+        /* ── Person Items List ── */
+        .people-list-container {
+            max-height: 520px;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            background: #ffffff;
+        }
+
+        .people-list-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        .people-list-container::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        .person-card-item {
+            padding: 12px 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid #f1f5f9;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            position: relative;
+        }
+
+        .person-card-item:last-child {
+            border-bottom: none;
+        }
+
+        .person-card-item:hover {
+            background: #f8fafc;
+        }
+
+        .person-card-item.selected {
+            background: #eef2ff;
+            border-right: 4px solid var(--primary);
+        }
+
+        .person-avatar-mini {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            object-fit: cover;
+            border: 1.5px solid #e2e8f0;
+            background: #e2e8f0;
+            flex-shrink: 0;
+        }
+
+        .person-meta {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .person-meta-name {
+            font-weight: 800;
+            font-size: 13.5px;
+            color: #1e293b;
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .person-meta-reg {
+            font-family: 'Fira Code', monospace;
+            font-size: 11.5px;
+            color: #475569;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #f1f5f9;
+            padding: 2px 7px;
+            border-radius: 6px;
+        }
+
+        .tag-status-indicator {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 9px;
+            border-radius: 20px;
+            white-space: nowrap;
+        }
+
+        .tag-status-indicator.tagged {
+            background: var(--success-light);
+            color: var(--success-dark);
+            border: 1px solid #a7f3d0;
+        }
+
+        .tag-status-indicator.untagged {
+            background: #f1f5f9;
+            color: #94a3b8;
+            border: 1px solid #e2e8f0;
+        }
+
+        .tag-status-indicator.matched {
+            background: #e0e7ff;
+            color: #4338ca;
+            border: 1px solid #c7d2fe;
+        }
+
+        /* ── Right Column: Programming Terminal ── */
+        .terminal-empty-state {
+            text-align: center;
+            padding: 60px 24px;
+            color: #94a3b8;
+        }
+
+        .terminal-empty-state i {
+            font-size: 54px;
+            color: #cbd5e1;
+            margin-bottom: 16px;
+            display: block;
+        }
+
+        .selected-person-header {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            padding: 18px;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-radius: 14px;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 20px;
+        }
+
+        .selected-avatar-large {
+            width: 72px;
+            height: 72px;
+            border-radius: 16px;
+            object-fit: cover;
+            border: 2px solid #cbd5e1;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+            flex-shrink: 0;
+        }
+
+        .selected-header-meta h2 {
+            margin: 0 0 4px 0;
+            font-size: 19px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .selected-header-meta .sub-info {
+            font-size: 13px;
+            color: #64748b;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        /* ── QR & Registration Box ── */
+        .reg-highlight-card {
+            background: #ffffff;
+            border: 2px solid #e0e7ff;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            box-shadow: 0 4px 14px rgba(79, 70, 229, 0.06);
+        }
+
+        .reg-text-area {
+            flex: 1;
+        }
+
+        .reg-title-label {
+            font-size: 12px;
+            font-weight: 800;
+            color: #6366f1;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 4px;
+        }
+
+        .reg-number-display {
+            font-family: 'Fira Code', monospace;
+            font-size: 26px;
+            font-weight: 800;
+            color: #1e1b4b;
+            letter-spacing: 0.08em;
+            margin-bottom: 8px;
+            word-break: break-all;
+        }
+
+        .reg-copy-btn {
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            color: #334155;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 12px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.18s;
+        }
+
+        .reg-copy-btn:hover {
+            background: #e2e8f0;
+            color: #0f172a;
+        }
+
+        .reg-qrcode-wrap {
+            width: 86px;
+            height: 86px;
+            padding: 6px;
+            background: #ffffff;
+            border-radius: 12px;
+            border: 1.5px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .reg-qrcode-wrap img {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* ── Action Section: Direct QR Match ── */
+        .action-card-gradient {
+            background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+            border: 1.5px solid #c7d2fe;
+            border-radius: 16px;
+            padding: 18px 20px;
+            margin-bottom: 20px;
+        }
+
+        .action-card-gradient h4 {
+            margin: 0 0 6px 0;
+            font-size: 15px;
+            font-weight: 800;
+            color: #312e81;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .action-card-gradient p {
+            margin: 0 0 14px 0;
+            font-size: 13px;
+            color: #4338ca;
+            line-height: 1.5;
+        }
+
+        .btn-sync-qr {
+            width: 100%;
+            background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+            color: #ffffff;
+            border: none;
+            border-radius: 12px;
+            padding: 13px 20px;
+            font-size: 14px;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-sync-qr:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(79, 70, 229, 0.45);
+        }
+
+        /* ── Action Section: USB RFID Scanner ── */
+        .action-card-scanner {
+            background: #ffffff;
+            border: 1.5px solid var(--border);
+            border-radius: 16px;
+            padding: 18px 20px;
+            margin-bottom: 20px;
+        }
+
+        .action-card-scanner h4 {
+            margin: 0 0 4px 0;
+            font-size: 15px;
+            font-weight: 800;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .action-card-scanner p {
+            margin: 0 0 14px 0;
+            font-size: 12.5px;
+            color: var(--text-muted);
+        }
+
+        .usb-wedge-box {
+            position: relative;
+            margin-bottom: 12px;
+        }
+
+        .usb-wedge-input {
+            width: 100%;
+            height: 48px;
+            border: 2px solid #6366f1;
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 0 16px 0 44px;
+            font-family: 'Fira Code', monospace;
+            font-size: 16px;
+            font-weight: 700;
+            color: #1e1b4b;
+            outline: none;
+            transition: all 0.2s;
+            animation: pulse-border 2.5s infinite;
+        }
+
+        @keyframes pulse-border {
+            0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
+            70% { box-shadow: 0 0 0 8px rgba(99, 102, 241, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+        }
+
+        .usb-wedge-input:focus {
+            background: #ffffff;
+            border-color: #4338ca;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+        }
+
+        .usb-input-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6366f1;
+            font-size: 18px;
+        }
+
+        .manual-link-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .manual-link-input {
+            flex: 1;
+            height: 40px;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            padding: 0 12px;
+            font-family: 'Fira Code', monospace;
+            font-size: 13px;
+        }
+
+        .btn-manual-save {
+            background: #1e293b;
+            color: #ffffff;
+            border: none;
+            border-radius: 10px;
+            padding: 0 16px;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .btn-manual-save:hover {
+            background: #0f172a;
+        }
+
+        /* ── Action Section: Web NFC (Android Chrome) ── */
+        .action-card-nfc {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border: 1.5px solid #bbf7d0;
+            border-radius: 16px;
+            padding: 18px 20px;
+            margin-bottom: 20px;
+        }
+
+        .action-card-nfc h4 {
+            margin: 0 0 4px 0;
+            font-size: 15px;
+            font-weight: 800;
+            color: #065f46;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .action-card-nfc p {
+            margin: 0 0 14px 0;
+            font-size: 12.5px;
+            color: #047857;
+            line-height: 1.5;
+        }
+
+        .btn-webnfc-write {
+            width: 100%;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #ffffff;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 18px;
+            font-size: 14px;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-webnfc-write:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(16, 185, 129, 0.45);
+        }
+
+        /* ── Tag Status Summary & Unlink ── */
+        .tag-status-box {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .btn-unlink-tag {
+            background: #fee2e2;
+            color: #b91c1c;
+            border: 1px solid #fca5a5;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .btn-unlink-tag:hover {
+            background: #ef4444;
+            color: #ffffff;
+        }
+
+        /* ── Interactive Activity Log ── */
+        .activity-log-card {
+            background: #0f172a;
+            border-radius: 14px;
+            padding: 14px 16px;
+            color: #e2e8f0;
+            font-family: 'Fira Code', monospace;
+            font-size: 12px;
+            border: 1px solid #1e293b;
+        }
+
+        .activity-log-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #334155;
+            margin-bottom: 8px;
+            font-size: 11px;
+            color: #94a3b8;
+            font-weight: 700;
+        }
+
+        .log-entries {
+            max-height: 120px;
+            overflow-y: auto;
+            line-height: 1.7;
+        }
+
+        .log-line {
+            display: flex;
+            gap: 8px;
+        }
+
+        .log-time {
+            color: #64748b;
+        }
+
+        .log-msg.success { color: #4ade80; }
+        .log-msg.error { color: #f87171; }
+        .log-msg.info { color: #60a5fa; }
+        .log-msg.warn { color: #fbbf24; }
+
+        /* ── Bottom Bulk Table ── */
+        .bulk-table-container {
+            background: #ffffff;
+            border-radius: 18px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 20px -3px rgba(0, 0, 0, 0.05);
+            padding: 24px;
+            margin-bottom: 40px;
+        }
+
+        .bulk-table-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 14px;
+            margin-bottom: 18px;
+        }
+
+        .bulk-table-title {
+            font-size: 17px;
+            font-weight: 800;
+            color: #1e293b;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .modern-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .modern-table th {
+            background: #f8fafc;
+            color: #475569;
+            font-weight: 700;
+            font-size: 12.5px;
+            padding: 12px 16px;
+            border-bottom: 2px solid #e2e8f0;
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .modern-table td {
+            padding: 13px 16px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 13px;
+            color: #334155;
+            vertical-align: middle;
+        }
+
+        .modern-table tr:hover td {
+            background: #f8faff;
+        }
+
+        .btn-table-action {
+            background: #eef2ff;
+            color: #4f46e5;
+            border: 1px solid #c7d2fe;
+            border-radius: 8px;
+            padding: 5px 12px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-table-action:hover {
+            background: #4f46e5;
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body data-page="nfc-writer">
+    <!-- Sidebar Placeholder for standard layout -->
+    <div id="sidebar-placeholder"></div>
+
+    <div class="sb-main">
+        <!-- Header Placeholder for user profile & topbar -->
+        <div id="header-placeholder"></div>
+
+        <div class="sb-content" style="padding: 24px 28px;">
+            <!-- Breadcrumb Navigation -->
+            <div class="sb-breadcrumb" style="display:flex; align-items:center; gap:8px; font-size:13px; color:#64748b; margin-bottom:18px;">
+                <i class="fa fa-home"></i>
+                <a href="index.html" style="color:#64748b; text-decoration:none;">الرئيسية</a>
+                <span>/</span>
+                <span style="color:#1e293b; font-weight:700;">كاتب بطاقات NFC / RFID</span>
+            </div>
+
+            <!-- Admin Access Alert Banner -->
+            <div class="admin-gate-banner" id="admin-gate-banner">
+                <i class="fa fa-shield" style="font-size:22px; margin-left:8px;"></i>
+                <span>تنبيه أمني: صفحة برمجة البطاقات الذكية مخصصة لمدير النظام (Admin) فقط. لا تملك صلاحية تعديل السجلات.</span>
+            </div>
+
+            <!-- Top Hero Banner Card -->
+            <div class="page-hero-card">
+                <div class="hero-top-row">
+                    <div class="hero-info-area">
+                        <div class="page-avatar-badge">
+                            <i class="fa fa-id-card"></i>
+                        </div>
+                        <div class="hero-text">
+                            <h1>كاتب ومبرمج بطاقات NFC / RFID الذكية</h1>
+                            <p>
+                                برمجة ونسخ <strong>رقم التسجيل (Registration Number)</strong> على بطاقة الطالب أو الأستاذ ليتطابق مع رمز الاستجابة السريعة (QR Code) لتسجيل الحضور الذكي.
+                            </p>
+                            <div class="hero-badges-row">
+                                <span class="hero-pill pill-success"><i class="fa fa-lock"></i> خاص بالإدارة فقط (Admin Only)</span>
+                                <span class="hero-pill" id="webnfc-hero-pill"><i class="fa fa-mobile"></i> Web NFC: قيد الفحص...</span>
+                                <span class="hero-pill"><i class="fa fa-usb"></i> قارئ USB RFID مدعوم</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="hero-action-btns">
+                        <button type="button" class="btn-hero-glass" onclick="triggerBulkSyncModal()">
+                            <i class="fa fa-magic"></i> مطابقة الكل مع رمز QR
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Workspace: 2 Column Layout -->
+            <div class="nfc-grid" id="main-workspace-grid">
+                <!-- ── LEFT COLUMN: Search & Select Person ── -->
+                <div class="nfc-panel">
+                    <div class="nfc-panel-header">
+                        <h3 class="nfc-panel-title">
+                            <i class="fa fa-users" style="color:var(--primary);"></i>
+                            1. اختر الطالب أو الأستاذ
+                        </h3>
+                        <span id="people-count-pill" style="background:#e0e7ff; color:#3730a3; font-weight:800; font-size:12px; padding:3px 10px; border-radius:20px;">
+                            0
+                        </span>
+                    </div>
+                    <div class="nfc-panel-body">
+                        <!-- Role Selector Tabs -->
+                        <div class="role-switch-nav">
+                            <button type="button" class="role-switch-btn active" id="tab-student" onclick="setRole('student')">
+                                <i class="fa fa-graduation-cap"></i> الطلاب (Students)
+                            </button>
+                            <button type="button" class="role-switch-btn" id="tab-teacher" onclick="setRole('teacher')">
+                                <i class="fa fa-user-tie"></i> الأساتذة (Teachers)
+                            </button>
+                        </div>
+
+                        <!-- Live Search Bar -->
+                        <div class="search-wrapper">
+                            <i class="fa fa-search search-icon"></i>
+                            <input type="text" id="search-input" placeholder="ابحث بالاسم، رقم التسجيل، أو الهاتف..." oninput="onSearchInput()" autocomplete="off">
+                            <button type="button" class="search-clear-btn" id="search-clear-btn" onclick="clearSearch()" title="مسح">&times;</button>
+                        </div>
+
+                        <!-- Filter Status Chips -->
+                        <div class="filter-chips">
+                            <span class="filter-chip active" id="chip-all" onclick="setFilter('all')">الكل (All)</span>
+                            <span class="filter-chip" id="chip-untagged" onclick="setFilter('untagged')">⚠️ بدون بطاقة</span>
+                            <span class="filter-chip" id="chip-tagged" onclick="setFilter('tagged')">✓ مع بطاقة</span>
+                            <span class="filter-chip" id="chip-matched" onclick="setFilter('matched')">★ مطابق لـ QR</span>
+                        </div>
+
+                        <!-- Scrollable People List -->
+                        <div class="people-list-container" id="people-list-container">
+                            <div class="terminal-empty-state" id="people-loading-state">
+                                <i class="fa fa-spinner fa-spin" style="font-size:36px; color:#6366f1;"></i>
+                                <div style="font-weight:700; color:#475569; margin-top:8px;">جاري تحميل السجلات...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── RIGHT COLUMN: Card Terminal Workspace ── -->
+                <div class="nfc-panel">
+                    <div class="nfc-panel-header">
+                        <h3 class="nfc-panel-title">
+                            <i class="fa fa-wifi" style="color:var(--primary);"></i>
+                            2. مساحة برمجة وربط البطاقة
+                        </h3>
+                        <span id="terminal-status-badge" style="font-size:12px; font-weight:700; color:#64748b;">
+                            <i class="fa fa-info-circle text-primary"></i> بانتظار تحديد شخص
+                        </span>
+                    </div>
+
+                    <div class="nfc-panel-body">
+                        <!-- State 1: No person selected -->
+                        <div id="no-person-placeholder" class="terminal-empty-state">
+                            <i class="fa fa-id-card-o"></i>
+                            <h3 style="font-weight:800; color:#1e293b; margin-bottom:8px; font-size:17px;">لم يتم تحديد أي شخص بعد</h3>
+                            <p style="font-size:13.5px; max-width:420px; margin:0 auto; line-height:1.6; color:#64748b;">
+                                اختر طالباً أو أستاذاً من القائمة على اليمين للبدء في نسخ رقم التسجيل الخاص به وبرمجته على بطاقة NFC أو مسحه بقارئ الـ USB RFID.
+                            </p>
+                        </div>
+
+                        <!-- State 2: Person selected -->
+                        <div id="active-person-terminal" style="display:none;">
+                            <!-- Person Header Card -->
+                            <div class="selected-person-header">
+                                <img id="sel-avatar" src="" alt="avatar" class="selected-avatar-large" onerror="this.src='https://ui-avatars.com/api/?name=User&background=4f46e5&color=fff&size=80'">
+                                <div class="selected-header-meta">
+                                    <h2 id="sel-name">—</h2>
+                                    <div class="sub-info">
+                                        <span><i class="fa fa-graduation-cap"></i> <strong id="sel-formation">—</strong></span>
+                                        <span><i class="fa fa-phone"></i> <span id="sel-phone">—</span></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- QR Code & Registration Number Showcase -->
+                            <div class="reg-highlight-card">
+                                <div class="reg-text-area">
+                                    <div class="reg-title-label">
+                                        <i class="fa fa-qrcode"></i> رقم التسجيل (Registration Number):
+                                    </div>
+                                    <div class="reg-number-display" id="sel-reg-number">—</div>
+                                    <button type="button" class="reg-copy-btn" onclick="copyRegNumber()" id="btn-copy-reg">
+                                        <i class="fa fa-copy"></i> نسخ رقم التسجيل
+                                    </button>
+                                </div>
+                                <div class="reg-qrcode-wrap" id="reg-qrcode-wrap" title="رمز الاستجابة السريعة المقابل لرقم التسجيل">
+                                    <!-- QR rendered here -->
+                                </div>
+                            </div>
+
+                            <!-- Core Action 1: Match Registration Number (QR Code) to RFID Tag -->
+                            <div class="action-card-gradient">
+                                <h4>
+                                    <i class="fa fa-check-circle" style="color:#4f46e5;"></i>
+                                    الخيار الأول: مطابقة رقم التسجيل مع البطاقة (تطابق 100% مع الـ QR)
+                                </h4>
+                                <p>
+                                    نسخ رقم التسجيل كمعرف للبطاقة في النظام. سيعمل قارئ الـ RFID ورمز الاستجابة السريعة (QR Code) بنفس الطريقة تماماً عند تسجيل الحضور الذكي.
+                                </p>
+                                <button type="button" class="btn-sync-qr" onclick="syncRegToTag()">
+                                    <i class="fa fa-link"></i> نسخ رقم التسجيل كمعرف للبطاقة الآن
+                                </button>
+                            </div>
+
+                            <!-- Core Action 2: USB RFID Scanner (Keyboard Wedge) -->
+                            <div class="action-card-scanner">
+                                <h4>
+                                    <i class="fa fa-usb" style="color:#0f172a;"></i>
+                                    الخيار الثاني: المسح المباشر عبر قارئ USB RFID
+                                </h4>
+                                <p>
+                                    مرر البطاقة الفعلية على قارئ الـ USB RFID المتصل بالكمبيوتر. سيتم التقاط المعرّف وحفظه تلقائياً فوراً:
+                                </p>
+                                <div class="usb-wedge-box">
+                                    <input type="text" class="usb-wedge-input" id="usb-scanner-input" placeholder="مرر البطاقة على قارئ الـ USB الآن..." onkeydown="handleScannerKeydown(event)" autocomplete="off">
+                                    <i class="fa fa-rss usb-input-icon"></i>
+                                </div>
+                                <div class="manual-link-row">
+                                    <input type="text" class="manual-link-input" id="manual-uid-input" placeholder="أو أدخل معرف البطاقة يدوياً (RFID UID)...">
+                                    <button type="button" class="btn-manual-save" onclick="saveManualUid()">
+                                        <i class="fa fa-save"></i> حفظ وربط
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Core Action 3: Web NFC (Android Chrome) -->
+                            <div class="action-card-nfc" id="webnfc-action-box">
+                                <h4>
+                                    <i class="fa fa-mobile" style="color:#10b981;"></i>
+                                    الخيار الثالث: كتابة رقم التسجيل على شريحة NFC (هواتف Android)
+                                </h4>
+                                <p id="webnfc-desc-text">
+                                    برمجة شريحة NFC المدمجة في البطاقة عن طريق تقريبها من ظهر هاتف Android. سيتم تسجيل رقم التسجيل على الشريحة مباشرة.
+                                </p>
+                                <button type="button" class="btn-webnfc-write" id="btn-webnfc" onclick="writeWebNfc()">
+                                    <i class="fa fa-rss"></i> بدء كتابة رقم التسجيل عبر Web NFC
+                                </button>
+                            </div>
+
+                            <!-- Current Tag Status & Unlink -->
+                            <div class="tag-status-box">
+                                <div>
+                                    <div style="font-size:11px; font-weight:800; color:#64748b; margin-bottom:3px;">المعرف الحالي للبطاقة (RFID Tag UID):</div>
+                                    <div id="sel-current-tag-val" style="font-family:'Fira Code', monospace; font-size:15px; font-weight:800; color:#1e293b;">
+                                        —
+                                    </div>
+                                </div>
+                                <div>
+                                    <button type="button" class="btn-unlink-tag" onclick="unlinkTag()" id="btn-unlink" style="display:none;">
+                                        <i class="fa fa-chain-broken"></i> إلغاء ربط البطاقة
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Live Activity Log -->
+                            <div class="activity-log-card">
+                                <div class="activity-log-header">
+                                    <span><i class="fa fa-terminal"></i> سجل العمليات المباشر (Terminal Log)</span>
+                                    <span style="cursor:pointer;" onclick="clearLog()">مسح السجل</span>
+                                </div>
+                                <div class="log-entries" id="log-entries-container">
+                                    <div class="log-line">
+                                        <span class="log-time">[النظام]</span>
+                                        <span class="log-msg info">النظام جاهز ومستعد لبرمجة البطاقات الذكية.</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── Bottom Section: Comprehensive Table ── -->
+            <div class="bulk-table-container">
+                <div class="bulk-table-header">
+                    <div>
+                        <h3 class="bulk-table-title">
+                            <i class="fa fa-table" style="color:var(--primary);"></i>
+                            جدول السجلات الإجمالي ومطابقة رمز QR
+                        </h3>
+                        <p style="margin:4px 0 0 0; font-size:13px; color:#64748b;">
+                            عرض شامل لحالة بطاقات الطلاب والأساتذة وإمكانية نسخ رقم التسجيل بنقرة واحدة.
+                        </p>
+                    </div>
+                    <div style="display:flex; gap:10px;">
+                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="loadPeople()">
+                            <i class="fa fa-refresh"></i> تحديث البيانات
+                        </button>
+                        <button type="button" class="btn btn-sm btn-primary" onclick="triggerBulkSyncModal()">
+                            <i class="fa fa-magic"></i> مطابقة جماعية
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="modern-table" id="all-people-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>الاسم الكامل</th>
+                                <th>رقم التسجيل (QR Code)</th>
+                                <th>معرف البطاقة (RFID UID)</th>
+                                <th>حالة البطاقة</th>
+                                <th>التطابق مع QR</th>
+                                <th>إجراء سريع</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bulk-table-tbody">
+                            <tr><td colspan="7" style="text-align:center; padding:30px; color:#94a3b8;">جاري تحميل البيانات...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts required for layout & backend -->
+    <script src="js/vendor/jquery-1.12.4.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/components.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="js/backend.js?v=8"></script>
+
+    <script>
+    (function() {
+        var _role = 'student';
+        var _filter = 'all';
+        var _allPeople = [];
+        var _filteredPeople = [];
+        var _selectedPerson = null;
+        var _isAdmin = false;
+        var _qrCodeInstance = null;
+
+        // Arabic text normalization for 100% accurate search matching
+        function normAr(s) {
+            return String(s || '')
+                .toLowerCase()
+                .trim()
+                .replace(/[أإآ]/g, 'ا')
+                .replace(/ة/g, 'ه')
+                .replace(/ى/g, 'ي')
+                .replace(/[\u064B-\u065F]/g, '');
+        }
+
+        // Live Log Helper
+        function log(msg, type) {
+            var container = document.getElementById('log-entries-container');
+            if (!container) return;
+            var time = new Date().toLocaleTimeString('ar-EG', { hour12: false });
+            var line = document.createElement('div');
+            line.className = 'log-line';
+            line.innerHTML = '<span class="log-time">[' + time + ']</span> <span class="log-msg ' + (type || 'info') + '">' + escapeHtml(msg) + '</span>';
+            container.appendChild(line);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        window.clearLog = function() {
+            var container = document.getElementById('log-entries-container');
+            if (container) container.innerHTML = '';
+        };
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        // Check Admin Permissions
+        function verifyAdmin() {
+            var token = localStorage.getItem('school_system_token');
+            if (!token) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            window.request('/api/nfc/status').then(function(res) {
+                if (!res.isAdmin) {
+                    _isAdmin = false;
+                    document.getElementById('admin-gate-banner').style.display = 'flex';
+                    document.getElementById('main-workspace-grid').style.opacity = '0.4';
+                    document.getElementById('main-workspace-grid').style.pointerEvents = 'none';
+                    log('تنبيه: المستخدم الحالي ليس مسؤولاً (Admin)', 'error');
+                } else {
+                    _isAdmin = true;
+                    document.getElementById('admin-gate-banner').style.display = 'none';
+                    log('تم التحقق: صلاحيات المسؤول مفعلة بنجاح.', 'success');
+                }
+            }).catch(function(err) {
+                log('فحص الصلاحيات: ' + (err.message || 'خطأ في الاتصال'), 'warn');
+            });
+        }
+
+        // Check Web NFC Capability
+        function checkWebNfcSupport() {
+            var pill = document.getElementById('webnfc-hero-pill');
+            var desc = document.getElementById('webnfc-desc-text');
+            var btn = document.getElementById('btn-webnfc');
+
+            if ('NDEFReader' in window) {
+                if (pill) {
+                    pill.className = 'hero-pill pill-success';
+                    pill.innerHTML = '<i class="fa fa-check-circle"></i> Web NFC مدعوم في هذا المتصفح';
+                }
+                if (desc) {
+                    desc.innerHTML = '<strong style="color:#047857;">متصفحك يدعم Web NFC!</strong> اضغط الزر أدناه ثم ضع بطاقة NFC خلف الجهاز للكتابة.';
+                }
+            } else {
+                if (pill) {
+                    pill.className = 'hero-pill pill-warning';
+                    pill.innerHTML = '<i class="fa fa-mobile"></i> Web NFC: متاح على هواتف Android Chrome';
+                }
+                if (desc) {
+                    desc.innerHTML = 'ميزة Web NFC المباشرة تعمل على متصفح Chrome لهواتف Android. على أجهزة الكمبيوتر، استخدم قارئ USB RFID أو خيار مطابقة رقم التسجيل.';
+                }
+            }
+        }
+
+        // Fetch People List
+        window.loadPeople = function() {
+            var listEl = document.getElementById('people-list-container');
+            listEl.innerHTML = '<div class="terminal-empty-state"><i class="fa fa-spinner fa-spin" style="font-size:36px; color:#6366f1;"></i><div style="font-weight:700; color:#475569; margin-top:8px;">جاري تحميل السجلات من الخادم...</div></div>';
+
+            window.request('/api/nfc/people?type=' + _role).then(function(res) {
+                _allPeople = res.data || [];
+                log('تم تحميل ' + _allPeople.length + ' سجل (' + (_role === 'student' ? 'طلاب' : 'أساتذة') + ')', 'info');
+                applyFilters();
+                renderBulkTable();
+
+                if (_selectedPerson) {
+                    var found = _allPeople.find(function(p) { return p.id === _selectedPerson.id && p.role === _selectedPerson.role; });
+                    if (found) selectPerson(found);
+                }
+            }).catch(function(err) {
+                listEl.innerHTML = '<div class="terminal-empty-state" style="color:#ef4444;"><i class="fa fa-exclamation-circle"></i><div>فشل التحميل: ' + (err.message || 'خطأ') + '</div></div>';
+                log('خطأ في استرجاع البيانات: ' + err.message, 'error');
+            });
+        };
+
+        // Switch role
+        window.setRole = function(role) {
+            if (_role === role) return;
+            _role = role;
+            document.getElementById('tab-student').classList.toggle('active', role === 'student');
+            document.getElementById('tab-teacher').classList.toggle('active', role === 'teacher');
+            document.getElementById('search-input').value = '';
+            document.getElementById('search-clear-btn').style.display = 'none';
+            _selectedPerson = null;
+            updateSelectedView();
+            loadPeople();
+        };
+
+        // Filter chips
+        window.setFilter = function(filter) {
+            _filter = filter;
+            ['all', 'untagged', 'tagged', 'matched'].forEach(function(f) {
+                var el = document.getElementById('chip-' + f);
+                if (el) el.classList.toggle('active', f === filter);
+            });
+            applyFilters();
+        };
+
+        // Search input
+        window.onSearchInput = function() {
+            var val = document.getElementById('search-input').value;
+            document.getElementById('search-clear-btn').style.display = val ? 'block' : 'none';
+            applyFilters();
+        };
+
+        window.clearSearch = function() {
+            var input = document.getElementById('search-input');
+            input.value = '';
+            document.getElementById('search-clear-btn').style.display = 'none';
+            input.focus();
+            applyFilters();
+        };
+
+        function applyFilters() {
+            var rawQ = document.getElementById('search-input').value || '';
+            var q = normAr(rawQ);
+
+            _filteredPeople = _allPeople.filter(function(p) {
+                // Filter chips
+                var hasTag = Boolean(p.rfid && String(p.rfid).trim());
+                var isMatch = Boolean(p.is_match);
+
+                if (_filter === 'tagged' && !hasTag) return false;
+                if (_filter === 'untagged' && hasTag) return false;
+                if (_filter === 'matched' && !isMatch) return false;
+
+                if (!q) return true;
+
+                var nameNorm = normAr(p.name);
+                var regNorm = normAr(p.reg);
+                var phoneNorm = normAr(p.phone);
+                var rfidNorm = normAr(p.rfid);
+
+                return nameNorm.indexOf(q) !== -1 ||
+                       regNorm.indexOf(q) !== -1 ||
+                       phoneNorm.indexOf(q) !== -1 ||
+                       rfidNorm.indexOf(q) !== -1;
+            });
+
+            document.getElementById('people-count-pill').textContent = _filteredPeople.length;
+            renderPeopleList();
+        }
+
+        function renderPeopleList() {
+            var el = document.getElementById('people-list-container');
+            if (!_filteredPeople.length) {
+                el.innerHTML = '<div class="terminal-empty-state"><i class="fa fa-search"></i><div>لا توجد نتائج مطابقة للبحث</div></div>';
+                return;
+            }
+
+            var html = '';
+            _filteredPeople.forEach(function(p) {
+                var isSel = _selectedPerson && _selectedPerson.id === p.id && _selectedPerson.role === p.role;
+                var hasTag = Boolean(p.rfid && String(p.rfid).trim());
+                var isMatch = Boolean(p.is_match);
+
+                var statusBadge = '';
+                if (isMatch) {
+                    statusBadge = '<span class="tag-status-indicator matched" title="مطابق تماماً لرقم التسجيل"><i class="fa fa-check-circle"></i> مطابق لـ QR</span>';
+                } else if (hasTag) {
+                    statusBadge = '<span class="tag-status-indicator tagged" title="' + escapeHtml(p.rfid) + '"><i class="fa fa-rss"></i> مربوط</span>';
+                } else {
+                    statusBadge = '<span class="tag-status-indicator untagged"><i class="fa fa-circle-o"></i> بدون بطاقة</span>';
+                }
+
+                var avatar = p.photo || ('https://ui-avatars.com/api/?name=' + encodeURIComponent(p.name) + '&background=4f46e5&color=fff&size=50');
+
+                html += '<div class="person-card-item ' + (isSel ? 'selected' : '') + '" onclick="selectPersonById(' + p.id + ')">' +
+                    '<img src="' + avatar + '" class="person-avatar-mini" onerror="this.src=\'https://ui-avatars.com/api/?name=User&background=4f46e5&color=fff&size=50\'">' +
+                    '<div class="person-meta">' +
+                        '<div class="person-meta-name">' + escapeHtml(p.name) + '</div>' +
+                        '<span class="person-meta-reg"><i class="fa fa-id-badge"></i> ' + escapeHtml(p.reg || 'لا يوجد رقم') + '</span>' +
+                    '</div>' +
+                    statusBadge +
+                '</div>';
+            });
+
+            el.innerHTML = html;
+        }
+
+        window.selectPersonById = function(id) {
+            var person = _allPeople.find(function(p) { return p.id === id; });
+            if (person) selectPerson(person);
+        };
+
+        window.selectPerson = function(p) {
+            _selectedPerson = p;
+            updateSelectedView();
+            renderPeopleList();
+            log('تم تحديد: ' + p.name + ' (رقم التسجيل: ' + p.reg + ')', 'info');
+
+            // Focus on USB scanner input immediately so admin can swipe tag
+            setTimeout(function() {
+                var wedge = document.getElementById('usb-scanner-input');
+                if (wedge) {
+                    wedge.value = '';
+                    wedge.focus();
+                }
+            }, 100);
+        };
+
+        function updateSelectedView() {
+            var noBox = document.getElementById('no-person-placeholder');
+            var actBox = document.getElementById('active-person-terminal');
+            var statusBadge = document.getElementById('terminal-status-badge');
+
+            if (!_selectedPerson) {
+                noBox.style.display = 'block';
+                actBox.style.display = 'none';
+                statusBadge.innerHTML = '<i class="fa fa-info-circle text-primary"></i> بانتظار تحديد شخص';
+                return;
+            }
+
+            noBox.style.display = 'none';
+            actBox.style.display = 'block';
+
+            var p = _selectedPerson;
+            statusBadge.innerHTML = '<span style="color:#059669; font-weight:800;"><i class="fa fa-check-circle"></i> ' + escapeHtml(p.name) + '</span>';
+
+            // Populate header
+            document.getElementById('sel-name').textContent = p.name;
+            document.getElementById('sel-formation').textContent = p.formation || (_role === 'student' ? 'طالب' : 'أستاذ');
+            document.getElementById('sel-phone').textContent = p.phone || 'غير مسجل';
+
+            var avatar = p.photo || ('https://ui-avatars.com/api/?name=' + encodeURIComponent(p.name) + '&background=4f46e5&color=fff&size=80');
+            document.getElementById('sel-avatar').src = avatar;
+
+            // Registration number display
+            var regDisplay = document.getElementById('sel-reg-number');
+            regDisplay.textContent = p.reg || '—';
+
+            // Generate QR Code
+            renderQrCode(p.reg || '00000000');
+
+            // Current Tag status
+            var tagValEl = document.getElementById('sel-current-tag-val');
+            var unlinkBtn = document.getElementById('btn-unlink');
+            var manualInput = document.getElementById('manual-uid-input');
+
+            if (p.rfid) {
+                var isMatch = p.is_match;
+                var matchBadge = isMatch ? ' <span class="badge" style="background:#e0e7ff; color:#3730a3; font-size:11px; margin-right:6px;">= مطابق لرقم التسجيل ✓</span>' : '';
+                tagValEl.innerHTML = '<code style="color:#1e293b; font-size:16px;">' + escapeHtml(p.rfid) + '</code>' + matchBadge;
+                unlinkBtn.style.display = 'inline-block';
+                manualInput.value = p.rfid;
+            } else {
+                tagValEl.innerHTML = '<span style="color:#94a3b8;">لا توجد بطاقة مربوطة حالياً</span>';
+                unlinkBtn.style.display = 'none';
+                manualInput.value = '';
+            }
+        }
+
+        // Render QR Code in terminal
+        function renderQrCode(text) {
+            var wrap = document.getElementById('reg-qrcode-wrap');
+            if (!wrap) return;
+            wrap.innerHTML = '';
+            try {
+                if (window.QRCode) {
+                    new QRCode(wrap, {
+                        text: String(text),
+                        width: 74,
+                        height: 74,
+                        colorDark: '#1e1b4b',
+                        colorLight: '#ffffff',
+                        correctLevel: QRCode.CorrectLevel.M
+                    });
+                }
+            } catch (err) {
+                console.error('QR Code error:', err);
+            }
+        }
+
+        // Copy Registration Number
+        window.copyRegNumber = function() {
+            if (!_selectedPerson || !_selectedPerson.reg) {
+                log('لا يوجد رقم تسجيل لنسخه', 'warn');
+                return;
+            }
+            var reg = _selectedPerson.reg;
+            navigator.clipboard.writeText(reg).then(function() {
+                var btn = document.getElementById('btn-copy-reg');
+                btn.innerHTML = '<i class="fa fa-check" style="color:#10b981;"></i> تم النسخ!';
+                log('تم نسخ رقم التسجيل (' + reg + ') إلى الحافظة ✓', 'success');
+                setTimeout(function() {
+                    btn.innerHTML = '<i class="fa fa-copy"></i> نسخ رقم التسجيل';
+                }, 2000);
+            }).catch(function() {
+                log('فشل النسخ إلى الحافظة', 'error');
+            });
+        };
+
+        // 1. Sync Registration Number to Tag UID
+        window.syncRegToTag = function() {
+            if (!_selectedPerson) return;
+            var p = _selectedPerson;
+
+            if (!p.reg) {
+                alert('هذا الشخص ليس لديه رقم تسجيل مسجل في النظام.');
+                return;
+            }
+
+            log('جاري نسخ رقم التسجيل (' + p.reg + ') إلى معرف البطاقة...', 'info');
+
+            window.request('/api/nfc/sync-reg', {
+                method: 'POST',
+                body: JSON.stringify({
+                    student_id: p.id,
+                    person_type: p.role
+                })
+            }).then(function(res) {
+                p.rfid = res.rfid_tag;
+                p.is_match = true;
+                updateSelectedView();
+                renderPeopleList();
+                renderBulkTable();
+                log('✓ ' + (res.message || 'تمت مطابقة رقم التسجيل مع البطاقة بنجاح!'), 'success');
+                playSuccessChime();
+            }).catch(function(err) {
+                log('فشل نسخ رقم التسجيل: ' + err.message, 'error');
+                alert('فشل العملية: ' + err.message);
+            });
+        };
+
+        // 2. USB RFID Scanner Handler (Keyboard Wedge)
+        window.handleScannerKeydown = function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                var input = document.getElementById('usb-scanner-input');
+                var uid = (input.value || '').trim();
+                if (!uid) return;
+
+                if (!_selectedPerson) {
+                    log('تنبيه: يرجى تحديد طالب أو أستاذ أولاً قبل مسح البطاقة', 'warn');
+                    input.value = '';
+                    return;
+                }
+
+                linkUidToCurrentPerson(uid);
+                input.value = '';
+            }
+        };
+
+        // Manual UID Save
+        window.saveManualUid = function() {
+            if (!_selectedPerson) {
+                alert('يرجى تحديد شخص أولاً');
+                return;
+            }
+            var uid = (document.getElementById('manual-uid-input').value || '').trim();
+            if (!uid) {
+                alert('يرجى إدخال معرف البطاقة (RFID UID)');
+                return;
+            }
+            linkUidToCurrentPerson(uid);
+        };
+
+        function linkUidToCurrentPerson(uid) {
+            var p = _selectedPerson;
+            log('جاري ربط معرف البطاقة (' + uid + ') بـ ' + p.name + '...', 'info');
+
+            window.request('/api/nfc/link', {
+                method: 'POST',
+                body: JSON.stringify({
+                    student_id: p.id,
+                    rfid_uid: uid,
+                    person_type: p.role
+                })
+            }).then(function(res) {
+                p.rfid = uid;
+                p.is_match = Boolean(p.reg && uid.toLowerCase() === p.reg.toLowerCase());
+                updateSelectedView();
+                renderPeopleList();
+                renderBulkTable();
+                log('✓ ' + (res.message || 'تم ربط البطاقة بنجاح'), 'success');
+                playSuccessChime();
+            }).catch(function(err) {
+                log('فشل ربط البطاقة: ' + err.message, 'error');
+                alert('فشل ربط البطاقة: ' + err.message);
+            });
+        }
+
+        // Unlink Tag
+        window.unlinkTag = function() {
+            if (!_selectedPerson) return;
+            if (!confirm('هل أنت متأكد من إلغاء ربط هذه البطاقة؟')) return;
+
+            var p = _selectedPerson;
+            window.request('/api/nfc/link', {
+                method: 'POST',
+                body: JSON.stringify({
+                    student_id: p.id,
+                    rfid_uid: '',
+                    person_type: p.role
+                })
+            }).then(function(res) {
+                p.rfid = '';
+                p.is_match = false;
+                updateSelectedView();
+                renderPeopleList();
+                renderBulkTable();
+                log('تم إلغاء ربط البطاقة بنجاح', 'info');
+            }).catch(function(err) {
+                log('فشل إلغاء الربط: ' + err.message, 'error');
+            });
+        };
+
+        // 3. Web NFC Writer (Chrome on Android)
+        window.writeWebNfc = function() {
+            if (!_selectedPerson) {
+                alert('يرجى تحديد شخص أولاً');
+                return;
+            }
+
+            if (!('NDEFReader' in window)) {
+                alert('متصفحك لا يدعم Web NFC.\nهذه الميزة تعمل حصرياً على متصفح Google Chrome لهواتف Android مع تفعيل الـ NFC.');
+                return;
+            }
+
+            var p = _selectedPerson;
+            var regNumber = p.reg;
+            if (!regNumber) {
+                alert('هذا الشخص ليس لديه رقم تسجيل لكتابته على البطاقة.');
+                return;
+            }
+
+            var btn = document.getElementById('btn-webnfc');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> قرّب البطاقة من ظهر الهاتف الآن...';
+            log('جاري انتظار ملامسة بطاقة NFC لكتابة رقم التسجيل (' + regNumber + ')...', 'warn');
+
+            try {
+                var ndef = new NDEFReader();
+                ndef.write({
+                    records: [{
+                        recordType: 'text',
+                        data: String(regNumber)
+                    }]
+                }).then(function() {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fa fa-check"></i> تمت كتابة البطاقة بنجاح!';
+                    log('✓ نجحت كتابة رقم التسجيل (' + regNumber + ') على شريحة NFC بنجاح!', 'success');
+                    playSuccessChime();
+
+                    // Also link in DB to match registration number
+                    syncRegToTag();
+
+                    setTimeout(function() {
+                        btn.innerHTML = '<i class="fa fa-rss"></i> بدء كتابة رقم التسجيل عبر Web NFC';
+                    }, 3000);
+                }).catch(function(err) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fa fa-rss"></i> إعادة المحاولة عبر Web NFC';
+                    log('خطأ في كتابة NFC: ' + err.message, 'error');
+                });
+            } catch (err) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa fa-rss"></i> بدء كتابة رقم التسجيل عبر Web NFC';
+                log('تعذر تشغيل Web NFC: ' + err.message, 'error');
+            }
+        };
+
+        // Bulk Sync All Action
+        window.triggerBulkSyncModal = function() {
+            var roleName = _role === 'student' ? 'الطلاب' : 'الأساتذة';
+            if (!confirm('هل تريد مطابقة أرقام التسجيل لجميع ' + roleName + ' دفعة واحدة؟\nسيتم جعل معرف البطاقة (RFID UID) مطابقاً لرقم التسجيل لكل السجلات غير المربوطة.')) {
+                return;
+            }
+
+            log('جاري مطابقة أرقام التسجيل جماعياً لجميع ' + roleName + '...', 'info');
+
+            window.request('/api/nfc/bulk-sync', {
+                method: 'POST',
+                body: JSON.stringify({
+                    person_type: _role,
+                    only_empty: true
+                })
+            }).then(function(res) {
+                alert(res.message);
+                log('✓ ' + res.message, 'success');
+                loadPeople();
+                playSuccessChime();
+            }).catch(function(err) {
+                alert('فشلت العملية: ' + err.message);
+                log('فشلت المطابقة الجماعية: ' + err.message, 'error');
+            });
+        };
+
+        // Render Bulk Overview Table
+        function renderBulkTable() {
+            var tbody = document.getElementById('bulk-table-tbody');
+            if (!tbody) return;
+
+            if (!_allPeople.length) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:30px; color:#94a3b8;">لا توجد سجلات متاحة</td></tr>';
+                return;
+            }
+
+            var html = '';
+            _allPeople.forEach(function(p, i) {
+                var isSel = _selectedPerson && _selectedPerson.id === p.id && _selectedPerson.role === p.role;
+                var hasTag = Boolean(p.rfid && String(p.rfid).trim());
+                var isMatch = Boolean(p.is_match);
+
+                var statusPill = hasTag ?
+                    '<span class="badge" style="background:#dcfce7; color:#15803d; font-weight:700;">مربوط ✓</span>' :
+                    '<span class="badge" style="background:#f1f5f9; color:#94a3b8; font-weight:700;">غير مربوط</span>';
+
+                var matchPill = isMatch ?
+                    '<span class="badge" style="background:#e0e7ff; color:#3730a3; font-weight:700;"><i class="fa fa-check"></i> مطابق للـ QR</span>' :
+                    (hasTag ? '<span class="badge" style="background:#fef3c7; color:#b45309;">معرف مخصص</span>' : '<span style="color:#cbd5e1;">—</span>');
+
+                var tagVal = hasTag ?
+                    '<code style="font-weight:700; color:#1e293b;">' + escapeHtml(p.rfid) + '</code>' :
+                    '<span style="color:#cbd5e1;">—</span>';
+
+                html += '<tr style="' + (isSel ? 'background:#eef2ff;' : '') + '">' +
+                    '<td>' + (i + 1) + '</td>' +
+                    '<td><strong>' + escapeHtml(p.name) + '</strong></td>' +
+                    '<td><span class="person-meta-reg">' + escapeHtml(p.reg || '—') + '</span></td>' +
+                    '<td>' + tagVal + '</td>' +
+                    '<td>' + statusPill + '</td>' +
+                    '<td>' + matchPill + '</td>' +
+                    '<td>' +
+                        '<button type="button" class="btn-table-action" onclick="selectPersonById(' + p.id + '); window.scrollTo({top:0, behavior:\'smooth\'});">' +
+                            '<i class="fa fa-pencil"></i> إدارة وبرمجة' +
+                        '</button>' +
+                    '</td>' +
+                '</tr>';
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        // Audio feedback chime on success
+        function playSuccessChime() {
+            try {
+                var ctx = new (window.AudioContext || window.webkitAudioContext)();
+                var osc = ctx.createOscillator();
+                var gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
+                osc.frequency.setValueAtTime(880, ctx.currentTime + 0.1); // A5
+                gain.gain.setValueAtTime(0.2, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.35);
+            } catch (e) {}
+        }
+
+        // Init on DOM ready
+        document.addEventListener('DOMContentLoaded', function() {
+            verifyAdmin();
+            checkWebNfcSupport();
+            loadPeople();
+        });
+    })();
+    </script>
+</body>
+</html>

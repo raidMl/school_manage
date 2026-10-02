@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style id="fouc-style">body { opacity: 0; visibility: hidden; }</style>
+    <script>
+      (function() {
+        var lang = localStorage.getItem('app_lang') || 'en';
+        if(lang === 'ar') { document.documentElement.dir = 'rtl'; document.documentElement.lang = 'ar'; }
+        else { document.documentElement.dir = 'ltr'; document.documentElement.lang = 'en'; }
+      })();
+    </script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Statistics | School System Admin</title>
+    <meta name="description" content="School management statistics and analytics">
+    <link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/sidebar.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#4f6eff">
+    <link rel="apple-touch-icon" href="img/icon-512.jpg">
+    <script>if('serviceWorker' in navigator){window.addEventListener('load',()=>{ navigator.serviceWorker.register('sw.js'); });}</script>
+    <style>
+    :root {
+      --accent: #4f6eff;
+      --card-radius: 18px;
+      --card-shadow: 0 4px 24px rgba(30,41,90,.08);
+      --card-shadow-hover: 0 12px 36px rgba(30,41,90,.15);
+      --text: #1a1f37;
+      --muted: #94a3b8;
+      --border: rgba(79,110,255,.08);
+    }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #f0f2f8;
+      color: var(--text);
+    }
+    [dir="rtl"] body, [dir="rtl"] {
+      font-family: 'Cairo', 'Inter', -apple-system, sans-serif;
+    }
+
+    /* ── Breadcrumb ── */
+    .sb-breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 18px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .sb-breadcrumb a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    [dir="rtl"] .sb-breadcrumb {
+      direction: rtl;
+      text-align: right;
+    }
+
+    /* ── Stats Hero ── */
+    .stats-hero {
+      background: linear-gradient(135deg, #1a1f37 0%, #2d3566 55%, #4f6eff 100%);
+      border-radius: var(--card-radius);
+      padding: 26px 30px;
+      margin-bottom: 24px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      animation: fadeUp .35s ease both;
+      box-shadow: 0 8px 30px rgba(30,41,90,.18);
+    }
+    .stats-hero::before {
+      content: '';
+      position: absolute; top: -50px; right: -50px;
+      width: 220px; height: 220px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.06);
+      pointer-events: none;
+    }
+    [dir="rtl"] .stats-hero::before {
+      right: auto;
+      left: -50px;
+    }
+    .stats-hero-icon {
+      width: 60px; height: 60px;
+      background: rgba(255,255,255,.15);
+      border: 1px solid rgba(255,255,255,.25);
+      border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px; color: #fff;
+      flex-shrink: 0;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 6px 18px rgba(0,0,0,.15);
+    }
+    .stats-hero-text {
+      flex: 1;
+    }
+    .stats-hero-text h1 {
+      font-size: 23px; font-weight: 800; color: #fff;
+      margin: 0 0 6px; letter-spacing: -.3px;
+    }
+    .stats-hero-text p {
+      font-size: 13.5px; color: rgba(255,255,255,.75);
+      margin: 0; line-height: 1.6;
+    }
+    .stats-hero-pills {
+      margin-top: 12px;
+      display: flex; gap: 8px; flex-wrap: wrap;
+    }
+    .stats-hero-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(255,255,255,.14);
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 20px; padding: 4px 12px;
+      font-size: 11.5px; color: #fff; font-weight: 600;
+    }
+
+    /* ── Kpi Row ── */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 991px) { .kpi-row { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 520px) { .kpi-row { grid-template-columns: 1fr; } }
+    .kpi-card {
+      background: #fff;
+      border-radius: var(--card-radius);
+      padding: 22px;
+      box-shadow: var(--card-shadow);
+      border: 1px solid var(--border);
+      position: relative; overflow: hidden;
+      transition: transform .25s ease, box-shadow .25s ease;
+      animation: fadeUp .4s ease both;
+    }
+    .kpi-card:hover { transform: translateY(-4px); box-shadow: var(--card-shadow-hover); }
+    .kpi-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0;
+      height: 4px; border-radius: 18px 18px 0 0; opacity: 0; transition: opacity .25s;
+    }
+    .kpi-card:hover::before { opacity: 1; }
+    .kpi-card:nth-child(1)::before { background: linear-gradient(90deg,#667eea,#764ba2); }
+    .kpi-card:nth-child(2)::before { background: linear-gradient(90deg,#11998e,#38ef7d); }
+    .kpi-card:nth-child(3)::before { background: linear-gradient(90deg,#f7971e,#ffd200); }
+    .kpi-card:nth-child(4)::before { background: linear-gradient(90deg,#4facfe,#00f2fe); }
+    .kpi-card:nth-child(1) { animation-delay: .05s; }
+    .kpi-card:nth-child(2) { animation-delay: .10s; }
+    .kpi-card:nth-child(3) { animation-delay: .15s; }
+    .kpi-card:nth-child(4) { animation-delay: .20s; }
+    .kpi-icon {
+      width: 46px; height: 46px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; color: #fff; margin-bottom: 14px;
+      box-shadow: 0 4px 12px rgba(0,0,0,.08);
+    }
+    .kpi-value {
+      font-size: 34px; font-weight: 800; color: var(--text);
+      line-height: 1; letter-spacing: -1px; margin-bottom: 6px;
+      font-variant-numeric: tabular-nums;
+    }
+    .kpi-label {
+      font-size: 12px; color: var(--muted); font-weight: 700;
+      text-transform: uppercase; letter-spacing: .5px;
+    }
+    .kpi-card:nth-child(1) .kpi-icon { background: linear-gradient(135deg,#667eea,#764ba2); }
+    .kpi-card:nth-child(2) .kpi-icon { background: linear-gradient(135deg,#11998e,#38ef7d); }
+    .kpi-card:nth-child(3) .kpi-icon { background: linear-gradient(135deg,#f7971e,#ffd200); }
+    .kpi-card:nth-child(4) .kpi-icon { background: linear-gradient(135deg,#4facfe,#00f2fe); }
+
+    /* ── Chart panels ── */
+    .chart-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 22px;
+    }
+    .chart-grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 22px;
+    }
+    @media (max-width: 1100px) { .chart-grid-3 { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 768px)  { .chart-grid-2, .chart-grid-3 { grid-template-columns: 1fr; } }
+
+    .chart-panel {
+      background: #fff;
+      border-radius: var(--card-radius);
+      box-shadow: var(--card-shadow);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      animation: fadeUp .5s ease both;
+      display: flex;
+      flex-direction: column;
+    }
+    .chart-panel-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 20px 14px;
+      border-bottom: 1px solid #f1f5f9;
+      gap: 10px;
+    }
+    .chart-panel-title {
+      font-size: 14.5px; font-weight: 700; color: var(--text);
+      display: flex; align-items: center; gap: 10px;
+      margin: 0;
+    }
+    .chart-panel-icon {
+      width: 30px; height: 30px; border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; color: #fff; flex-shrink: 0;
+    }
+    .chart-panel-body {
+      padding: 18px 20px 22px;
+      position: relative;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .chart-panel-full {
+      margin-bottom: 22px;
+    }
+
+    /* ── Loading & Empty states ── */
+    .spin {
+      display: inline-block;
+      width: 32px; height: 32px;
+      border: 3px solid #e2e8f0;
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+      margin: 20px auto;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .chart-loading {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 200px;
+    }
+    .no-data-msg {
+      color: #94a3b8;
+      font-size: 13px;
+      text-align: center;
+      padding: 24px;
+      font-weight: 500;
+    }
+
+    /* ── RTL Details ── */
+    [dir="rtl"] .sb-content {
+      text-align: right;
+    }
+    [dir="rtl"] .stats-hero {
+      direction: rtl;
+      text-align: right;
+    }
+    [dir="rtl"] .kpi-card {
+      text-align: right;
+    }
+    [dir="rtl"] .kpi-icon {
+      margin-left: auto;
+      margin-right: 0;
+    }
+    [dir="rtl"] .chart-panel-head {
+      direction: rtl;
+      text-align: right;
+    }
+    [dir="rtl"] .chart-panel-title {
+      direction: rtl;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    </style>
+</head>
+<body data-page="statistics">
+    <div id="sidebar-placeholder"></div>
+    <div class="sb-main">
+        <div id="header-placeholder"></div>
+        <div class="sb-content">
+            <div class="sb-breadcrumb">
+                <i class="fa fa-home"></i>
+                <a href="index.html" data-i18n="Home">Home</a>
+                <span>/</span>
+                <span data-i18n="Statistics">Statistics</span>
+            </div>
+
+            <!-- Hero Banner -->
+            <div class="stats-hero">
+                <div class="stats-hero-icon"><i class="fa fa-bar-chart"></i></div>
+                <div class="stats-hero-text">
+                    <h1 data-i18n="School Statistics & Analytics">School Statistics &amp; Analytics</h1>
+                    <p data-i18n="Visual overview of your school data — students, teachers, formations, attendance & finances.">Visual overview of your school data — students, teachers, formations, attendance &amp; finances.</p>
+                    <div class="stats-hero-pills">
+                        <span class="stats-hero-pill"><i class="fa fa-pie-chart"></i> <span data-i18n="Charts">Charts</span></span>
+                        <span class="stats-hero-pill"><i class="fa fa-line-chart"></i> <span data-i18n="Trends">Trends</span></span>
+                        <span class="stats-hero-pill"><i class="fa fa-database"></i> <span data-i18n="Live Data">Live Data</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- KPI Cards -->
+            <div class="kpi-row">
+                <div class="kpi-card">
+                    <div class="kpi-icon"><i class="fa fa-graduation-cap"></i></div>
+                    <div class="kpi-value" id="kpi-students">—</div>
+                    <div class="kpi-label" data-i18n="Total Students">Total Students</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon"><i class="fa fa-user-tie"></i></div>
+                    <div class="kpi-value" id="kpi-teachers">—</div>
+                    <div class="kpi-label" data-i18n="Total Teachers">Total Teachers</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon"><i class="fa fa-book"></i></div>
+                    <div class="kpi-value" id="kpi-formations">—</div>
+                    <div class="kpi-label" data-i18n="Formations">Formations</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon"><i class="fa fa-sitemap"></i></div>
+                    <div class="kpi-value" id="kpi-groups">—</div>
+                    <div class="kpi-label" data-i18n="Groups">Groups</div>
+                </div>
+            </div>
+
+            <!-- Row 1: Gender (Students), Gender (Teachers), Attendance -->
+            <div class="chart-grid-3">
+                <div class="chart-panel">
+                    <div class="chart-panel-head">
+                        <h2 class="chart-panel-title">
+                            <span class="chart-panel-icon" style="background:linear-gradient(135deg,#667eea,#764ba2)"><i class="fa fa-venus-mars"></i></span>
+                            <span data-i18n="Student Gender">Student Gender</span>
+                        </h2>
+                    </div>
+                    <div class="chart-panel-body">
+                        <div class="chart-loading" id="load-gender-students"><div class="spin"></div></div>
+                        <canvas id="chart-gender-students" style="display:none;max-height:230px"></canvas>
+                    </div>
+                </div>
+                <div class="chart-panel">
+                    <div class="chart-panel-head">
+                        <h2 class="chart-panel-title">
+                            <span class="chart-panel-icon" style="background:linear-gradient(135deg,#11998e,#38ef7d)"><i class="fa fa-user-tie"></i></span>
+                            <span data-i18n="Teacher Gender">Teacher Gender</span>
+                        </h2>
+                    </div>
+                    <div class="chart-panel-body">
+                        <div class="chart-loading" id="load-gender-teachers"><div class="spin"></div></div>
+                        <canvas id="chart-gender-teachers" style="display:none;max-height:230px"></canvas>
+                    </div>
+                </div>
+                <div class="chart-panel">
+                    <div class="chart-panel-head">
+                        <h2 class="chart-panel-title">
+                            <span class="chart-panel-icon" style="background:linear-gradient(135deg,#fc466b,#3f5efb)"><i class="fa fa-check-circle"></i></span>
+                            <span data-i18n="Attendance Overview">Attendance Overview</span>
+                        </h2>
+                    </div>
+                    <div class="chart-panel-body">
+                        <div class="chart-loading" id="load-attendance"><div class="spin"></div></div>
+                        <canvas id="chart-attendance" style="display:none;max-height:230px"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Row 2: Enrollment trend (Full width) -->
+            <div class="chart-panel chart-panel-full">
+                <div class="chart-panel-head">
+                    <h2 class="chart-panel-title">
+                        <span class="chart-panel-icon" style="background:linear-gradient(135deg,#4facfe,#00f2fe)"><i class="fa fa-line-chart"></i></span>
+                        <span data-i18n="New Enrollments — Last 12 Months">New Enrollments — Last 12 Months</span>
+                    </h2>
+                </div>
+                <div class="chart-panel-body">
+                    <div class="chart-loading" id="load-enrollment"><div class="spin"></div></div>
+                    <canvas id="chart-enrollment" style="display:none;max-height:260px"></canvas>
+                </div>
+            </div>
+
+            <!-- Row 3: Students per formation + Age distribution -->
+            <div class="chart-grid-2">
+                <div class="chart-panel">
+                    <div class="chart-panel-head">
+                        <h2 class="chart-panel-title">
+                            <span class="chart-panel-icon" style="background:linear-gradient(135deg,#f7971e,#ffd200)"><i class="fa fa-bar-chart"></i></span>
+                            <span data-i18n="Students per Formation">Students per Formation</span>
+                        </h2>
+                    </div>
+                    <div class="chart-panel-body">
+                        <div class="chart-loading" id="load-spf"><div class="spin"></div></div>
+                        <canvas id="chart-spf" style="display:none;max-height:290px"></canvas>
+                    </div>
+                </div>
+                <div class="chart-panel">
+                    <div class="chart-panel-head">
+                        <h2 class="chart-panel-title">
+                            <span class="chart-panel-icon" style="background:linear-gradient(135deg,#a18cd1,#fbc2eb)"><i class="fa fa-users"></i></span>
+                            <span data-i18n="Age Distribution">Age Distribution</span>
+                        </h2>
+                    </div>
+                    <div class="chart-panel-body">
+                        <div class="chart-loading" id="load-age"><div class="spin"></div></div>
+                        <canvas id="chart-age" style="display:none;max-height:290px"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Row 4: Group sizes + Revenue -->
+            <div class="chart-grid-2">
+                <div class="chart-panel">
+                    <div class="chart-panel-head">
+                        <h2 class="chart-panel-title">
+                            <span class="chart-panel-icon" style="background:linear-gradient(135deg,#11998e,#38ef7d)"><i class="fa fa-sitemap"></i></span>
+                            <span data-i18n="Group Sizes">Group Sizes</span>
+                        </h2>
+                    </div>
+                    <div class="chart-panel-body">
+                        <div class="chart-loading" id="load-groups"><div class="spin"></div></div>
+                        <canvas id="chart-groups" style="display:none;max-height:300px"></canvas>
+                    </div>
+                </div>
+                <div class="chart-panel">
+                    <div class="chart-panel-head">
+                        <h2 class="chart-panel-title">
+                            <span class="chart-panel-icon" style="background:linear-gradient(135deg,#0284c7,#0369a1)"><i class="fa fa-money"></i></span>
+                            <span data-i18n="Revenue by Formation (DA)">Revenue by Formation (DA)</span>
+                        </h2>
+                    </div>
+                    <div class="chart-panel-body">
+                        <div class="chart-loading" id="load-revenue"><div class="spin"></div></div>
+                        <canvas id="chart-revenue" style="display:none;max-height:300px"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div id="footer-placeholder"></div>
+        </div>
+    </div>
+
+    <script src="js/vendor/jquery-1.12.4.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/components.js"></script>
+    <script src="js/i18n.js"></script>
+    <script src="js/backend.js?v=6"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+    <script>
+    (function () {
+      'use strict';
+
+      var currentLang = localStorage.getItem('app_lang') || 'en';
+      var isRtl = currentLang === 'ar';
+
+      var PALETTE = [
+        '#4f6eff', '#10b981', '#f59e0b', '#ec4899',
+        '#8b5cf6', '#06b6d4', '#f97316', '#14b8a6',
+        '#6366f1', '#84cc16', '#a855f7', '#0284c7'
+      ];
+
+      Chart.defaults.font.family = isRtl ? "'Cairo', 'Inter', sans-serif" : "'Inter', -apple-system, sans-serif";
+      Chart.defaults.color = '#64748b';
+
+      function show(canvasId, loadId) {
+        var c = document.getElementById(canvasId);
+        var l = document.getElementById(loadId);
+        if (c) c.style.display = '';
+        if (l) l.style.display = 'none';
+      }
+
+      function noData(loadId) {
+        var l = document.getElementById(loadId);
+        if (l) {
+          l.innerHTML = '<div class="no-data-msg">' + (isRtl ? 'لا توجد بيانات متاحة' : 'No data available') + '</div>';
+        }
+      }
+
+      function genderLabel(g) {
+        if (!g || g === 'null' || g === 'unknown') return isRtl ? 'غير محدد' : 'Unknown';
+        g = String(g).toLowerCase();
+        if (g === 'male' || g === 'ذكر' || g === 'm') return isRtl ? 'ذكور' : 'Male';
+        if (g === 'female' || g === 'أنثى' || g === 'f') return isRtl ? 'إناث' : 'Female';
+        return g;
+      }
+
+      function attendanceLabel(st) {
+        if (!st) return isRtl ? 'غير محدد' : 'Unknown';
+        st = String(st).toLowerCase();
+        if (st === 'present') return isRtl ? 'حاضر' : 'Present';
+        if (st === 'absent')  return isRtl ? 'غائب' : 'Absent';
+        if (st === 'late')    return isRtl ? 'متأخر' : 'Late';
+        if (st === 'excused') return isRtl ? 'معذور' : 'Excused';
+        return st;
+      }
+
+      function ageLabel(ag) {
+        if (!ag || ag === 'Unknown') return isRtl ? 'غير محدد' : 'Unknown';
+        if (ag === 'Under 10') return isRtl ? 'أقل من 10 سنوات' : 'Under 10';
+        if (ag === '10-14')    return isRtl ? '10 - 14 سنة' : '10-14';
+        if (ag === '15-18')    return isRtl ? '15 - 18 سنة' : '15-18';
+        if (ag === '19-25')    return isRtl ? '19 - 25 سنة' : '19-25';
+        if (ag === 'Over 25')  return isRtl ? 'أكثر من 25 سنة' : 'Over 25';
+        return ag;
+      }
+
+      function animateKpi(id, val) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        var num = Number(val) || 0;
+        var start = performance.now();
+        var dur = 850;
+        function step(now) {
+          var t = Math.min((now - start) / dur, 1);
+          var ease = 1 - Math.pow(1 - t, 3);
+          el.textContent = Math.round(ease * num);
+          if (t < 1) requestAnimationFrame(step);
+          else el.textContent = num;
+        }
+        requestAnimationFrame(step);
+      }
+
+      function getToken() {
+        var keys = ['school_system_token', 'token', 'auth_token', 'backend_token', 'jwt', 'access_token'];
+        for (var i = 0; i < keys.length; i++) {
+          var v = localStorage.getItem(keys[i]);
+          if (v) return v;
+        }
+        for (var j = 0; j < keys.length; j++) {
+          var sv = sessionStorage.getItem(keys[j]);
+          if (sv) return sv;
+        }
+        return '';
+      }
+
+      function doFetch(url, cb) {
+        var token = getToken();
+        var apiBase = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+          ? window.location.protocol + '//' + window.location.hostname + (window.location.port ? ':' + window.location.port : '')
+          : '';
+        var fullUrl = (url.indexOf('http') === 0) ? url : (apiBase + url);
+
+        fetch(fullUrl, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': token ? ('Bearer ' + token) : ''
+          }
+        })
+        .then(function (r) {
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          return r.json();
+        })
+        .then(function (data) { cb(null, data); })
+        .catch(function (err) { cb(err); });
+      }
+
+      function fetchStats() {
+        doFetch('/api/dashboard/statistics', function (err, data) {
+          if (err || !data) {
+            console.error('Error fetching statistics:', err);
+            ['load-gender-students','load-gender-teachers','load-attendance',
+             'load-enrollment','load-spf','load-age','load-groups','load-revenue']
+              .forEach(function(id){ noData(id); });
+            return;
+          }
+          renderAll(data);
+        });
+      }
+
+      function renderAll(d) {
+        // ── 1. KPI Counts ──
+        var totalStudents = (d.counts && d.counts.students !== undefined)
+          ? d.counts.students
+          : (d.genderStudents || []).reduce(function(a,r){return a+Number(r.n||0);},0);
+
+        var totalTeachers = (d.counts && d.counts.teachers !== undefined)
+          ? d.counts.teachers
+          : (d.genderTeachers || []).reduce(function(a,r){return a+Number(r.n||0);},0);
+
+        var totalFormations = (d.counts && d.counts.formations !== undefined)
+          ? d.counts.formations
+          : (d.studentsPerFormation || []).length;
+
+        var totalGroups = (d.counts && d.counts.groups !== undefined)
+          ? d.counts.groups
+          : (d.groupSizes || []).length;
+
+        animateKpi('kpi-students', totalStudents);
+        animateKpi('kpi-teachers', totalTeachers);
+        animateKpi('kpi-formations', totalFormations);
+        animateKpi('kpi-groups', totalGroups);
+
+        // ── 2. Student Gender Pie ──
+        if (d.genderStudents && d.genderStudents.length) {
+          show('chart-gender-students', 'load-gender-students');
+          new Chart(document.getElementById('chart-gender-students'), {
+            type: 'pie',
+            data: {
+              labels: d.genderStudents.map(function(r){ return genderLabel(r.gender); }),
+              datasets: [{
+                data: d.genderStudents.map(function(r){ return r.n; }),
+                backgroundColor: ['#ec4899', '#4f6eff', '#94a3b8'],
+                borderWidth: 2,
+                borderColor: '#fff'
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: {
+                  position: 'bottom',
+                  rtl: isRtl,
+                  textDirection: isRtl ? 'rtl' : 'ltr',
+                  labels: { font: { family: isRtl ? "'Cairo', sans-serif" : "'Inter', sans-serif" } }
+                }
+              },
+              animation: { duration: 800 }
+            }
+          });
+        } else { noData('load-gender-students'); }
+
+        // ── 3. Teacher Gender Doughnut ──
+        if (d.genderTeachers && d.genderTeachers.length) {
+          show('chart-gender-teachers', 'load-gender-teachers');
+          new Chart(document.getElementById('chart-gender-teachers'), {
+            type: 'doughnut',
+            data: {
+              labels: d.genderTeachers.map(function(r){ return genderLabel(r.gender); }),
+              datasets: [{
+                data: d.genderTeachers.map(function(r){ return r.n; }),
+                backgroundColor: ['#4f6eff', '#ec4899', '#94a3b8'],
+                borderWidth: 2,
+                borderColor: '#fff'
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: {
+                  position: 'bottom',
+                  rtl: isRtl,
+                  textDirection: isRtl ? 'rtl' : 'ltr',
+                  labels: { font: { family: isRtl ? "'Cairo', sans-serif" : "'Inter', sans-serif" } }
+                }
+              },
+              animation: { duration: 800 }
+            }
+          });
+        } else { noData('load-gender-teachers'); }
+
+        // ── 4. Attendance Doughnut ──
+        if (d.attendanceSummary && d.attendanceSummary.length) {
+          show('chart-attendance', 'load-attendance');
+          var attColors = { present: '#10b981', absent: '#ef4444', late: '#f59e0b', excused: '#60a5fa' };
+          new Chart(document.getElementById('chart-attendance'), {
+            type: 'doughnut',
+            data: {
+              labels: d.attendanceSummary.map(function(r){ return attendanceLabel(r.status); }),
+              datasets: [{
+                data: d.attendanceSummary.map(function(r){ return r.n; }),
+                backgroundColor: d.attendanceSummary.map(function(r){ return attColors[r.status] || '#94a3b8'; }),
+                borderWidth: 2,
+                borderColor: '#fff'
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: {
+                  position: 'bottom',
+                  rtl: isRtl,
+                  textDirection: isRtl ? 'rtl' : 'ltr',
+                  labels: { font: { family: isRtl ? "'Cairo', sans-serif" : "'Inter', sans-serif" } }
+                }
+              },
+              animation: { duration: 800 }
+            }
+          });
+        } else { noData('load-attendance'); }
+
+        // ── 5. Enrollment Line Chart ──
+        if (d.enrollmentByMonth && d.enrollmentByMonth.length) {
+          show('chart-enrollment', 'load-enrollment');
+          new Chart(document.getElementById('chart-enrollment'), {
+            type: 'line',
+            data: {
+              labels: d.enrollmentByMonth.map(function(r){ return r.month; }),
+              datasets: [{
+                label: isRtl ? 'طلاب جدد' : 'New Students',
+                data: d.enrollmentByMonth.map(function(r){ return r.n; }),
+                fill: true,
+                backgroundColor: 'rgba(79,110,255,.10)',
+                borderColor: '#4f6eff',
+                borderWidth: 2.5,
+                pointBackgroundColor: '#4f6eff',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                pointRadius: 5,
+                tension: 0.35
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: {
+                  display: false,
+                  rtl: isRtl,
+                  textDirection: isRtl ? 'rtl' : 'ltr'
+                }
+              },
+              scales: {
+                y: {
+                  beginAtZero: true,
+                  ticks: { precision: 0, font: { family: isRtl ? "'Cairo', sans-serif" : "'Inter', sans-serif" } },
+                  grid: { color: 'rgba(0,0,0,.04)' },
+                  position: isRtl ? 'right' : 'left'
+                },
+                x: {
+                  grid: { display: false },
+                  ticks: { font: { family: isRtl ? "'Cairo', sans-serif" : "'Inter', sans-serif" } }
+                }
+              },
+              animation: { duration: 800 }
+            }
+          });
+        } else { noData('load-enrollment'); }
+
+        // ── 6. Students per Formation (Horizontal Bar) ──
+        if (d.studentsPerFormation && d.studentsPerFormation.length) {
+          show('chart-spf', 'load-spf');
+          new Chart(document.getElementById('chart-spf'), {
+            type: 'bar',
+            data: {
+              labels: d.studentsPerFormation.map(function(r){ return r.title; }),
+              datasets: [{
+                label: isRtl ? 'عدد الطلاب' : 'Students',
+                data: d.studentsPerFormation.map(function(r){ return r.n; }),
+                backgroundColor: d.studentsPerFormation.map(function(_, i){ return PALETTE[i % PALETTE.length]; }),
+                borderRadius: 8,
+                borderSkipped: false
+              }]
+            },
+            options: {
+              indexAxis: 'y',
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: { display: false }
+              },
+              scales: {
+                x: {
+                  beginAtZero: true,
+                  ticks: { precision: 0, font: { family: isRtl ? "'Cairo', sans-serif" : "'Inter', sans-serif" } },
+                  grid: { color: 'rgba(0,0,0,.04)' }
+                },
+                y: {
+                  grid: { display: false },
+                  ticks: { font: { family: isRtl ? "'Cairo', sans-serif" : "'Inter', sans-serif" } },
+                  position: isRtl ? 'right' : 'left'
+                }
+              },
+              animation: { duration: 800 }
+            }
+          });
+        } else { noData('load-spf'); }
+
+        // ── 7. Age Distribution (Bar) ──
+        if (d.studentsByAge && d.studentsByAge.length) {
+          show('chart-age', 'load-age');
+          new Chart(document.getElementById('chart-age'), {
+            type: 'bar',
+            data: {
+              labels: d.studentsByAge.map(function(r){ return ageLabel(r.age_group); }),
+              datasets: [{
+                label: isRtl ? 'الطلاب' : 'Students',
+                data: d.studentsByAge.map(function(r){ return r.n; }),
+                backgroundColor: 'rgba(139,92,246,.75)',
+                borderColor: '#8b5cf6',
+                borderWidth: 1.5,
+                borderRadius: 8,
+                borderSkipped: false
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: { display: false }
+              },
+              scales: {
+                y: {
+                  beginAtZero: true,
+                  ticks: { precision: 0, font: { family: isRtl ? "'Cairo', sans-serif" : "'Inter', sans-serif" } },
+                  grid: { color: 'rgba(0,0,0,.04)' },
+                  position: isRtl ? 'right' : 'left'
+                },
+                x: {
+                  grid: { display: false },
+                  ticks: { font: { family: isRtl ? "'Cairo', sans-serif" : "'Inter', sans-serif" } }
+                }
+              },
+              animation: { duration: 800 }
+            }
+          });
+        } else { noData('load-age'); }
+
+        // ── 8. Group Sizes (Horizontal Bar) ──
+        if (d.groupSizes && d.groupSizes.length) {
+          show('chart-groups', 'load-groups');
+          new Chart(document.getElementById('chart-groups'), {
+            type: 'bar',
+            data: {
+              labels: d.groupSizes.map(function(r){ return r.name; }),
+              datasets: [{
+                label: isRtl ? 'الطلاب' : 'Students',
+                data: d.groupSizes.map(function(r){ return r.n; }),
+                backgroundColor: '#10b981',
+                borderRadius: 8,
+                borderSkipped: false
+              }]
+            },
+            options: {
+              indexAxis: 'y',
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: { legend: { display: false } },
+              scales: {
+                x: {
+                  beginAtZero: true,
+                  ticks: { precision: 0, font: { family: isRtl ? "'Cairo', sans-serif" : "'Inter', sans-serif" } },
+                  grid: { color: 'rgba(0,0,0,.04)' }
+                },
+                y: {
+                  grid: { display: false },
+                  ticks: { font: { family: isRtl ? "'Cairo', sans-serif" : "'Inter', sans-serif" } },
+                  position: isRtl ? 'right' : 'left'
+                }
+              },
+              animation: { duration: 800 }
+            }
+          });
+        } else { noData('load-groups'); }
+
+        // ── 9. Revenue by Formation (Bar) ──
+        if (d.paymentByFormation && d.paymentByFormation.length) {
+          show('chart-revenue', 'load-revenue');
+          new Chart(document.getElementById('chart-revenue'), {
+            type: 'bar',
+            data: {
+              labels: d.paymentByFormation.map(function(r){ return r.title; }),
+              datasets: [{
+                label: isRtl ? 'المداخيل (د.ج)' : 'Revenue (DA)',
+                data: d.paymentByFormation.map(function(r){ return Number(r.total); }),
+                backgroundColor: 'rgba(2,132,199,.75)',
+                borderColor: '#0284c7',
+                borderWidth: 1.5,
+                borderRadius: 8,
+                borderSkipped: false
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: { legend: { display: false } },
+              scales: {
+                y: {
+                  beginAtZero: true,
+                  ticks: {
+                    font: { family: isRtl ? "'Cairo', sans-serif" : "'Inter', sans-serif" },
+                    callback: function(v){ return v.toLocaleString() + (isRtl ? ' د.ج' : ' DA'); }
+                  },
+                  grid: { color: 'rgba(0,0,0,.04)' },
+                  position: isRtl ? 'right' : 'left'
+                },
+                x: {
+                  grid: { display: false },
+                  ticks: { font: { family: isRtl ? "'Cairo', sans-serif" : "'Inter', sans-serif" } }
+                }
+              },
+              animation: { duration: 800 }
+            }
+          });
+        } else { noData('load-revenue'); }
+      }
+
+      // Initial kickoff
+      document.addEventListener('DOMContentLoaded', function () {
+        if (window.AppI18n && typeof window.AppI18n.translateAll === 'function') {
+          window.AppI18n.translateAll();
+        }
+        fetchStats();
+      });
+
+      // Fallback trigger if DOMContentLoaded has already fired
+      if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        setTimeout(fetchStats, 50);
+      }
+    })();
+    </script>
+</body>
+</html>
