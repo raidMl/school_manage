@@ -74,8 +74,13 @@ router.post(
       promo_code: promoCode = null,
     } = req.body;
 
-    if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
-      throw new HttpError(400, 'Valid amount is required');
+    if (amount === undefined || amount === null || amount === '' || isNaN(Number(amount)) || Number(amount) < 0) {
+      throw new HttpError(400, 'Valid non-negative amount is required');
+    }
+
+    let finalNotes = notes;
+    if (Number(amount) === 0 && (!finalNotes || !String(finalNotes).trim())) {
+      finalNotes = 'معفى من الدفع.';
     }
 
     // Fetch student with formation
@@ -93,15 +98,33 @@ router.post(
     // Resolve promo discount
     let discountPercent = 0;
     let promoId = null;
-    if (promoCode && student.formation_id) {
-      const promoRows = await query(
-        `SELECT id, discount_percent FROM promo_codes
-         WHERE code = ? AND formation_id = ? AND is_active = 1 LIMIT 1`,
-        [promoCode, student.formation_id]
-      );
+    if (promoCode) {
+      const codeClean = String(promoCode).trim();
+      let promoRows = [];
+      if (student.formation_id) {
+        promoRows = await query(
+          `SELECT pc.id, pc.discount_percent FROM promo_codes pc
+           WHERE pc.code = ? AND pc.formation_id = ? AND pc.is_active = 1 LIMIT 1`,
+          [codeClean, student.formation_id]
+        );
+      }
+      if (!promoRows.length) {
+        promoRows = await query(
+          `SELECT pc.id, pc.discount_percent FROM promo_codes pc
+           INNER JOIN formations f ON f.id = pc.formation_id
+           WHERE pc.code = ? AND f.school_id = ? AND pc.is_active = 1 LIMIT 1`,
+          [codeClean, schoolId]
+        );
+      }
       if (promoRows.length) {
         discountPercent = Number(promoRows[0].discount_percent || 0);
         promoId = promoRows[0].id;
+      }
+
+      // Ensure promo code is included inside notes
+      if (!finalNotes || !finalNotes.includes(codeClean)) {
+        const promoTag = `كود الخصم: ${codeClean}${discountPercent > 0 ? ` (خصم ${discountPercent}%)` : ''}`;
+        finalNotes = finalNotes ? `${finalNotes} - ${promoTag}` : promoTag;
       }
     }
 
@@ -124,7 +147,7 @@ router.post(
           Number(amount),
           paymentDate || new Date().toISOString().slice(0, 10),
           paymentMethod,
-          notes,
+          finalNotes,
           req.auth.userId,
           effectivePlan,
           promoId,
@@ -207,18 +230,23 @@ router.put(
       notes = null,
     } = req.body;
 
-    if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
-      throw new HttpError(400, 'Valid positive amount is required');
+    if (amount === undefined || amount === null || amount === '' || isNaN(Number(amount)) || Number(amount) < 0) {
+      throw new HttpError(400, 'Valid non-negative amount is required');
     }
     if (!paymentDate) {
       throw new HttpError(400, 'Payment date is required');
+    }
+
+    let finalNotes = notes;
+    if (Number(amount) === 0 && (!finalNotes || !String(finalNotes).trim())) {
+      finalNotes = 'معفى من الدفع.';
     }
 
     await pool.execute(
       `UPDATE payment_history
        SET amount = ?, payment_date = ?, payment_method = ?, notes = ?
        WHERE id = ? AND school_id = ?`,
-      [Number(amount), paymentDate, paymentMethod, notes || null, req.params.id, schoolId]
+      [Number(amount), paymentDate, paymentMethod, finalNotes || null, req.params.id, schoolId]
     );
 
     const updated = await query(

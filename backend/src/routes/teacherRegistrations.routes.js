@@ -12,6 +12,8 @@ const SELECT_TEACHER = `
     teachers.id,
     teachers.user_id,
     teachers.school_id,
+    teachers.staff_type,
+    teachers.job_title,
     teachers.employee_number,
     COALESCE(teachers.phone, users.phone) AS phone,
     teachers.specialization,
@@ -144,6 +146,8 @@ router.post(
       photo = null,
       blood_type: bloodType = null,
       employee_number: employeeNumber,
+      staff_type: staffType = 'teacher',
+      job_title: jobTitle = null,
       speciality = null,
       diploma = null,
       national_id: nationalId = null,
@@ -182,18 +186,20 @@ router.post(
 
       const hashedPassword = await bcrypt.hash(password, 10);
 
+      const validStaffType = staffType === 'employee' ? 'employee' : 'teacher';
+      const userRole = validStaffType === 'employee' ? 'employee' : 'teacher';
       const finalPhoto = (photo === null || photo === undefined) ? '' : photo;
       const [userResult] = await connection.execute(
         `INSERT INTO users (first_name, last_name, email, phone, password, role, gender, birth_date, photo, blood_type)
-         VALUES (?, ?, ?, ?, ?, 'teacher', ?, ?, ?, ?)`,
-        [firstName, lastName, email, phone || null, hashedPassword, gender, birthDate, finalPhoto, bloodType]
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [firstName, lastName, email, phone || null, hashedPassword, userRole, gender, birthDate, finalPhoto, bloodType]
       );
       const userId = userResult.insertId;
 
       await connection.execute(
-        `INSERT INTO teachers (user_id, school_id, employee_number, phone, speciality, diploma, national_id, social_security_number, hire_date, rfid_tag)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [userId, schoolId, employeeNumber, phone || null, speciality, diploma, nationalId, socialSecurityNumber, hireDate, rfidTag || null]
+        `INSERT INTO teachers (user_id, school_id, staff_type, job_title, employee_number, phone, speciality, diploma, national_id, social_security_number, hire_date, rfid_tag)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [userId, schoolId, validStaffType, jobTitle, employeeNumber, phone || null, speciality, diploma, nationalId, socialSecurityNumber, hireDate, rfidTag || null]
       );
 
       // Link user to school_users for permission/count queries
@@ -299,6 +305,8 @@ router.put(
 
       const tUpdates = [];
       const tValues = [];
+      if (req.body.staff_type !== undefined) { const st = req.body.staff_type === 'employee' ? 'employee' : 'teacher'; tUpdates.push('staff_type = ?'); tValues.push(st); }
+      if (req.body.job_title !== undefined) { tUpdates.push('job_title = ?'); tValues.push(req.body.job_title || null); }
       if (employeeNumber !== undefined) { tUpdates.push('employee_number = ?'); tValues.push(employeeNumber); }
       if (phone !== undefined)          { tUpdates.push('phone = ?');           tValues.push(phone || null); }
       if (speciality !== undefined)     { tUpdates.push('speciality = ?');      tValues.push(speciality); }

@@ -5,6 +5,7 @@ node_modules/
 *.log
 *.bak
 *.sql
+*.zip
 
 # Agent / AI rules (added by Eevee Tokens Visualizer)
 .eevee/

@@ -18,7 +18,7 @@
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>All Teachers | School System Admin</title>
+    <title>Teachers & Employees | School System Admin</title>
     <link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/bootstrap.min.css">
@@ -499,11 +499,19 @@
                             <i class="fa fa-user-tie"></i>
                         </div>
                         <div class="hero-text">
-                            <h2 data-i18n="Teachers List">Teachers List</h2>
+                            <h2 data-i18n="Staff Directory">Staff Directory</h2>
                             <div class="hero-badges-row">
                                 <span class="hero-pill">
                                     <i class="fa fa-users"></i>
-                                    <span id="hero-total-teachers">0</span> <span data-i18n="Teachers">Teachers</span>
+                                    <span id="hero-total-teachers">0</span> <span data-i18n="Total">Total</span>
+                                </span>
+                                <span class="hero-pill">
+                                    <i class="fa fa-chalkboard-teacher"></i>
+                                    <span id="hero-teacher-count">0</span> <span data-i18n="Teachers">Teachers</span>
+                                </span>
+                                <span class="hero-pill">
+                                    <i class="fa fa-briefcase"></i>
+                                    <span id="hero-employee-count">0</span> <span data-i18n="Employees">Employees</span>
                                 </span>
                                 <span class="hero-pill">
                                     <i class="fa fa-check-circle"></i>
@@ -536,7 +544,7 @@
                         <i class="fa fa-user-tie"></i>
                     </div>
                     <div class="metric-info">
-                        <label data-i18n="Total Teachers">Total Teachers</label>
+                        <label data-i18n="Total Staff">Total Staff</label>
                         <div class="val" id="stat-total-teachers">0</div>
                     </div>
                 </div>
@@ -545,7 +553,7 @@
                         <i class="fa fa-check-circle"></i>
                     </div>
                     <div class="metric-info">
-                        <label data-i18n="Active Teachers">Active Teachers</label>
+                        <label data-i18n="Active Staff">Active Staff</label>
                         <div class="val" id="stat-active-teachers">0</div>
                     </div>
                 </div>
@@ -575,9 +583,9 @@
                     <div class="section-title">
                         <h3>
                             <i class="fa fa-address-book-o" style="color:#6366f1;"></i>
-                            <span data-i18n="Teachers Directory">Teachers Directory</span>
+                            <span data-i18n="Staff Directory">Staff Directory</span>
                         </h3>
-                        <p data-i18n="All registered teachers from the database.">All registered teachers from the database.</p>
+                        <p data-i18n="All registered teachers and employees.">All registered teachers and employees.</p>
                     </div>
 
                     <!-- Search Controls -->
@@ -600,15 +608,16 @@
                                 <th width="50" data-i18n="Photo">Photo</th>
                                 <th data-i18n="Emp #">Emp #</th>
                                 <th data-i18n="Name">Name</th>
+                                <th data-i18n="Type">Type</th>
                                 <th data-i18n="Phone">Phone</th>
                                 <th data-i18n="Email">Email</th>
                                 <th data-i18n="Status">Status</th>
-                                <th data-i18n="Speciality">Speciality</th>
+                                <th data-i18n="Speciality / Job">Speciality / Job</th>
                                 <th data-i18n="Hire Date">Hire Date</th>
                                 <th width="140" data-i18n="Actions">Actions</th>
                             </tr>
                         </thead>
-                        <tbody><tr><td colspan="10" class="text-center" data-i18n="Loading...">Loading...</td></tr></tbody>
+                        <tbody><tr><td colspan="11" class="text-center" data-i18n="Loading...">Loading...</td></tr></tbody>
                     </table>
                 </div>
             </div>
@@ -906,7 +915,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="js/backend.js?v=9"></script>
+    <script src="js/backend.js?v=10"></script>
     <script>
     /* ── Teacher Excel Import ── */
     (function () {

@@ -283,6 +283,123 @@
         @media(max-width:768px){
             .stat-cards,.pay-form-row,.plan-cards { flex-direction: column; }
         }
+
+        /* ── Promo Code & Notes Row (Modern Layout & RTL/LTR) ── */
+        .promo-notes-row {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+            margin-bottom: 14px;
+        }
+        .promo-notes-row .promo-group {
+            flex: 1 1 220px;
+            min-width: 200px;
+            margin-bottom: 14px;
+        }
+        .promo-notes-row .notes-group {
+            flex: 2 1 340px;
+            min-width: 260px;
+            margin-bottom: 14px;
+        }
+
+        /* Seamless unified input-button wrap */
+        .promo-input-wrap,
+        .promo-input-group {
+            display: flex;
+            align-items: stretch;
+            width: 100%;
+            position: relative;
+        }
+        .promo-input-wrap #pay-promo-code-input,
+        .promo-input-group #pay-promo-code-input {
+            flex: 1 1 auto;
+            min-width: 0;
+            width: 100%;
+            height: 38px !important;
+            border-radius: 8px 0 0 8px !important;
+            border: 1.5px solid #cbd5e1;
+            border-right: none !important;
+            font-size: 13.5px;
+            box-shadow: none;
+            padding: 6px 12px;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+        .promo-input-wrap #pay-promo-code-input:focus,
+        .promo-input-group #pay-promo-code-input:focus {
+            border-color: #6366f1;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+            z-index: 2;
+        }
+        .promo-input-wrap #btn-apply-promo,
+        .promo-input-group #btn-apply-promo {
+            flex: 0 0 auto;
+            height: 38px !important;
+            border-radius: 0 8px 8px 0 !important;
+            background: #6366f1;
+            border: 1.5px solid #6366f1;
+            color: #fff;
+            font-weight: 600;
+            font-size: 13px;
+            padding: 0 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            white-space: nowrap;
+            cursor: pointer;
+            margin: 0;
+            transition: all 0.2s ease;
+        }
+        .promo-input-wrap #btn-apply-promo:hover,
+        .promo-input-group #btn-apply-promo:hover {
+            background: #4f46e5;
+            border-color: #4f46e5;
+        }
+
+        /* RTL support for promo input and button */
+        html[dir="rtl"] .promo-input-wrap #pay-promo-code-input,
+        body[dir="rtl"] .promo-input-wrap #pay-promo-code-input,
+        [dir="rtl"] .promo-input-wrap #pay-promo-code-input,
+        html[dir="rtl"] .promo-input-group #pay-promo-code-input,
+        body[dir="rtl"] .promo-input-group #pay-promo-code-input,
+        [dir="rtl"] .promo-input-group #pay-promo-code-input {
+            border-radius: 0 8px 8px 0 !important;
+            border-right: 1.5px solid #cbd5e1 !important;
+            border-left: none !important;
+        }
+        html[dir="rtl"] .promo-input-wrap #pay-promo-code-input:focus,
+        body[dir="rtl"] .promo-input-wrap #pay-promo-code-input:focus,
+        [dir="rtl"] .promo-input-wrap #pay-promo-code-input:focus,
+        html[dir="rtl"] .promo-input-group #pay-promo-code-input:focus,
+        body[dir="rtl"] .promo-input-group #pay-promo-code-input:focus,
+        [dir="rtl"] .promo-input-group #pay-promo-code-input:focus {
+            border-right-color: #6366f1 !important;
+        }
+        html[dir="rtl"] .promo-input-wrap #btn-apply-promo,
+        body[dir="rtl"] .promo-input-wrap #btn-apply-promo,
+        [dir="rtl"] .promo-input-wrap #btn-apply-promo,
+        html[dir="rtl"] .promo-input-group #btn-apply-promo,
+        body[dir="rtl"] .promo-input-group #btn-apply-promo,
+        [dir="rtl"] .promo-input-group #btn-apply-promo {
+            border-radius: 8px 0 0 8px !important;
+        }
+
+        /* Matching notes input */
+        .promo-notes-row #pay-notes {
+            height: 38px !important;
+            border-radius: 8px !important;
+            border: 1.5px solid #cbd5e1;
+            font-size: 13.5px;
+            box-shadow: none;
+            padding: 6px 12px;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+        .promo-notes-row #pay-notes:focus {
+            border-color: #3b82f6;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+        }
     </style>
 
     <link rel="manifest" href="manifest.json">
@@ -431,14 +548,6 @@
                             <!-- filled dynamically -->
                         </div>
 
-                        <!-- promo code row -->
-                        <div id="promo-code-row" style="display:none;margin-bottom:14px">
-                            <label class="form-label-sm"><i class="fa fa-tag"></i> Promo Code <small style="color:#8a96a8;font-weight:400">(optional — reduces price)</small></label>
-                            <select id="pay-promo-code" class="form-control" style="border-radius:8px;height:38px;font-size:13.5px;max-width:360px">
-                                <option value="">— No promo code —</option>
-                            </select>
-                        </div>
-
                         <!-- final price display -->
                         <div id="pay-final-price-row">
                             <div style="display:flex;align-items:baseline;gap:6px;flex-wrap:wrap">
@@ -454,7 +563,7 @@
                             <div class="form-group">
                                 <label>Amount Received <span class="text-danger">*</span></label>
                                 <input type="number" id="pay-amount" name="amount" class="form-control"
-                                       min="0.01" step="0.01" placeholder="0.00" required>
+                                       min="0" step="0.01" placeholder="0.00" required>
                             </div>
                             <div class="form-group">
                                 <label>Payment Date</label>
@@ -471,10 +580,33 @@
                             </div>
                         </div>
 
-                        <div class="form-group" style="margin-bottom:18px">
-                            <label class="form-label-sm">Notes</label>
-                            <input type="text" id="pay-notes" name="notes" class="form-control"
-                                   style="border-radius:8px" placeholder="Optional notes...">
+                        <!-- Promo Code & Notes -->
+                        <div class="pay-form-row promo-notes-row">
+                            <div class="form-group promo-group">
+                                <label class="form-label-sm" style="display:flex;align-items:center;gap:6px;margin-bottom:6px;font-size:12px;font-weight:600;color:#555">
+                                    <i class="fa fa-tag" style="color:#6366f1"></i>
+                                    <span data-i18n="Promo Code">Promo Code</span>
+                                    <small style="color:#8a96a8;font-weight:400">(أكواد الخصم)</small>
+                                </label>
+                                <div class="promo-input-wrap">
+                                    <input type="text" id="pay-promo-code-input" list="promos-datalist" class="form-control"
+                                           placeholder="اختر أو اكتب كود الخصم..." data-i18n-placeholder="Enter or select promo code..." autocomplete="off">
+                                    <button class="btn btn-primary" type="button" id="btn-apply-promo">
+                                        <i class="fa fa-check"></i> <span data-i18n="Apply">تطبيق</span>
+                                    </button>
+                                </div>
+                                <datalist id="promos-datalist"></datalist>
+                                <input type="hidden" id="pay-promo-code" value="">
+                                <div id="promo-code-feedback" style="display:none;font-size:12px;margin-top:6px;font-weight:600;line-height:1.4"></div>
+                            </div>
+                            <div class="form-group notes-group">
+                                <label class="form-label-sm" style="display:flex;align-items:center;gap:6px;margin-bottom:6px;font-size:12px;font-weight:600;color:#555">
+                                    <i class="fa fa-pencil" style="color:#3b82f6"></i>
+                                    <span data-i18n="Notes">Notes / الملاحظات</span>
+                                </label>
+                                <input type="text" id="pay-notes" name="notes" class="form-control"
+                                       placeholder="ملاحظات الدفع (تُدرج هنا أكواد الخصم والإعفاء تلقائياً)...">
+                            </div>
                         </div>
 
                         <div id="payment-entry-status" class="alert" style="display:none"></div>
@@ -683,7 +815,7 @@
 
                         <div class="form-group" style="margin-bottom:14px">
                             <label style="font-size:12px;font-weight:600;color:#555"><span data-i18n="Amount">Amount</span> (DZD) <span class="text-danger">*</span></label>
-                            <input type="number" id="edit-pay-amount" step="0.01" min="0.01" class="form-control" required style="border-radius:8px">
+                            <input type="number" id="edit-pay-amount" step="0.01" min="0" class="form-control" required style="border-radius:8px">
                         </div>
 
                         <div class="form-group" style="margin-bottom:14px">
@@ -743,6 +875,6 @@
     <script src="js/components.js"></script>
     <script src="js/backend.js?v=4"></script>
     <script src="js/vendor/qrcode.min.js"></script>
-    <script src="js/payments-page.js?v=4"></script>
+    <script src="js/payments-page.js?v=7"></script>
 </body>
 </html>

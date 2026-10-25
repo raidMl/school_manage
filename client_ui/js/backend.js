@@ -432,11 +432,16 @@
         selectAllCb.addEventListener('change', function() {
             var isChecked = this.checked;
             document.querySelectorAll('.attendance-row-checkbox:not(:disabled)').forEach(function(cb) {
-                cb.checked = isChecked;
+                var tr = cb.closest('tr');
+                if (!tr || tr.style.display !== 'none') {
+                    cb.checked = isChecked;
+                }
             });
             updateBulkActionVisibility();
         });
     }
+
+    bindAttendanceSearch();
 
     var btnBulkPresent = document.getElementById('btn-bulk-present');
     var btnBulkAbsent = document.getElementById('btn-bulk-absent');
@@ -721,20 +726,181 @@
     });
   }
 
+  function normalizeAttendanceSearch(val) {
+    if (val == null) return '';
+    return String(val)
+      .replace(/[\u0660-\u0669]/g, function (d) { return d.charCodeAt(0) - 1632; })
+      .replace(/[\u06F0-\u06F9]/g, function (d) { return d.charCodeAt(0) - 1776; })
+      .toLowerCase()
+      .trim()
+      .replace(/[\u064B-\u065F\u0670]/g, '')
+      .replace(/[أإآٱ]/g, 'ا')
+      .replace(/ة/g, 'ه')
+      .replace(/ى/g, 'ي')
+      .replace(/\s+/g, ' ');
+  }
+
+  function applyAttendanceSearchFilter() {
+    var searchInput = document.getElementById('attendance-filter-search');
+    var clearBtn = document.getElementById('attendance-search-clear');
+    var rawVal = searchInput ? searchInput.value : '';
+    var query = normalizeAttendanceSearch(rawVal);
+
+    if (clearBtn) {
+      clearBtn.style.display = rawVal.trim().length > 0 ? 'inline-block' : 'none';
+    }
+
+    var tbody = document.querySelector('#backend-attendance-table tbody');
+    if (!tbody) return;
+
+    var rows = tbody.querySelectorAll('tr:not(.attendance-search-no-match):not(.col-filter-no-match-row)');
+    var total = 0;
+    var visible = 0;
+
+    for (var i = 0; i < rows.length; i++) {
+      var tr = rows[i];
+      var firstTd = tr.querySelector('td');
+      if (firstTd && firstTd.colSpan > 3) continue;
+
+      total++;
+      if (!query) {
+        tr.style.display = '';
+        visible++;
+      } else {
+        var rowText = normalizeAttendanceSearch(tr.innerText || tr.textContent || '');
+        if (rowText.indexOf(query) !== -1) {
+          tr.style.display = '';
+          visible++;
+        } else {
+          tr.style.display = 'none';
+        }
+      }
+    }
+
+    var existingNoMatch = tbody.querySelector('.attendance-search-no-match');
+    if (query && total > 0 && visible === 0) {
+      if (!existingNoMatch) {
+        var isAr = (window.AppI18n && typeof window.AppI18n.getLang === 'function' && window.AppI18n.getLang() === 'ar') || (typeof currentLang !== 'undefined' && currentLang === 'ar');
+        var trNoMatch = document.createElement('tr');
+        trNoMatch.className = 'attendance-search-no-match';
+        trNoMatch.innerHTML = '<td colspan="8" class="text-center text-muted" style="padding: 24px; font-size: 14px;"><i class="fa fa-search" style="margin-inline-end: 6px;"></i> ' + (isAr ? 'لا توجد نتائج مطابقة للبحث' : 'No records match your search') + '</td>';
+        tbody.appendChild(trNoMatch);
+      } else {
+        existingNoMatch.style.display = '';
+      }
+    } else if (existingNoMatch) {
+      existingNoMatch.style.display = 'none';
+    }
+
+    var table = document.getElementById('backend-attendance-table');
+    if (table && table._featuresToolbar) {
+      var counter = table._featuresToolbar.querySelector('.table-rows-counter');
+      if (counter) {
+        var isArCounter = (window.AppI18n && typeof window.AppI18n.getLang === 'function' && window.AppI18n.getLang() === 'ar') || (typeof currentLang !== 'undefined' && currentLang === 'ar');
+        if (query) {
+          counter.innerHTML = '<i class="fa fa-filter"></i> ' + (isArCounter ? ('عرض <strong>' + visible + '</strong> من <strong>' + total + '</strong>') : ('Showing <strong>' + visible + '</strong> of <strong>' + total + '</strong>'));
+        } else {
+          counter.innerHTML = '<i class="fa fa-table"></i> <strong>' + total + '</strong> ' + (isArCounter ? 'صفوف' : 'rows');
+        }
+      }
+    }
+
+    updateBulkActionVisibility();
+  }
+
+  function bindAttendanceSearch() {
+    var searchInput = document.getElementById('attendance-filter-search');
+    var clearBtn = document.getElementById('attendance-search-clear');
+
+    if (searchInput && !searchInput._searchBound) {
+      searchInput._searchBound = true;
+      searchInput.addEventListener('input', applyAttendanceSearchFilter);
+      searchInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+          searchInput.value = '';
+          applyAttendanceSearchFilter();
+        }
+      });
+    }
+
+    if (clearBtn && !clearBtn._clearBound) {
+      clearBtn._clearBound = true;
+      clearBtn.addEventListener('click', function () {
+        if (searchInput) {
+          searchInput.value = '';
+          searchInput.focus();
+          applyAttendanceSearchFilter();
+        }
+      });
+    }
+  }
+
+  function fetchAttendanceSubjects() {
+    var groupSel = document.getElementById('attendance-filter-group');
+    var dateInput = document.getElementById('attendance-filter-date');
+    var typeFilter = document.getElementById('attendance-filter-type');
+    var subjectContainer = document.getElementById('attendance-subject-container');
+    var subjectSel = document.getElementById('attendance-filter-subject');
+    var subjectLabel = document.getElementById('attendance-subject-label') || (subjectContainer ? subjectContainer.querySelector('label') : null);
+    if (!groupSel || !dateInput || !subjectContainer || !subjectSel || !typeFilter) return;
+
+    var gId = groupSel.value;
+    var dateVal = dateInput.value;
+    var type = typeFilter.value;
+    var isAr = (window.AppI18n && typeof window.AppI18n.getLang === 'function' && window.AppI18n.getLang() === 'ar') || (typeof currentLang !== 'undefined' && currentLang === 'ar');
+
+    if (!dateVal || (!gId && type === 'student')) {
+      subjectContainer.style.display = 'none';
+      subjectSel.innerHTML = '<option value="">' + (isAr ? '-- اختياري / عام --' : '-- Optional / Generic --') + '</option>';
+      loadAttendanceData();
+      return;
+    }
+
+    var qs = '?date=' + encodeURIComponent(dateVal) + '&type=' + encodeURIComponent(type);
+    if (gId) qs += '&group_id=' + encodeURIComponent(gId);
+
+    request('/api/attendance/subjects' + qs).then(function (res) {
+      var subjects = res.subjects || [];
+      var defaultLabel = type === 'teacher'
+        ? (isAr ? '-- جميع الحصص --' : '-- All Séances --')
+        : (isAr ? '-- اختياري / عام --' : '-- Optional / Generic --');
+      if (subjectLabel) {
+        subjectLabel.textContent = type === 'teacher'
+          ? (isAr ? 'الحصة / التوقيت' : 'Séance / Session')
+          : (isAr ? 'المادة / الحصة' : 'Subject / Session');
+      }
+      var html = '<option value="">' + defaultLabel + '</option>';
+      html += subjects.map(function (s) { return '<option value="' + esc(s) + '">' + esc(s) + '</option>'; }).join('');
+      subjectSel.innerHTML = html;
+      subjectContainer.style.display = 'block';
+      loadAttendanceData();
+    }).catch(function () {
+      subjectContainer.style.display = 'none';
+      subjectSel.innerHTML = '<option value="">-- Optional / Generic --</option>';
+      loadAttendanceData();
+    });
+  }
+
   function bindAttendanceFilters() {
-      ['attendance-filter-date', 'attendance-filter-type', 'attendance-filter-group'].forEach(function(id) {
+      ['attendance-filter-date', 'attendance-filter-type', 'attendance-filter-group', 'attendance-filter-subject'].forEach(function(id) {
           var el = document.getElementById(id);
           if (el) el.addEventListener('change', function() {
               if (id === 'attendance-filter-type') {
                   var groupContainer = document.getElementById('attendance-group-container');
-                  if (el.value === 'teacher') {
-                      groupContainer.style.display = 'none';
-                      document.getElementById('attendance-filter-group').value = '';
-                  } else {
-                      groupContainer.style.display = 'block';
+                  var groupLabel = document.getElementById('attendance-group-label') || (groupContainer ? groupContainer.querySelector('label') : null);
+                  var isAr = (window.AppI18n && typeof window.AppI18n.getLang === 'function' && window.AppI18n.getLang() === 'ar') || (typeof currentLang !== 'undefined' && currentLang === 'ar');
+                  if (groupContainer) groupContainer.style.display = 'block';
+                  if (groupLabel) {
+                      groupLabel.textContent = el.value === 'teacher'
+                          ? (isAr ? 'تصفية حسب الفوج (اختياري)' : 'Filter by Group (Optional)')
+                          : (isAr ? 'الفوج / القسم' : 'Group / Class');
                   }
               }
-              loadAttendanceData();
+              if (id === 'attendance-filter-date' || id === 'attendance-filter-group' || id === 'attendance-filter-type') {
+                  fetchAttendanceSubjects();
+              } else {
+                  loadAttendanceData();
+              }
           });
       });
   }
@@ -746,18 +912,20 @@
       var typeEl = document.getElementById('attendance-filter-type');
       var type = (typeEl && typeEl.value) || 'student';
       var groupId = document.getElementById('attendance-filter-group').value;
+      var subject = document.getElementById('attendance-filter-subject') ? document.getElementById('attendance-filter-subject').value : '';
       if (!date) return;
       var isAr = (window.AppI18n && typeof window.AppI18n.getLang === 'function' && window.AppI18n.getLang() === 'ar') || (typeof currentLang !== 'undefined' && currentLang === 'ar');
-      tbody.innerHTML = '<tr><td colspan="7" class="text-center" style="padding:20px;">' + (isAr ? 'جارٍ التحميل...' : 'Loading...') + '</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="8" class="text-center" style="padding:20px;">' + (isAr ? 'جارٍ التحميل...' : 'Loading...') + '</td></tr>';
       var params = new URLSearchParams({ date: date, type: type });
       if (groupId) params.append('group_id', groupId);
+      if (subject) params.append('subject_name', subject);
       request('/api/attendance?' + params.toString()).then(function(res) {
           var items = type === 'student' ? res.students : res.teachers;
           if (!items || !items.length) {
               var emptyMsg = isAr
                   ? '<i class="fa fa-info-circle"></i> لا توجد سجلات لعرضها في هذا الفوج / التاريخ'
                   : '<i class="fa fa-info-circle"></i> No records found for this group / date';
-              tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted" style="padding: 24px; font-size: 15px;">' + emptyMsg + '</td></tr>';
+              tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted" style="padding: 24px; font-size: 15px;">' + emptyMsg + '</td></tr>';
               updateBulkActionVisibility();
               return;
           }
@@ -802,16 +970,44 @@
               var btnText = isPresent ? '<i class="fa fa-check"></i> ' + _lblPresent : (isPending ? '<i class="fa fa-clock-o"></i> ' + _lblPending : '<i class="fa fa-times"></i> ' + _lblAbsent);
               var disabledAttr = isLocked ? ' disabled style="opacity:0.6;cursor:not-allowed;"' : '';
               var cbDisabled = isLocked ? ' disabled' : '';
+
+              // Séance badge / cell
+              var seanceCol = '';
+              if (type === 'teacher') {
+                if (r.time_slot || r.base_subject_name || r.subject_name) {
+                  var timeBadge = r.time_slot 
+                    ? '<span class="badge" style="background:#e0f2fe;color:#0369a1;font-weight:700;margin-inline-end:4px;padding:3px 8px;border-radius:4px;"><i class="fa fa-clock-o"></i> ' + esc(r.time_slot) + '</span>'
+                    : '';
+                  var subBadge = r.base_subject_name 
+                    ? '<span style="font-weight:700;color:#1e293b;">' + esc(r.base_subject_name) + '</span>'
+                    : (r.subject_name ? '<span style="font-weight:700;color:#1e293b;">' + esc(r.subject_name) + '</span>' : '');
+                  var grpBadge = r.group_name 
+                    ? '<div style="font-size:11.5px;color:#64748b;margin-top:2px;"><i class="fa fa-users" style="margin-inline-end:4px;"></i>' + esc(r.group_name) + (r.classroom_name && r.classroom_name !== '—' ? (' · <i class="fa fa-map-marker"></i> ' + esc(r.classroom_name)) : '') + '</div>'
+                    : '';
+                  seanceCol = '<td style="vertical-align:middle;"><div>' + timeBadge + subBadge + '</div>' + grpBadge + '</td>';
+                } else {
+                  seanceCol = '<td style="vertical-align:middle;color:#94a3b8;">—</td>';
+                }
+              } else {
+                var studGroup = r.group_name ? ('<span class="badge" style="background:#f1f5f9;color:#475569;"><i class="fa fa-users"></i> ' + esc(r.group_name) + '</span>') : (subject ? ('<span class="badge" style="background:#f1f5f9;color:#475569;">' + esc(subject) + '</span>') : '—');
+                seanceCol = '<td style="vertical-align:middle;">' + studGroup + '</td>';
+              }
+
+              var rowGroupId = r.group_id != null ? r.group_id : (groupId || '');
+              var rowSubjectName = r.subject_name || subject || '';
+
               return '<tr>' +
-                  '<td><input type="checkbox" class="attendance-row-checkbox" value="' + r.id + '"' + cbDisabled + '></td>' +
+                  '<td><input type="checkbox" class="attendance-row-checkbox" value="' + r.id + '" data-group-id="' + esc(rowGroupId) + '" data-subject-name="' + esc(rowSubjectName) + '"' + cbDisabled + '></td>' +
                   '<td>' + img + '</td>' +
                   '<td>' + idNumber + '</td>' +
                   '<td>' + name + '</td>' +
+                  seanceCol +
                   '<td>' + tag + '</td>' +
                   '<td>' + scanTime + '</td>' +
-                  '<td><button class="status-toggle ' + btnClass + '" data-user-type="' + type + '" data-user-id="' + r.id + '" data-current-status="' + r.status + '"' + disabledAttr + '>' + btnText + '</button></td>' +
+                  '<td><button class="status-toggle ' + btnClass + '" data-user-type="' + type + '" data-user-id="' + r.id + '" data-group-id="' + esc(rowGroupId) + '" data-subject-name="' + esc(rowSubjectName) + '" data-current-status="' + r.status + '"' + disabledAttr + '>' + btnText + '</button></td>' +
               '</tr>';
           }).join('');
+          applyAttendanceSearchFilter();
           var selectAllCb = document.getElementById('attendance-select-all');
           if (selectAllCb) { selectAllCb.checked = false; selectAllCb.disabled = isLocked; }
           if (!isLocked) {
@@ -824,19 +1020,21 @@
           }
           updateBulkActionVisibility();
       }).catch(function(err) {
-          tbody.innerHTML = '<tr><td colspan="7" class="text-center text-danger">Error: ' + esc(err.message) + '</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="8" class="text-center text-danger">Error: ' + esc(err.message) + '</td></tr>';
       });
   }
 
-  function toggleAttendanceStatus(btn, date, groupId) {
+  function toggleAttendanceStatus(btn, date, defaultGroupId) {
       var userType = btn.getAttribute('data-user-type');
       var userId = btn.getAttribute('data-user-id');
       var currentStatus = btn.getAttribute('data-current-status');
       var newStatus = currentStatus === 'present' ? 'absent' : 'present';
+      var rowGroupId = btn.getAttribute('data-group-id') || defaultGroupId || null;
+      var rowSubject = btn.getAttribute('data-subject-name') || (document.getElementById('attendance-filter-subject') ? document.getElementById('attendance-filter-subject').value : '');
       btn.disabled = true;
       request('/api/attendance/manual', {
           method: 'POST',
-          body: JSON.stringify({ user_type: userType, user_id: userId, group_id: groupId || null, date: date, status: newStatus })
+          body: JSON.stringify({ user_type: userType, user_id: userId, group_id: rowGroupId, date: date, status: newStatus, subject_name: rowSubject })
       }).then(function() {
           btn.disabled = false;
           btn.setAttribute('data-current-status', newStatus);
@@ -859,13 +1057,27 @@
       var dateVal = document.getElementById('attendance-filter-date').value;
       var groupVal = document.getElementById('attendance-filter-group').value;
       var typeVal = document.getElementById('attendance-filter-type').value;
+      var subjectVal = document.getElementById('attendance-filter-subject') ? document.getElementById('attendance-filter-subject').value : '';
       var checkedBoxes = document.querySelectorAll('.attendance-row-checkbox:checked');
-      var userIds = Array.from(checkedBoxes).map(function(cb) { return cb.value; });
-      if (userIds.length === 0) return;
-      if (!confirm('Mark ' + userIds.length + ' users as ' + status.toUpperCase() + '?')) return;
+      if (checkedBoxes.length === 0) return;
+      var isAr = (window.AppI18n && typeof window.AppI18n.getLang === 'function' && window.AppI18n.getLang() === 'ar') || (typeof currentLang !== 'undefined' && currentLang === 'ar');
+      var statusLabel = status === 'present' ? (isAr ? 'حاضر' : 'PRESENT') : (isAr ? 'غائب' : 'ABSENT');
+      var confirmMsg = isAr 
+        ? ('تحديد ' + checkedBoxes.length + ' سجل(ات) كـ ' + statusLabel + '؟')
+        : ('Mark ' + checkedBoxes.length + ' items as ' + status.toUpperCase() + '?');
+      if (!confirm(confirmMsg)) return;
+
+      var items = Array.from(checkedBoxes).map(function(cb) {
+        return {
+          user_id: cb.value,
+          group_id: cb.getAttribute('data-group-id') || groupVal || null,
+          subject_name: cb.getAttribute('data-subject-name') || subjectVal || ''
+        };
+      });
+
       request('/api/attendance/bulk', {
           method: 'POST',
-          body: JSON.stringify({ user_type: typeVal, user_ids: userIds, group_id: groupVal || null, date: dateVal, status: status })
+          body: JSON.stringify({ user_type: typeVal, items: items, group_id: groupVal || null, date: dateVal, status: status, subject_name: subjectVal })
       }).then(function() { loadAttendanceData(); }).catch(function(err) { alert('Bulk update failed: ' + err.message); });
   }
 

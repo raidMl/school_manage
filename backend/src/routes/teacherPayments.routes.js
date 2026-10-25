@@ -79,7 +79,7 @@ router.get(
 
     const teachers = await query(
       `SELECT t.id as teacher_id, u.first_name, u.last_name, u.photo, u.gender,
-              t.employee_number, t.speciality, t.monthly_salary, t.ccp_rib, t.preferred_pay_method,
+              t.employee_number, t.speciality, t.staff_type, t.job_title, t.monthly_salary, t.ccp_rib, t.preferred_pay_method,
               tp.id as payment_id, tp.amount as paid_amount, tp.method as paid_method,
               tp.payment_date, tp.notes as paid_notes
        FROM teachers t
@@ -107,7 +107,7 @@ router.get(
 
     let sql = `
       SELECT tp.*, u.first_name, u.last_name, u.photo, u.gender,
-             t.employee_number, t.speciality,
+             t.employee_number, t.speciality, t.staff_type, t.job_title,
              ru.first_name as recorded_by_first, ru.last_name as recorded_by_last
       FROM teacher_payments tp
       INNER JOIN teachers t ON t.id = tp.teacher_id
@@ -159,22 +159,25 @@ router.post(
         );
         if (!tc) continue;
 
-        // Get teacher name for treasury record
+        // Get teacher name & staff_type for treasury record
         const [tcInfo] = await connection.execute(
-          `SELECT u.first_name, u.last_name FROM teachers t
+          `SELECT u.first_name, u.last_name, t.staff_type, t.job_title FROM teachers t
            INNER JOIN users u ON u.id = t.user_id WHERE t.id = ? LIMIT 1`,
           [teacher_id]
         );
+
+        const personRole = (tcInfo && tcInfo.staff_type === 'employee') ? 'Employee' : 'Teacher';
+        const treasuryCat = (tcInfo && tcInfo.staff_type === 'employee') ? 'Employee Salary' : 'Teacher Salary';
 
         // Insert treasury expense
         const [txResult] = await connection.execute(
           `INSERT INTO treasury_transactions
            (school_id, type, category, amount, transaction_date, notes, person_name, recorded_by)
-           VALUES (?, 'expense', 'Teacher Salary', ?, ?, ?, ?, ?)`,
+           VALUES (?, 'expense', ?, ?, ?, ?, ?, ?)`,
           [
-            schoolId, amount, payment_date,
+            schoolId, treasuryCat, amount, payment_date,
             `Salary ${pay_month}/${pay_year}` + (notes ? ' - ' + notes : ''),
-            tcInfo ? `${tcInfo.first_name} ${tcInfo.last_name}` : `Teacher #${teacher_id}`,
+            tcInfo ? `${tcInfo.first_name} ${tcInfo.last_name}` : `${personRole} #${teacher_id}`,
             userId
           ]
         );

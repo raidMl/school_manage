@@ -12,7 +12,20 @@
 
   /* ── CDN ─────────────────────────────────────────────────────────────────── */
   var XLSX_CDN = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+  var HTML2CANVAS_CDN = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+  var JSPDF_CDN = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
   var xlsxLoadingPromise = null;
+  var pdfLoadingPromise = null;
+
+  function escapeHtml(str) {
+    if (str == null) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
 
   /* ── Active menu state ───────────────────────────────────────────────────── */
   var _activeMenu = null;
@@ -61,6 +74,49 @@
       document.head.appendChild(s);
     });
     return xlsxLoadingPromise;
+  }
+
+  /* ── Lazy-Load PDF & Html2Canvas Libraries ────────────────────────────────── */
+  function loadPdfLibs() {
+    function hasPdfLibs() {
+      var hasJsPdf = !!(window.jspdf && window.jspdf.jsPDF) || !!window.jsPDF;
+      var hasH2C = typeof window.html2canvas !== 'undefined';
+      return hasJsPdf && hasH2C;
+    }
+    if (hasPdfLibs()) return Promise.resolve();
+    if (pdfLoadingPromise) return pdfLoadingPromise;
+
+    pdfLoadingPromise = new Promise(function (resolve, reject) {
+      var toLoad = [];
+      if (!(window.jspdf && window.jspdf.jsPDF) && !window.jsPDF) toLoad.push(JSPDF_CDN);
+      if (typeof window.html2canvas === 'undefined') toLoad.push(HTML2CANVAS_CDN);
+
+      if (!toLoad.length) return resolve();
+
+      var loaded = 0;
+      var failed = false;
+
+      toLoad.forEach(function (url) {
+        var s = document.createElement('script');
+        s.src = url;
+        s.async = true;
+        s.crossOrigin = 'anonymous';
+        s.referrerPolicy = 'no-referrer';
+        s.onload = function () {
+          loaded++;
+          if (loaded === toLoad.length) resolve();
+        };
+        s.onerror = function () {
+          if (!failed) {
+            failed = true;
+            reject(new Error('Failed to load PDF library: ' + url));
+          }
+        };
+        document.head.appendChild(s);
+      });
+    });
+
+    return pdfLoadingPromise;
   }
 
   /* ── Check if a column should be ignored ─────────────────────────────────── */
@@ -735,23 +791,120 @@
     });
     rightGroup.appendChild(manageBtn);
 
-    var excelBtn = document.createElement('button');
-    excelBtn.type = 'button';
-    excelBtn.className = 'btn-table-excel';
-    excelBtn.innerHTML = '<i class="fa fa-file-excel-o"></i> ' + t('Export Excel', 'تصدير إكسيل');
-    excelBtn.title = t('Download Table as Excel (.xlsx)', 'تحميل الجدول كملف إكسيل (.xlsx)');
-    excelBtn.addEventListener('click', function (e) {
+    var exportWrapper = document.createElement('div');
+    exportWrapper.className = 'table-export-dropdown';
+
+    var exportBtn = document.createElement('button');
+    exportBtn.type = 'button';
+    exportBtn.className = 'btn-table-export btn-table-excel';
+    exportBtn.setAttribute('aria-haspopup', 'true');
+    exportBtn.setAttribute('aria-expanded', 'false');
+    exportBtn.title = t('Export Table (Excel, PDF, Print)', 'تصدير بيانات الجدول (إكسيل / PDF / طباعة)');
+    exportBtn.innerHTML =
+      '<i class="fa fa-download"></i> ' +
+      '<span class="export-btn-label">' + t('Export', 'تصدير') + '</span> ' +
+      '<i class="fa fa-caret-down export-caret"></i>';
+
+    var exportMenu = document.createElement('div');
+    exportMenu.className = 'table-export-menu';
+    if (isRtl()) exportMenu.classList.add('rtl');
+
+    // Option 1: Excel (.xlsx)
+    var itemExcel = document.createElement('button');
+    itemExcel.type = 'button';
+    itemExcel.className = 'table-export-item export-excel-item';
+    itemExcel.innerHTML =
+      '<span class="export-item-icon excel-icon"><i class="fa fa-file-excel-o"></i></span>' +
+      '<span class="export-item-text">' +
+        '<strong class="export-item-title">' + t('Export Excel', 'تصدير إكسيل') + '</strong>' +
+        '<small class="export-item-desc">' + t('Spreadsheet (.xlsx)', 'ملف إكسيل (.xlsx)') + '</small>' +
+      '</span>' +
+      '<span class="export-item-badge badge-excel">XLSX</span>';
+
+    itemExcel.addEventListener('click', function (e) {
       e.preventDefault();
-      var orig = excelBtn.innerHTML;
-      excelBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> ' + t('Exporting...', 'جار التصدير...');
-      excelBtn.disabled = true;
+      e.stopPropagation();
+      closeAllExportMenus();
+      var orig = exportBtn.innerHTML;
+      exportBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> ' + t('Exporting...', 'جار التصدير...');
+      exportBtn.disabled = true;
       setTimeout(function () {
         try { window.exportTableToExcel(table); } catch (err) { console.error(err); }
-        excelBtn.innerHTML = orig;
-        excelBtn.disabled = false;
+        exportBtn.innerHTML = orig;
+        exportBtn.disabled = false;
       }, 50);
     });
-    rightGroup.appendChild(excelBtn);
+
+    // Option 2: PDF (.pdf)
+    var itemPdf = document.createElement('button');
+    itemPdf.type = 'button';
+    itemPdf.className = 'table-export-item export-pdf-item';
+    itemPdf.innerHTML =
+      '<span class="export-item-icon pdf-icon"><i class="fa fa-file-pdf-o"></i></span>' +
+      '<span class="export-item-text">' +
+        '<strong class="export-item-title">' + t('Download PDF', 'تحميل PDF') + '</strong>' +
+        '<small class="export-item-desc">' + t('Formatted PDF (.pdf)', 'مستند منسق (.pdf)') + '</small>' +
+      '</span>' +
+      '<span class="export-item-badge badge-pdf">PDF</span>';
+
+    itemPdf.addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      closeAllExportMenus();
+      var orig = exportBtn.innerHTML;
+      exportBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> ' + t('Generating PDF...', 'جار إنشاء PDF...');
+      exportBtn.disabled = true;
+      Promise.resolve().then(function () {
+        return window.exportTableToPdf(table);
+      }).catch(function (err) {
+        console.error(err);
+      }).finally(function () {
+        exportBtn.innerHTML = orig;
+        exportBtn.disabled = false;
+      });
+    });
+
+    // Option 3: Print (طباعة)
+    var itemPrint = document.createElement('button');
+    itemPrint.type = 'button';
+    itemPrint.className = 'table-export-item export-print-item';
+    itemPrint.innerHTML =
+      '<span class="export-item-icon print-icon"><i class="fa fa-print"></i></span>' +
+      '<span class="export-item-text">' +
+        '<strong class="export-item-title">' + t('Print Table', 'طباعة الجدول') + '</strong>' +
+        '<small class="export-item-desc">' + t('Print or Save as PDF', 'طباعة فورية أو حفظ كـ PDF') + '</small>' +
+      '</span>' +
+      '<span class="export-item-badge badge-print"><i class="fa fa-print"></i></span>';
+
+    itemPrint.addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      closeAllExportMenus();
+      window.printTable(table);
+    });
+
+    exportMenu.appendChild(itemExcel);
+    exportMenu.appendChild(itemPdf);
+    var divEl = document.createElement('div');
+    divEl.className = 'table-export-divider';
+    exportMenu.appendChild(divEl);
+    exportMenu.appendChild(itemPrint);
+
+    exportBtn.addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      var isOpen = exportMenu.classList.contains('is-open');
+      closeAllExportMenus();
+      if (!isOpen) {
+        exportMenu.classList.add('is-open');
+        exportBtn.classList.add('active');
+        exportBtn.setAttribute('aria-expanded', 'true');
+      }
+    });
+
+    exportWrapper.appendChild(exportBtn);
+    exportWrapper.appendChild(exportMenu);
+    rightGroup.appendChild(exportWrapper);
 
     toolbar.appendChild(leftGroup);
     toolbar.appendChild(rightGroup);
@@ -763,17 +916,20 @@
     return toolbar;
   }
 
-  /* ── Excel Export ────────────────────────────────────────────────────────── */
-  window.exportTableToExcel = function (tableOrId, customFileName) {
+  /* ── Extract Table Data Helper ───────────────────────────────────────────── */
+  function extractTableData(tableOrId) {
     var table = typeof tableOrId === 'string' ? document.querySelector(tableOrId) : tableOrId;
-    if (!table || table.tagName !== 'TABLE') { console.warn('exportTableToExcel: table not found'); return; }
+    if (!table || table.tagName !== 'TABLE') {
+      console.warn('extractTableData: table not found');
+      return null;
+    }
 
     var thead = table.querySelector('thead');
     var tbody = table.querySelector('tbody');
-    if (!thead || !tbody) return;
+    if (!thead || !tbody) return null;
 
     var headerRow = thead.querySelector('tr:first-child');
-    if (!headerRow) return;
+    if (!headerRow) return null;
     var ths = Array.prototype.slice.call(headerRow.children);
     var state = getState(table);
 
@@ -785,14 +941,13 @@
       exportCols.push({ idx: colIdx, title: label || ('Col ' + (colIdx + 1)) });
     });
 
-    if (!exportCols.length) return;
+    if (!exportCols.length) return null;
 
-    var aoa = [exportCols.map(function (c) { return c.title; })];
-    var rows = tbody.querySelectorAll('tr');
-    var dataCount = 0;
+    var rows = [];
+    var rawRows = tbody.querySelectorAll('tr');
 
-    for (var r = 0; r < rows.length; r++) {
-      var tr = rows[r];
+    for (var r = 0; r < rawRows.length; r++) {
+      var tr = rawRows[r];
       if (tr.style.display === 'none' || tr.classList.contains('col-filter-no-match-row')) continue;
       var td0 = tr.querySelector('td');
       if (td0 && td0.colSpan > 3) continue;
@@ -806,20 +961,55 @@
         var remove = clone.querySelectorAll('.btn, button, [style*="display:none"], .hidden, script');
         for (var i = 0; i < remove.length; i++) remove[i].parentNode.removeChild(remove[i]);
         var text = (clone.textContent || clone.innerText || '').trim().replace(/\s+/g, ' ');
-        var num = /^-?\d+(\.\d+)?$/.test(text) && text.length < 14 && !/^0\d/.test(text) ? Number(text) : null;
-        if (num !== null && !isNaN(num)) { rowData.push(num); hasContent = true; return; }
         if (text) hasContent = true;
         rowData.push(text);
       });
-      if (hasContent) { aoa.push(rowData); dataCount++; }
+      if (hasContent) rows.push(rowData);
     }
 
-    if (!dataCount) { alert(t('No data to export', 'لا توجد بيانات للتصدير')); return; }
+    var title = '';
+    var card = table.closest('.card, .box, .panel, .wp-card, .widget-container, .table-container, .main-content');
+    if (card) {
+      var h = card.querySelector('h1, h2, h3, h4, .card-title, .box-title, .panel-title, .wp-card-title');
+      if (h) title = (h.querySelector('.title-text') || h).textContent.trim().replace(/\s+/g, ' ');
+    }
+    if (!title) {
+      var pageH = document.querySelector('h1, .page-title, .hero-title');
+      if (pageH) title = pageH.textContent.trim().replace(/\s+/g, ' ');
+    }
+    if (!title || title.length > 80) {
+      title = (document.title || 'Table Export').split('|')[0].trim();
+    }
+
+    return {
+      table: table,
+      cols: exportCols,
+      rows: rows,
+      title: title
+    };
+  }
+
+  /* ── Excel Export ────────────────────────────────────────────────────────── */
+  window.exportTableToExcel = function (tableOrId, customFileName) {
+    var data = extractTableData(tableOrId);
+    if (!data || !data.rows.length) {
+      alert(t('No data to export', 'لا توجد بيانات للتصدير'));
+      return;
+    }
+
+    var aoa = [data.cols.map(function (c) { return c.title; })];
+    data.rows.forEach(function (r) {
+      var rowNums = r.map(function (text) {
+        var num = /^-?\d+(\.\d+)?$/.test(text) && text.length < 14 && !/^0\d/.test(text) ? Number(text) : null;
+        return (num !== null && !isNaN(num)) ? num : text;
+      });
+      aoa.push(rowNums);
+    });
 
     loadXlsx().then(function (XLSX) {
       var ws = XLSX.utils.aoa_to_sheet(aoa);
       if (isRtl()) ws['!views'] = [{ rightToLeft: true }];
-      ws['!cols'] = exportCols.map(function (c, i) {
+      ws['!cols'] = data.cols.map(function (c, i) {
         var max = aoa[0][i].length;
         for (var j = 1; j < aoa.length; j++) {
           var l = String(aoa[j][i] || '').length;
@@ -828,15 +1018,249 @@
         return { wch: Math.min(Math.max(max + 4, 12), 42) };
       });
       var wb = XLSX.utils.book_new();
-      var sheetName = (table.id || 'Sheet').substring(0, 31).replace(/[\\/?*[\]]/g, '_');
+      var sheetName = (data.table.id || 'Sheet').substring(0, 31).replace(/[\\/?*[\]]/g, '_');
       XLSX.utils.book_append_sheet(wb, ws, sheetName);
       var today = new Date().toISOString().split('T')[0];
-      var fname = customFileName || ((table.id || 'export').replace(/[^a-zA-Z0-9_\u0600-\u06FF-]/g, '_') + '_' + today + '.xlsx');
+      var fname = customFileName || ((data.title || data.table.id || 'export').replace(/[^a-zA-Z0-9_\u0600-\u06FF-]/g, '_') + '_' + today + '.xlsx');
       if (!fname.toLowerCase().endsWith('.xlsx')) fname += '.xlsx';
       XLSX.writeFile(wb, fname);
     }).catch(function (err) {
       console.error(err);
       alert(t('Export failed. Check CDN connection.', 'فشل التصدير. تحقق من الاتصال.'));
+    });
+  };
+
+  /* ── Print Table (Print / Save as PDF) ──────────────────────────────────── */
+  window.printTable = function (tableOrId, customTitle) {
+    var data = extractTableData(tableOrId);
+    if (!data || !data.rows.length) {
+      alert(t('No data to print', 'لا توجد بيانات للطباعة'));
+      return;
+    }
+
+    var title = customTitle || data.title;
+    var rtl = isRtl();
+    var today = new Date();
+    var dateStr = today.toLocaleDateString(rtl ? 'ar-EG' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    var timeStr = today.toLocaleTimeString(rtl ? 'ar-EG' : 'en-US', { hour: '2-digit', minute: '2-digit' });
+
+    var schoolName = '';
+    var brandEl = document.querySelector('.navbar-brand, .sidebar-header, .logo-text, .school-name, .hero-school-name');
+    if (brandEl) schoolName = brandEl.textContent.trim();
+
+    var thHtml = data.cols.map(function (c) {
+      return '<th>' + escapeHtml(c.title) + '</th>';
+    }).join('');
+
+    var trHtml = data.rows.map(function (r) {
+      var tds = r.map(function (val) {
+        return '<td>' + escapeHtml(val) + '</td>';
+      }).join('');
+      return '<tr>' + tds + '</tr>';
+    }).join('');
+
+    var html = '<!DOCTYPE html>' +
+      '<html dir="' + (rtl ? 'rtl' : 'ltr') + '" lang="' + (rtl ? 'ar' : 'en') + '">' +
+      '<head>' +
+      '<meta charset="UTF-8">' +
+      '<title>' + escapeHtml(title) + '</title>' +
+      '<style>' +
+      '@page { size: auto; margin: 12mm 10mm; }' +
+      '* { box-sizing: border-box; }' +
+      'body { font-family: "Cairo", "Inter", "Segoe UI", Tahoma, Arial, sans-serif; color: #0f172a; margin: 0; padding: 20px; direction: ' + (rtl ? 'rtl' : 'ltr') + '; background: #fff; }' +
+      '.print-header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #2563eb; padding-bottom: 12px; margin-bottom: 16px; }' +
+      '.print-title { margin: 0; font-size: 20px; font-weight: 700; color: #0f172a; }' +
+      '.school-name { font-size: 13px; font-weight: 600; color: #2563eb; margin-bottom: 4px; }' +
+      '.print-meta { font-size: 11px; color: #64748b; line-height: 1.6; text-align: ' + (rtl ? 'left' : 'right') + '; }' +
+      'table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 16px; }' +
+      'th, td { border: 1px solid #cbd5e1; padding: 7px 10px; text-align: ' + (rtl ? 'right' : 'left') + '; }' +
+      'th { background: #f1f5f9; color: #0f172a; font-weight: 700; font-size: 12px; }' +
+      'tr:nth-child(even) td { background: #f8fafc; }' +
+      'thead { display: table-header-group; }' +
+      'tr { page-break-inside: avoid; }' +
+      '.print-footer { display: flex; justify-content: space-between; font-size: 11px; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 10px; margin-top: 20px; }' +
+      '</style>' +
+      '</head>' +
+      '<body>' +
+      '<div class="print-header">' +
+        '<div>' +
+          (schoolName ? '<div class="school-name">' + escapeHtml(schoolName) + '</div>' : '') +
+          '<h1 class="print-title">' + escapeHtml(title) + '</h1>' +
+        '</div>' +
+        '<div class="print-meta">' +
+          '<div>' + t('Date', 'التاريخ') + ': ' + dateStr + ' ' + timeStr + '</div>' +
+          '<div>' + t('Total Records', 'إجمالي السجلات') + ': ' + data.rows.length + '</div>' +
+        '</div>' +
+      '</div>' +
+      '<table>' +
+        '<thead><tr>' + thHtml + '</tr></thead>' +
+        '<tbody>' + trHtml + '</tbody>' +
+      '</table>' +
+      '<div class="print-footer">' +
+        '<span>' + t('School Management System', 'نظام إدارة المدرسة') + '</span>' +
+        '<span>' + t('Report generated automatically', 'تم استخراج التقرير تلقائياً') + '</span>' +
+      '</div>' +
+      '</body></html>';
+
+    var iframe = document.createElement('iframe');
+    iframe.style.position = 'fixed';
+    iframe.style.right = '0';
+    iframe.style.bottom = '0';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = '0';
+    document.body.appendChild(iframe);
+
+    var doc = iframe.contentWindow.document;
+    doc.open();
+    doc.write(html);
+    doc.close();
+
+    iframe.contentWindow.focus();
+    setTimeout(function () {
+      try {
+        iframe.contentWindow.print();
+      } catch (e) {
+        console.error(e);
+      }
+      setTimeout(function () {
+        if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
+      }, 2500);
+    }, 300);
+  };
+
+  /* ── PDF Export ──────────────────────────────────────────────────────────── */
+  window.exportTableToPdf = function (tableOrId, customFileName) {
+    var data = extractTableData(tableOrId);
+    if (!data || !data.rows.length) {
+      alert(t('No data to export', 'لا توجد بيانات للتصدير'));
+      return Promise.reject(new Error('No data'));
+    }
+
+    return loadPdfLibs().then(function () {
+      var jsPDFLib = (window.jspdf && window.jspdf.jsPDF) || window.jsPDF;
+      if (!jsPDFLib || typeof window.html2canvas === 'undefined') {
+        throw new Error('PDF libraries could not be loaded');
+      }
+
+      var isLandscape = data.cols.length > 5;
+      var pageW = isLandscape ? 297 : 210;
+      var pageH = isLandscape ? 210 : 297;
+      var orientation = isLandscape ? 'landscape' : 'portrait';
+
+      var rtl = isRtl();
+      var today = new Date();
+      var dateStr = today.toISOString().split('T')[0];
+      var displayDate = today.toLocaleDateString(rtl ? 'ar-EG' : 'en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+
+      var schoolName = '';
+      var brandEl = document.querySelector('.navbar-brand, .sidebar-header, .logo-text, .school-name, .hero-school-name');
+      if (brandEl) schoolName = brandEl.textContent.trim();
+
+      var chunks = [];
+      var firstPageSize = isLandscape ? 13 : 18;
+      var subsequentPageSize = isLandscape ? 16 : 22;
+      var remaining = data.rows.slice();
+
+      if (remaining.length <= firstPageSize) {
+        chunks.push(remaining);
+      } else {
+        chunks.push(remaining.splice(0, firstPageSize));
+        while (remaining.length > 0) {
+          chunks.push(remaining.splice(0, subsequentPageSize));
+        }
+      }
+
+      var totalPages = chunks.length;
+
+      var container = document.createElement('div');
+      container.style.cssText = 'position:fixed;left:-9999px;top:0;z-index:-1;background:#fff;';
+      document.body.appendChild(container);
+
+      var doc = new jsPDFLib({ orientation: orientation, unit: 'mm', format: 'a4' });
+
+      var thHtml = data.cols.map(function (c) {
+        return '<th style="border:1px solid #cbd5e1;padding:7px 10px;background:#f1f5f9;color:#0f172a;font-weight:700;font-size:12px;text-align:' + (rtl ? 'right' : 'left') + ';">' + escapeHtml(c.title) + '</th>';
+      }).join('');
+
+      var promiseChain = Promise.resolve();
+
+      chunks.forEach(function (chunkRows, pageIdx) {
+        promiseChain = promiseChain.then(function () {
+          var trHtml = chunkRows.map(function (r, idx) {
+            var bg = idx % 2 === 1 ? '#f8fafc' : '#ffffff';
+            var tds = r.map(function (val) {
+              return '<td style="border:1px solid #e2e8f0;padding:6px 9px;font-size:11.5px;color:#1e293b;background:' + bg + ';text-align:' + (rtl ? 'right' : 'left') + ';">' + escapeHtml(val) + '</td>';
+            }).join('');
+            return '<tr>' + tds + '</tr>';
+          }).join('');
+
+          var pageBoxW = isLandscape ? '1060px' : '750px';
+
+          container.innerHTML =
+            '<div class="tf-pdf-page-render" style="width:' + pageBoxW + ';padding:24px 28px;background:#fff;font-family:\'Cairo\',\'Inter\',sans-serif;direction:' + (rtl ? 'rtl' : 'ltr') + ';box-sizing:border-box;">' +
+              '<div style="display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #2563eb;padding-bottom:12px;margin-bottom:16px;">' +
+                '<div>' +
+                  (schoolName ? '<div style="font-size:13px;font-weight:700;color:#2563eb;margin-bottom:3px;">' + escapeHtml(schoolName) + '</div>' : '') +
+                  '<div style="font-size:18px;font-weight:700;color:#0f172a;">' + escapeHtml(data.title) + '</div>' +
+                '</div>' +
+                '<div style="font-size:11px;color:#64748b;line-height:1.5;text-align:' + (rtl ? 'left' : 'right') + ';">' +
+                  '<div>' + t('Date', 'التاريخ') + ': ' + displayDate + '</div>' +
+                  '<div>' + t('Total Records', 'إجمالي السجلات') + ': ' + data.rows.length + '</div>' +
+                '</div>' +
+              '</div>' +
+              '<table style="width:100%;border-collapse:collapse;margin-bottom:14px;">' +
+                '<thead><tr>' + thHtml + '</tr></thead>' +
+                '<tbody>' + trHtml + '</tbody>' +
+              '</table>' +
+              '<div style="display:flex;justify-content:space-between;align-items:center;font-size:10.5px;color:#94a3b8;border-top:1px solid #e2e8f0;padding-top:8px;margin-top:14px;">' +
+                '<span>' + t('School Management System', 'نظام إدارة المدرسة') + '</span>' +
+                '<span>' + t('Page', 'صفحة') + ' ' + (pageIdx + 1) + ' ' + t('of', 'من') + ' ' + totalPages + '</span>' +
+              '</div>' +
+            '</div>';
+
+          var pageEl = container.querySelector('.tf-pdf-page-render');
+
+          return window.html2canvas(pageEl, {
+            scale: 2,
+            useCORS: true,
+            backgroundColor: '#ffffff',
+            logging: false
+          }).then(function (canvas) {
+            if (pageIdx > 0) doc.addPage();
+            var imgData = canvas.toDataURL('image/jpeg', 0.95);
+            var margin = 6;
+            var availW = pageW - margin * 2;
+            var availH = pageH - margin * 2;
+            var canvasAR = canvas.width / canvas.height;
+            var pageAR = availW / availH;
+            var imgW, imgH;
+
+            if (canvasAR > pageAR) {
+              imgW = availW;
+              imgH = availW / canvasAR;
+            } else {
+              imgH = Math.min(availH, availW / canvasAR);
+              imgW = imgH * canvasAR;
+            }
+
+            var posX = margin + (availW - imgW) / 2;
+            var posY = margin;
+            doc.addImage(imgData, 'JPEG', posX, posY, imgW, imgH);
+          });
+        });
+      });
+
+      return promiseChain.then(function () {
+        if (container.parentNode) container.parentNode.removeChild(container);
+        var fname = customFileName || ((data.title || data.table.id || 'report').replace(/[^a-zA-Z0-9_\u0600-\u06FF-]/g, '_') + '_' + dateStr + '.pdf');
+        if (!fname.toLowerCase().endsWith('.pdf')) fname += '.pdf';
+        doc.save(fname);
+      });
+    }).catch(function (err) {
+      console.error(err);
+      alert(t('PDF export failed. Opening print dialog...', 'تعذر إنشاء ملف PDF، سيتم فتح نافذة الطباعة بدلاً من ذلك.'));
+      window.printTable(tableOrId);
     });
   };
 
@@ -895,14 +1319,30 @@
   window.initTableFeatures = function (el) { el ? enhanceTable(el) : scanAndEnhanceTables(); };
 
   /* ── Global Click Handler (close menu on outside click) ──────────────────── */
+  function closeAllExportMenus() {
+    var menus = document.querySelectorAll('.table-export-menu.is-open');
+    for (var i = 0; i < menus.length; i++) menus[i].classList.remove('is-open');
+    var btns = document.querySelectorAll('.btn-table-export.active');
+    for (var j = 0; j < btns.length; j++) {
+      btns[j].classList.remove('active');
+      btns[j].setAttribute('aria-expanded', 'false');
+    }
+  }
+
   document.addEventListener('click', function (e) {
     if (_activeMenu && !_activeMenu.contains(e.target)) {
       closeMenu();
     }
+    if (!e.target.closest || !e.target.closest('.table-export-dropdown')) {
+      closeAllExportMenus();
+    }
   }, true);
 
   document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape' && _activeMenu) closeMenu();
+    if (e.key === 'Escape') {
+      if (_activeMenu) closeMenu();
+      closeAllExportMenus();
+    }
   });
 
   /* ── Init ────────────────────────────────────────────────────────────────── */

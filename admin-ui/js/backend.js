@@ -51,6 +51,24 @@
     'Admin removed successfully': 'تم إزالة المشرف بنجاح',
     'Settings saved successfully': 'تم حفظ الإعدادات بنجاح',
     'Classroom added': 'تم إضافة القسم',
+    'Certificate Purpose / Type': 'نوع / غرض الشهادة',
+    'Certificate of Completion': 'شهادة إتمام دورة',
+    'Awarded upon completing course or training': 'تمنح عند إتمام الدورة أو البرنامج التدريبي',
+    'Certificate of Congratulation': 'شهادة تقدير وتهنئة',
+    'For honor, excellence and achievement': 'للتميز، التفوق والتحصيل المتميز',
+    'School Study Certificate': 'شهادة مدرسية',
+    'School Study Certificate (شهادة مدرسية)': 'شهادة مدرسية (إثبات التمدرس)',
+    'Official administrative proof of enrollment': 'وثيقة إدارية رسمية لإثبات التمدرس',
+    'Color Palette': 'لوحة الألوان',
+    'Classic Gold': 'ذهبي كلاسيكي',
+    'Royal Blue': 'أزرق ملكي',
+    'Emerald Green': 'أخضر زمردي',
+    'Imperial Purple': 'أرجواني ملكي',
+    'Crimson Red': 'أحمر قرمزي',
+    'Border & Layout Style': 'نمط الإطار والتصميم',
+    'Ornate Classic': 'إطار كلاسيكي مزخرف',
+    'Modern Ribbon': 'شريط عصري',
+    'Minimalist Clean': 'بسيط وأنيق',
     'Certificate downloaded successfully!': 'تم تحميل الشهادة بنجاح!',
     'ZIP file created successfully!': 'تم إنشاء ملف ZIP بنجاح!',
     'Promo code generated successfully': 'تم إنشاء رمز ترويجي بنجاح',
@@ -2259,6 +2277,8 @@
   function updateTeacherMetricStats() {
     var total = _allTeacherRows.length;
     var active = _allTeacherRows.filter(function (t) { return t.is_active; }).length;
+    var teacherCount = _allTeacherRows.filter(function (t) { return (t.staff_type || 'teacher') === 'teacher'; }).length;
+    var employeeCount = _allTeacherRows.filter(function (t) { return t.staff_type === 'employee'; }).length;
     var specs = {};
     _allTeacherRows.forEach(function (t) {
       var s = (t.speciality || t.specialization || '').trim();
@@ -2270,6 +2290,10 @@
     if (elTotalHero) elTotalHero.textContent = total;
     var elActiveHero = document.getElementById('hero-active-teachers');
     if (elActiveHero) elActiveHero.textContent = active;
+    var elTeacherCount = document.getElementById('hero-teacher-count');
+    if (elTeacherCount) elTeacherCount.textContent = teacherCount;
+    var elEmployeeCount = document.getElementById('hero-employee-count');
+    if (elEmployeeCount) elEmployeeCount.textContent = employeeCount;
 
     var elTotal = document.getElementById('stat-total-teachers');
     if (elTotal) elTotal.textContent = total;
@@ -2295,7 +2319,7 @@
     var q = ((document.getElementById('teacher-search') || {}).value || '').trim().toLowerCase();
 
     var filtered = q ? _allTeacherRows.filter(function (r) {
-      var haystack = [r.first_name, r.last_name, r.email, r.phone, r.employee_number, r.speciality, r.specialization]
+      var haystack = [r.first_name, r.last_name, r.email, r.phone, r.employee_number, r.speciality, r.specialization, r.job_title, r.staff_type === 'employee' ? 'موظف employee' : 'أستاذ teacher']
         .filter(Boolean).join(' ').toLowerCase();
       return haystack.indexOf(q) !== -1;
     }) : _allTeacherRows;
@@ -2315,7 +2339,7 @@
 
   function renderTeacherRows(rows) {
     var tbody = document.querySelector('#backend-teachers-table tbody'); if (!tbody) return;
-    if (!rows.length) { tbody.innerHTML = '<tr><td colspan="10" class="text-center">' + t('No records found') + '</td></tr>'; return; }
+    if (!rows.length) { tbody.innerHTML = '<tr><td colspan="11" class="text-center">' + t('No records found') + '</td></tr>'; return; }
     tbody.innerHTML = rows.map(function (r) {
       var name = esc([r.first_name, r.last_name].filter(Boolean).join(' '));
       var img = '<img src="' + esc(avatarUrl(r.photo, [r.first_name, r.last_name].join(' '), 'teacher', r.gender)) + '" style="width:36px;height:36px;border-radius:50%;object-fit:cover">';
@@ -2323,8 +2347,13 @@
       var statusBadge = r.is_active
         ? '<span class="label label-success" data-i18n="Active">' + t('Active') + '</span>'
         : '<span class="label label-danger" data-i18n="Inactive">' + t('Inactive') + '</span>';
+      var isEmployee = r.staff_type === 'employee';
+      var typeBadge = isEmployee
+        ? '<span class="label" style="background:#fef3c7;color:#92400e;border:1px solid #fcd34d;">' + t('Employee') + '</span>'
+        : '<span class="label" style="background:#dbeafe;color:#1e40af;border:1px solid #93c5fd;">' + t('Teacher') + '</span>';
+      var specOrJob = isEmployee ? esc(r.job_title || '-') : esc(r.speciality || '-');
       var phone = esc(r.phone || '-');
-      return '<tr><td>' + chk + '</td><td>' + img + '</td><td>' + esc(r.employee_number) + '</td><td>' + name + '</td><td>' + phone + '</td><td>' + esc(r.email) + '</td><td>' + statusBadge + '</td><td>' + esc(r.speciality || '-') + '</td><td>' + esc(fmtDate(r.hire_date)) + '</td>' +
+      return '<tr><td>' + chk + '</td><td>' + img + '</td><td>' + esc(r.employee_number) + '</td><td>' + name + '</td><td>' + typeBadge + '</td><td>' + phone + '</td><td>' + esc(r.email) + '</td><td>' + statusBadge + '</td><td>' + specOrJob + '</td><td>' + esc(fmtDate(r.hire_date)) + '</td>' +
         '<td><a href="professor-profile.html?id=' + r.id + '" class="btn btn-xs btn-success" title="' + t('View Details') + '"><i class="fa fa-eye"></i></a> ' +
         '<a href="edit-professor.html?id=' + r.id + '" class="btn btn-xs btn-info" title="' + t('Edit') + '"><i class="fa fa-pencil"></i></a> ' +
         '<button type="button" class="btn btn-xs btn-danger" onclick="window.deleteTeacher(' + r.id + ', this, event)" data-del-teacher="' + r.id + '" title="' + t('Delete') + '"><i class="fa fa-trash"></i></button></td></tr>';
@@ -2563,6 +2592,8 @@
             phone: fd.get('phone') || null,
             gender: fd.get('gender') || null, birth_date: fd.get('birth_date') || null, photo: fd.get('photo') || null,
             blood_type: fd.get('blood_type') || null,
+            staff_type: fd.get('staff_type') || 'teacher',
+            job_title: fd.get('job_title') || null,
             employee_number: (function() { var en = Math.floor(1000000000 + Math.random() * 9000000000).toString(); window.__newTeacherEmpNum = en; return en; })(), speciality: fd.get('speciality') || null,
             diploma: fd.get('diploma') || null, hire_date: fd.get('hire_date') || null,
             national_id: fd.get('national_id') || null,
@@ -2597,7 +2628,7 @@
       var fields = [
         'first_name', 'last_name', 'email', 'phone', 'gender', 'birth_date', 'photo', 'blood_type',
         'employee_number', 'speciality', 'diploma', 'hire_date', 'national_id', 'social_security_number',
-        'monthly_salary', 'ccp_rib', 'preferred_pay_method', 'rfid_tag'
+        'monthly_salary', 'ccp_rib', 'preferred_pay_method', 'rfid_tag', 'staff_type', 'job_title'
       ];
       fields.forEach(function (f) {
         var el = form.querySelector('[name="' + f + '"]');
@@ -2620,6 +2651,11 @@
       if (bloodTypeEl && tc.blood_type) bloodTypeEl.value = tc.blood_type;
       var payMethodEl = form.querySelector('[name="preferred_pay_method"]');
       if (payMethodEl && tc.preferred_pay_method) payMethodEl.value = tc.preferred_pay_method;
+      var staffTypeEl = form.querySelector('[name="staff_type"]');
+      if (staffTypeEl) {
+        if (tc.staff_type) staffTypeEl.value = tc.staff_type;
+        staffTypeEl.dispatchEvent(new Event('change'));
+      }
       var preview = document.getElementById('teacher-photo-preview');
       if (preview) preview.src = avatarUrl(tc.photo, [tc.first_name, tc.last_name].join(' '), 'teacher', tc.gender);
       var photoInput = form.querySelector('[name="photo"]');
@@ -2634,7 +2670,7 @@
       var fields = [
         'first_name', 'last_name', 'email', 'phone', 'gender', 'birth_date', 'photo', 'blood_type',
         'employee_number', 'speciality', 'diploma', 'hire_date', 'national_id', 'social_security_number',
-        'monthly_salary', 'ccp_rib', 'preferred_pay_method', 'rfid_tag'
+        'monthly_salary', 'ccp_rib', 'preferred_pay_method', 'rfid_tag', 'staff_type', 'job_title'
       ];
       fields.forEach(function (f) {
         var v = fd.get(f); if (v !== null) payload[f] = v || null;
@@ -4412,7 +4448,10 @@
       document.getElementById('tp-email').textContent = tc.email || '-';
 
       // Professional
-      document.getElementById('tp-speciality').textContent = tc.speciality || '-';
+      var isEmp = tc.staff_type === 'employee';
+      var specLabel = document.querySelector('label[data-i18n="Speciality"]');
+      if (specLabel) specLabel.textContent = isEmp ? t('Job Title') : t('Speciality');
+      document.getElementById('tp-speciality').textContent = isEmp ? (tc.job_title || '-') : (tc.speciality || '-');
       document.getElementById('tp-diploma').textContent = tc.diploma || '-';
       var hireDate = fmtDate(tc.hire_date);
       document.getElementById('tp-hire-date').textContent = hireDate;
@@ -4434,9 +4473,11 @@
       var statusCardEl = document.getElementById('tp-status-card');
       if (statusCardEl) statusCardEl.innerHTML = statusBadge;
 
-      // Role
+      // Role in hero pills
+      var heroRolePill = document.querySelector('.hero-pill [data-i18n="Professor"], .hero-pill [data-i18n="Teacher"]');
+      if (heroRolePill) heroRolePill.textContent = isEmp ? t('Employee') : t('Teacher');
       var roleEl = document.getElementById('tp-role');
-      if (roleEl) roleEl.textContent = tc.role ? t(tc.role.charAt(0).toUpperCase() + tc.role.slice(1)) : t('Teacher');
+      if (roleEl) roleEl.textContent = isEmp ? (tc.job_title || t('Employee')) : (tc.role ? t(tc.role.charAt(0).toUpperCase() + tc.role.slice(1)) : t('Teacher'));
 
       // Edit link
       var editLink = document.getElementById('tp-edit-link');
@@ -4444,6 +4485,22 @@
 
       // Teacher Groups / الأفواج المسندة
       var groups = tc.groups;
+      if (isEmp) {
+        var groupsCont = document.getElementById('tp-groups-container');
+        var heroCount = document.getElementById('tp-hero-groups-count');
+        var badgeCount = document.getElementById('tp-groups-count-badge');
+        if (heroCount) heroCount.textContent = '—';
+        if (badgeCount) badgeCount.textContent = '—';
+        if (groupsCont) {
+          groupsCont.innerHTML =
+            '<div class="text-center" style="padding:28px 20px; background:#f8fafc; border:1px dashed #cbd5e1; border-radius:14px; margin-top:8px;">' +
+              '<div style="width:44px; height:44px; border-radius:50%; background:#fef3c7; color:#92400e; display:inline-flex; align-items:center; justify-content:center; font-size:18px; margin-bottom:8px;"><i class="fa fa-briefcase"></i></div>' +
+              '<h5 style="margin:0 0 4px; font-weight:700; color:#374151; font-size:14px;">' + (currentLang==='ar' ? 'موظف (إداري / خدمات)' : 'Administrative / Support Employee') + '</h5>' +
+              '<p style="margin:0; color:#6b7280; font-size:12.5px;">' + (currentLang==='ar' ? 'هذا الموظف ليس لديه أفواج دراسية مسندة.' : 'Employees do not have teaching groups assigned.') + '</p>' +
+            '</div>';
+        }
+        return;
+      }
       function renderTeacherGroups(grpList) {
         var groupsCont = document.getElementById('tp-groups-container');
         var heroCount = document.getElementById('tp-hero-groups-count');
@@ -5069,6 +5126,94 @@
       });
     }).catch(function (err) { showAlert('#backend-certificate-status', err.message); });
 
+    // ── Certificate Type Buttons ──────────────────────────────────────────────
+    var certTypeBtns = document.querySelectorAll('.cert-type-btn');
+    var certTypeInput = document.getElementById('cert-selected-type');
+    var certDesignSection = document.getElementById('cert-design-section');
+    var standardCert = document.getElementById('printable-certificate');
+    var schoolCert = document.getElementById('printable-school-certificate');
+
+    certTypeBtns.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        certTypeBtns.forEach(function (b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        var selectedType = btn.getAttribute('data-type');
+        if (certTypeInput) certTypeInput.value = selectedType;
+
+        // Toggle certificate templates and design section visibility
+        if (selectedType === 'school') {
+          if (standardCert) standardCert.style.display = 'none';
+          if (schoolCert) schoolCert.style.display = '';
+          // Hide design section for school certificate (it has its own fixed style)
+          if (certDesignSection) certDesignSection.style.display = 'none';
+        } else {
+          if (standardCert) standardCert.style.display = '';
+          if (schoolCert) schoolCert.style.display = 'none';
+          if (certDesignSection) certDesignSection.style.display = '';
+        }
+
+        // Update certificate text based on type
+        var titleEl = document.getElementById('cert-out-title');
+        var badgeContainer = document.getElementById('cert-badge-container');
+        var textPreface = document.getElementById('cert-text-preface');
+        var textAction = document.getElementById('cert-text-action');
+        var textAppreciation = document.getElementById('cert-text-appreciation');
+
+        if (selectedType === 'completion') {
+          if (titleEl) titleEl.textContent = 'شهادة إتمام دورة';
+          if (badgeContainer) badgeContainer.style.display = 'none';
+          if (textPreface) textPreface.textContent = 'تشهد إدارة المركز بأن المتدرب(ة)';
+          if (textAction) textAction.textContent = 'قد أتم(ت) بنجاح الدورة التدريبية في';
+          if (textAppreciation) textAppreciation.style.display = 'none';
+        } else if (selectedType === 'congratulation') {
+          if (titleEl) titleEl.textContent = 'شهادة تهنئة وتقدير';
+          if (badgeContainer) badgeContainer.style.display = '';
+          if (textPreface) textPreface.textContent = 'تتقدم إدارة المركز بأحر التهاني إلى';
+          if (textAction) textAction.textContent = 'وذلك لتفوقه(ها) المتميز في';
+          if (textAppreciation) textAppreciation.style.display = '';
+        }
+        // 'school' type uses a completely separate template, no need to update standard fields
+      });
+    });
+
+    // ── Color Palette Swatches ────────────────────────────────────────────────
+    var themeSel = document.getElementById('cert-selected-theme');
+    var themeSwatches = document.querySelectorAll('.theme-swatch[data-theme]');
+
+    themeSwatches.forEach(function (swatch) {
+      swatch.addEventListener('click', function () {
+        themeSwatches.forEach(function (s) { s.classList.remove('active'); });
+        swatch.classList.add('active');
+        var newTheme = swatch.getAttribute('data-theme');
+        if (themeSel) themeSel.value = newTheme;
+
+        // Apply theme to certificate container
+        if (standardCert) {
+          standardCert.className = standardCert.className.replace(/theme-\w+/g, '');
+          standardCert.classList.add(newTheme);
+        }
+      });
+    });
+
+    // ── Border / Frame Style Swatches ─────────────────────────────────────────
+    var styleSel = document.getElementById('cert-selected-style');
+    var styleSwatches = document.querySelectorAll('.theme-swatch[data-style]');
+
+    styleSwatches.forEach(function (swatch) {
+      swatch.addEventListener('click', function () {
+        styleSwatches.forEach(function (s) { s.classList.remove('active'); });
+        swatch.classList.add('active');
+        var newStyle = swatch.getAttribute('data-style');
+        if (styleSel) styleSel.value = newStyle;
+
+        // Apply style to certificate container
+        if (standardCert) {
+          standardCert.className = standardCert.className.replace(/style-\w+/g, '');
+          standardCert.classList.add(newStyle);
+        }
+      });
+    });
+
     function getSelectedStudents() {
       return Array.from(_selectedIds);
     }
@@ -5081,6 +5226,12 @@
         if (s) return s;
       }
       return null;
+    }
+
+    // Helper to get active certificate container based on selected type
+    function getActiveCertContainer() {
+      var certType = (certTypeInput && certTypeInput.value) || 'completion';
+      return certType === 'school' ? schoolCert : standardCert;
     }
 
     genBtn.addEventListener('click', function () {
@@ -5104,19 +5255,100 @@
     function fillCertificate(student, formation) {
       var studentName = [student.first_name, student.last_name].filter(Boolean).join(' ');
       var today = new Date().toISOString().split('T')[0];
-
-      document.getElementById('cert-out-student').textContent = studentName;
-      document.getElementById('cert-out-formation').textContent = formation.title;
-      document.getElementById('cert-out-date').textContent = today;
-
       var schoolInfo = window._ctx && window._ctx.school ? window._ctx.school : { name: 'School Name' };
-      document.getElementById('cert-out-school').textContent = schoolInfo.name;
+      var certType = (certTypeInput && certTypeInput.value) || 'completion';
+
+      // Fill standard certificate (completion / congratulation)
+      var outStudent = document.getElementById('cert-out-student');
+      var outFormation = document.getElementById('cert-out-formation');
+      var outDate = document.getElementById('cert-out-date');
+      var outSchool = document.getElementById('cert-out-school');
       var logoEl = document.getElementById('cert-out-logo');
-      if (schoolInfo.logo) {
-        logoEl.src = schoolImg(schoolInfo.logo, schoolInfo.name);
-        logoEl.style.display = 'block';
+      var logoElLeft = document.getElementById('cert-out-logo-left');
+
+      if (outStudent) outStudent.textContent = studentName;
+      if (outFormation) outFormation.textContent = formation.title;
+      if (outDate) outDate.textContent = today;
+      if (outSchool) outSchool.textContent = schoolInfo.name;
+      if (logoEl) {
+        if (schoolInfo.logo) {
+          logoEl.src = schoolImg(schoolInfo.logo, schoolInfo.name);
+          logoEl.style.display = 'block';
+        } else {
+          logoEl.style.display = 'none';
+        }
+      }
+      if (logoElLeft) {
+        if (schoolInfo.logo) {
+          logoElLeft.src = schoolImg(schoolInfo.logo, schoolInfo.name);
+          logoElLeft.style.display = 'block';
+        } else {
+          logoElLeft.style.display = 'none';
+        }
+      }
+
+      // Fill school certificate template
+      var schStudentName = document.getElementById('cert-school-student-name');
+      var schSchool = document.getElementById('sch-header-school');
+      var schFormation = document.getElementById('cert-school-formation');
+      var schGroup = document.getElementById('cert-school-group');
+      var schRegno = document.getElementById('cert-school-regno');
+      var schDate = document.getElementById('cert-school-out-date');
+      var schLogo = document.getElementById('cert-school-logo');
+      var schYear = document.getElementById('cert-school-year');
+      var schRef = document.getElementById('cert-school-ref');
+      var schWatermark = document.getElementById('cert-school-watermark-logo');
+
+      if (schStudentName) schStudentName.textContent = studentName;
+      if (schSchool) schSchool.textContent = schoolInfo.name;
+      if (schFormation) schFormation.textContent = formation.title;
+      if (schDate) schDate.textContent = today;
+      if (schRegno) schRegno.textContent = student.id || '—';
+
+      // Try to find group name for this student
+      var gId = groupSel.value;
+      if (gId) {
+        var grp = _groups.find(function (g) { return String(g.id) === String(gId); });
+        if (schGroup) schGroup.textContent = grp ? grp.name : '—';
       } else {
-        logoEl.style.display = 'none';
+        if (schGroup) schGroup.textContent = '—';
+      }
+
+      // Generate reference number
+      if (schRef) schRef.textContent = 'SCH-' + new Date().getFullYear() + '-' + String(student.id).padStart(3, '0');
+
+      // Set school year
+      var now = new Date();
+      var yr = now.getMonth() >= 8 ? now.getFullYear() : now.getFullYear() - 1;
+      if (schYear) schYear.textContent = yr + ' / ' + (yr + 1);
+
+      // School logo
+      if (schLogo) {
+        if (schoolInfo.logo) {
+          schLogo.src = schoolImg(schoolInfo.logo, schoolInfo.name);
+          schLogo.style.display = 'block';
+        } else {
+          schLogo.style.display = 'none';
+        }
+      }
+
+      // Watermark
+      var stdWatermark = document.getElementById('cert-watermark-logo');
+      if (stdWatermark) {
+        if (schoolInfo.logo) {
+          stdWatermark.src = schoolImg(schoolInfo.logo, schoolInfo.name);
+          stdWatermark.style.display = 'block';
+        } else {
+          stdWatermark.style.display = 'none';
+        }
+      }
+      if (schWatermark) {
+        if (schoolInfo.logo) {
+          schWatermark.src = schoolImg(schoolInfo.logo, schoolInfo.name);
+          schWatermark.style.display = 'block';
+        } else {
+          schWatermark.style.display = 'none';
+        }
       }
     }
 
@@ -5128,7 +5360,7 @@
       var formation = _formations.find(function (f) { return String(f.id) === String(fId); });
       if (!formation) return;
 
-      var certContainer = document.getElementById('printable-certificate');
+      var certContainer = getActiveCertContainer();
       // Use html2canvas + jsPDF directly for reliable capture
       function captureCert(filename) {
         return new Promise(function (resolve, reject) {
@@ -6358,11 +6590,16 @@
       selectAllCb.addEventListener('change', function () {
         var isChecked = this.checked;
         document.querySelectorAll('.attendance-row-checkbox:not(:disabled)').forEach(function (cb) {
-          cb.checked = isChecked;
+          var tr = cb.closest('tr');
+          if (!tr || tr.style.display !== 'none') {
+            cb.checked = isChecked;
+          }
         });
         updateBulkActionVisibility();
       });
     }
+
+    bindAttendanceSearch();
 
     var btnBulkPresent = document.getElementById('btn-bulk-present');
     var btnBulkAbsent = document.getElementById('btn-bulk-absent');
@@ -6654,25 +6891,35 @@
     var typeFilter = document.getElementById('attendance-filter-type');
     var subjectContainer = document.getElementById('attendance-subject-container');
     var subjectSel = document.getElementById('attendance-filter-subject');
+    var subjectLabel = document.getElementById('attendance-subject-label') || (subjectContainer ? subjectContainer.querySelector('label') : null);
     if (!groupSel || !dateInput || !subjectContainer || !subjectSel || !typeFilter) return;
 
     var gId = groupSel.value;
     var dateVal = dateInput.value;
     var type = typeFilter.value;
+    var isAr = (window.AppI18n && typeof window.AppI18n.getLang === 'function' && window.AppI18n.getLang() === 'ar') || (typeof currentLang !== 'undefined' && currentLang === 'ar');
 
     if (!dateVal || (!gId && type === 'student')) {
       subjectContainer.style.display = 'none';
-      subjectSel.innerHTML = '<option value="">-- Optional / Generic --</option>';
+      subjectSel.innerHTML = '<option value="">' + (isAr ? '-- اختياري / عام --' : '-- Optional / Generic --') + '</option>';
       loadAttendanceData();
       return;
     }
 
-    var qs = '?date=' + dateVal;
-    if (gId) qs += '&group_id=' + gId;
+    var qs = '?date=' + encodeURIComponent(dateVal) + '&type=' + encodeURIComponent(type);
+    if (gId) qs += '&group_id=' + encodeURIComponent(gId);
 
     request('/api/attendance/subjects' + qs).then(function (res) {
       var subjects = res.subjects || [];
-      var html = '<option value="">-- Optional / Generic --</option>';
+      var defaultLabel = type === 'teacher'
+        ? (isAr ? '-- جميع الحصص --' : '-- All Séances --')
+        : (isAr ? '-- اختياري / عام --' : '-- Optional / Generic --');
+      if (subjectLabel) {
+        subjectLabel.textContent = type === 'teacher'
+          ? (isAr ? 'الحصة / التوقيت' : 'Séance / Session')
+          : (isAr ? 'المادة / الحصة' : 'Subject / Session');
+      }
+      var html = '<option value="">' + defaultLabel + '</option>';
       html += subjects.map(function (s) { return '<option value="' + esc(s) + '">' + esc(s) + '</option>'; }).join('');
       subjectSel.innerHTML = html;
       subjectContainer.style.display = 'block';
@@ -6684,17 +6931,128 @@
     });
   }
 
+  function normalizeAttendanceSearch(val) {
+    if (val == null) return '';
+    return String(val)
+      .replace(/[\u0660-\u0669]/g, function (d) { return d.charCodeAt(0) - 1632; })
+      .replace(/[\u06F0-\u06F9]/g, function (d) { return d.charCodeAt(0) - 1776; })
+      .toLowerCase()
+      .trim()
+      .replace(/[\u064B-\u065F\u0670]/g, '')
+      .replace(/[أإآٱ]/g, 'ا')
+      .replace(/ة/g, 'ه')
+      .replace(/ى/g, 'ي')
+      .replace(/\s+/g, ' ');
+  }
+
+  function applyAttendanceSearchFilter() {
+    var searchInput = document.getElementById('attendance-filter-search');
+    var clearBtn = document.getElementById('attendance-search-clear');
+    var rawVal = searchInput ? searchInput.value : '';
+    var query = normalizeAttendanceSearch(rawVal);
+
+    if (clearBtn) {
+      clearBtn.style.display = rawVal.trim().length > 0 ? 'inline-block' : 'none';
+    }
+
+    var tbody = document.querySelector('#backend-attendance-table tbody');
+    if (!tbody) return;
+
+    var rows = tbody.querySelectorAll('tr:not(.attendance-search-no-match):not(.col-filter-no-match-row)');
+    var total = 0;
+    var visible = 0;
+
+    for (var i = 0; i < rows.length; i++) {
+      var tr = rows[i];
+      var firstTd = tr.querySelector('td');
+      if (firstTd && firstTd.colSpan > 3) continue;
+
+      total++;
+      if (!query) {
+        tr.style.display = '';
+        visible++;
+      } else {
+        var rowText = normalizeAttendanceSearch(tr.innerText || tr.textContent || '');
+        if (rowText.indexOf(query) !== -1) {
+          tr.style.display = '';
+          visible++;
+        } else {
+          tr.style.display = 'none';
+        }
+      }
+    }
+
+    var existingNoMatch = tbody.querySelector('.attendance-search-no-match');
+    if (query && total > 0 && visible === 0) {
+      if (!existingNoMatch) {
+        var isAr = (window.AppI18n && typeof window.AppI18n.getLang === 'function' && window.AppI18n.getLang() === 'ar') || (typeof currentLang !== 'undefined' && currentLang === 'ar');
+        var trNoMatch = document.createElement('tr');
+        trNoMatch.className = 'attendance-search-no-match';
+        trNoMatch.innerHTML = '<td colspan="8" class="text-center text-muted" style="padding: 24px; font-size: 14px;"><i class="fa fa-search" style="margin-inline-end: 6px;"></i> ' + (isAr ? 'لا توجد نتائج مطابقة للبحث' : 'No records match your search') + '</td>';
+        tbody.appendChild(trNoMatch);
+      } else {
+        existingNoMatch.style.display = '';
+      }
+    } else if (existingNoMatch) {
+      existingNoMatch.style.display = 'none';
+    }
+
+    var table = document.getElementById('backend-attendance-table');
+    if (table && table._featuresToolbar) {
+      var counter = table._featuresToolbar.querySelector('.table-rows-counter');
+      if (counter) {
+        var isArCounter = (window.AppI18n && typeof window.AppI18n.getLang === 'function' && window.AppI18n.getLang() === 'ar') || (typeof currentLang !== 'undefined' && currentLang === 'ar');
+        if (query) {
+          counter.innerHTML = '<i class="fa fa-filter"></i> ' + (isArCounter ? ('عرض <strong>' + visible + '</strong> من <strong>' + total + '</strong>') : ('Showing <strong>' + visible + '</strong> of <strong>' + total + '</strong>'));
+        } else {
+          counter.innerHTML = '<i class="fa fa-table"></i> <strong>' + total + '</strong> ' + (isArCounter ? 'صفوف' : 'rows');
+        }
+      }
+    }
+
+    updateBulkActionVisibility();
+  }
+
+  function bindAttendanceSearch() {
+    var searchInput = document.getElementById('attendance-filter-search');
+    var clearBtn = document.getElementById('attendance-search-clear');
+
+    if (searchInput && !searchInput._searchBound) {
+      searchInput._searchBound = true;
+      searchInput.addEventListener('input', applyAttendanceSearchFilter);
+      searchInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+          searchInput.value = '';
+          applyAttendanceSearchFilter();
+        }
+      });
+    }
+
+    if (clearBtn && !clearBtn._clearBound) {
+      clearBtn._clearBound = true;
+      clearBtn.addEventListener('click', function () {
+        if (searchInput) {
+          searchInput.value = '';
+          searchInput.focus();
+          applyAttendanceSearchFilter();
+        }
+      });
+    }
+  }
+
   function bindAttendanceFilters() {
     ['attendance-filter-date', 'attendance-filter-type', 'attendance-filter-group', 'attendance-filter-subject'].forEach(function (id) {
       var el = document.getElementById(id);
       if (el) el.addEventListener('change', function () {
         if (id === 'attendance-filter-type') {
           var groupContainer = document.getElementById('attendance-group-container');
-          if (el.value === 'teacher') {
-            groupContainer.style.display = 'none';
-            document.getElementById('attendance-filter-group').value = '';
-          } else {
-            groupContainer.style.display = 'block';
+          var groupLabel = document.getElementById('attendance-group-label') || (groupContainer ? groupContainer.querySelector('label') : null);
+          var isAr = (window.AppI18n && typeof window.AppI18n.getLang === 'function' && window.AppI18n.getLang() === 'ar') || (typeof currentLang !== 'undefined' && currentLang === 'ar');
+          if (groupContainer) groupContainer.style.display = 'block';
+          if (groupLabel) {
+            groupLabel.textContent = el.value === 'teacher'
+              ? (isAr ? 'تصفية حسب الفوج (اختياري)' : 'Filter by Group (Optional)')
+              : (isAr ? 'الفوج / القسم' : 'Group / Class');
           }
         }
 
@@ -6718,7 +7076,7 @@
 
     if (!date) return;
 
-    tbody.innerHTML = '<tr><td colspan="6" class="text-center">Loading...</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8" class="text-center">Loading...</td></tr>';
 
     var params = new URLSearchParams({ date: date, type: type });
     if (groupId) params.append('group_id', groupId);
@@ -6727,7 +7085,7 @@
     request('/api/attendance?' + params.toString()).then(function (res) {
       var items = type === 'student' ? res.students : res.teachers;
       if (!items || !items.length) {
-        tbody.innerHTML = '<tr><td colspan="7" class="text-center">No records found</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" class="text-center">No records found</td></tr>';
         updateBulkActionVisibility();
         return;
       }
@@ -6793,16 +7151,44 @@
         var disabledAttr = isLocked ? ' disabled style="opacity:0.6;cursor:not-allowed;"' : '';
         var cbDisabled = isLocked ? ' disabled' : '';
 
+        // Séance badge / cell
+        var seanceCol = '';
+        if (type === 'teacher') {
+          if (r.time_slot || r.base_subject_name || r.subject_name) {
+            var timeBadge = r.time_slot 
+              ? '<span class="badge" style="background:#e0f2fe;color:#0369a1;font-weight:700;margin-inline-end:4px;padding:3px 8px;border-radius:4px;"><i class="fa fa-clock-o"></i> ' + esc(r.time_slot) + '</span>'
+              : '';
+            var subBadge = r.base_subject_name 
+              ? '<span style="font-weight:700;color:#1e293b;">' + esc(r.base_subject_name) + '</span>'
+              : (r.subject_name ? '<span style="font-weight:700;color:#1e293b;">' + esc(r.subject_name) + '</span>' : '');
+            var grpBadge = r.group_name 
+              ? '<div style="font-size:11.5px;color:#64748b;margin-top:2px;"><i class="fa fa-users" style="margin-inline-end:4px;"></i>' + esc(r.group_name) + (r.classroom_name && r.classroom_name !== '—' ? (' · <i class="fa fa-map-marker"></i> ' + esc(r.classroom_name)) : '') + '</div>'
+              : '';
+            seanceCol = '<td style="vertical-align:middle;"><div>' + timeBadge + subBadge + '</div>' + grpBadge + '</td>';
+          } else {
+            seanceCol = '<td style="vertical-align:middle;color:#94a3b8;">—</td>';
+          }
+        } else {
+          var studGroup = r.group_name ? ('<span class="badge" style="background:#f1f5f9;color:#475569;"><i class="fa fa-users"></i> ' + esc(r.group_name) + '</span>') : (subject ? ('<span class="badge" style="background:#f1f5f9;color:#475569;">' + esc(subject) + '</span>') : '—');
+          seanceCol = '<td style="vertical-align:middle;">' + studGroup + '</td>';
+        }
+
+        var rowGroupId = r.group_id != null ? r.group_id : (groupId || '');
+        var rowSubjectName = r.subject_name || subject || '';
+
         return '<tr>' +
-          '<td><input type="checkbox" class="attendance-row-checkbox" value="' + r.id + '"' + cbDisabled + '></td>' +
+          '<td><input type="checkbox" class="attendance-row-checkbox" value="' + r.id + '" data-group-id="' + esc(rowGroupId) + '" data-subject-name="' + esc(rowSubjectName) + '"' + cbDisabled + '></td>' +
           '<td>' + img + '</td>' +
           '<td>' + idNumber + '</td>' +
           '<td>' + name + '</td>' +
+          seanceCol +
           '<td>' + tag + '</td>' +
           '<td>' + scanTime + '</td>' +
-          '<td><button class="status-toggle ' + btnClass + '" data-user-type="' + type + '" data-user-id="' + r.id + '" data-current-status="' + r.status + '"' + disabledAttr + '>' + btnText + '</button></td>' +
+          '<td><button class="status-toggle ' + btnClass + '" data-user-type="' + type + '" data-user-id="' + r.id + '" data-group-id="' + esc(rowGroupId) + '" data-subject-name="' + esc(rowSubjectName) + '" data-current-status="' + r.status + '"' + disabledAttr + '>' + btnText + '</button></td>' +
           '</tr>';
       }).join('');
+
+      applyAttendanceSearchFilter();
 
       // Reset select all
       var selectAllCb = document.getElementById('attendance-select-all');
@@ -6827,16 +7213,17 @@
       updateBulkActionVisibility();
 
     }).catch(function (err) {
-      tbody.innerHTML = '<tr><td colspan="7" class="text-center text-danger">Error: ' + esc(err.message) + '</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="8" class="text-center text-danger">Error: ' + esc(err.message) + '</td></tr>';
     });
   }
 
-  function toggleAttendanceStatus(btn, date, groupId) {
+  function toggleAttendanceStatus(btn, date, defaultGroupId) {
     var userType = btn.getAttribute('data-user-type');
     var userId = btn.getAttribute('data-user-id');
     var currentStatus = btn.getAttribute('data-current-status');
     var newStatus = currentStatus === 'present' ? 'absent' : 'present';
-    var subject = document.getElementById('attendance-filter-subject') ? document.getElementById('attendance-filter-subject').value : '';
+    var rowGroupId = btn.getAttribute('data-group-id') || defaultGroupId || null;
+    var rowSubject = btn.getAttribute('data-subject-name') || (document.getElementById('attendance-filter-subject') ? document.getElementById('attendance-filter-subject').value : '');
 
     btn.disabled = true;
 
@@ -6845,10 +7232,10 @@
       body: JSON.stringify({
         user_type: userType,
         user_id: userId,
-        group_id: groupId || null,
+        group_id: rowGroupId,
         date: date,
         status: newStatus,
-        subject_name: subject
+        subject_name: rowSubject
       })
     }).then(function () {
       btn.disabled = false;
@@ -6888,16 +7275,29 @@
     var subjectVal = document.getElementById('attendance-filter-subject') ? document.getElementById('attendance-filter-subject').value : '';
 
     var checkedBoxes = document.querySelectorAll('.attendance-row-checkbox:checked');
-    var userIds = Array.from(checkedBoxes).map(function (cb) { return cb.value; });
+    if (checkedBoxes.length === 0) return;
 
-    if (userIds.length === 0) return;
-    if (!confirm('Mark ' + userIds.length + ' users as ' + status.toUpperCase() + '?')) return;
+    var isAr = (window.AppI18n && typeof window.AppI18n.getLang === 'function' && window.AppI18n.getLang() === 'ar') || (typeof currentLang !== 'undefined' && currentLang === 'ar');
+    var statusLabel = status === 'present' ? (isAr ? 'حاضر' : 'PRESENT') : (isAr ? 'غائب' : 'ABSENT');
+    var confirmMsg = isAr 
+      ? ('تحديد ' + checkedBoxes.length + ' سجل(ات) كـ ' + statusLabel + '؟')
+      : ('Mark ' + checkedBoxes.length + ' items as ' + status.toUpperCase() + '?');
+
+    if (!confirm(confirmMsg)) return;
+
+    var items = Array.from(checkedBoxes).map(function (cb) {
+      return {
+        user_id: cb.value,
+        group_id: cb.getAttribute('data-group-id') || groupVal || null,
+        subject_name: cb.getAttribute('data-subject-name') || subjectVal || ''
+      };
+    });
 
     request('/api/attendance/bulk', {
       method: 'POST',
       body: JSON.stringify({
         user_type: typeVal,
-        user_ids: userIds,
+        items: items,
         group_id: groupVal || null,
         date: dateVal,
         status: status,

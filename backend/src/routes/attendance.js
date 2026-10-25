@@ -19,8 +19,14 @@ async function getSchoolId(userId) {
   return null;
 }
 
+function getDayOfWeek(dateStr) {
+    const d = new Date(dateStr + 'T12:00:00Z');
+    const jsDay = d.getUTCDay(); // 0=Sun, 1=Mon, ..., 6=Sat
+    return ((jsDay + 1) % 7) + 1; // 1=Sat, 2=Sun, 3=Mon, 4=Tue, 5=Wed, 6=Thu, 7=Fri
+}
+
 // GET /api/attendance
-// Fetch attendance for a group on a specific date (or just by date/type)
+// Fetch attendance for a group or teacher séances on a specific date
 router.get('/', requireAuth, async (req, res, next) => {
     try {
         const { date, group_id, type } = req.query;
@@ -112,7 +118,7 @@ router.get('/', requireAuth, async (req, res, next) => {
                         JOIN users u ON s.user_id = u.id
                         LEFT JOIN attendance a ON a.user_id = s.id 
                                                AND a.user_type = 'student' 
-                                               AND a.date = ?
+                                               AND a.date = ? 
                                                AND a.subject_name = ?
                         WHERE u.is_active = 1 AND s.school_id = ?
                         ORDER BY u.last_name ASC, u.first_name ASC
@@ -123,16 +129,87 @@ router.get('/', requireAuth, async (req, res, next) => {
         }
 
         if (req.auth.role !== 'teacher' && (type === 'teacher' || !type)) {
-            const queryStr = `
-                SELECT t.id, u.first_name, u.last_name, u.photo, u.gender as gender, t.employee_number, t.rfid_tag,
-                       COALESCE(a.status, 'pending') as status, a.scan_time, a.notes
-                FROM teachers t
-                JOIN users u ON t.user_id = u.id
-                LEFT JOIN attendance a ON a.user_id = t.id AND a.user_type = 'teacher' AND a.date = ? AND a.subject_name = ?
-                WHERE u.is_active = 1 AND t.school_id = ?
-                ORDER BY u.last_name ASC, u.first_name ASC
-            `;
-            teachers = await query(queryStr, [date, subject_name, schoolId]);
+            // Teacher attendance: Per séance based on active weekly planning
+            const dayOfWeek = getDayOfWeek(date);
+            const activeProgs = await query(
+                `SELECT id FROM weekly_programs WHERE school_id = ? AND status = 'active'`,
+                [schoolId]
+            );
+
+            if (activeProgs.length > 0) {
+                const programIds = activeProgs.map(p => p.id);
+                const placeholders = programIds.map(() => '?').join(',');
+                const queryParams = [date, ...programIds, dayOfWeek, schoolId];
+                let extraWhere = '';
+
+                if (group_id) {
+                    extraWhere += ' AND wse.group_id = ?';
+                    queryParams.push(group_id);
+                }
+                if (subject_name) {
+                    extraWhere += ' AND (CONCAT(wse.subject_name, \' (\', wts.label, \')\') = ? OR wse.subject_name = ?)';
+                    queryParams.push(subject_name, subject_name);
+                }
+
+                const queryStr = `
+                    SELECT 
+                        wse.id AS entry_id,
+                        COALESCE(g.teacher_id, f.teacher_id) AS id,
+                        COALESCE(g.teacher_id, f.teacher_id) AS teacher_id,
+                        u.first_name, u.last_name, u.photo, u.gender,
+                        t.employee_number, t.rfid_tag,
+                        wse.group_id,
+                        g.name AS group_name,
+                        wse.subject_name AS base_subject_name,
+                        wts.id AS slot_id,
+                        wts.label AS time_slot,
+                        wts.start_time,
+                        wts.end_time,
+                        wts.sort_order,
+                        COALESCE(cr.name, cr_grp.name, '—') AS classroom_name,
+                        CONCAT(wse.subject_name, ' (', wts.label, ')') AS subject_name,
+                        COALESCE(a.status, 'pending') AS status,
+                        a.scan_time,
+                        a.notes
+                    FROM weekly_schedule_entries wse
+                    JOIN weekly_time_slots wts ON wse.slot_id = wts.id
+                    JOIN weekly_programs wp ON wts.program_id = wp.id
+                    JOIN \`groups\` g ON wse.group_id = g.id
+                    LEFT JOIN formations f ON g.formation_id = f.id
+                    JOIN teachers t ON t.id = COALESCE(g.teacher_id, f.teacher_id)
+                    JOIN users u ON t.user_id = u.id
+                    LEFT JOIN classrooms cr ON wse.classroom_id = cr.id
+                    LEFT JOIN classrooms cr_grp ON g.classroom_id = cr_grp.id
+                    LEFT JOIN attendance a ON a.user_id = t.id 
+                                           AND a.user_type = 'teacher' 
+                                           AND a.date = ? 
+                                           AND a.group_id = wse.group_id
+                                           AND (a.subject_name = CONCAT(wse.subject_name, ' (', wts.label, ')') OR a.subject_name = wse.subject_name)
+                    WHERE wp.id IN (${placeholders})
+                      AND wse.day_of_week = ?
+                      AND u.is_active = 1
+                      AND t.school_id = ?
+                      ${extraWhere}
+                    ORDER BY wts.start_time ASC, wts.sort_order ASC, u.last_name ASC, u.first_name ASC
+                `;
+
+                teachers = await query(queryStr, queryParams);
+            }
+
+            // Fallback if no weekly program or no séances found
+            if (teachers.length === 0 && !group_id && !subject_name) {
+                const queryStr = `
+                    SELECT t.id, u.first_name, u.last_name, u.photo, u.gender as gender, t.employee_number, t.rfid_tag,
+                           COALESCE(a.status, 'pending') as status, a.scan_time, a.notes,
+                           '' AS subject_name, '' AS time_slot, '' AS group_name, '' AS classroom_name, NULL AS group_id
+                    FROM teachers t
+                    JOIN users u ON t.user_id = u.id
+                    LEFT JOIN attendance a ON a.user_id = t.id AND a.user_type = 'teacher' AND a.date = ? AND a.subject_name = ?
+                    WHERE u.is_active = 1 AND t.school_id = ?
+                    ORDER BY u.last_name ASC, u.first_name ASC
+                `;
+                teachers = await query(queryStr, [date, subject_name, schoolId]);
+            }
         }
 
         let is_validated = false;
@@ -148,52 +225,66 @@ router.get('/', requireAuth, async (req, res, next) => {
 });
 
 // GET /api/attendance/subjects
-// Fetch scheduled subjects for a group on a specific date based on the active weekly program
+// Fetch scheduled subjects / séances on a specific date based on the active weekly program
 router.get('/subjects', requireAuth, async (req, res, next) => {
     try {
-        const { group_id, date } = req.query;
+        const { group_id, date, type } = req.query;
         if (!date) {
             return res.status(400).json({ message: 'date is required' });
         }
 
         const schoolId = await getSchoolId(req.auth.userId);
         
-        // Find active program
-        const activeProg = await query(`SELECT id FROM weekly_programs WHERE school_id = ? AND status = 'active' LIMIT 1`, [schoolId]);
-        if (activeProg.length === 0) {
+        // Find active programs
+        const activeProgs = await query(`SELECT id FROM weekly_programs WHERE school_id = ? AND status = 'active'`, [schoolId]);
+        if (activeProgs.length === 0) {
             return res.json({ subjects: [] });
         }
         
-        const programId = activeProg[0].id;
-        
-        const d = new Date(date);
-        let dayOfWeek = d.getDay(); 
-        if (dayOfWeek === 0) dayOfWeek = 7; 
+        const programIds = activeProgs.map(p => p.id);
+        const placeholders = programIds.map(() => '?').join(',');
+        const dayOfWeek = getDayOfWeek(date);
 
-        // Fetch subjects
-        let subjectsQuery, queryArgs;
-        if (group_id) {
-            subjectsQuery = `
-                SELECT DISTINCT wse.subject_name 
+        let rows = [];
+        if (type === 'teacher') {
+            // For teachers, return distinct séances formatted with time slot: "Subject (08:00 – 09:30)"
+            let queryStr = `
+                SELECT DISTINCT 
+                    CONCAT(wse.subject_name, ' (', wts.label, ')') AS session_name,
+                    wts.start_time,
+                    wts.sort_order
                 FROM weekly_schedule_entries wse
                 JOIN weekly_time_slots wts ON wse.slot_id = wts.id
-                WHERE wts.program_id = ? AND wse.group_id = ? AND wse.day_of_week = ?
+                WHERE wts.program_id IN (${placeholders}) AND wse.day_of_week = ?
             `;
-            queryArgs = [programId, group_id, dayOfWeek];
-        } else {
-            subjectsQuery = `
-                SELECT DISTINCT wse.subject_name 
-                FROM weekly_schedule_entries wse
-                JOIN weekly_time_slots wts ON wse.slot_id = wts.id
-                WHERE wts.program_id = ? AND wse.day_of_week = ?
-            `;
-            queryArgs = [programId, dayOfWeek];
+            const args = [...programIds, dayOfWeek];
+            if (group_id) {
+                queryStr += ' AND wse.group_id = ?';
+                args.push(group_id);
+            }
+            queryStr += ' ORDER BY wts.start_time ASC, wts.sort_order ASC';
+            rows = await query(queryStr, args);
+            return res.json({ subjects: rows.map(r => r.session_name) });
         }
 
-        const rows = await query(subjectsQuery, queryArgs);
-        const subjects = rows.map(r => r.subject_name);
+        // For students
+        if (group_id) {
+            rows = await query(`
+                SELECT DISTINCT wse.subject_name 
+                FROM weekly_schedule_entries wse
+                JOIN weekly_time_slots wts ON wse.slot_id = wts.id
+                WHERE wts.program_id IN (${placeholders}) AND wse.group_id = ? AND wse.day_of_week = ?
+            `, [...programIds, group_id, dayOfWeek]);
+        } else {
+            rows = await query(`
+                SELECT DISTINCT wse.subject_name 
+                FROM weekly_schedule_entries wse
+                JOIN weekly_time_slots wts ON wse.slot_id = wts.id
+                WHERE wts.program_id IN (${placeholders}) AND wse.day_of_week = ?
+            `, [...programIds, dayOfWeek]);
+        }
 
-        res.json({ subjects });
+        res.json({ subjects: rows.map(r => r.subject_name) });
     } catch (err) {
         next(err);
     }
@@ -210,14 +301,26 @@ router.post('/manual', async (req, res, next) => {
             return res.status(400).json({ message: 'Missing required fields' });
         }
 
-        // Insert or update
-        const queryStr = `
-            INSERT INTO attendance (user_type, user_id, group_id, date, status, notes, subject_name)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-            ON DUPLICATE KEY UPDATE status = VALUES(status), notes = VALUES(notes)
-        `;
-        
-        await query(queryStr, [user_type, user_id, group_id || null, date, status, notes || null, subject_name]);
+        const existing = await query(
+            `SELECT id FROM attendance 
+             WHERE user_type = ? AND user_id = ? AND date = ? 
+               AND (group_id = ? OR (group_id IS NULL AND ? IS NULL)) 
+               AND subject_name = ? LIMIT 1`,
+            [user_type, user_id, date, group_id || null, group_id || null, subject_name]
+        );
+
+        if (existing.length > 0) {
+            await query(
+                `UPDATE attendance SET status = ?, notes = ? WHERE id = ?`,
+                [status, notes || null, existing[0].id]
+            );
+        } else {
+            await query(
+                `INSERT INTO attendance (user_type, user_id, group_id, date, status, notes, subject_name)
+                 VALUES (?, ?, ?, ?, ?, ?, ?)`,
+                [user_type, user_id, group_id || null, date, status, notes || null, subject_name]
+            );
+        }
 
         res.json({ message: 'Attendance updated successfully' });
     } catch (err) {
@@ -229,14 +332,14 @@ router.post('/manual', async (req, res, next) => {
 // Automatic scanner endpoint (RFID or QR)
 router.post('/scan', async (req, res, next) => {
     try {
-        const { tag, date, group_id } = req.body;
+        let { tag, date, group_id, subject_name } = req.body;
+        subject_name = subject_name || '';
 
         if (!tag || !date) {
             return res.status(400).json({ message: 'Tag and Date are required' });
         }
 
         // Find user by tag (check students first, then teachers)
-        // Tag can match either rfid_tag or registration_number/employee_number
         let userType = 'student';
         let user = null;
 
@@ -265,17 +368,78 @@ router.post('/scan', async (req, res, next) => {
             return res.status(404).json({ message: 'User not found for the provided tag' });
         }
 
-        // Insert attendance record
         const scanTime = new Date().toTimeString().split(' ')[0]; // HH:MM:SS
-        let subject_name = req.body.subject_name || '';
-        
-        const queryStr = `
-            INSERT INTO attendance (user_type, user_id, group_id, date, status, scan_time, subject_name)
-            VALUES (?, ?, ?, ?, 'present', ?, ?)
-            ON DUPLICATE KEY UPDATE status = 'present', scan_time = VALUES(scan_time)
-        `;
-        
-        await query(queryStr, [userType, user.id, group_id || null, date, scanTime, subject_name]);
+
+        // If teacher, match current scan time to the scheduled séance
+        if (userType === 'teacher') {
+            const dayOfWeek = getDayOfWeek(date);
+            const activeProgs = await query(
+                `SELECT id FROM weekly_programs WHERE school_id = ? AND status = 'active'`,
+                [user.school_id]
+            );
+            if (activeProgs.length > 0) {
+                const programIds = activeProgs.map(p => p.id);
+                const placeholders = programIds.map(() => '?').join(',');
+                const seances = await query(`
+                    SELECT wse.group_id, wse.subject_name AS base_subject_name,
+                           wts.label AS time_slot, wts.start_time, wts.end_time,
+                           CONCAT(wse.subject_name, ' (', wts.label, ')') AS full_subject_name
+                    FROM weekly_schedule_entries wse
+                    JOIN weekly_time_slots wts ON wse.slot_id = wts.id
+                    JOIN \`groups\` g ON wse.group_id = g.id
+                    LEFT JOIN formations f ON g.formation_id = f.id
+                    WHERE wts.program_id IN (${placeholders})
+                      AND wse.day_of_week = ?
+                      AND COALESCE(g.teacher_id, f.teacher_id) = ?
+                    ORDER BY wts.start_time ASC
+                `, [...programIds, dayOfWeek, user.id]);
+
+                if (seances.length > 0) {
+                    let matchedSeance = null;
+                    if (!subject_name) {
+                        for (const s of seances) {
+                            if (s.start_time && s.end_time) {
+                                const sTime = s.start_time.length === 5 ? s.start_time + ':00' : s.start_time;
+                                const eTime = s.end_time.length === 5 ? s.end_time + ':00' : s.end_time;
+                                if (scanTime >= sTime && scanTime <= eTime) {
+                                    matchedSeance = s;
+                                    break;
+                                }
+                            }
+                        }
+                        if (!matchedSeance) {
+                            matchedSeance = seances[0];
+                        }
+                    } else {
+                        matchedSeance = seances.find(s => s.full_subject_name === subject_name || s.base_subject_name === subject_name) || seances[0];
+                    }
+
+                    if (matchedSeance) {
+                        group_id = group_id || matchedSeance.group_id;
+                        subject_name = matchedSeance.full_subject_name;
+                    }
+                }
+            }
+        }
+
+        // Upsert attendance record
+        const existing = await query(
+            `SELECT id FROM attendance 
+             WHERE user_type = ? AND user_id = ? AND date = ? 
+               AND (group_id = ? OR (group_id IS NULL AND ? IS NULL)) 
+               AND subject_name = ? LIMIT 1`,
+            [userType, user.id, date, group_id || null, group_id || null, subject_name]
+        );
+
+        if (existing.length > 0) {
+            await query(`UPDATE attendance SET status = 'present', scan_time = ? WHERE id = ?`, [scanTime, existing[0].id]);
+        } else {
+            await query(
+                `INSERT INTO attendance (user_type, user_id, group_id, date, status, scan_time, subject_name)
+                 VALUES (?, ?, ?, ?, 'present', ?, ?)`,
+                [userType, user.id, group_id || null, date, scanTime, subject_name]
+            );
+        }
 
         res.json({ 
             message: 'Scan successful',
@@ -285,7 +449,8 @@ router.post('/scan', async (req, res, next) => {
                 last_name: user.last_name,
                 type: userType,
                 photo: user.photo,
-                gender: user.gender
+                gender: user.gender,
+                subject_name: subject_name
             }
         });
 
@@ -394,29 +559,73 @@ router.post('/validate', async (req, res, next) => {
 // Bulk update attendance statuses
 router.post('/bulk', async (req, res, next) => {
     try {
-        let { user_type, user_ids, group_id, date, status, subject_name } = req.body;
+        let { user_type, user_ids, items, group_id, date, status, subject_name } = req.body;
         subject_name = subject_name || '';
 
-        if (!user_type || !user_ids || !Array.isArray(user_ids) || !date || !status) {
+        if (!user_type || !date || !status) {
             return res.status(400).json({ message: 'Invalid bulk update payload' });
+        }
+
+        // Support detailed items array: [{ user_id, group_id, subject_name }]
+        if (Array.isArray(items) && items.length > 0) {
+            for (const it of items) {
+                const uId = it.user_id;
+                const gId = it.group_id !== undefined ? it.group_id : (group_id || null);
+                const sName = it.subject_name !== undefined ? it.subject_name : subject_name;
+
+                const existing = await query(
+                    `SELECT id FROM attendance 
+                     WHERE user_type = ? AND user_id = ? AND date = ? 
+                       AND (group_id = ? OR (group_id IS NULL AND ? IS NULL)) 
+                       AND subject_name = ? LIMIT 1`,
+                    [user_type, uId, date, gId, gId, sName]
+                );
+
+                if (existing.length > 0) {
+                    await query(
+                        `UPDATE attendance SET status = ? WHERE id = ?`,
+                        [status, existing[0].id]
+                    );
+                } else {
+                    await query(
+                        `INSERT INTO attendance (user_type, user_id, group_id, date, status, subject_name)
+                         VALUES (?, ?, ?, ?, ?, ?)`,
+                        [user_type, uId, gId, date, status, sName]
+                    );
+                }
+            }
+            return res.json({ message: 'Bulk attendance updated successfully' });
+        }
+
+        if (!user_ids || !Array.isArray(user_ids)) {
+            return res.status(400).json({ message: 'user_ids or items array is required' });
         }
         if (user_ids.length === 0) {
             return res.json({ message: 'No users provided' });
         }
 
-        const values = [];
-        const placeholders = user_ids.map(id => {
-            values.push(user_type, id, group_id || null, date, status, subject_name);
-            return '(?, ?, ?, ?, ?, ?)';
-        }).join(',');
+        for (const uId of user_ids) {
+            const existing = await query(
+                `SELECT id FROM attendance 
+                 WHERE user_type = ? AND user_id = ? AND date = ? 
+                   AND (group_id = ? OR (group_id IS NULL AND ? IS NULL)) 
+                   AND subject_name = ? LIMIT 1`,
+                [user_type, uId, date, group_id || null, group_id || null, subject_name]
+            );
 
-        const queryStr = `
-            INSERT INTO attendance (user_type, user_id, group_id, date, status, subject_name)
-            VALUES ${placeholders}
-            ON DUPLICATE KEY UPDATE status = VALUES(status)
-        `;
-
-        await query(queryStr, values);
+            if (existing.length > 0) {
+                await query(
+                    `UPDATE attendance SET status = ? WHERE id = ?`,
+                    [status, existing[0].id]
+                );
+            } else {
+                await query(
+                    `INSERT INTO attendance (user_type, user_id, group_id, date, status, subject_name)
+                     VALUES (?, ?, ?, ?, ?, ?)`,
+                    [user_type, uId, group_id || null, date, status, subject_name]
+                );
+            }
+        }
 
         res.json({ message: 'Bulk attendance updated successfully' });
     } catch (err) {

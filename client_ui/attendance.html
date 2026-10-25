@@ -65,6 +65,66 @@
         .filter-group { flex: 1; min-width: 200px; }
         .filter-group select, .filter-group input { width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid #ddd; }
         
+        .attendance-search-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .attendance-search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 13px;
+            pointer-events: none;
+        }
+        html[dir="rtl"] .attendance-search-icon,
+        body.rtl .attendance-search-icon {
+            left: auto;
+            right: 12px;
+        }
+        .attendance-search-wrapper input {
+            width: 100%;
+            padding: 8px 30px 8px 34px !important;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            font-size: 13px;
+            transition: all 0.2s;
+            background: #fff;
+        }
+        html[dir="rtl"] .attendance-search-wrapper input,
+        body.rtl .attendance-search-wrapper input {
+            padding: 8px 34px 8px 30px !important;
+        }
+        .attendance-search-wrapper input:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+            outline: none;
+        }
+        .attendance-search-clear-btn {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            color: #999;
+            cursor: pointer;
+            padding: 4px;
+            display: none;
+            line-height: 1;
+            font-size: 14px;
+        }
+        html[dir="rtl"] .attendance-search-clear-btn,
+        body.rtl .attendance-search-clear-btn {
+            right: auto;
+            left: 8px;
+        }
+        .attendance-search-clear-btn:hover {
+            color: #dc3545;
+        }
+        
         .status-toggle {
             cursor: pointer;
             padding: 6px 12px;
@@ -151,6 +211,22 @@
                             <option value="" data-i18n="-- All Groups --">-- All Groups --</option>
                         </select>
                     </div>
+                    <div class="filter-group" id="attendance-subject-container" style="display: none;">
+                        <label id="attendance-subject-label" data-i18n="Subject / Session">Subject / Session</label>
+                        <select id="attendance-filter-subject">
+                            <option value="" data-i18n="-- Optional / Generic --">-- Optional / Generic --</option>
+                        </select>
+                    </div>
+                    <div class="filter-group" id="attendance-search-container">
+                        <label><i class="fa fa-search"></i> <span data-i18n="Search">Search</span></label>
+                        <div class="attendance-search-wrapper">
+                            <i class="fa fa-search attendance-search-icon"></i>
+                            <input type="text" id="attendance-filter-search" placeholder="Search by name, ID, RFID..." data-i18n-ph="Search by name, ID, RFID..." autocomplete="off">
+                            <button type="button" id="attendance-search-clear" class="attendance-search-clear-btn" title="Clear" data-i18n-title="Clear">
+                                <i class="fa fa-times-circle"></i>
+                            </button>
+                        </div>
+                    </div>
                     <div class="filter-group" style="display: flex; align-items: flex-end; gap: 8px;">
                         <button id="btn-validate-attendance" class="btn btn-success" style="display: none; height: 38px;">
                             <i class="fa fa-lock"></i> <span data-i18n="Validate Attendance">Validate Attendance</span>
@@ -177,13 +253,14 @@
                                 <th width="50" data-i18n="Photo">Photo</th>
                                 <th data-i18n="ID Number">ID Number</th>
                                 <th data-i18n="Name">Name</th>
+                                <th id="attendance-th-seance" data-i18n="Séance / Session">Séance / Session</th>
                                 <th data-i18n="RFID Tag">RFID Tag</th>
                                 <th data-i18n="Scan / Check-in Time">Scan Time</th>
                                 <th width="150" data-i18n="Status">Status</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr><td colspan="7" class="text-center" data-i18n="Loading...">Loading...</td></tr>
+                            <tr><td colspan="8" class="text-center" data-i18n="Loading...">Loading...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -202,6 +279,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="js/i18n.js"></script>
     <script src="js/components.js"></script>
-    <script src="js/backend.js"></script>
+    <script src="js/backend.js?v=4"></script>
 </body>
 </html>

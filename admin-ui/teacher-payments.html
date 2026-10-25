@@ -909,12 +909,18 @@
       var name = [t.first_name, t.last_name].filter(Boolean).join(' ');
       var img  = avatar(t.photo, t.gender);
       var fallback = defaultTeacherAvatar(t.gender);
+      var isEmp = t.staff_type === 'employee';
+      var roleBadge = isEmp
+        ? '<span class="badge" style="background:#fef3c7;color:#92400e;font-size:10px;padding:2px 6px;margin-inline-end:4px;border:1px solid #fcd34d;">' + (lang==='ar'?'موظف':'Employee') + '</span>'
+        : '<span class="badge" style="background:#dbeafe;color:#1e40af;font-size:10px;padding:2px 6px;margin-inline-end:4px;border:1px solid #93c5fd;">' + (lang==='ar'?'أستاذ':'Teacher') + '</span>';
+      var subText = isEmp ? (t.job_title || '') : (t.speciality || '');
+
       return '<tr>' +
         '<td style="color:var(--muted);font-weight:700;text-align:center">' + (i+1) + '</td>' +
         '<td><div class="t-cell">' +
           '<img src="' + esc(img) + '" class="t-avatar" onerror="this.onerror=null;this.src=\'' + fallback + '\'">' +
-          '<div><div class="t-name">' + esc(name) + '</div>' +
-          '<div class="t-sub">' + esc(t.employee_number||'') + (t.speciality ? ' · ' + esc(t.speciality) : '') + '</div></div>' +
+          '<div><div class="t-name">' + esc(name) + ' ' + roleBadge + '</div>' +
+          '<div class="t-sub">' + esc(t.employee_number||'') + (subText ? ' · ' + esc(subText) : '') + '</div></div>' +
         '</div></td>' +
         '<td><input type="number" class="salary-input" id="sal-' + t.id + '" value="' + (t.monthly_salary != null && t.monthly_salary !== '' ? parseFloat(t.monthly_salary) : '') + '" placeholder="0.00" min="0" step="100" onchange="markDirty(' + t.id + ')"></td>' +
         '<td><input type="text" class="rib-input" id="rib-' + t.id + '" value="' + esc(t.ccp_rib||'') + '" placeholder="00000000000 00" onchange="markDirty(' + t.id + ')"></td>' +
@@ -1025,15 +1031,21 @@
       var amtLabel = amount ? fmt(amount) + curr : '<span style="color:var(--muted)">' + (lang==='ar'?'لم يُحدد الراتب':'Salary Not Set') + '</span>';
       var clickable = !isPaid && t.monthly_salary ? ' clickable" onclick="toggleRow(this,' + t.teacher_id + ')' : '';
 
-      return '<div class="pay-row ' + (isPaid?'paid':'') + clickable + '" id="payrow-' + t.teacher_id + '">' +
-        (!isPaid ? '<input type="checkbox" class="pay-checkbox" id="chk-'+t.teacher_id+'" ' +
-          'data-id="'+t.teacher_id+'" data-amount="'+(t.monthly_salary||0)+'" data-method="'+(t.preferred_pay_method||'cash')+'" ' +
-          'onchange="updateSelectedCount()">' : '') +
-        '<img src="' + esc(img) + '" class="t-avatar" onerror="this.onerror=null;this.src=\'' + fallback + '\'">' +
-        '<div class="pay-row-info">' +
-          '<div class="t-name">' + esc(name) + '</div>' +
-          '<div class="t-sub">' + esc(t.speciality || t.employee_number || '') + '</div>' +
-        '</div>' +
+        var isEmp = t.staff_type === 'employee';
+        var roleBadge = isEmp
+          ? '<span class="badge" style="background:#fef3c7;color:#92400e;font-size:10px;padding:2px 6px;margin-inline-end:4px;border:1px solid #fcd34d;">' + (lang==='ar'?'موظف':'Employee') + '</span>'
+          : '<span class="badge" style="background:#dbeafe;color:#1e40af;font-size:10px;padding:2px 6px;margin-inline-end:4px;border:1px solid #93c5fd;">' + (lang==='ar'?'أستاذ':'Teacher') + '</span>';
+        var subText = isEmp ? (t.job_title || '') : (t.speciality || '');
+
+        return '<div class="pay-row ' + (isPaid?'paid':'') + clickable + '" id="payrow-' + t.teacher_id + '">' +
+          (!isPaid ? '<input type="checkbox" class="pay-checkbox" id="chk-'+t.teacher_id+'" ' +
+            'data-id="'+t.teacher_id+'" data-amount="'+(t.monthly_salary||0)+'" data-method="'+(t.preferred_pay_method||'cash')+'" ' +
+            'onchange="updateSelectedCount()">' : '') +
+          '<img src="' + esc(img) + '" class="t-avatar" onerror="this.onerror=null;this.src=\'' + fallback + '\'">' +
+          '<div class="pay-row-info">' +
+            '<div class="t-name">' + esc(name) + ' ' + roleBadge + '</div>' +
+            '<div class="t-sub">' + esc(t.employee_number || '') + (subText ? ' · ' + esc(subText) : '') + '</div>' +
+          '</div>' +
         '<div style="text-align:center">' +
           '<div class="pay-row-amount' + (isPaid?' paid-amt':'') + '">' + amtLabel + '</div>' +
           (isPaid ? '<div style="font-size:11px;color:var(--muted)">' + esc(t.payment_date?String(t.payment_date).split('T')[0]:'') + '</div>' : '') +
@@ -1174,11 +1186,17 @@
       var mBadge = r.method === 'ccp'
         ? '<span class="method-badge ccp"><i class="fa fa-university"></i> CCP</span>'
         : '<span class="method-badge cash"><i class="fa fa-money"></i> ' + (lang==='ar'?'نقداً':'Cash') + '</span>';
+      var isEmp = r.staff_type === 'employee';
+      var roleBadge = isEmp
+        ? '<span class="badge" style="background:#fef3c7;color:#92400e;font-size:10px;padding:2px 6px;margin-inline-end:4px;border:1px solid #fcd34d;">' + (lang==='ar'?'موظف':'Employee') + '</span>'
+        : '<span class="badge" style="background:#dbeafe;color:#1e40af;font-size:10px;padding:2px 6px;margin-inline-end:4px;border:1px solid #93c5fd;">' + (lang==='ar'?'أستاذ':'Teacher') + '</span>';
+      var subText = isEmp ? (r.job_title || '') : (r.speciality || '');
+
       return '<tr>' +
         '<td style="color:var(--muted);font-weight:700;text-align:center">' + (i+1) + '</td>' +
         '<td><div class="t-cell">' +
           '<img src="' + esc(img) + '" class="t-avatar" onerror="this.onerror=null;this.src=\'' + fallback + '\'">' +
-          '<div><div class="t-name">' + esc(name) + '</div><div class="t-sub">' + esc(r.employee_number||'') + '</div></div>' +
+          '<div><div class="t-name">' + esc(name) + ' ' + roleBadge + '</div><div class="t-sub">' + esc(r.employee_number||'') + (subText ? ' · ' + esc(subText) : '') + '</div></div>' +
         '</div></td>' +
         '<td style="font-weight:700">' + monthName(r.pay_month) + ' ' + r.pay_year + '</td>' +
         '<td style="font-weight:800;color:var(--primary)">' + fmt(r.amount) + curr + '</td>' +
@@ -1281,10 +1299,14 @@
       (document.getElementById('sb-school-name') && document.getElementById('sb-school-name').textContent.trim()) || fallbackSchoolName;
     var logoUrl = resolveSchoolLogo(schoolLogo, activeSchoolName);
 
-    var voucherTitle = isAr ? 'وصل تسليم راتب أستاذ' : 'Teacher Salary Payment Voucher';
-    var lblTeacher = isAr ? 'اسم الأستاذ' : 'Teacher Name';
+    var isEmployee = (r.staff_type === 'employee') || (tc && tc.staff_type === 'employee');
+    var voucherTitle = isEmployee
+      ? (isAr ? 'وصل تسليم راتب موظف' : 'Employee Salary Payment Voucher')
+      : (isAr ? 'وصل تسليم راتب أستاذ' : 'Teacher Salary Payment Voucher');
+    var lblTeacher = isEmployee ? (isAr ? 'اسم الموظف' : 'Employee Name') : (isAr ? 'اسم الأستاذ' : 'Teacher Name');
     var lblEmp = isAr ? 'رقم الموظف' : 'Employee Number';
-    var lblSpec = isAr ? 'التخصص / المادة' : 'Speciality / Subject';
+    var lblSpec = isEmployee ? (isAr ? 'المسمى الوظيفي' : 'Job Title') : (isAr ? 'التخصص / المادة' : 'Speciality / Subject');
+    var roleVal = isEmployee ? ((tc && tc.job_title) || r.job_title || '') : ((tc && tc.speciality) || r.speciality || '');
     var lblPeriod = isAr ? 'فترة الراتب' : 'Salary Period';
     var lblDate = isAr ? 'تاريخ التسديد' : 'Payment Date';
     var lblMethod = isAr ? 'طريقة الدفع' : 'Payment Method';
@@ -1311,7 +1333,7 @@
         '<!-- Details Rows -->' +
         '<div class="slip-row"><span>' + lblTeacher + '</span><strong>' + esc(name) + '</strong></div>' +
         '<div class="slip-row"><span>' + lblEmp + '</span><strong>' + esc(r.employee_number||'—') + '</strong></div>' +
-        (tc && tc.speciality ? '<div class="slip-row"><span>' + lblSpec + '</span><strong>' + esc(tc.speciality) + '</strong></div>' : '') +
+        (roleVal ? '<div class="slip-row"><span>' + lblSpec + '</span><strong>' + esc(roleVal) + '</strong></div>' : '') +
         '<div class="slip-row"><span>' + lblPeriod + '</span><strong>' + monthName(r.pay_month) + ' ' + r.pay_year + '</strong></div>' +
         '<div class="slip-row"><span>' + lblDate + '</span><strong>' + esc(r.payment_date ? String(r.payment_date).split('T')[0] : '—') + '</strong></div>' +
         '<div class="slip-row"><span>' + lblMethod + '</span><strong>' + esc(methodLabel) + '</strong></div>' +

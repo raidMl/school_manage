@@ -11,7 +11,7 @@
       })();
     </script>
     <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Edit Teacher | School System Admin</title>
+    <title>Edit Teacher / Employee | School System Admin</title>
     <link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/bootstrap.min.css">
@@ -68,7 +68,7 @@
         <i class="fa fa-pencil-square-o"></i>
       </div>
       <div class="hero-text">
-        <h2 data-i18n="Edit Teacher">Edit Teacher</h2>
+        <h2 data-i18n="Edit Staff">Edit Staff</h2>
         <div class="hero-badges-row">
           <span class="hero-pill">
             <i class="fa fa-briefcase"></i>
@@ -89,6 +89,21 @@
   <div class="form-card-body">
     <div id="backend-form-status" class="alert" style="display:none"></div>
     <form id="backend-edit-teacher-form" novalidate>
+
+      <div class="sec-title"><i class="fa fa-briefcase"></i> <span data-i18n="Staff Type">Staff Type</span></div>
+      <div class="row">
+        <div class="col-md-6"><div class="form-group">
+          <label><span data-i18n="Type">Type</span></label>
+          <select name="staff_type" id="staff-type-select" class="form-control">
+            <option value="teacher" data-i18n="Teacher">Teacher</option>
+            <option value="employee" data-i18n="Employee">Employee</option>
+          </select>
+        </div></div>
+        <div class="col-md-6" id="job-title-group" style="display:none;"><div class="form-group">
+          <label><span data-i18n="Job Title">Job Title</span></label>
+          <input type="text" name="job_title" class="form-control" placeholder="e.g. Accountant, Cleaner, Administrator" data-i18n-ph="e.g. Accountant, Cleaner, Administrator">
+        </div></div>
+      </div>
 
       <div class="sec-title"><i class="fa fa-user"></i> <span data-i18n="Personal Information">Personal Information</span></div>
       <div class="row">
@@ -237,7 +252,7 @@
           <label data-i18n="Employee Number">Employee Number</label>
           <input type="text" name="employee_number" class="form-control" placeholder="e.g. EMP-1001">
         </div></div>
-        <div class="col-md-4"><div class="form-group">
+        <div class="col-md-4" id="speciality-group"><div class="form-group">
           <label data-i18n="Speciality">Speciality</label>
           <input type="text" name="speciality" class="form-control">
         </div></div>
@@ -312,7 +327,7 @@
       </div>
 
       <div style="margin-top:18px; display:flex; align-items:center; gap:10px;">
-        <button type="submit" class="btn-submit"><i class="fa fa-save"></i> <span data-i18n="Update Teacher">Update Teacher</span></button>
+        <button type="submit" class="btn-submit"><i class="fa fa-save"></i> <span data-i18n="Update" id="update-btn-text">Update</span></button>
         <a href="all-professors.html" class="btn-back"><i class="fa fa-arrow-left"></i> <span data-i18n="Back">Back</span></a>
       </div>
     </form>
@@ -324,5 +339,25 @@
 <script src="js/vendor/jquery-1.12.4.min.js"></script>
 <script src="js/bootstrap.min.js"></script>
 <script src="js/components.js"></script>
-<script src="js/backend.js?v=5"></script>
+<script src="js/backend.js?v=6"></script>
+<script>
+(function(){
+  var sel = document.getElementById('staff-type-select');
+  var jobGrp = document.getElementById('job-title-group');
+  var specGrp = document.getElementById('speciality-group');
+  if (!sel) return;
+  function toggle() {
+    var isEmp = sel.value === 'employee';
+    jobGrp.style.display = isEmp ? '' : 'none';
+    if (specGrp) specGrp.style.display = isEmp ? 'none' : '';
+  }
+  sel.addEventListener('change', toggle);
+  // Wait for backend.js to fill the form, then toggle
+  var origToggle = toggle;
+  var obs = new MutationObserver(function(){ origToggle(); });
+  obs.observe(sel, { attributes: true, childList: true });
+  setTimeout(function(){ origToggle(); obs.disconnect(); }, 2000);
+  toggle();
+})();
+</script>
 </body></html>

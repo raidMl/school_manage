@@ -90,6 +90,8 @@
   var selectedStudent = null;    // currently selected student object
   var currentFormation = null;   // formation object for selected student
   var currentPromos = [];        // promo codes for current formation
+  var allSchoolPromos = [];      // all active promo codes from promo-codes.html
+  var activePromo = null;        // currently applied promo code object
   var selectedPlan = null;       // chosen subscription plan key  e.g. '1_month'
   var activeTab = 'tab-enter-payment';
   var tabLoaded = {};
@@ -267,18 +269,24 @@
 
   function clearStudentSelection() {
     selectedStudent = null; currentFormation = null; currentPromos = []; selectedPlan = null;
+    activePromo = null;
     var input = document.getElementById('student-search-input');
     var card  = document.getElementById('selected-student-card');
     var form  = document.getElementById('payment-entry-form');
     var panel = document.getElementById('student-history-panel');
+    var promoInput = document.getElementById('pay-promo-code-input');
+    var feedbackEl = document.getElementById('promo-code-feedback');
+    var hiddenPromo = document.getElementById('pay-promo-code');
     if (input) input.value = '';
     if (card)  card.className = '';
     if (form)  { form.style.display = 'none'; form.reset(); }
     if (panel) panel.style.display = 'none';
+    if (promoInput) promoInput.value = '';
+    if (hiddenPromo) hiddenPromo.value = '';
+    if (feedbackEl) { feedbackEl.style.display = 'none'; feedbackEl.innerHTML = ''; }
     hideBanner('payment-success-banner');
     hideBanner('pay-final-price-row');
     hideBanner('formation-price-banner');
-    hideBanner('promo-code-row');
   }
 
   /* ══════════════════════════════════════════════════════════════════════
@@ -288,12 +296,7 @@
     request('/api/formations/' + formationId).then(function (p) {
       currentFormation = p.data;
       renderFormationPriceBanner(currentFormation);
-
-      // Load promo codes for this formation
-      request('/api/promo-codes?formation_id=' + formationId).then(function (pc) {
-        currentPromos = (pc.data || []).filter(function (c) { return c.is_active; });
-        renderPromoCodeSelect(currentPromos);
-      }).catch(function () { currentPromos = []; renderPromoCodeSelect([]); });
+      loadSchoolPromos();
     }).catch(function () { currentFormation = null; });
   }
 
@@ -354,24 +357,99 @@
     }
   }
 
-  function renderPromoCodeSelect(promos) {
-    var row = document.getElementById('promo-code-row');
-    var sel = document.getElementById('pay-promo-code');
-    if (!row || !sel) return;
+  function loadSchoolPromos() {
+    return request('/api/promo-codes').then(function (pc) {
+      allSchoolPromos = (pc.data || []).filter(function (c) { return c.is_active; });
+      updatePromoDatalist(allSchoolPromos);
+      return allSchoolPromos;
+    }).catch(function () {
+      allSchoolPromos = [];
+      updatePromoDatalist([]);
+      return [];
+    });
+  }
 
-    if (!promos.length) {
-      row.style.display = 'none'; return;
+  function updatePromoDatalist(promos) {
+    var dl = document.getElementById('promos-datalist');
+    if (!dl) return;
+    dl.innerHTML = (promos || []).map(function (p) {
+      var info = p.code + ' (' + p.discount_percent + '% off' + (p.formation_title ? ' · ' + p.formation_title : '') + ')';
+      return '<option value="' + esc(p.code) + '">' + esc(info) + '</option>';
+    }).join('');
+  }
+
+  function insertPromoIntoNotes(code, disc) {
+    var notesEl = document.getElementById('pay-notes');
+    if (!notesEl) return;
+    var promoTag = 'كود الخصم: ' + code + ' (خصم ' + disc + '%)';
+    var cur = (notesEl.value || '').trim();
+
+    var promoRegex = /كود الخصم:\s*[^\s\-]+(\s*\(خصم\s*\d+(\.\d+)?%\))?/i;
+    var promoRegexEn = /Promo Code:\s*[^\s\-]+(\s*\(-?\d+(\.\d+)?%\))?/i;
+
+    if (promoRegex.test(cur)) {
+      notesEl.value = cur.replace(promoRegex, promoTag);
+    } else if (promoRegexEn.test(cur)) {
+      notesEl.value = cur.replace(promoRegexEn, promoTag);
+    } else if (!cur) {
+      notesEl.value = promoTag;
+    } else {
+      notesEl.value = cur + ' - ' + promoTag;
     }
-    sel.innerHTML = '<option value="">— No promo code —</option>' +
-      promos.map(function (p) {
-        return '<option value="' + esc(p.code) + '" data-discount="' + p.discount_percent + '">' +
-          esc(p.code) + ' — ' + p.discount_percent + '% off</option>';
-      }).join('');
-    row.style.display = 'block';
-    tr(row);
+  }
 
-    // Bind change
-    sel.onchange = function () { recalcPrice(); };
+  function removePromoFromNotes() {
+    var notesEl = document.getElementById('pay-notes');
+    if (!notesEl) return;
+    var cur = (notesEl.value || '').trim();
+    var promoRegex = /\s*(-)?\s*كود الخصم:\s*[^\s\-]+(\s*\(خصم\s*\d+(\.\d+)?%\))?/gi;
+    var promoRegexEn = /\s*(-)?\s*Promo Code:\s*[^\s\-]+(\s*\(-?\d+(\.\d+)?%\))?/gi;
+
+    var cleaned = cur.replace(promoRegex, '').replace(promoRegexEn, '').trim();
+    cleaned = cleaned.replace(/^-\s*/, '').replace(/\s*-$/, '').trim();
+    notesEl.value = cleaned;
+  }
+
+  function applyEnteredPromoCode(codeStr) {
+    codeStr = (codeStr || '').trim();
+    var feedbackEl = document.getElementById('promo-code-feedback');
+    var hiddenPromo = document.getElementById('pay-promo-code');
+
+    if (!codeStr) {
+      activePromo = null;
+      if (hiddenPromo) hiddenPromo.value = '';
+      if (feedbackEl) { feedbackEl.style.display = 'none'; feedbackEl.innerHTML = ''; }
+      removePromoFromNotes();
+      recalcPrice();
+      return;
+    }
+
+    var matched = allSchoolPromos.find(function (p) {
+      return String(p.code).trim().toLowerCase() === codeStr.toLowerCase();
+    });
+
+    if (matched) {
+      activePromo = matched;
+      if (hiddenPromo) hiddenPromo.value = matched.code;
+      var disc = parseFloat(matched.discount_percent || 0);
+
+      if (feedbackEl) {
+        feedbackEl.style.display = 'block';
+        feedbackEl.innerHTML = '<span style="color:#059669"><i class="fa fa-check-circle"></i> كود خصم مطبق: <strong>' + esc(matched.code) + '</strong> (خصم ' + disc + '%) — تم إدراجه في الملاحظات</span>';
+      }
+
+      insertPromoIntoNotes(matched.code, disc);
+      recalcPrice();
+    } else {
+      activePromo = null;
+      if (hiddenPromo) hiddenPromo.value = '';
+      if (feedbackEl) {
+        feedbackEl.style.display = 'block';
+        feedbackEl.innerHTML = '<span style="color:#dc2626"><i class="fa fa-times-circle"></i> كود الخصم غير موجود أو غير نشط</span>';
+      }
+      removePromoFromNotes();
+      recalcPrice();
+    }
   }
 
   function getBasePrice() {
@@ -386,10 +464,12 @@
   }
 
   function getSelectedDiscount() {
+    if (activePromo && activePromo.discount_percent) {
+      return parseFloat(activePromo.discount_percent || 0);
+    }
     var sel = document.getElementById('pay-promo-code');
     if (!sel || !sel.value) return 0;
-    var opt = sel.options[sel.selectedIndex];
-    return opt ? parseFloat(opt.getAttribute('data-discount') || 0) : 0;
+    return 0;
   }
 
   function applyPromoAndSetAmount(basePrice) {
@@ -479,6 +559,47 @@
     var form = document.getElementById('payment-entry-form');
     if (!form) return;
 
+    var amtInput = document.getElementById('pay-amount');
+    var notesInput = document.getElementById('pay-notes');
+    if (amtInput && notesInput) {
+      function syncZeroNote() {
+        var raw = amtInput.value.trim();
+        if (raw !== '' && !isNaN(Number(raw)) && Number(raw) === 0) {
+          if (!notesInput.value.trim() || notesInput.value === 'معفى من الدفع.') {
+            notesInput.value = 'معفى من الدفع.';
+          }
+        } else if (notesInput.value === 'معفى من الدفع.') {
+          notesInput.value = '';
+        }
+      }
+      amtInput.addEventListener('input', syncZeroNote);
+      amtInput.addEventListener('change', syncZeroNote);
+    }
+
+    var promoInput = document.getElementById('pay-promo-code-input');
+    var applyPromoBtn = document.getElementById('btn-apply-promo');
+    if (promoInput) {
+      promoInput.addEventListener('input', function () {
+        var v = this.value.trim();
+        var matched = allSchoolPromos.find(function (p) {
+          return String(p.code).trim().toLowerCase() === v.toLowerCase();
+        });
+        if (matched) {
+          applyEnteredPromoCode(v);
+        } else if (!v) {
+          applyEnteredPromoCode('');
+        }
+      });
+      promoInput.addEventListener('change', function () {
+        applyEnteredPromoCode(this.value.trim());
+      });
+    }
+    if (applyPromoBtn && promoInput) {
+      applyPromoBtn.addEventListener('click', function () {
+        applyEnteredPromoCode(promoInput.value.trim());
+      });
+    }
+
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       hideAlert('#payment-entry-status');
@@ -494,20 +615,38 @@
         return;
       }
 
-      var amount = parseFloat(document.getElementById('pay-amount').value);
-      if (!amount || amount <= 0) { showAlert('#payment-entry-status', 'Please enter a valid amount.'); return; }
+      var amtRaw = document.getElementById('pay-amount').value.trim();
+      var amount = parseFloat(amtRaw);
+      if (amtRaw === '' || isNaN(amount) || amount < 0) {
+        showAlert('#payment-entry-status', 'Please enter a valid amount.');
+        return;
+      }
+
+      var notesVal = (document.getElementById('pay-notes').value || '').trim();
+      if (amount === 0 && !notesVal) {
+        notesVal = 'معفى من الدفع.';
+        document.getElementById('pay-notes').value = notesVal;
+      }
+
+      var promoSel  = document.getElementById('pay-promo-code');
+      var promoInputEl = document.getElementById('pay-promo-code-input');
+      var promoCode = activePromo ? activePromo.code : ((promoInputEl ? promoInputEl.value.trim() : null) || (promoSel ? promoSel.value : null) || null);
+
+      if (promoCode && (!notesVal || !notesVal.includes(promoCode))) {
+        var disc = activePromo ? parseFloat(activePromo.discount_percent || 0) : 0;
+        var pTag = 'كود الخصم: ' + promoCode + (disc > 0 ? ' (خصم ' + disc + '%)' : '');
+        notesVal = notesVal ? (notesVal + ' - ' + pTag) : pTag;
+        document.getElementById('pay-notes').value = notesVal;
+      }
 
       var btn = document.getElementById('btn-save-payment');
       if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Saving...'; }
-
-      var promoSel  = document.getElementById('pay-promo-code');
-      var promoCode = promoSel ? (promoSel.value || null) : null;
 
       var payload = {
         amount: amount,
         payment_date: document.getElementById('pay-date').value || null,
         payment_method: document.getElementById('pay-method').value,
-        notes: document.getElementById('pay-notes').value || null,
+        notes: notesVal || null,
         update_status: true,   // always mark as paid
         subscription_plan: selectedPlan || null,
         promo_code: promoCode,
@@ -544,9 +683,14 @@
           }
         }).catch(function () {});
 
-        // Reset amount / notes
+        // Reset amount / notes / promo
         document.getElementById('pay-amount').value = '';
         document.getElementById('pay-notes').value = '';
+        activePromo = null;
+        var pInput = document.getElementById('pay-promo-code-input');
+        if (pInput) pInput.value = '';
+        var fBack = document.getElementById('promo-code-feedback');
+        if (fBack) { fBack.style.display = 'none'; fBack.innerHTML = ''; }
         var promoSel2 = document.getElementById('pay-promo-code');
         if (promoSel2) promoSel2.value = '';
         // Recalc price display to base
@@ -917,18 +1061,42 @@
   function bindEditPaymentModal() {
     var form = document.getElementById('edit-payment-form');
     if (!form) return;
+
+    var editAmtInput = document.getElementById('edit-pay-amount');
+    var editNotesInput = document.getElementById('edit-pay-notes');
+    if (editAmtInput && editNotesInput) {
+      function syncEditZeroNote() {
+        var raw = editAmtInput.value.trim();
+        if (raw !== '' && !isNaN(Number(raw)) && Number(raw) === 0) {
+          if (!editNotesInput.value.trim() || editNotesInput.value === 'معفى من الدفع.') {
+            editNotesInput.value = 'معفى من الدفع.';
+          }
+        } else if (editNotesInput.value === 'معفى من الدفع.') {
+          editNotesInput.value = '';
+        }
+      }
+      editAmtInput.addEventListener('input', syncEditZeroNote);
+      editAmtInput.addEventListener('change', syncEditZeroNote);
+    }
+
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       if (!_editPayRow) return;
       var statusEl = document.getElementById('edit-payment-status');
       var saveBtn  = document.getElementById('btn-save-edit-payment');
-      var amount   = parseFloat(document.getElementById('edit-pay-amount').value);
+      var amtRaw   = document.getElementById('edit-pay-amount').value.trim();
+      var amount   = parseFloat(amtRaw);
       var date     = document.getElementById('edit-pay-date').value;
       var method   = document.getElementById('edit-pay-method').value;
       var notes    = document.getElementById('edit-pay-notes').value.trim();
 
-      if (!amount || amount <= 0) { showAlert(statusEl, 'Valid amount required.', 'danger'); return; }
+      if (amtRaw === '' || isNaN(amount) || amount < 0) { showAlert(statusEl, 'Valid amount required.', 'danger'); return; }
       if (!date)                  { showAlert(statusEl, 'Date is required.', 'danger'); return; }
+
+      if (amount === 0 && !notes) {
+        notes = 'معفى من الدفع.';
+        document.getElementById('edit-pay-notes').value = notes;
+      }
 
       if (saveBtn) saveBtn.disabled = true;
       hideAlert(statusEl);
@@ -1011,6 +1179,7 @@
   document.addEventListener('DOMContentLoaded', function () {
     initTabs();
     loadAllStudents();
+    loadSchoolPromos();
     initStudentSearch();
     bindPaymentForm();
     bindHistoryFilters();
