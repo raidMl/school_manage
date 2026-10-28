@@ -386,6 +386,23 @@ const TABLE_SCHEMAS = {
       updated_at    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
       INDEX idx_inv_school (school_id)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  `,
+  student_disciplinary_notes: `
+    CREATE TABLE IF NOT EXISTS student_disciplinary_notes (
+      id           BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+      student_id   BIGINT UNSIGNED NOT NULL,
+      school_id    BIGINT UNSIGNED NULL,
+      title        VARCHAR(255)  NOT NULL,
+      description  TEXT          NULL,
+      type         ENUM('warning','suspension','commendation','incident','other') NOT NULL DEFAULT 'other',
+      severity     ENUM('low','medium','high') NOT NULL DEFAULT 'low',
+      note_date    DATE          NOT NULL,
+      added_by     BIGINT UNSIGNED NULL,
+      created_at   TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
+      updated_at   TIMESTAMP     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      INDEX idx_disc_student (student_id),
+      INDEX idx_disc_school  (school_id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
   `
 };
 

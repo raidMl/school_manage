@@ -163,5 +163,36 @@ router.get('/payments', asyncHandler(async (req, res) => {
   res.json({ data: rows, total });
 }));
 
+router.get('/disciplinary-notes', asyncHandler(async (req, res) => {
+  if (req.auth.role !== 'student') return res.status(403).json({ message: 'Forbidden: Students only' });
+
+  const student = await query('SELECT id FROM students WHERE user_id = ?', [req.auth.userId]);
+  if (!student.length) return res.json({ data: [], stats: { total: 0, high: 0, medium: 0, low: 0 } });
+
+  const notes = await query(`
+    SELECT
+      dn.id, dn.title, dn.description, dn.type, dn.severity,
+      DATE_FORMAT(dn.note_date, '%Y-%m-%d') AS note_date,
+      dn.created_at,
+      u.first_name AS added_by_first, u.last_name AS added_by_last,
+      u.role AS added_by_role
+    FROM student_disciplinary_notes dn
+    LEFT JOIN users u ON u.id = dn.added_by
+    WHERE dn.student_id = ?
+    ORDER BY dn.note_date DESC, dn.created_at DESC
+  `, [student[0].id]);
+
+  const stats = {
+    total: notes.length,
+    high: notes.filter(n => n.severity === 'high').length,
+    medium: notes.filter(n => n.severity === 'medium').length,
+    low: notes.filter(n => n.severity === 'low').length,
+    commendations: notes.filter(n => n.type === 'praise' || n.type === 'commendation').length
+  };
+
+  res.json({ data: notes, stats });
+}));
+
 module.exports = router;
+
 

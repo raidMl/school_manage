@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>الملف التأديبي والملاحظات | Student Space</title>
+    <link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/sidebar.css">
+    <link rel="stylesheet" href="css/portal.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#4f6eff">
+    <link rel="apple-touch-icon" href="img/icon-512.jpg">
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #1e293b; }
+        
+        .disc-hero {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-radius: 16px; padding: 30px 32px; margin-bottom: 28px;
+            display: flex; align-items: center; justify-content: space-between; gap: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.12); flex-wrap: wrap;
+        }
+        .disc-hero-left {
+            display: flex; align-items: center; gap: 20px;
+        }
+        .disc-hero-icon {
+            width: 68px; height: 68px;
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            border-radius: 16px; display: flex; align-items: center;
+            justify-content: center; font-size: 30px; color: #fff; flex-shrink: 0;
+            box-shadow: 0 4px 20px rgba(99,102,241,0.4);
+        }
+        .disc-hero-text h1 { font-size: 22px; font-weight: 800; color: #fff; margin: 0 0 6px; }
+        .disc-hero-text p  { color: #94a3b8; margin: 0; font-size: 14px; }
+
+        .disc-stats-row { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
+        .disc-stat-box {
+            flex: 1; min-width: 140px; background: #fff;
+            border: 1px solid #f1f5f9; border-radius: 14px; padding: 18px 22px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            display: flex; align-items: center; gap: 16px;
+        }
+        .disc-stat-icon {
+            width: 44px; height: 44px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px; flex-shrink: 0;
+        }
+        .disc-stat-box .val { font-size: 24px; font-weight: 800; color: #0f172a; line-height: 1.1; }
+        .disc-stat-box .lbl { font-size: 12px; font-weight: 600; color: #64748b; margin-top: 4px; }
+
+        .disc-status-banner {
+            border-radius: 14px; padding: 22px 26px; margin-bottom: 28px;
+            display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;
+        }
+        .disc-status-banner.clean {
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            border: 1px solid #a7f3d0; color: #065f46;
+        }
+        .disc-status-banner.warning {
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+            border: 1px solid #fde68a; color: #92400e;
+        }
+        .disc-status-banner.danger {
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+            border: 1px solid #fecaca; color: #991b1b;
+        }
+
+        .disc-filter-bar {
+            background: #fff; border: 1px solid #e2e8f0; border-radius: 12px;
+            padding: 8px; margin-bottom: 22px;
+            display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+        }
+        .filter-chip-btn {
+            background: transparent; border: none; padding: 8px 16px; border-radius: 8px;
+            font-size: 13px; font-weight: 600; color: #64748b; cursor: pointer; transition: all .2s;
+        }
+        .filter-chip-btn:hover { background: #f1f5f9; color: #0f172a; }
+        .filter-chip-btn.active {
+            background: #4f6eff; color: #fff; box-shadow: 0 2px 8px rgba(79,110,255,0.25);
+        }
+
+        .note-card {
+            background: #fff; border-radius: 14px; padding: 22px 24px;
+            border: 1px solid #e2e8f0; margin-bottom: 16px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03); transition: transform .2s, box-shadow .2s;
+        }
+        .note-card:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.06); }
+        .note-card-top {
+            display: flex; align-items: center; justify-content: space-between;
+            flex-wrap: wrap; gap: 10px; margin-bottom: 12px;
+        }
+        .note-badges-wrap { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .note-title { font-size: 16px; font-weight: 700; color: #0f172a; margin: 0 0 8px; }
+        .note-desc { font-size: 14px; color: #475569; line-height: 1.6; margin: 0 0 14px; white-space: pre-wrap; }
+        .note-footer {
+            border-top: 1px solid #f1f5f9; padding-top: 10px;
+            display: flex; align-items: center; justify-content: space-between;
+            font-size: 12.5px; color: #64748b; flex-wrap: wrap; gap: 8px;
+        }
+
+        .back-btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            color: #64748b; font-size: 14px; font-weight: 500;
+            text-decoration: none; margin-bottom: 20px; transition: color .2s;
+        }
+        .back-btn:hover { color: #4f6eff; }
+        [dir="rtl"] .back-btn i.fa-arrow-left { transform: rotate(180deg); }
+
+        @media print {
+            #app-sidebar, #sb-overlay, .sb-breadcrumb, .back-btn, .disc-filter-bar, #header-placeholder, #footer-placeholder, .print-hide {
+                display: none !important;
+            }
+            .sb-main, .sb-content { margin: 0 !important; padding: 0 !important; width: 100% !important; }
+            .disc-hero { background: #fff !important; color: #000 !important; border: 1px solid #ccc !important; box-shadow: none !important; }
+            .disc-hero-text h1, .disc-hero-text p { color: #000 !important; }
+            .note-card { page-break-inside: avoid; border: 1px solid #ccc !important; box-shadow: none !important; }
+        }
+    </style>
+</head>
+<body data-page="student-disciplinary">
+    <div id="sidebar-placeholder"></div>
+    <div class="sb-main">
+        <div id="header-placeholder"></div>
+        <div class="sb-content" style="padding: 24px;">
+
+            <div class="sb-breadcrumb">
+                <i class="fa fa-shield"></i>
+                <span data-i18n="Student Space">Student Space</span>
+                <span style="color:#cbd5e1;">/</span>
+                <span data-i18n="Disciplinary Record">الملف التأديبي والملاحظات</span>
+            </div>
+
+            <a href="student-space.html" class="back-btn">
+                <i class="fa fa-arrow-left"></i> <span data-i18n="Back to Dashboard">Back to Dashboard</span>
+            </a>
+
+            <!-- Hero -->
+            <div class="disc-hero">
+                <div class="disc-hero-left">
+                    <div class="disc-hero-icon"><i class="fa fa-shield"></i></div>
+                    <div class="disc-hero-text">
+                        <h1 data-i18n="Disciplinary Record & Remarks">الملف التأديبي وملاحظات الأساتذة</h1>
+                        <p data-i18n="Complete record of disciplinary notes, conduct remarks, and instructor evaluations">سجل الانضباط المدرسي، التنبيهات، وملاحظات الأساتذة والإدارة</p>
+                    </div>
+                </div>
+                <div class="print-hide">
+                    <button type="button" class="btn btn-default" onclick="window.print()" style="background:rgba(255,255,255,0.12); color:#fff; border:1px solid rgba(255,255,255,0.25); border-radius:8px; font-weight:600; padding:8px 16px;">
+                        <i class="fa fa-print"></i> <span data-i18n="Print Report">طباعة التقرير</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Conduct Status Banner -->
+            <div id="conduct-status-banner" class="disc-status-banner clean">
+                <div style="display:flex; align-items:center; gap:16px;">
+                    <div style="width:48px; height:48px; border-radius:50%; background:rgba(16,185,129,0.2); display:flex; align-items:center; justify-content:center; font-size:24px;">
+                        <i class="fa fa-check-circle" id="conduct-status-icon"></i>
+                    </div>
+                    <div>
+                        <h3 id="conduct-status-title" style="margin:0 0 4px; font-size:17px; font-weight:800;" data-i18n="Exemplary Conduct">سلوك نموذجي ومثالي</h3>
+                        <p id="conduct-status-desc" style="margin:0; font-size:13.5px; opacity:0.9;" data-i18n="No disciplinary violations recorded on file">ملف الطالب خالٍ من أي إنذارات أو مخالفات تأديبية مسجلة.</p>
+                    </div>
+                </div>
+                <div>
+                    <span id="conduct-grade-badge" class="badge" style="background:#10b981; color:#fff; font-size:13px; padding:6px 14px; border-radius:20px; font-weight:700;">سلوك ممتاز</span>
+                </div>
+            </div>
+
+            <!-- Stats Overview -->
+            <div class="disc-stats-row">
+                <div class="disc-stat-box">
+                    <div class="disc-stat-icon" style="background:#eff6ff; color:#3b82f6;"><i class="fa fa-list-alt"></i></div>
+                    <div>
+                        <div class="val" id="stat-total-notes">0</div>
+                        <div class="lbl" data-i18n="Total Notes">إجمالي الملاحظات</div>
+                    </div>
+                </div>
+                <div class="disc-stat-box">
+                    <div class="disc-stat-icon" style="background:#ecfdf5; color:#10b981;"><i class="fa fa-star"></i></div>
+                    <div>
+                        <div class="val" id="stat-praise-notes" style="color:#10b981;">0</div>
+                        <div class="lbl" data-i18n="Commendations">ملاحظات إيجابية / تشجيع</div>
+                    </div>
+                </div>
+                <div class="disc-stat-box">
+                    <div class="disc-stat-icon" style="background:#fffbeb; color:#f59e0b;"><i class="fa fa-exclamation"></i></div>
+                    <div>
+                        <div class="val" id="stat-warning-notes" style="color:#f59e0b;">0</div>
+                        <div class="lbl" data-i18n="Warnings">تنبيهات</div>
+                    </div>
+                </div>
+                <div class="disc-stat-box">
+                    <div class="disc-stat-icon" style="background:#fef2f2; color:#ef4444;"><i class="fa fa-gavel"></i></div>
+                    <div>
+                        <div class="val" id="stat-reprimand-notes" style="color:#ef4444;">0</div>
+                        <div class="lbl" data-i18n="Reprimands & Violations">إنذارات ومخالفات</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filter Chips -->
+            <div class="disc-filter-bar print-hide">
+                <button type="button" class="filter-chip-btn active" data-filter="all">
+                    <i class="fa fa-list"></i> <span data-i18n="All Notes">جميع الملاحظات</span> (<span id="count-all">0</span>)
+                </button>
+                <button type="button" class="filter-chip-btn" data-filter="praise">
+                    <i class="fa fa-star text-success"></i> <span data-i18n="Commendations">ملاحظات إيجابية</span> (<span id="count-praise">0</span>)
+                </button>
+                <button type="button" class="filter-chip-btn" data-filter="warning">
+                    <i class="fa fa-exclamation text-warning"></i> <span data-i18n="Warnings">تنبيهات</span> (<span id="count-warning">0</span>)
+                </button>
+                <button type="button" class="filter-chip-btn" data-filter="reprimand">
+                    <i class="fa fa-gavel text-danger"></i> <span data-i18n="Reprimands">إنذارات</span> (<span id="count-reprimand">0</span>)
+                </button>
+                <button type="button" class="filter-chip-btn" data-filter="attendance">
+                    <i class="fa fa-clock-o text-info"></i> <span data-i18n="Attendance Notes">ملاحظات الحضور</span> (<span id="count-attendance">0</span>)
+                </button>
+            </div>
+
+            <!-- Notes List Container -->
+            <div id="notes-container">
+                <div style="text-align:center; padding:50px 20px; color:#94a3b8;">
+                    <i class="fa fa-spinner fa-spin" style="font-size:28px; color:#4f6eff;"></i>
+                    <p style="margin-top:10px;" data-i18n="Loading disciplinary record...">جارٍ تحميل السجل التأديبي...</p>
+                </div>
+            </div>
+
+        </div>
+        <div id="footer-placeholder"></div>
+    </div>
+
+    <script src="js/vendor/jquery-1.12.4.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/i18n.js"></script>
+    <script src="js/components.js"></script>
+    <script src="js/backend.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            window.onAuthReady = function() {
+                if (!window._ctx || window._ctx.user.role !== 'student') return;
+
+                var allNotes = [];
+                var activeFilter = 'all';
+
+                var typeMap = {
+                    'warning': { label: 'تنبيه شفهي', bg: '#fef3c7', color: '#b45309', icon: 'fa-exclamation' },
+                    'reprimand': { label: 'إنذار كتابي', bg: '#fee2e2', color: '#b91c1c', icon: 'fa-exclamation-triangle' },
+                    'misconduct': { label: 'مخالفة سلوكية', bg: '#ffe4e6', color: '#be123c', icon: 'fa-ban' },
+                    'attendance': { label: 'غياب / تأخر', bg: '#e0e7ff', color: '#4338ca', icon: 'fa-clock-o' },
+                    'praise': { label: 'تشجيع / ثناء', bg: '#ecfdf5', color: '#047857', icon: 'fa-star' },
+                    'other': { label: 'ملاحظة عامة', bg: '#f1f5f9', color: '#475569', icon: 'fa-file-text-o' }
+                };
+
+                var sevMap = {
+                    'low': { label: 'خفيفة / عادية', bg: '#f0fdf4', color: '#16a34a', border: '#bbf7d0' },
+                    'medium': { label: 'متوسطة', bg: '#fffbeb', color: '#d97706', border: '#fde68a' },
+                    'high': { label: 'شديدة / إنذار رسمي', bg: '#fef2f2', color: '#dc2626', border: '#fecaca' }
+                };
+
+                function updateCounts() {
+                    document.getElementById('count-all').textContent = allNotes.length;
+                    document.getElementById('count-praise').textContent = allNotes.filter(function(n) { return n.type === 'praise'; }).length;
+                    document.getElementById('count-warning').textContent = allNotes.filter(function(n) { return n.type === 'warning'; }).length;
+                    document.getElementById('count-reprimand').textContent = allNotes.filter(function(n) { return n.type === 'reprimand' || n.type === 'misconduct'; }).length;
+                    document.getElementById('count-attendance').textContent = allNotes.filter(function(n) { return n.type === 'attendance'; }).length;
+                }
+
+                function renderNotes() {
+                    var cont = document.getElementById('notes-container');
+                    var filtered = allNotes;
+                    if (activeFilter === 'praise') {
+                        filtered = allNotes.filter(function(n) { return n.type === 'praise'; });
+                    } else if (activeFilter === 'warning') {
+                        filtered = allNotes.filter(function(n) { return n.type === 'warning'; });
+                    } else if (activeFilter === 'reprimand') {
+                        filtered = allNotes.filter(function(n) { return n.type === 'reprimand' || n.type === 'misconduct'; });
+                    } else if (activeFilter === 'attendance') {
+                        filtered = allNotes.filter(function(n) { return n.type === 'attendance'; });
+                    }
+
+                    if (!filtered.length) {
+                        cont.innerHTML = `
+                            <div style="background:#fff; border-radius:16px; border:1px solid #e2e8f0; padding:60px 20px; text-align:center; box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+                                <div style="width:64px; height:64px; border-radius:50%; background:#ecfdf5; color:#10b981; display:inline-flex; align-items:center; justify-content:center; font-size:30px; margin-bottom:16px;">
+                                    <i class="fa fa-shield"></i>
+                                </div>
+                                <h3 style="font-size:18px; font-weight:800; color:#0f172a; margin:0 0 8px;">سجل نظيف</h3>
+                                <p style="font-size:14px; color:#64748b; margin:0; max-width:480px; margin-inline:auto;">
+                                    لا توجد ملاحظات مسجلة في هذا القسم. نشكرك على حرصك وانضباطك العالي.
+                                </p>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    cont.innerHTML = filtered.map(function(n) {
+                        var tInfo = typeMap[n.type] || typeMap['other'];
+                        var sInfo = sevMap[n.severity] || sevMap['low'];
+                        var authorRole = n.added_by_role === 'teacher' ? 'الأستاذ' : (n.added_by_role === 'super_admin' ? 'الإدارة العامة' : 'إدارة المؤسسة');
+                        var authorName = [n.added_by_first, n.added_by_last].filter(Boolean).join(' ') || 'الإدارة';
+
+                        return `
+                            <div class="note-card" style="border-inline-start: 4px solid ${sInfo.color};">
+                                <div class="note-card-top">
+                                    <div class="note-badges-wrap">
+                                        <span style="background:${tInfo.bg}; color:${tInfo.color}; padding:4px 12px; border-radius:20px; font-size:12px; font-weight:700; display:inline-flex; align-items:center; gap:6px;">
+                                            <i class="fa ${tInfo.icon}"></i> ${tInfo.label}
+                                        </span>
+                                        <span style="background:${sInfo.bg}; color:${sInfo.color}; border:1px solid ${sInfo.border}; padding:3px 10px; border-radius:8px; font-size:11.5px; font-weight:600;">
+                                            درجة الأهمية: ${sInfo.label}
+                                        </span>
+                                    </div>
+                                    <div style="font-size:13px; color:#64748b; font-weight:600;">
+                                        <i class="fa fa-calendar-check-o text-primary"></i> ${n.note_date || '—'}
+                                    </div>
+                                </div>
+
+                                <h4 class="note-title">${n.title || ''}</h4>
+                                ${n.description ? `<p class="note-desc">${n.description}</p>` : ''}
+
+                                <div class="note-footer">
+                                    <span>
+                                        <i class="fa fa-user-circle-o" style="color:#6366f1;"></i> 
+                                        حررت بواسطة: <strong>${authorRole} (${authorName})</strong>
+                                    </span>
+                                    ${n.created_at ? `<span><i class="fa fa-clock-o"></i> ${new Date(n.created_at).toLocaleDateString()}</span>` : ''}
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                }
+
+                // Setup filter buttons
+                document.querySelectorAll('.filter-chip-btn').forEach(function(btn) {
+                    btn.addEventListener('click', function() {
+                        document.querySelectorAll('.filter-chip-btn').forEach(function(b) { b.classList.remove('active'); });
+                        this.classList.add('active');
+                        activeFilter = this.getAttribute('data-filter');
+                        renderNotes();
+                    });
+                });
+
+                // Fetch student disciplinary notes
+                SchoolBackend.request('/api/student-space/disciplinary-notes').then(function(res) {
+                    allNotes = res.data || [];
+                    var stats = res.stats || {};
+
+                    document.getElementById('stat-total-notes').textContent = stats.total || 0;
+                    document.getElementById('stat-praise-notes').textContent = stats.commendations || 0;
+                    document.getElementById('stat-warning-notes').textContent = allNotes.filter(function(n) { return n.type === 'warning'; }).length;
+                    document.getElementById('stat-reprimand-notes').textContent = (stats.high || 0) + (allNotes.filter(function(n) { return n.type === 'reprimand' || n.type === 'misconduct'; }).length);
+
+                    // Update conduct banner
+                    var banner = document.getElementById('conduct-status-banner');
+                    var bTitle = document.getElementById('conduct-status-title');
+                    var bDesc = document.getElementById('conduct-status-desc');
+                    var bBadge = document.getElementById('conduct-grade-badge');
+                    var bIcon = document.getElementById('conduct-status-icon');
+
+                    var seriousCount = allNotes.filter(function(n) { return n.severity === 'high' || n.type === 'reprimand' || n.type === 'misconduct'; }).length;
+                    var warningCount = allNotes.filter(function(n) { return n.severity === 'medium' || n.type === 'warning'; }).length;
+
+                    if (seriousCount > 0) {
+                        banner.className = 'disc-status-banner danger';
+                        bIcon.className = 'fa fa-exclamation-triangle';
+                        bTitle.textContent = 'تنبيه: توجد إجراءات تأديبية مسجلة';
+                        bDesc.textContent = 'يتضمن سجلك إنذارات أو مخالفات سلوكية. يرجى مراجعة إدارة المؤسسة أو الالتزام بالتوجيهات.';
+                        bBadge.style.background = '#ef4444';
+                        bBadge.textContent = 'يحتاج إلى تحسين السلوك';
+                    } else if (warningCount > 0) {
+                        banner.className = 'disc-status-banner warning';
+                        bIcon.className = 'fa fa-bell';
+                        bTitle.textContent = 'تنبيهات شفهية وملاحظات انضباط';
+                        bDesc.textContent = 'توجد بعض التنبيهات المسجلة. نحثك على تجنب تكرارها للحفاظ على سجلك نظيفاً.';
+                        bBadge.style.background = '#f59e0b';
+                        bBadge.textContent = 'سلوك مقبول مع تنبيهات';
+                    } else {
+                        banner.className = 'disc-status-banner clean';
+                        bIcon.className = 'fa fa-check-circle';
+                        bTitle.textContent = 'سلوك نموذجي ومثالي';
+                        bDesc.textContent = 'ملف الطالب خالٍ من أي إنذارات أو مخالفات تأديبية مسجلة. واصل هذا التميز!';
+                        bBadge.style.background = '#10b981';
+                        bBadge.textContent = 'سلوك ممتاز';
+                    }
+
+                    updateCounts();
+                    renderNotes();
+                }).catch(function(err) {
+                    document.getElementById('notes-container').innerHTML = `
+                        <div class="alert alert-danger" style="border-radius:12px;">
+                            فشل تحميل السجل التأديبي: ${err.message}
+                        </div>
+                    `;
+                });
+            };
+        });
+    </script>
+</body>
+</html>

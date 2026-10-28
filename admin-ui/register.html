@@ -1,464 +1,584 @@
-﻿<!DOCTYPE html>
-
-
+<!DOCTYPE html>
 <html class="no-js" lang="en">
 
 <head>
-  <meta charset="utf-8">
-  <meta http-equiv="x-ua-compatible" content="ie=edge">
-  <title>Register | School Manager</title>
-  <meta name="description" content="">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- favicon
-		============================================ -->
-  <link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico">
-  <!-- Google Fonts
-		============================================ -->
-  <link href="https://fonts.googleapis.com/css?family=Play:400,700" rel="stylesheet">
-  <!-- Bootstrap CSS
-		============================================ -->
-  <link rel="stylesheet" href="css/bootstrap.min.css">
-  <!-- Bootstrap CSS
-		============================================ -->
-  <link rel="stylesheet" href="css/font-awesome.min.css">
-  <!-- owl.carousel CSS
-		============================================ -->
-  <link rel="stylesheet" href="css/owl.carousel.css">
-  <link rel="stylesheet" href="css/owl.theme.css">
-  <link rel="stylesheet" href="css/owl.transitions.css">
-  <!-- animate CSS
-		============================================ -->
-  <link rel="stylesheet" href="css/animate.css">
-  <!-- normalize CSS
-		============================================ -->
-  <link rel="stylesheet" href="css/normalize.css">
-  <!-- main CSS
-		============================================ -->
-  <link rel="stylesheet" href="css/main.css">
-  <!-- morrisjs CSS
-		============================================ -->
-  <link rel="stylesheet" href="css/morrisjs/morris.css">
-  <!-- mCustomScrollbar CSS
-		============================================ -->
-  <link rel="stylesheet" href="css/scrollbar/jquery.mCustomScrollbar.min.css">
-  <!-- metisMenu CSS
-		============================================ -->
-  <link rel="stylesheet" href="css/metisMenu/metisMenu.min.css">
-  <link rel="stylesheet" href="css/metisMenu/metisMenu-vertical.css">
-  <!-- calendar CSS
-		============================================ -->
-  <link rel="stylesheet" href="css/calendar/fullcalendar.min.css">
-  <link rel="stylesheet" href="css/calendar/fullcalendar.print.min.css">
-  <!-- forms CSS
-		============================================ -->
-  <link rel="stylesheet" href="css/form/all-type-forms.css">
-  <!-- style CSS
-		============================================ -->
-  <link rel="stylesheet" href="style.css">
-  <!-- responsive CSS
-		============================================ -->
-  <link rel="stylesheet" href="css/responsive.css">
-  <!-- modernizr JS
-		============================================ -->
-  <script src="js/vendor/modernizr-2.8.3.min.js"></script>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Register | School Manager</title>
+    <meta name="description" content="Create your School Manager admin account and get started in minutes.">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico">
 
-    *,
-    *::before,
-    *::after {
-      box-sizing: border-box;
-    }
-
-    body[data-page="login"],
-    body[data-page="register"] {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh;
-      display: flex;
-      align-items: flex-start;
-      justify-content: center;
-      font-family: 'Inter', sans-serif;
-      margin: 0;
-      padding: 20px 15px;
-      overflow-y: auto;
-    }
-
-    .error-pagewrap {
-      width: 100%;
-      max-width: 580px;
-      margin: auto;
-    }
-
-    .custom-login {
-      color: #fff;
-      margin-bottom: 16px;
-      text-align: center;
-    }
-
-    .custom-login .page-icon {
-      font-size: 36px;
-      color: #fff;
-      background: rgba(255, 255, 255, 0.15);
-      border-radius: 50%;
-      margin-bottom: 12px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 72px;
-      height: 72px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-      border: 1px solid rgba(255, 255, 255, 0.25);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .custom-login .page-icon:hover {
-      transform: scale(1.08) rotate(-5deg);
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-    }
-
-    .custom-login h3 {
-      font-weight: 700;
-      font-size: 20px;
-      letter-spacing: 0.5px;
-      margin: 6px 0 4px;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-      font-family: 'Inter', sans-serif;
-    }
-
-    .custom-login p {
-      color: rgba(255, 255, 255, 0.85);
-      font-size: 13px;
-      margin: 0;
-    }
-
-    .hpanel .panel-body {
-      background: rgba(255, 255, 255, 0.12);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      border-radius: 20px;
-      border: 1px solid rgba(255, 255, 255, 0.22);
-      padding: 24px 28px;
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.2);
-      color: #fff;
-      animation: fadeInUp 0.5s ease-out both;
-    }
-
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .row {
-      margin-left: -8px;
-      margin-right: -8px;
-    }
-
-    .row [class*="col-"] {
-      padding-left: 8px;
-      padding-right: 8px;
-    }
-
-    .form-group {
-      margin-bottom: 12px;
-    }
-
-    .form-group label {
-      color: #fff !important;
-      font-weight: 500;
-      margin-bottom: 4px;
-      font-size: 13px;
-      display: block;
-    }
-
-    .form-control {
-      background: rgba(255, 255, 255, 0.1) !important;
-      border: 1px solid rgba(255, 255, 255, 0.22) !important;
-      color: #fff !important;
-      border-radius: 10px;
-      padding: 10px 14px;
-      height: auto;
-      font-size: 14px;
-      transition: all 0.3s ease;
-      width: 100%;
-    }
-
-    .form-control:focus {
-      background: rgba(255, 255, 255, 0.2) !important;
-      border-color: rgba(255, 255, 255, 0.6) !important;
-      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1) !important;
-      outline: none;
-    }
-
-    .form-control::placeholder {
-      color: rgba(255, 255, 255, 0.5) !important;
-    }
-
-    .help-block {
-      color: rgba(255, 255, 255, 0.55) !important;
-      margin-top: 4px;
-      font-size: 12px;
-      display: block;
-    }
-
-    .loginbtn {
-      background: linear-gradient(135deg, #4ade80, #22c55e) !important;
-      border: none !important;
-      border-radius: 10px !important;
-      padding: 10px !important;
-      font-weight: 700 !important;
-      font-size: 14px !important;
-      margin-top: 10px;
-      transition: all 0.3s ease !important;
-      color: #064e3b !important;
-      letter-spacing: 0.3px;
-      width: 100%;
-    }
-
-    .loginbtn:hover {
-      background: linear-gradient(135deg, #22c55e, #16a34a) !important;
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(34, 197, 94, 0.35) !important;
-      color: #fff !important;
-    }
-
-    .login-footer p {
-      color: rgba(255, 255, 255, 0.6);
-      margin-top: 14px;
-      font-size: 12px;
-      text-align: center;
-    }
-
-    .error-page-int {
-      margin-top: 8vh;
-      padding: 0;
-      max-width: 500px;
-    }
-
-    .secondary-link {
-      margin-top: 10px;
-    }
-
-    .secondary-btn {
-      display: block;
-      width: 100%;
-      background: linear-gradient(135deg, #60a5fa, #3b82f6) !important;
-      border: none !important;
-      border-radius: 10px !important;
-      padding: 10px !important;
-      font-weight: 700 !important;
-      font-size: 14px !important;
-      text-align: center;
-      color: #fff !important;
-      letter-spacing: 0.3px;
-      text-decoration: none;
-      transition: all 0.3s ease;
-      cursor: pointer;
-    }
-
-    .secondary-btn:hover {
-      background: linear-gradient(135deg, #3b82f6, #2563eb) !important;
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(59, 130, 246, 0.35) !important;
-      color: #fff !important;
-      text-decoration: none;
-    }
-    /* Language Switcher */
-    .lang-switcher {
-      position: fixed;
-      top: 16px;
-      right: 20px;
-      z-index: 9999;
-      display: flex;
-      align-items: center;
-      background: rgba(255,255,255,0.15);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255,255,255,0.3);
-      border-radius: 50px;
-      padding: 4px;
-      gap: 2px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-    }
-    .lang-btn {
-      background: transparent;
-      border: none;
-      color: rgba(255,255,255,0.7);
-      font-size: 13px;
-      font-weight: 600;
-      padding: 6px 14px;
-      border-radius: 50px;
-      cursor: pointer;
-      transition: all 0.25s ease;
-      font-family: 'Inter', sans-serif;
-      letter-spacing: 0.5px;
-    }
-    .lang-btn.active {
-      background: #fff;
-      color: #667eea;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-    }
-    .lang-btn:hover:not(.active) {
-      color: #fff;
-      background: rgba(255,255,255,0.1);
-    }
-    /* RTL support */
-    body[dir="rtl"] .secondary-link { text-align: right; }
-    body[dir="rtl"] .checkbox label { flex-direction: row-reverse; justify-content: flex-end; }
-    body[dir="rtl"] .lang-switcher { right: auto; left: 20px; }
-    body[dir="rtl"] label { text-align: right; display: block; }
-    body[dir="rtl"] input { text-align: right; }
-    body[dir="rtl"] .help-block { text-align: right; }
-    body[dir="rtl"] .login-footer { text-align: center; }
-  </style>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="css/font-awesome.min.css">
+    <!-- normalize CSS -->
+    <link rel="stylesheet" href="css/normalize.css">
+    <!-- main CSS -->
+    <link rel="stylesheet" href="css/main.css">
+    <!-- style CSS -->
+    <link rel="stylesheet" href="style.css">
 
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#007bff">
+    <meta name="theme-color" content="#6d28d9">
     <link rel="apple-touch-icon" href="img/icon-512.jpg">
+
     <script>
       if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('sw.js');
-        });
+        window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js'); });
       }
     </script>
+
+    <style>
+        /* ===== RESET ===== */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        /* ===== BODY ===== */
+        body[data-page="register"] {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            background: #f3f0ff;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 40px 16px 60px;
+        }
+
+        /* ===== PAGE WRAPPER ===== */
+        .register-page {
+            width: 100%;
+            max-width: 600px;
+        }
+
+        /* ===== HEADER ===== */
+        .reg-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .reg-logo {
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            border: 2px solid #ddd6fe;
+            overflow: hidden;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .reg-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .reg-header-text h1 {
+            font-size: 22px;
+            font-weight: 800;
+            color: #1e1b4b;
+            letter-spacing: -0.4px;
+            margin-bottom: 2px;
+        }
+
+        .reg-header-text p {
+            font-size: 13.5px;
+            color: #64748b;
+        }
+
+        /* ===== CARD ===== */
+        .reg-card {
+            background: #fff;
+            border-radius: 20px;
+            border: 1.5px solid #e9e4ff;
+            padding: 36px 36px 30px;
+            box-shadow: 0 4px 24px rgba(109,40,217,0.07);
+        }
+
+        /* ===== SECTION LABEL ===== */
+        .section-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: #7c3aed;
+            margin: 0 0 16px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #f3f0ff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* ===== GRID ===== */
+        .form-row-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        /* ===== FORM GROUPS ===== */
+        .field-group {
+            margin-bottom: 18px;
+        }
+
+        .field-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 7px;
+        }
+
+        .req-dot {
+            display: inline-block;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: #7c3aed;
+            margin-left: 4px;
+            vertical-align: middle;
+        }
+
+        .field-wrap {
+            position: relative;
+        }
+
+        .field-icon {
+            position: absolute;
+            left: 13px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #a78bfa;
+            font-size: 14px;
+            pointer-events: none;
+        }
+
+        .form-control {
+            background: #f8f7ff !important;
+            border: 1.5px solid #e5e7eb !important;
+            color: #1e1b4b !important;
+            border-radius: 11px !important;
+            padding: 11px 14px 11px 38px !important;
+            height: auto !important;
+            font-size: 13.5px !important;
+            font-family: 'Inter', sans-serif !important;
+            width: 100% !important;
+            transition: border-color 0.2s, box-shadow 0.2s !important;
+        }
+
+        .form-control:focus {
+            background: #fff !important;
+            border-color: #7c3aed !important;
+            box-shadow: 0 0 0 4px rgba(124,58,237,0.1) !important;
+            outline: none !important;
+        }
+
+        .form-control::placeholder {
+            color: #c4b5fd !important;
+        }
+
+        /* ===== PASSWORD STRENGTH ===== */
+        .strength-row {
+            display: flex;
+            gap: 4px;
+            margin-top: 7px;
+        }
+
+        .strength-seg {
+            flex: 1;
+            height: 3px;
+            border-radius: 3px;
+            background: #e5e7eb;
+        }
+
+        .strength-seg.weak   { background: #f87171; }
+        .strength-seg.fair   { background: #fb923c; }
+        .strength-seg.good   { background: #facc15; }
+        .strength-seg.strong { background: #4ade80; }
+
+        .strength-label {
+            font-size: 11px;
+            color: #9ca3af;
+            margin-top: 4px;
+            font-weight: 600;
+            min-height: 14px;
+        }
+
+        .match-label {
+            font-size: 11px;
+            margin-top: 4px;
+            font-weight: 600;
+            min-height: 14px;
+        }
+
+        /* ===== STATUS ===== */
+        #backend-auth-status {
+            font-size: 13px;
+            color: #dc2626;
+            font-weight: 500;
+            min-height: 18px;
+            margin: 4px 0 8px;
+        }
+
+        /* ===== TERMS ===== */
+        .terms-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin: 16px 0;
+            font-size: 13px;
+            color: #6b7280;
+            line-height: 1.5;
+        }
+
+        .terms-row input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            margin-top: 1px;
+            accent-color: #7c3aed;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .terms-row a {
+            color: #7c3aed;
+            font-weight: 600;
+            text-decoration: underline;
+        }
+
+        /* ===== BUTTONS ===== */
+        .btn-create {
+            width: 100%;
+            padding: 13px !important;
+            background: linear-gradient(135deg, #6d28d9, #7c3aed) !important;
+            border: none !important;
+            border-radius: 12px !important;
+            color: #fff !important;
+            font-size: 15px !important;
+            font-weight: 700 !important;
+            font-family: 'Inter', sans-serif !important;
+            letter-spacing: 0.3px;
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(109,40,217,0.3) !important;
+        }
+
+        .btn-create:hover {
+            background: linear-gradient(135deg, #5b21b6, #6d28d9) !important;
+            box-shadow: 0 6px 20px rgba(109,40,217,0.4) !important;
+            color: #fff !important;
+        }
+
+        .btn-create:active { transform: scale(0.98) !important; }
+
+        /* ===== DIVIDER ===== */
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 18px 0;
+        }
+
+        .divider-line {
+            flex: 1;
+            height: 1px;
+            background: #e5e7eb;
+        }
+
+        .divider-text {
+            color: #9ca3af;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        /* ===== BACK TO LOGIN ===== */
+        .btn-login-link {
+            display: block;
+            width: 100%;
+            padding: 12px !important;
+            background: #f3f0ff !important;
+            border: 1.5px solid #ddd6fe !important;
+            border-radius: 12px !important;
+            color: #6d28d9 !important;
+            font-size: 14px !important;
+            font-weight: 600 !important;
+            font-family: 'Inter', sans-serif !important;
+            text-align: center;
+            text-decoration: none !important;
+        }
+
+        .btn-login-link:hover {
+            background: #ede9fe !important;
+            border-color: #a78bfa !important;
+            color: #5b21b6 !important;
+            text-decoration: none !important;
+        }
+
+        /* ===== FOOTER ===== */
+        .reg-footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #9ca3af;
+            font-size: 12px;
+        }
+
+        /* ===== LANGUAGE SWITCHER ===== */
+        .lang-switcher {
+            position: fixed;
+            top: 18px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            background: #fff;
+            border: 1.5px solid #ddd6fe;
+            border-radius: 50px;
+            padding: 3px;
+            gap: 2px;
+            box-shadow: 0 2px 12px rgba(109,40,217,0.1);
+        }
+
+        .lang-btn {
+            background: transparent;
+            border: none;
+            color: #7c3aed;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 5px 14px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            letter-spacing: 0.5px;
+        }
+
+        .lang-btn.active {
+            background: #7c3aed;
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(124,58,237,0.3);
+        }
+
+        .lang-btn:hover:not(.active) { background: #f3f0ff; }
+
+        /* ===== RTL ===== */
+        body[dir="rtl"] .lang-switcher { right: auto; left: 20px; }
+        body[dir="rtl"] .field-icon    { left: auto; right: 13px; }
+        body[dir="rtl"] .form-control  { padding: 11px 38px 11px 14px !important; text-align: right; }
+        body[dir="rtl"] .field-label   { text-align: right; display: block; }
+        body[dir="rtl"] .reg-header    { flex-direction: row-reverse; }
+        body[dir="rtl"] .reg-header-text h1,
+        body[dir="rtl"] .reg-header-text p { text-align: right; }
+        body[dir="rtl"] .terms-row     { flex-direction: row-reverse; }
+        body[dir="rtl"] .form-row-2    { direction: rtl; }
+        body[dir="rtl"] .section-label { flex-direction: row-reverse; }
+        body[dir="rtl"] .strength-label,
+        body[dir="rtl"] .match-label   { text-align: right; }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 640px) {
+            .form-row-2 { grid-template-columns: 1fr; }
+            .reg-card { padding: 24px 20px; }
+        }
+    </style>
 </head>
 
-
 <body data-page="register">
-  <!--[if lt IE 8]>
-		<p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
-	<![endif]-->
 
-  <!-- Language Switcher -->
-  <div class="lang-switcher" id="langSwitcher">
-    <button class="lang-btn" id="btnEn" onclick="setLang('en')">EN</button>
-    <button class="lang-btn" id="btnAr" onclick="setLang('ar')">عربي</button>
-  </div>
-
-  <div class="error-pagewrap">
-    <div class="error-page-int">
-      <div class="text-center custom-login" style="text-align: center; margin-bottom: 10px;">
-        <img src="img/logo/school-manager-logo.png" alt="School Manager Logo" style="width: 100px; height: auto; border-radius: 49%; mix-blend-mode: overlay; margin-bottom: 5px;">
-        <h3 style="color: #fff; margin-top: 5px; margin-bottom: 5px; font-size: 20px;">Create an Account</h3>
-        <p data-i18n="subtitle" style="margin-bottom: 0;">Fill in the form below to get started with School Manager</p>
-      </div>
-      <div class="content-error">
-        <div class="hpanel">
-          <div class="panel-body">
-            <form action="#" id="backend-register-form">
-              <div class="row">
-                <div class="form-group col-xs-6">
-                  <label data-i18n="firstName">First name</label>
-                  <input name="first_name" class="form-control" data-i18n-placeholder="firstNamePh" placeholder="John" required>
-                </div>
-                <div class="form-group col-xs-6">
-                  <label data-i18n="lastName">Last name</label>
-                  <input name="last_name" class="form-control" data-i18n-placeholder="lastNamePh" placeholder="Doe" required>
-                </div>
-                <div class="form-group col-xs-12">
-                  <label data-i18n="emailLabel">Email address</label>
-                  <input name="email" type="email" class="form-control" data-i18n-placeholder="emailPh" placeholder="admin@school.com" required>
-                </div>
-                <div class="form-group col-xs-6">
-                  <label data-i18n="passwordLabel">Password</label>
-                  <input name="password" type="password" class="form-control" data-i18n-placeholder="passwordPh" placeholder="••••••••" required>
-                </div>
-                <div class="form-group col-xs-6">
-                  <label data-i18n="confirmLabel">Repeat Password</label>
-                  <input name="confirm_password" type="password" class="form-control" data-i18n-placeholder="confirmPh" placeholder="••••••••" required>
-                </div>
-              </div>
-              <p id="backend-auth-status" class="help-block small"></p>
-              <button class="btn btn-success loginbtn" data-i18n="createBtn">Create Account</button>
-              <div class="secondary-link">
-                <a href="login.html" class="secondary-btn" data-i18n="loginLink">Already have an account? Sign in</a>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-      <div class="login-footer">
-        <p data-i18n="footer">© 2026 School Manager. All rights reserved.</p>
-      </div>
+    <!-- Language Switcher -->
+    <div class="lang-switcher" id="langSwitcher">
+        <button class="lang-btn" id="btnEn" onclick="setLang('en')">EN</button>
+        <button class="lang-btn" id="btnAr" onclick="setLang('ar')">عربي</button>
     </div>
-  </div>
-  <!-- jquery
-		============================================ -->
-  <script src="js/vendor/jquery-1.12.4.min.js"></script>
-  <!-- bootstrap JS
-		============================================ -->
-  <script src="js/bootstrap.min.js"></script>
-  <!-- wow JS
-		============================================ -->
-  <script src="js/wow.min.js"></script>
-  <!-- price-slider JS
-		============================================ -->
-  <script src="js/jquery-price-slider.js"></script>
-  <!-- meanmenu JS
-		============================================ -->
-  <script src="js/jquery.meanmenu.js"></script>
-  <!-- owl.carousel JS
-		============================================ -->
-  <script src="js/owl.carousel.min.js"></script>
-  <!-- sticky JS
-		============================================ -->
-  <script src="js/jquery.sticky.js"></script>
-  <!-- scrollUp JS
-		============================================ -->
-  <script src="js/jquery.scrollUp.min.js"></script>
-  <!-- mCustomScrollbar JS
-		============================================ -->
-  <script src="js/scrollbar/jquery.mCustomScrollbar.concat.min.js"></script>
-  <script src="js/scrollbar/mCustomScrollbar-active.js"></script>
-  <!-- metisMenu JS
-		============================================ -->
-  <script src="js/metisMenu/metisMenu.min.js"></script>
-  <script src="js/metisMenu/metisMenu-active.js"></script>
-  <!-- tab JS
-		============================================ -->
-  <script src="js/tab.js"></script>
-  <!-- icheck JS
-		============================================ -->
-  <script src="js/icheck/icheck.min.js"></script>
-  <script src="js/icheck/icheck-active.js"></script>
-  <!-- plugins JS
-		============================================ -->
-  <script src="js/plugins.js"></script>
-  <!-- main JS
-		============================================ -->
-  <script src="js/main.js"></script>
-  <script src="js/backend.js?v=3"></script>
-  <!-- tawk chat JS
-		============================================ -->
-  <script src="js/tawk-chat.js"></script>
 
-    <!-- i18n Translation Script -->
+    <div class="register-page">
+        <!-- Header -->
+        <div class="reg-header">
+            <div class="reg-logo">
+                <img src="img/logo/school-manager-logo.png" alt="School Manager"
+                     onerror="this.style.display='none';this.parentElement.innerHTML='<span style=\'font-size:28px\'>🏫</span>'">
+            </div>
+            <div class="reg-header-text">
+                <h1 data-i18n="title">Create an Account</h1>
+                <p data-i18n="subtitle">Set up your admin portal in minutes</p>
+            </div>
+        </div>
+
+        <!-- Form Card -->
+        <div class="reg-card">
+            <form id="backend-register-form" action="#">
+
+                <!-- Personal Info -->
+                <div class="section-label">
+                    <i class="fa fa-user-o"></i>
+                    <span data-i18n="sectionPersonal">Personal Information</span>
+                </div>
+
+                <div class="form-row-2">
+                    <div class="field-group">
+                        <label class="field-label" data-i18n="firstName">First Name <span class="req-dot"></span></label>
+                        <div class="field-wrap">
+                            <span class="field-icon"><i class="fa fa-user-o"></i></span>
+                            <input name="first_name" class="form-control" placeholder="John" data-i18n-placeholder="firstNamePh" required>
+                        </div>
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label" data-i18n="lastName">Last Name <span class="req-dot"></span></label>
+                        <div class="field-wrap">
+                            <span class="field-icon"><i class="fa fa-user-o"></i></span>
+                            <input name="last_name" class="form-control" placeholder="Doe" data-i18n-placeholder="lastNamePh" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Details -->
+                <div class="section-label" style="margin-top:8px;">
+                    <i class="fa fa-envelope-o"></i>
+                    <span data-i18n="sectionAccount">Account Details</span>
+                </div>
+
+                <div class="field-group">
+                    <label class="field-label" data-i18n="emailLabel">Email Address <span class="req-dot"></span></label>
+                    <div class="field-wrap">
+                        <span class="field-icon"><i class="fa fa-envelope-o"></i></span>
+                        <input name="email" type="email" class="form-control" placeholder="admin@school.com" data-i18n-placeholder="emailPh" required>
+                    </div>
+                </div>
+
+                <div class="form-row-2">
+                    <div class="field-group">
+                        <label class="field-label" data-i18n="passwordLabel">Password <span class="req-dot"></span></label>
+                        <div class="field-wrap">
+                            <span class="field-icon"><i class="fa fa-lock"></i></span>
+                            <input name="password" id="regPassword" type="password" class="form-control" placeholder="••••••••" data-i18n-placeholder="passwordPh" required>
+                        </div>
+                        <div class="strength-row" id="strengthBar">
+                            <div class="strength-seg" id="seg1"></div>
+                            <div class="strength-seg" id="seg2"></div>
+                            <div class="strength-seg" id="seg3"></div>
+                            <div class="strength-seg" id="seg4"></div>
+                        </div>
+                        <div class="strength-label" id="strengthText"></div>
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label" data-i18n="confirmLabel">Confirm Password <span class="req-dot"></span></label>
+                        <div class="field-wrap">
+                            <span class="field-icon"><i class="fa fa-lock"></i></span>
+                            <input name="confirm_password" id="regConfirm" type="password" class="form-control" placeholder="••••••••" data-i18n-placeholder="confirmPh" required>
+                        </div>
+                        <div class="match-label" id="matchText"></div>
+                    </div>
+                </div>
+
+                <!-- Status -->
+                <p id="backend-auth-status"></p>
+
+                <!-- Terms -->
+                <div class="terms-row">
+                    <input type="checkbox" id="termsCheck" required>
+                    <label for="termsCheck" data-i18n="termsText">
+                        I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+                    </label>
+                </div>
+
+                <!-- Submit -->
+                <button type="submit" class="btn btn-block btn-create" id="registerSubmitBtn">
+                    <i class="fa fa-check-circle" style="margin-right:8px;"></i>
+                    <span data-i18n="createBtn">Create Account</span>
+                </button>
+
+                <div class="divider">
+                    <div class="divider-line"></div>
+                    <span class="divider-text" data-i18n="orText">Already have an account?</span>
+                    <div class="divider-line"></div>
+                </div>
+
+                <a href="login.html" class="btn-login-link" id="loginNavBtn" data-i18n="loginLink">
+                    Sign In Instead
+                </a>
+            </form>
+        </div>
+
+        <p class="reg-footer" data-i18n="footer">© 2026 School Manager. All rights reserved.</p>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/vendor/jquery-1.12.4.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/vendor/modernizr-2.8.3.min.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/backend.js?v=3"></script>
+    <script src="js/tawk-chat.js"></script>
+
+    <!-- Password Strength -->
+    <script>
+    document.getElementById('regPassword').addEventListener('input', function() {
+        const val = this.value;
+        const segs = ['seg1','seg2','seg3','seg4'].map(id => document.getElementById(id));
+        const text = document.getElementById('strengthText');
+        segs.forEach(s => { s.className = 'strength-seg'; });
+        let score = 0;
+        if (val.length >= 8) score++;
+        if (/[A-Z]/.test(val)) score++;
+        if (/[0-9]/.test(val)) score++;
+        if (/[^A-Za-z0-9]/.test(val)) score++;
+        const labels  = ['', 'Weak', 'Fair', 'Good', 'Strong'];
+        const classes = ['', 'weak', 'fair', 'good', 'strong'];
+        const colors  = ['', '#f87171', '#fb923c', '#b45309', '#16a34a'];
+        if (!val.length) { text.textContent = ''; return; }
+        for (let i = 0; i < score; i++) segs[i].classList.add(classes[score]);
+        text.textContent = labels[score];
+        text.style.color = colors[score];
+    });
+
+    document.getElementById('regConfirm').addEventListener('input', function() {
+        const pw  = document.getElementById('regPassword').value;
+        const txt = document.getElementById('matchText');
+        if (!this.value) { txt.textContent = ''; return; }
+        if (this.value === pw) {
+            txt.textContent = '✓ Passwords match';
+            txt.style.color = '#16a34a';
+        } else {
+            txt.textContent = '✗ Does not match';
+            txt.style.color = '#dc2626';
+        }
+    });
+    </script>
+
+    <!-- i18n -->
     <script>
         const registerTranslations = {
             en: {
-                subtitle:        'Fill in the form below to get started',
-                firstName:       'First name',
+                title:           'Create an Account',
+                subtitle:        'Set up your admin portal in minutes',
+                sectionPersonal: 'Personal Information',
+                sectionAccount:  'Account Details',
+                firstName:       'First Name',
                 firstNamePh:     'John',
-                lastName:        'Last name',
+                lastName:        'Last Name',
                 lastNamePh:      'Doe',
-                emailLabel:      'Email address',
+                emailLabel:      'Email Address',
                 emailPh:         'admin@school.com',
                 passwordLabel:   'Password',
                 passwordPh:      '••••••••',
-                confirmLabel:    'Repeat Password',
+                confirmLabel:    'Confirm Password',
                 confirmPh:       '••••••••',
+                termsText:       'I agree to the Terms of Service and Privacy Policy.',
                 createBtn:       'Create Account',
-                loginLink:       'Already have an account? Sign in',
-                footer:          '© 2026 School Manager. All rights reserved.'
+                orText:          'Already have an account?',
+                loginLink:       'Sign In Instead',
+                footer:          '© 2026 School Manager. All rights reserved.',
             },
             ar: {
-                subtitle:        'املأ النموذج أدناه للبدء',
+                title:           'إنشاء حساب جديد',
+                subtitle:        'أعدّ بوابتك الإدارية في دقائق',
+                sectionPersonal: 'المعلومات الشخصية',
+                sectionAccount:  'تفاصيل الحساب',
                 firstName:       'الاسم الأول',
                 firstNamePh:     'أحمد',
                 lastName:        'الاسم الأخير',
@@ -469,43 +589,36 @@
                 passwordPh:      '••••••••',
                 confirmLabel:    'تأكيد كلمة المرور',
                 confirmPh:       '••••••••',
-                createBtn:       'إنشاء حساب',
-                loginLink:       'لديك حساب بالفعل؟ تسجيل الدخول',
-                footer:          '© 2026 School Manager. جميع الحقوق محفوظة.'
+                termsText:       'أوافق على شروط الخدمة وسياسة الخصوصية.',
+                createBtn:       'إنشاء الحساب',
+                orText:          'لديك حساب بالفعل؟',
+                loginLink:       'تسجيل الدخول',
+                footer:          '© 2026 مدير المدرسة. جميع الحقوق محفوظة.',
             }
         };
 
         function setLang(lang) {
             localStorage.setItem('app_lang', lang);
-            const t = registerTranslations[lang];
+            const t   = registerTranslations[lang];
             const dir = lang === 'ar' ? 'rtl' : 'ltr';
-
             document.body.setAttribute('dir', dir);
             document.documentElement.setAttribute('lang', lang);
-
-            // Update text nodes
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
                 if (t[key] !== undefined) el.textContent = t[key];
             });
-
-            // Update placeholders
             document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
                 const key = el.getAttribute('data-i18n-placeholder');
                 if (t[key] !== undefined) el.setAttribute('placeholder', t[key]);
             });
-
-            // Active button state
             document.getElementById('btnEn').classList.toggle('active', lang === 'en');
             document.getElementById('btnAr').classList.toggle('active', lang === 'ar');
         }
 
-        // On load, apply saved language
         (function() {
             const saved = localStorage.getItem('app_lang') || 'en';
             setLang(saved);
         })();
     </script>
 </body>
-
 </html>

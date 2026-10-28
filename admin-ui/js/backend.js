@@ -5033,12 +5033,216 @@
         var stuFullName = [tc.first_name, tc.last_name].filter(Boolean).join(' ');
         renderProfileAdminFile(spAdminFileCont, tc.administrative_file, tc.user_id, stuFullName, loadStudentProfile);
       }
+
+      // Render Disciplinary Section (الملف التأديبي والملاحظات)
+      var spDiscCont = document.getElementById('sp-disciplinary-container');
+      if (spDiscCont) {
+        var stuFullNameDisc = [tc.first_name, tc.last_name].filter(Boolean).join(' ');
+        renderStudentDisciplinarySection(tc.id, tc.user_id, stuFullNameDisc);
+      }
       
       // Trigger i18n translation for dynamically injected strings
       if (window.AppI18n) window.AppI18n.translateAll(document.body);
     }).catch(function (err) { showAlert(cont, err.message); });
   }
   window.loadStudentProfile = loadStudentProfile;
+
+  // ── Disciplinary Section (الملف التأديبي والملاحظات) ──────────────────────────
+  function renderStudentDisciplinarySection(studentId, userId, studentName) {
+    var cont = document.getElementById('sp-disciplinary-container');
+    if (!cont) return;
+
+    var badge = document.getElementById('sp-disciplinary-count-badge');
+    var addBtn = document.getElementById('sp-add-note-btn');
+
+    if (addBtn) {
+      addBtn.onclick = function () {
+        openDisciplinaryModal(studentId, null);
+      };
+    }
+
+    request('/api/student-registrations/' + studentId + '/disciplinary-notes').then(function (res) {
+      var notes = (res && res.data) || [];
+      if (badge) {
+        badge.textContent = notes.length;
+        badge.style.display = notes.length > 0 ? 'inline-block' : 'none';
+        if (notes.some(function(n) { return n.severity === 'high'; })) {
+          badge.style.background = '#ef4444';
+        } else if (notes.some(function(n) { return n.severity === 'medium'; })) {
+          badge.style.background = '#f59e0b';
+        } else {
+          badge.style.background = '#3b82f6';
+        }
+      }
+
+      if (!notes.length) {
+        cont.innerHTML = 
+          '<div style="background:#f8fafc; border:1px dashed #cbd5e1; border-radius:12px; padding:28px 20px; text-align:center;">' +
+            '<div style="width:48px; height:48px; border-radius:50%; background:#ecfdf5; color:#10b981; display:inline-flex; align-items:center; justify-content:center; font-size:22px; margin-bottom:10px;">' +
+              '<i class="fa fa-check-circle"></i>' +
+            '</div>' +
+            '<h5 style="margin:0 0 6px; font-weight:700; color:#0f172a;" data-i18n="Clean Conduct Record">سجل انضباطي نظيف</h5>' +
+            '<p style="margin:0; font-size:13.5px; color:#64748b;" data-i18n="No disciplinary records found">لا توجد أي ملاحظات أو عقوبات تأديبية مسجلة لهذا الطالب (سلوك حسن ومثالي).</p>' +
+          '</div>';
+        if (window.AppI18n) window.AppI18n.translateAll(cont);
+        return;
+      }
+
+      var typeMap = {
+        'warning': { label: 'تنبيه شفهي', bg: '#fef3c7', color: '#b45309', icon: 'fa-exclamation' },
+        'reprimand': { label: 'إنذار كتابي', bg: '#fee2e2', color: '#b91c1c', icon: 'fa-exclamation-triangle' },
+        'misconduct': { label: 'مخالفة سلوكية', bg: '#ffe4e6', color: '#be123c', icon: 'fa-ban' },
+        'attendance': { label: 'غياب / تأخر', bg: '#e0e7ff', color: '#4338ca', icon: 'fa-clock-o' },
+        'praise': { label: 'تشجيع / ثناء', bg: '#ecfdf5', color: '#047857', icon: 'fa-star' },
+        'other': { label: 'ملاحظة عامة', bg: '#f1f5f9', color: '#475569', icon: 'fa-file-text-o' }
+      };
+
+      var sevMap = {
+        'low': { label: 'خفيفة / عادية', bg: '#f0fdf4', color: '#16a34a', border: '#bbf7d0' },
+        'medium': { label: 'متوسطة', bg: '#fffbeb', color: '#d97706', border: '#fde68a' },
+        'high': { label: 'شديدة / إنذار رسمي', bg: '#fef2f2', color: '#dc2626', border: '#fecaca' }
+      };
+
+      var html = '<div style="display:flex; flex-direction:column; gap:14px;">';
+
+      notes.forEach(function (n) {
+        var tInfo = typeMap[n.type] || typeMap['other'];
+        var sInfo = sevMap[n.severity] || sevMap['low'];
+        var authorRole = n.added_by_role === 'teacher' ? 'الأستاذ' : (n.added_by_role === 'super_admin' ? 'الإدارة العامة' : 'الإدارة');
+        var authorName = [n.added_by_first, n.added_by_last].filter(Boolean).join(' ') || 'الإدارة';
+
+        html += 
+          '<div style="background:#fff; border:1px solid ' + sInfo.border + '; border-radius:12px; padding:18px 20px; box-shadow:0 2px 8px rgba(0,0,0,0.03); display:flex; flex-direction:column; gap:10px;">' +
+            '<div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">' +
+              '<div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">' +
+                '<span style="background:' + tInfo.bg + '; color:' + tInfo.color + '; padding:3px 10px; border-radius:20px; font-size:12px; font-weight:700; display:inline-flex; align-items:center; gap:5px;">' +
+                  '<i class="fa ' + tInfo.icon + '"></i> ' + tInfo.label +
+                '</span>' +
+                '<span style="background:' + sInfo.bg + '; color:' + sInfo.color + '; border:1px solid ' + sInfo.border + '; padding:2px 8px; border-radius:6px; font-size:11.5px; font-weight:600;">' +
+                  sInfo.label +
+                '</span>' +
+                '<span style="color:#64748b; font-size:13px; font-weight:500;">' +
+                  '<i class="fa fa-calendar-o"></i> ' + (n.note_date || '') +
+                '</span>' +
+              '</div>' +
+              '<div style="display:flex; align-items:center; gap:6px;">' +
+                '<button type="button" class="btn btn-xs btn-default dn-edit-btn" data-id="' + n.id + '" style="border-radius:6px;" title="تعديل">' +
+                  '<i class="fa fa-pencil text-primary"></i>' +
+                '</button>' +
+                '<button type="button" class="btn btn-xs btn-default dn-delete-btn" data-id="' + n.id + '" style="border-radius:6px;" title="حذف">' +
+                  '<i class="fa fa-trash text-danger"></i>' +
+                '</button>' +
+              '</div>' +
+            '</div>' +
+
+            '<div>' +
+              '<h5 style="margin:0 0 6px; font-weight:700; color:#1e293b; font-size:15px;">' + esc(n.title) + '</h5>' +
+              (n.description ? '<p style="margin:0; font-size:13.5px; color:#475569; white-space:pre-wrap; line-height:1.6;">' + esc(n.description) + '</p>' : '') +
+            '</div>' +
+
+            '<div style="border-top:1px solid #f1f5f9; padding-top:8px; margin-top:2px; font-size:12px; color:#64748b; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px;">' +
+              '<span><i class="fa fa-user-circle-o"></i> ' + authorRole + ': <strong>' + esc(authorName) + '</strong></span>' +
+              (n.created_at ? '<span><i class="fa fa-clock-o"></i> ' + new Date(n.created_at).toLocaleString() + '</span>' : '') +
+            '</div>' +
+          '</div>';
+      });
+
+      html += '</div>';
+      cont.innerHTML = html;
+
+      // Bind edit / delete
+      cont.querySelectorAll('.dn-edit-btn').forEach(function (btn) {
+        btn.onclick = function () {
+          var noteId = this.getAttribute('data-id');
+          var note = notes.find(function (x) { return String(x.id) === String(noteId); });
+          openDisciplinaryModal(studentId, note);
+        };
+      });
+
+      cont.querySelectorAll('.dn-delete-btn').forEach(function (btn) {
+        btn.onclick = function () {
+          var noteId = this.getAttribute('data-id');
+          if (!confirm((typeof t === 'function' && t('Are you sure you want to delete this disciplinary note?')) || 'هل أنت متأكد من حذف هذه الملاحظة التأديبية؟')) return;
+          request('/api/student-registrations/' + studentId + '/disciplinary-notes/' + noteId, { method: 'DELETE' })
+            .then(function () {
+              renderStudentDisciplinarySection(studentId, userId, studentName);
+            })
+            .catch(function (err) { alert(err.message); });
+        };
+      });
+
+      if (window.AppI18n) window.AppI18n.translateAll(cont);
+    }).catch(function (err) {
+      cont.innerHTML = '<div class="alert alert-danger" style="border-radius:10px;">Failed to load disciplinary notes: ' + esc(err.message) + '</div>';
+    });
+  }
+  window.renderStudentDisciplinarySection = renderStudentDisciplinarySection;
+
+  function openDisciplinaryModal(studentId, note) {
+    var modal = $('#disciplinaryNoteModal');
+    if (!modal.length) return;
+
+    var titleText = document.getElementById('dn-modal-title-text');
+    var idInput = document.getElementById('dn-note-id');
+    var titleInput = document.getElementById('dn-title');
+    var typeSelect = document.getElementById('dn-type');
+    var sevSelect = document.getElementById('dn-severity');
+    var dateInput = document.getElementById('dn-date');
+    var descInput = document.getElementById('dn-description');
+
+    if (note) {
+      if (titleText) titleText.textContent = 'تعديل ملاحظة تأديبية';
+      if (idInput) idInput.value = note.id;
+      if (titleInput) titleInput.value = note.title || '';
+      if (typeSelect) typeSelect.value = note.type || 'warning';
+      if (sevSelect) sevSelect.value = note.severity || 'low';
+      if (dateInput) dateInput.value = (note.note_date || '').slice(0, 10);
+      if (descInput) descInput.value = note.description || '';
+    } else {
+      if (titleText) titleText.textContent = 'إضافة ملاحظة أو تقرير تأديبي';
+      if (idInput) idInput.value = '';
+      if (titleInput) titleInput.value = '';
+      if (typeSelect) typeSelect.value = 'warning';
+      if (sevSelect) sevSelect.value = 'low';
+      if (dateInput) dateInput.value = new Date().toISOString().slice(0, 10);
+      if (descInput) descInput.value = '';
+    }
+
+    var form = document.getElementById('disciplinaryNoteForm');
+    form.onsubmit = function (e) {
+      e.preventDefault();
+      var isEdit = Boolean(idInput.value);
+      var payload = {
+        title: titleInput.value.trim(),
+        type: typeSelect.value,
+        severity: sevSelect.value,
+        note_date: dateInput.value,
+        description: descInput.value.trim()
+      };
+
+      var btn = document.getElementById('dn-submit-btn');
+      if (btn) btn.disabled = true;
+
+      var url = isEdit
+        ? '/api/student-registrations/' + studentId + '/disciplinary-notes/' + idInput.value
+        : '/api/student-registrations/' + studentId + '/disciplinary-notes';
+      var method = isEdit ? 'PUT' : 'POST';
+
+      request(url, { method: method, body: JSON.stringify(payload) })
+        .then(function () {
+          modal.modal('hide');
+          if (btn) btn.disabled = false;
+          renderStudentDisciplinarySection(studentId, null, null);
+        })
+        .catch(function (err) {
+          if (btn) btn.disabled = false;
+          alert('Error: ' + err.message);
+        });
+    };
+
+    modal.modal('show');
+  }
+  window.openDisciplinaryModal = openDisciplinaryModal;
 
   function loadTeacherProfile() {
     var cont = document.querySelector('#tp-container'); if (!cont) return;

@@ -422,10 +422,95 @@
                             <i class="fa fa-spinner fa-spin"></i> <span data-i18n="Loading...">Loading...</span>
                         </div>
                     </div>
+
+                    <!-- Disciplinary File & Notes / الملف التأديبي والملاحظات -->
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-top:35px; margin-bottom:16px; border-bottom: 2px solid #f1f5f9; padding-bottom: 12px; flex-wrap:wrap; gap:10px;">
+                        <h4 class="section-title-h4" style="margin:0; border-bottom:none; padding-bottom:0;">
+                            <i class="fa fa-gavel" style="color:#ef4444;"></i>
+                            <span data-i18n="Disciplinary Record & Notes">الملف التأديبي والملاحظات</span>
+                            <span id="sp-disciplinary-count-badge" class="badge" style="background:#ef4444; color:#fff; margin-inline-start:8px; font-size:12px; vertical-align:middle; display:none;">0</span>
+                        </h4>
+                        <button type="button" class="btn btn-sm btn-primary" id="sp-add-note-btn" style="border-radius:8px; font-weight:600; display:inline-flex; align-items:center; gap:6px;">
+                            <i class="fa fa-plus-circle"></i>
+                            <span data-i18n="Add Disciplinary Note">إضافة ملاحظة / إجراء تأديبي</span>
+                        </button>
+                    </div>
+                    <div id="sp-disciplinary-container" style="margin-bottom:25px;">
+                        <div class="text-center" style="padding:16px; color:#9ca3af;">
+                            <i class="fa fa-spinner fa-spin"></i> <span data-i18n="Loading...">Loading...</span>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div id="footer-placeholder"></div>
         </div>
+    </div>
+
+    <!-- Modal: Add / Edit Disciplinary Note -->
+    <div class="modal fade" id="disciplinaryNoteModal" tabindex="-1" role="dialog" aria-labelledby="disciplinaryModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content" style="border-radius:16px; overflow:hidden; border:none; box-shadow:0 20px 40px rgba(0,0,0,0.15);">
+          <div class="modal-header" style="background:linear-gradient(135deg, #1e293b 0%, #334155 100%); color:#fff; padding:18px 24px;">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color:#fff; opacity:0.8; font-size:24px;">
+              <span aria-hidden="true">&times;</span>
+            </button>
+            <h4 class="modal-title" id="disciplinaryModalLabel" style="font-weight:700; display:flex; align-items:center; gap:8px;">
+              <i class="fa fa-gavel" style="color:#f87171;"></i>
+              <span id="dn-modal-title-text" data-i18n="Add Disciplinary Note">إضافة ملاحظة أو تقرير تأديبي</span>
+            </h4>
+          </div>
+          <form id="disciplinaryNoteForm">
+            <div class="modal-body" style="padding:24px;">
+              <input type="hidden" id="dn-note-id" value="">
+              
+              <div class="form-group">
+                <label style="font-weight:600; color:#334155;" data-i18n="Title / Subject">العنوان / موضوع الملاحظة <span class="text-danger">*</span></label>
+                <input type="text" id="dn-title" class="form-control" placeholder="مثال: تنبيه شفهي بسبب التأخر المتكرر" required style="border-radius:8px; height:42px;">
+              </div>
+
+              <div class="row">
+                <div class="col-xs-6">
+                  <div class="form-group">
+                    <label style="font-weight:600; color:#334155;" data-i18n="Note Type">نوع الإجراء</label>
+                    <select id="dn-type" class="form-control" style="border-radius:8px; height:42px;">
+                      <option value="warning">تنبيه شفهي (Warning)</option>
+                      <option value="reprimand">إنذار كتابي (Reprimand)</option>
+                      <option value="misconduct">مخالفة سلوكية (Misconduct)</option>
+                      <option value="attendance">غياب أو تأخر متكرر (Attendance)</option>
+                      <option value="praise">ملاحظة إيجابية / تشجيع (Commendation)</option>
+                      <option value="other">أخرى (Other)</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-xs-6">
+                  <div class="form-group">
+                    <label style="font-weight:600; color:#334155;" data-i18n="Severity">درجة الأهمية / الخطورة</label>
+                    <select id="dn-severity" class="form-control" style="border-radius:8px; height:42px;">
+                      <option value="low">عادية / خفيفة (Low)</option>
+                      <option value="medium">متوسطة (Medium)</option>
+                      <option value="high">شديدة / إنذار رسمي (High)</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label style="font-weight:600; color:#334155;" data-i18n="Date">تاريخ الواقعة / الملاحظة <span class="text-danger">*</span></label>
+                <input type="date" id="dn-date" class="form-control" required style="border-radius:8px; height:42px;">
+              </div>
+
+              <div class="form-group" style="margin-bottom:0;">
+                <label style="font-weight:600; color:#334155;" data-i18n="Details / Observation">تفاصيل وملاحظات إضافية</label>
+                <textarea id="dn-description" class="form-control" rows="4" placeholder="اكتب تفاصيل الملاحظة، السلوك المرصود، أو الإجراء المتخذ بالتفصيل..." style="border-radius:8px; resize:vertical;"></textarea>
+              </div>
+            </div>
+            <div class="modal-footer" style="background:#f8fafc; border-top:1px solid #e2e8f0; padding:16px 24px;">
+              <button type="button" class="btn btn-default" data-dismiss="modal" style="border-radius:8px; font-weight:600;" data-i18n="Cancel">إلغاء</button>
+              <button type="submit" class="btn btn-primary" id="dn-submit-btn" style="border-radius:8px; font-weight:600;" data-i18n="Save Note">حفظ الملاحظة</button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
 
     <script src="js/vendor/jquery-1.12.4.min.js"></script>

@@ -809,4 +809,101 @@ router.delete(
   })
 );
 
-module.exports = router;
+// ── Disciplinary Notes (الملف التأديبي) ──────────────────────────────────────
+
+// GET /api/student-registrations/:id/disciplinary-notes
+router.get(
+  '/:id/disciplinary-notes',
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    const studentId = req.params.id;
+    const notes = await query(`
+      SELECT
+        dn.id, dn.title, dn.description, dn.type, dn.severity,
+        DATE_FORMAT(dn.note_date, '%Y-%m-%d') AS note_date,
+        dn.created_at,
+        u.first_name AS added_by_first, u.last_name AS added_by_last,
+        u.role AS added_by_role
+      FROM student_disciplinary_notes dn
+      LEFT JOIN users u ON u.id = dn.added_by
+      WHERE dn.student_id = ?
+      ORDER BY dn.note_date DESC, dn.created_at DESC
+    `, [studentId]);
+    res.json({ data: notes });
+  })
+);
+
+// POST /api/student-registrations/:id/disciplinary-notes
+router.post(
+  '/:id/disciplinary-notes',
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    if (!['admin', 'super_admin', 'teacher'].includes(req.auth.role)) {
+      return res.status(403).json({ message: 'Forbidden' });
+    }
+    const studentId = req.params.id;
+    const { title, description, type, severity, note_date } = req.body;
+    if (!title || !note_date) {
+      return res.status(400).json({ message: 'title and note_date are required' });
+    }
+    let schoolId = await getSchoolId(req.auth.userId);
+    if (!schoolId) {
+      const st = await query('SELECT school_id FROM students WHERE id = ?', [studentId]);
+      if (st.length) schoolId = st[0].school_id;
+    }
+    const result = await query(`
+      INSERT INTO student_disciplinary_notes
+        (student_id, school_id, title, description, type, severity, note_date, added_by)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `, [
+      studentId, schoolId,
+      title.trim(),
+      description || null,
+      type || 'other',
+      severity || 'low',
+      note_date,
+      req.auth.userId
+    ]);
+    const [created] = await query(`
+      SELECT dn.*, u.first_name AS added_by_first, u.last_name AS added_by_last
+      FROM student_disciplinary_notes dn
+      LEFT JOIN users u ON u.id = dn.added_by
+      WHERE dn.id = ?
+    `, [result.insertId]);
+    res.status(201).json({ data: created });
+  })
+);
+
+// PUT /api/student-registrations/:studentId/disciplinary-notes/:noteId
+router.put(
+  '/:id/disciplinary-notes/:noteId',
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    if (!['admin', 'super_admin', 'teacher'].includes(req.auth.role)) {
+      return res.status(403).json({ message: 'Forbidden' });
+    }
+    const { noteId } = req.params;
+    const { title, description, type, severity, note_date } = req.body;
+    await query(`
+      UPDATE student_disciplinary_notes
+      SET title=?, description=?, type=?, severity=?, note_date=?
+      WHERE id=?
+    `, [title, description || null, type || 'other', severity || 'low', note_date, noteId]);
+    res.json({ message: 'Note updated' });
+  })
+);
+
+// DELETE /api/student-registrations/:studentId/disciplinary-notes/:noteId
+router.delete(
+  '/:id/disciplinary-notes/:noteId',
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    if (!['admin', 'super_admin', 'teacher'].includes(req.auth.role)) {
+      return res.status(403).json({ message: 'Forbidden' });
+    }
+    await query('DELETE FROM student_disciplinary_notes WHERE id = ?', [req.params.noteId]);
+    res.status(204).send();
+  })
+);
+
+module.exports = router;

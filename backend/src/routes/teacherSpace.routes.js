@@ -174,5 +174,32 @@ router.get('/payments', asyncHandler(async (req, res) => {
   res.json({ data: rows, total });
 }));
 
+router.get('/students', asyncHandler(async (req, res) => {
+  if (req.auth.role !== 'teacher') return res.status(403).json({ message: 'Forbidden: Teachers only' });
+
+  const teacher = await query('SELECT id, school_id FROM teachers WHERE user_id = ?', [req.auth.userId]);
+  if (!teacher.length) return res.json({ data: [] });
+
+  const teacherId = teacher[0].id;
+
+  const students = await query(`
+    SELECT DISTINCT
+      s.id as student_id, s.registration_number,
+      u.first_name, u.last_name, u.photo, u.gender,
+      g.id as group_id, g.name as group_name,
+      f.id as formation_id, f.title as formation_title
+    FROM students s
+    JOIN users u ON s.user_id = u.id
+    JOIN student_groups sg ON sg.student_id = s.id
+    JOIN \`groups\` g ON sg.group_id = g.id
+    JOIN formations f ON g.formation_id = f.id
+    WHERE g.teacher_id = ? OR f.teacher_id = ?
+    ORDER BY u.last_name ASC, u.first_name ASC
+  `, [teacherId, teacherId]);
+
+  res.json({ data: students });
+}));
+
 module.exports = router;
+
 
