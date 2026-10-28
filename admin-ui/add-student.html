@@ -321,6 +321,22 @@
       </div>
     </div>
 
+    <div class="sec-title"><i class="fa fa-folder-open"></i> <span data-i18n="Administrative File">Administrative File</span></div>
+    <div class="form-group">
+      <label><span data-i18n="Scanned Paper / Documents">Scanned Paper / Documents</span> <small class="text-muted">(PDF, JPG, PNG)</small></label>
+      <input type="hidden" name="administrative_file" id="student-admin-file-path">
+      <div class="input-group">
+        <input type="text" id="student-admin-file-display" class="form-control" placeholder="No file selected..." data-i18n-ph="No file selected..." readonly style="background:#f9fafb;cursor:pointer;" onclick="document.getElementById('student-admin-file-input').click()">
+        <span class="input-group-btn">
+          <label class="btn btn-default" title="Upload Document" data-i18n-title="Upload Document" style="margin:0;border-left:none;">
+            <i class="fa fa-upload" id="icon-upload-stu-doc"></i> <span data-i18n="Upload File">Upload</span>
+            <input type="file" id="student-admin-file-input" accept=".pdf,image/*,.doc,.docx" style="display:none;" onchange="handleAdminFileUpload(this, 'student-admin-file-path', 'student-admin-file-display', 'student-admin-file-preview', 'icon-upload-stu-doc')">
+          </label>
+        </span>
+      </div>
+      <div id="student-admin-file-preview" style="display:none;"></div>
+    </div>
+
       <div style="margin-top:18px; display:flex; align-items:center; gap:10px;">
         <button type="submit" class="btn-submit"><i class="fa fa-save"></i> <span data-i18n="Save Student">Save Student</span></button>
         <a href="all-students.html" class="btn-back"><i class="fa fa-arrow-left"></i> <span data-i18n="Back">Back</span></a>
@@ -362,5 +378,5 @@
 <script src="js/vendor/jquery-1.12.4.min.js"></script>
 <script src="js/bootstrap.min.js"></script>
 <script src="js/components.js"></script>
-<script src="js/backend.js?v=3"></script>
+<script src="js/backend.js?v=21"></script>
 </body></html>

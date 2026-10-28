@@ -11,6 +11,7 @@ module.exports = createCrudRouter({
     'gender',
     'birth_date',
     'photo',
+    'administrative_file',
     'is_active',
   ],
   requiredFields: ['first_name', 'last_name', 'email', 'password', 'role'],

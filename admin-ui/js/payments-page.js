@@ -84,6 +84,31 @@
     }
   }
 
+  function t(k) {
+    if (!k) return '';
+    if (window.AppI18n && typeof window.AppI18n.t === 'function') {
+      return window.AppI18n.t(k);
+    }
+    var isAr = (localStorage.getItem('app_lang') || document.documentElement.lang || 'ar') === 'ar';
+    if (isAr && window.AppI18n && window.AppI18n.dict && window.AppI18n.dict[k]) {
+      return window.AppI18n.dict[k];
+    }
+    return k;
+  }
+
+  // Global selector for students accessible from anywhere
+  window._paymentsSelectStudent = function (sid, gid) {
+    if (!allStudents || !allStudents.length) {
+      loadAllStudents(function () {
+        var s2 = allStudents.find(function (x) { return String(x.id) === String(sid); });
+        if (s2) selectStudent(s2, gid);
+      });
+      return;
+    }
+    var s = allStudents.find(function (x) { return String(x.id) === String(sid); });
+    if (s) selectStudent(s, gid);
+  };
+
   /* ─── state ───────────────────────────────────────────────────────────── */
   var allStudents = [];          // full student list (for autocomplete + stats)
   var allHistory  = [];          // full archive rows (for client-side search)
@@ -118,6 +143,17 @@
     request('/api/student-registrations').then(function (p) {
       allStudents = p.data || [];
       loadStats();
+
+      // Check URL query params for ?student_id=X&group_id=Y
+      try {
+        var urlParams = new URLSearchParams(window.location.search);
+        var paramSid = urlParams.get('student_id');
+        var paramGid = urlParams.get('group_id');
+        if (paramSid && typeof window._paymentsSelectStudent === 'function') {
+          window._paymentsSelectStudent(paramSid, paramGid);
+        }
+      } catch (e) {}
+
       if (cb) cb();
     }).catch(function () {});
   }
@@ -195,7 +231,10 @@
   /* ══════════════════════════════════════════════════════════════════════
      SELECT STUDENT  — main entry point when a student is chosen
   ══════════════════════════════════════════════════════════════════════ */
-  function selectStudent(student) {
+  /* ══════════════════════════════════════════════════════════════════════
+     SELECT STUDENT  — main entry point when a student is chosen
+  ══════════════════════════════════════════════════════════════════════ */
+  function selectStudent(student, preselectedGroupId) {
     selectedStudent = student;
     currentFormation = null;
     currentPromos = [];
@@ -236,29 +275,103 @@
       hideBanner('formation-price-banner');
     }
 
-    // Load formation details + promo codes
-    if (student.formation_id) {
-      loadFormationForStudent(student.formation_id);
-    }
+    // Configure multi-group dropdown and details card
+    renderStudentGroups(student, preselectedGroupId);
 
     // Load payment history
     loadStudentHistory(student.id, name);
+  }
 
-    // Expose global selector
-    window._paymentsSelectStudent = function (sid) {
-      var s = allStudents.find(function (x) { return String(x.id) === String(sid); });
-      if (s) selectStudent(s);
-    };
+  function renderStudentGroups(student, preselectedGroupId) {
+    var groupWrap = document.getElementById('pay-group-select-wrap');
+    var groupSel = document.getElementById('pay-selected-group');
+    var countPill = document.getElementById('pay-groups-count-pill');
+    var noGroupsNotice = document.getElementById('pay-no-groups-notice');
+    var assignLink = document.getElementById('pay-assign-group-link');
+
+    if (student.groups && student.groups.length > 0) {
+      if (noGroupsNotice) noGroupsNotice.style.display = 'none';
+      if (groupWrap) groupWrap.style.display = 'block';
+      if (countPill) {
+        var gCount = student.groups.length;
+        countPill.textContent = gCount + ' ' + (gCount === 1 ? (t('Group') || 'Group') : (t('Groups') || 'Groups'));
+      }
+
+      if (groupSel) {
+        groupSel.innerHTML = student.groups.map(function (g, idx) {
+          var isPaid = g.payment_status === 'paid';
+          var statusTxt = isPaid ? '✓ ' + (t('Paid') || 'Paid') : '✗ ' + (t('Unpaid') || 'Unpaid');
+          var nextTxt = g.next_payment_date ? ' [' + (t('Next') || 'Next') + ': ' + fmtDate(g.next_payment_date) + ']' : '';
+          var title = (g.formation_title ? g.formation_title + ' · ' : '') + g.group_name;
+          var isSel = preselectedGroupId ? (String(g.group_id) === String(preselectedGroupId)) : (idx === 0);
+          return '<option value="' + g.group_id + '" data-formation-id="' + (g.formation_id || '') + '"' + (isSel ? ' selected' : '') + '>' +
+            esc(title + ' — ' + statusTxt + nextTxt) +
+          '</option>';
+        }).join('');
+
+        function updateGroupLiveCard(g) {
+          if (!g) return;
+          var cardTitle = document.getElementById('pay-group-card-title');
+          var cardStatus = document.getElementById('pay-group-card-status');
+          var cardTeacher = document.getElementById('pay-group-card-teacher');
+          var cardNext = document.getElementById('pay-group-card-nextpay');
+
+          if (cardTitle) {
+            var fullTitle = (g.formation_title ? g.formation_title + ' · ' : '') + g.group_name;
+            var priceStr = g.price ? ' <span style="color:#059669;font-weight:700;font-size:12.5px;">(' + Number(g.price).toLocaleString() + ' DZD)</span>' : '';
+            cardTitle.innerHTML = '<i class="fa fa-folder-open-o" style="color:#6366f1;margin-inline-end:4px;"></i> ' + esc(fullTitle) + priceStr;
+          }
+          if (cardStatus) {
+            var isPaid = g.payment_status === 'paid';
+            cardStatus.className = isPaid ? 'badge-paid' : 'badge-unpaid';
+            cardStatus.innerHTML = isPaid
+              ? '<i class="fa fa-check-circle"></i> ' + (t('Paid') || 'Paid')
+              : '<i class="fa fa-times-circle"></i> ' + (t('Unpaid') || 'Unpaid');
+          }
+          if (cardTeacher) {
+            cardTeacher.innerHTML = '<i class="fa fa-user-circle-o" style="margin-inline-end:3px;"></i> <span>' + (t('Teacher') || 'Teacher') + ': <strong>' + esc(g.teacher_name || '-') + '</strong></span>';
+          }
+          if (cardNext) {
+            cardNext.innerHTML = '<i class="fa fa-calendar" style="margin-inline-end:3px;"></i> <span>' + (t('Next Due') || 'Next Due') + ': <strong>' + (g.next_payment_date ? fmtDate(g.next_payment_date) : '-') + '</strong></span>';
+          }
+
+          var fId = g.formation_id || student.formation_id;
+          if (fId) {
+            document.getElementById('payment-formation-id').value = fId;
+            loadFormationForStudent(fId);
+          }
+        }
+
+        groupSel.onchange = function () {
+          var chosenGid = groupSel.value;
+          var grp = student.groups.find(function (x) { return String(x.group_id) === String(chosenGid); });
+          if (grp) updateGroupLiveCard(grp);
+        };
+
+        var initialGrp = (preselectedGroupId && student.groups.find(function (x) { return String(x.group_id) === String(preselectedGroupId); })) || student.groups[0];
+        if (initialGrp) updateGroupLiveCard(initialGrp);
+      }
+    } else {
+      if (groupWrap) groupWrap.style.display = 'none';
+      if (noGroupsNotice) {
+        noGroupsNotice.style.display = 'flex';
+        if (assignLink) assignLink.href = 'edit-student.html?id=' + student.id;
+      }
+      if (student.formation_id) {
+        document.getElementById('payment-formation-id').value = student.formation_id;
+        loadFormationForStudent(student.formation_id);
+      }
+    }
   }
 
   function refreshStudentBadge(student) {
     var el = document.getElementById('sel-stu-status');
     if (!el) return;
     var isPaid = student.payment_status === 'paid';
+    var isPartial = student.payment_status === 'partial';
     var isAr = (window.AppI18n && window.AppI18n.getLang ? window.AppI18n.getLang() : localStorage.getItem('app_lang')) === 'ar';
-    var txt = isPaid ? (isAr ? 'مدفوع' : 'Paid') : (isAr ? 'غير مدفوع' : 'Unpaid');
+    var txt = isPaid ? (isAr ? 'مدفوع' : 'Paid') : (isPartial ? (isAr ? 'دفع جزئي' : 'Partial') : (isAr ? 'غير مدفوع' : 'Unpaid'));
     el.textContent = txt;
-    el.setAttribute('data-i18n', isPaid ? 'Paid' : 'Unpaid');
     el.className = isPaid ? 'badge-paid' : 'badge-unpaid';
   }
 
@@ -277,6 +390,10 @@
     var promoInput = document.getElementById('pay-promo-code-input');
     var feedbackEl = document.getElementById('promo-code-feedback');
     var hiddenPromo = document.getElementById('pay-promo-code');
+    var groupWrap = document.getElementById('pay-group-select-wrap');
+    if (groupWrap) groupWrap.style.display = 'none';
+    var noGroupsNotice = document.getElementById('pay-no-groups-notice');
+    if (noGroupsNotice) noGroupsNotice.style.display = 'none';
     if (input) input.value = '';
     if (card)  card.className = '';
     if (form)  { form.style.display = 'none'; form.reset(); }
@@ -512,20 +629,29 @@
     if (!panel || !tbody) return;
     panel.style.display = 'block';
     if (nameEl) nameEl.textContent = name || '';
-    tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted"><i class="fa fa-spinner fa-spin"></i> Loading...</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="9" class="text-center text-muted"><i class="fa fa-spinner fa-spin"></i> Loading...</td></tr>';
 
     request('/api/payment-history/student/' + studentId).then(function (p) {
       var rows = p.data || [];
       if (!rows.length) {
-        tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><i class="fa fa-inbox"></i><p>No payment records yet.</p></div></td></tr>';
+        tbody.innerHTML = '<tr><td colspan="9"><div class="empty-state"><i class="fa fa-inbox"></i><p>No payment records yet.</p></div></td></tr>';
         if (totalEl) totalEl.textContent = '';
         return;
       }
       tbody.innerHTML = rows.map(function (r, i) {
         var by = [r.recorded_by_name, r.recorded_by_last].filter(Boolean).join(' ') || '-';
         var planNote = r.subscription_plan ? '<small style="color:#8a96a8"> · ' + esc(planLabel(r.subscription_plan)) + '</small>' : '';
+        var groupInfo = '';
+        if (r.group_name) {
+          groupInfo = '<span class="label label-info" style="font-size:10.5px;font-weight:600;display:inline-block;margin-bottom:2px;">' + esc(r.group_name) + '</span>';
+        }
+        if (r.formation_title) {
+          groupInfo += (groupInfo ? '<br>' : '') + '<span style="font-size:11px;color:#64748b;">' + esc(r.formation_title) + '</span>';
+        }
+        if (!groupInfo) groupInfo = '-';
         return '<tr>' +
           '<td>' + (i + 1) + '</td>' +
+          '<td>' + groupInfo + '</td>' +
           '<td><strong style="color:#10b981">+ ' + fmtMoney(r.amount) + '</strong></td>' +
           '<td>' + esc(fmtDate(r.payment_date)) + '</td>' +
           '<td>' + (r.payment_method ? methodBadge(r.payment_method) : '-') + planNote + '</td>' +
@@ -548,7 +674,7 @@
         });
       });
     }).catch(function (err) {
-      tbody.innerHTML = '<tr><td colspan="8" class="text-center text-danger">Error: ' + esc(err.message) + '</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="9" class="text-center text-danger">Error: ' + esc(err.message) + '</td></tr>';
     });
   }
 
@@ -640,7 +766,13 @@
       }
 
       var btn = document.getElementById('btn-save-payment');
-      if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Saving...'; }
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> ' + (t('Saving...') || 'جاري الحفظ...');
+      }
+
+      var groupSelectEl = document.getElementById('pay-selected-group');
+      var selectedGroupId = (groupSelectEl && groupSelectEl.value) ? groupSelectEl.value : null;
 
       var payload = {
         amount: amount,
@@ -650,7 +782,16 @@
         update_status: true,   // always mark as paid
         subscription_plan: selectedPlan || null,
         promo_code: promoCode,
+        group_id: selectedGroupId || null,
+        formation_id: document.getElementById('payment-formation-id').value || null,
       };
+
+      function restoreSaveBtn() {
+        if (!btn) return;
+        btn.disabled = false;
+        var saveTxt = t('Save Payment & Mark as Paid') || 'حفظ الدفعة وتحديد كمدفوع';
+        btn.innerHTML = '<i class="fa fa-save"></i> <span data-i18n="Save Payment & Mark as Paid">' + saveTxt + '</span>';
+      }
 
       request('/api/payment-history/student/' + studentId, {
         method: 'POST',
@@ -667,6 +808,9 @@
           // Refresh badge + next date in card
           refreshStudentBadge(updated);
           setText('sel-stu-next-payment', fmtDate(updated.next_payment_date));
+
+          // Live refresh group selector and live details card
+          renderStudentGroups(updated, selectedGroupId);
 
           // Show success banner
           var banner = document.getElementById('payment-success-banner');
@@ -705,10 +849,10 @@
         tabLoaded.dashboard = false;
         if (typeof window.loadPaymentsPage === 'function') window.loadPaymentsPage();
 
-        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa fa-save"></i> Save Payment &amp; Mark as Paid'; }
+        restoreSaveBtn();
       }).catch(function (err) {
         showAlert('#payment-entry-status', err.message);
-        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa fa-save"></i> Save Payment &amp; Mark as Paid'; }
+        restoreSaveBtn();
       });
     });
 
@@ -1187,15 +1331,30 @@
     bindEditPaymentModal();
     initDashboardTab();
 
-    // Global hook for backend.js overview "Enter Payment" button
-    window._paymentsSelectStudent = function (sid) {
+    // Global hook for selecting a student (supports student_id and group_id)
+    window._paymentsSelectStudent = function (sid, gid) {
       var s = allStudents.find(function (x) { return String(x.id) === String(sid); });
-      if (s) selectStudent(s);
-      else loadAllStudents(function () {
-        var s2 = allStudents.find(function (x) { return String(x.id) === String(sid); });
-        if (s2) selectStudent(s2);
-      });
+      if (s) {
+        selectStudent(s, gid);
+      } else {
+        loadAllStudents(function () {
+          var s2 = allStudents.find(function (x) { return String(x.id) === String(sid); });
+          if (s2) selectStudent(s2, gid);
+        });
+      }
     };
+
+    // Auto-select student if passed in URL query param: ?student_id=123&group_id=456
+    try {
+      var urlParams = new URLSearchParams(window.location.search);
+      var paramSid = urlParams.get('student_id');
+      var paramGid = urlParams.get('group_id');
+      if (paramSid) {
+        setTimeout(function () {
+          window._paymentsSelectStudent(paramSid, paramGid);
+        }, 200);
+      }
+    } catch (e) {}
 
     var refreshBtn = document.getElementById('btn-refresh-states');
     if (refreshBtn) {

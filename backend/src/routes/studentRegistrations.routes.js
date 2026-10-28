@@ -53,6 +53,7 @@ const SELECT_STUDENT = `
     users.gender,
     users.birth_date,
     users.photo,
+    users.administrative_file,
     users.blood_type,
     users.is_active,
     users.role,
@@ -60,7 +61,11 @@ const SELECT_STUDENT = `
     f.title AS formation_title,
     f.type AS formation_type,
     (SELECT GROUP_CONCAT(g.name SEPARATOR ', ') FROM student_groups sg JOIN \`groups\` g ON g.id = sg.group_id WHERE sg.student_id = students.id) AS group_names,
-    (SELECT GROUP_CONCAT(sg.group_id SEPARATOR ',') FROM student_groups sg WHERE sg.student_id = students.id) AS group_ids
+    (SELECT GROUP_CONCAT(sg.group_id SEPARATOR ',') FROM student_groups sg WHERE sg.student_id = students.id) AS group_ids,
+    (SELECT COUNT(DISTINCT COALESCE(g.formation_id, students.formation_id)) FROM student_groups sg JOIN \`groups\` g ON g.id = sg.group_id WHERE sg.student_id = students.id) AS formations_count,
+    (SELECT COUNT(*) FROM student_groups sg WHERE sg.student_id = students.id) AS groups_count,
+    (SELECT GROUP_CONCAT(DISTINCT f2.title SEPARATOR ', ') FROM student_groups sg JOIN \`groups\` g ON g.id = sg.group_id JOIN formations f2 ON f2.id = g.formation_id WHERE sg.student_id = students.id) AS formation_titles,
+    (SELECT GROUP_CONCAT(DISTINCT g.formation_id SEPARATOR ',') FROM student_groups sg JOIN \`groups\` g ON g.id = sg.group_id WHERE sg.student_id = students.id) AS formation_ids
   FROM students
   INNER JOIN users ON users.id = students.user_id
   LEFT JOIN formations f ON f.id = students.formation_id
@@ -77,6 +82,75 @@ function computeNextPaymentDate(enrollmentDate, subscriptionPlan) {
   if (!months) return null;
   date.setMonth(date.getMonth() + months);
   return date.toISOString().slice(0,10);
+}
+
+async function attachStudentGroupDetails(students, schoolId) {
+  if (!students || !students.length) return students;
+  const studentIds = students.map(s => s.id);
+
+  const sgRows = await query(
+    `SELECT sg.id AS student_group_id,
+            sg.student_id,
+            sg.group_id,
+            sg.payment_status,
+            sg.subscription_plan,
+            DATE_FORMAT(sg.next_payment_date, '%Y-%m-%d') AS next_payment_date,
+            DATE_FORMAT(sg.last_payment_date, '%Y-%m-%d') AS last_payment_date,
+            sg.discount_percent,
+            sg.joined_at,
+            g.name AS group_name,
+            g.formation_id,
+            f.title AS formation_title,
+            f.type AS formation_type,
+            f.price,
+            f.price_monthly,
+            f.price_3_months,
+            f.price_1_year,
+            CONCAT(tu.first_name, ' ', tu.last_name) AS teacher_name
+     FROM student_groups sg
+     JOIN \`groups\` g ON g.id = sg.group_id
+     LEFT JOIN formations f ON f.id = g.formation_id
+     LEFT JOIN teachers t ON t.id = COALESCE(g.teacher_id, f.teacher_id)
+     LEFT JOIN users tu ON tu.id = t.user_id
+     WHERE sg.student_id IN (${studentIds.map(() => '?').join(',')})
+     ORDER BY sg.id ASC`,
+    studentIds
+  );
+
+  const map = {};
+  for (const row of sgRows) {
+    if (!map[row.student_id]) map[row.student_id] = [];
+    map[row.student_id].push(row);
+  }
+
+  for (const s of students) {
+    const groups = map[s.id] || [];
+    s.groups = groups;
+    s.groups_count = groups.length;
+
+    const fIds = new Set();
+    const fTitles = [];
+    for (const g of groups) {
+      if (g.formation_id && !fIds.has(g.formation_id)) {
+        fIds.add(g.formation_id);
+        if (g.formation_title) fTitles.push(g.formation_title);
+      }
+    }
+    if (s.formation_id && !fIds.has(s.formation_id)) {
+      fIds.add(s.formation_id);
+      if (s.formation_title) fTitles.push(s.formation_title);
+    }
+    s.formations_count = fIds.size || (s.formation_id ? 1 : 0);
+    s.formation_titles = fTitles.length ? fTitles.join(', ') : (s.formation_title || '');
+    s.formation_ids = Array.from(fIds).join(',');
+
+    if (groups.length > 0) {
+      const allPaid = groups.every(g => g.payment_status === 'paid');
+      const somePaid = groups.some(g => g.payment_status === 'paid');
+      s.payment_status = allPaid ? 'paid' : (somePaid ? 'partial' : 'not_paid');
+    }
+  }
+  return students;
 }
 
 // GET payment dashboard students
@@ -195,6 +269,7 @@ router.get(
       values
     );
 
+    await attachStudentGroupDetails(rows, schoolId);
     res.json({ data: rows, summary: summaryRows[0] || { total_revenue: 0, student_count: 0 } });
   })
 );
@@ -206,11 +281,67 @@ router.get(
   asyncHandler(async (req, res) => {
     const schoolId = await getSchoolId(req.auth.userId);
 
-    const rows = await query(
+    // 1) Alerts for students in groups
+    const groupAlerts = await query(
       `SELECT
         students.id,
         students.user_id,
+        sg.group_id,
+        g.name AS group_name,
+        COALESCE(g.formation_id, students.formation_id) AS formation_id,
+        f.title AS formation_title,
+        f.type AS formation_type,
+        f.price,
+        students.registration_number,
+        students.parent_name,
+        students.parent_phone,
+        students.enrollment_date,
+        sg.payment_status,
+        COALESCE(sg.subscription_plan, students.subscription_plan) AS subscription_plan,
+        DATE_FORMAT(sg.next_payment_date, '%Y-%m-%d') AS next_payment_date,
+        CASE
+          WHEN sg.next_payment_date IS NOT NULL THEN DATEDIFF(sg.next_payment_date, CURDATE())
+          WHEN sg.payment_status IN ('not_paid', 'unpaid') AND students.enrollment_date IS NOT NULL
+            THEN DATEDIFF(students.enrollment_date, CURDATE())
+          ELSE -1
+        END AS days_left,
+        users.first_name,
+        users.last_name,
+        users.email,
+        users.photo,
+        users.gender,
+        CASE
+          WHEN sg.next_payment_date IS NOT NULL AND sg.next_payment_date < CURDATE() THEN 'overdue'
+          WHEN sg.payment_status IN ('not_paid', 'unpaid') AND (sg.next_payment_date IS NULL OR sg.next_payment_date < CURDATE()) THEN 'overdue'
+          WHEN sg.next_payment_date IS NOT NULL AND DATEDIFF(sg.next_payment_date, CURDATE()) <= 1 THEN 'urgent'
+          ELSE 'warning'
+        END AS urgency
+      FROM student_groups sg
+      INNER JOIN students ON students.id = sg.student_id
+      INNER JOIN users ON users.id = students.user_id
+      INNER JOIN \`groups\` g ON g.id = sg.group_id
+      LEFT JOIN formations f ON f.id = g.formation_id
+      WHERE students.school_id = ?
+        AND (
+          (sg.next_payment_date IS NOT NULL AND sg.next_payment_date <= DATE_ADD(CURDATE(), INTERVAL 7 DAY))
+          OR
+          (sg.payment_status IN ('not_paid', 'unpaid'))
+        )
+      ORDER BY sg.next_payment_date ASC, students.id DESC`,
+      [schoolId]
+    );
+
+    // 2) Alerts for students not yet assigned to any group
+    const unassignedAlerts = await query(
+      `SELECT
+        students.id,
+        students.user_id,
+        NULL AS group_id,
+        NULL AS group_name,
         students.formation_id,
+        f.title AS formation_title,
+        f.type AS formation_type,
+        f.price,
         students.registration_number,
         students.parent_name,
         students.parent_phone,
@@ -218,27 +349,44 @@ router.get(
         students.payment_status,
         students.subscription_plan,
         DATE_FORMAT(students.next_payment_date, '%Y-%m-%d') AS next_payment_date,
-        DATEDIFF(students.next_payment_date, CURDATE()) AS days_left,
+        CASE
+          WHEN students.next_payment_date IS NOT NULL THEN DATEDIFF(students.next_payment_date, CURDATE())
+          WHEN students.payment_status IN ('not_paid', 'unpaid') AND students.enrollment_date IS NOT NULL
+            THEN DATEDIFF(students.enrollment_date, CURDATE())
+          ELSE -1
+        END AS days_left,
         users.first_name,
         users.last_name,
         users.email,
         users.photo,
-        f.title AS formation_title,
-        f.type AS formation_type,
+        users.gender,
         CASE
-          WHEN students.next_payment_date < CURDATE() THEN 'overdue'
-          WHEN DATEDIFF(students.next_payment_date, CURDATE()) <= 1 THEN 'urgent'
+          WHEN students.next_payment_date IS NOT NULL AND students.next_payment_date < CURDATE() THEN 'overdue'
+          WHEN students.payment_status IN ('not_paid', 'unpaid') AND (students.next_payment_date IS NULL OR students.next_payment_date < CURDATE()) THEN 'overdue'
+          WHEN students.next_payment_date IS NOT NULL AND DATEDIFF(students.next_payment_date, CURDATE()) <= 1 THEN 'urgent'
           ELSE 'warning'
         END AS urgency
       FROM students
       INNER JOIN users ON users.id = students.user_id
       LEFT JOIN formations f ON f.id = students.formation_id
       WHERE students.school_id = ?
-        AND students.next_payment_date IS NOT NULL
-        AND students.next_payment_date <= DATE_ADD(CURDATE(), INTERVAL 7 DAY)
+        AND students.id NOT IN (SELECT student_id FROM student_groups)
+        AND (
+          (students.next_payment_date IS NOT NULL AND students.next_payment_date <= DATE_ADD(CURDATE(), INTERVAL 7 DAY))
+          OR
+          (students.payment_status IN ('not_paid', 'unpaid'))
+        )
       ORDER BY students.next_payment_date ASC, students.id DESC`,
       [schoolId]
     );
+
+    const rows = [...groupAlerts, ...unassignedAlerts];
+    const urgencyOrder = { overdue: 0, urgent: 1, warning: 2 };
+    rows.sort((a, b) => {
+      const uDiff = (urgencyOrder[a.urgency] ?? 3) - (urgencyOrder[b.urgency] ?? 3);
+      if (uDiff !== 0) return uDiff;
+      return (Number(a.days_left) || 0) - (Number(b.days_left) || 0);
+    });
 
     const urgentCount = rows.filter(r => r.urgency === 'overdue' || r.urgency === 'urgent').length;
     const warningCount = rows.filter(r => r.urgency === 'warning').length;
@@ -263,6 +411,7 @@ router.get(
   asyncHandler(async (req, res) => {
     const schoolId = await getSchoolId(req.auth.userId);
     const rows = await query(SELECT_STUDENT + ' WHERE students.school_id = ? ORDER BY students.id DESC', [schoolId]);
+    await attachStudentGroupDetails(rows, schoolId);
     res.json({ data: rows });
   })
 );
@@ -313,6 +462,7 @@ router.get(
     const schoolId = await getSchoolId(req.auth.userId);
     const rows = await query(SELECT_STUDENT + ' WHERE students.id = ? AND students.school_id = ? LIMIT 1', [req.params.id, schoolId]);
     if (!rows.length) throw new HttpError(404, 'Student not found');
+    await attachStudentGroupDetails(rows, schoolId);
     res.json({ data: rows[0] });
   })
 );
@@ -330,6 +480,7 @@ router.post(
       gender = null,
       birth_date: birthDate = null,
       photo = null,
+      administrative_file: administrativeFile = null,
       blood_type: bloodType = null,
       formation_id: formationId,
       group_id: groupId = null,
@@ -402,9 +553,9 @@ router.post(
 
       const finalPhoto = (photo === null || photo === undefined) ? '' : photo;
       const [userResult] = await connection.execute(
-        `INSERT INTO users (first_name, last_name, email, password, role, gender, birth_date, photo, blood_type)
-         VALUES (?, ?, ?, ?, 'student', ?, ?, ?, ?)`,
-        [firstName, lastName, email, hashedPassword, gender, birthDate, finalPhoto, bloodType]
+        `INSERT INTO users (first_name, last_name, email, password, role, gender, birth_date, photo, administrative_file, blood_type)
+         VALUES (?, ?, ?, ?, 'student', ?, ?, ?, ?, ?)`,
+        [firstName, lastName, email, hashedPassword, gender, birthDate, finalPhoto, administrativeFile || null, bloodType]
       );
       const userId = userResult.insertId;
 
@@ -533,6 +684,7 @@ router.put(
       if (gender !== undefined)    { userUpdates.push('gender = ?');     userValues.push(gender); }
       if (birthDate !== undefined) { userUpdates.push('birth_date = ?'); userValues.push(birthDate); }
       if (photo !== undefined)     { userUpdates.push('photo = ?');      userValues.push(photo); }
+      if (req.body.administrative_file !== undefined) { userUpdates.push('administrative_file = ?'); userValues.push(req.body.administrative_file || null); }
       if (req.body.blood_type !== undefined) { userUpdates.push('blood_type = ?'); userValues.push(req.body.blood_type || null); }
       if (req.body.is_active !== undefined) { userUpdates.push('is_active = ?'); userValues.push(req.body.is_active ? 1 : 0); }
 
@@ -596,17 +748,42 @@ router.put(
         await connection.execute(`UPDATE students SET ${stuUpdates.join(', ')} WHERE id = ?`, stuValues);
       }
 
-      // Update group association if specified
-      if (req.body.group_id !== undefined) {
-        await connection.execute('DELETE FROM student_groups WHERE student_id = ?', [studentId]);
-        if (req.body.group_id) {
-          await connection.execute('INSERT IGNORE INTO student_groups (student_id, group_id) VALUES (?, ?)', [studentId, req.body.group_id]);
+      // Update group association if specified (supports group_ids array or group_id single)
+      if (req.body.group_ids !== undefined || req.body.group_id !== undefined) {
+        let targetGroupIds = [];
+        if (req.body.group_ids !== undefined) {
+          if (Array.isArray(req.body.group_ids)) targetGroupIds = req.body.group_ids.map(Number).filter(Boolean);
+          else if (typeof req.body.group_ids === 'string') targetGroupIds = req.body.group_ids.split(',').map(s => Number(s.trim())).filter(Boolean);
+        } else if (req.body.group_id) {
+          targetGroupIds = [Number(req.body.group_id)].filter(Boolean);
+        }
+
+        const [currRows] = await connection.execute('SELECT group_id FROM student_groups WHERE student_id = ?', [studentId]);
+        const currIds = currRows.map(r => Number(r.group_id));
+
+        const toDelete = currIds.filter(id => !targetGroupIds.includes(id));
+        if (toDelete.length > 0) {
+          await connection.execute(
+            `DELETE FROM student_groups WHERE student_id = ? AND group_id IN (${toDelete.map(() => '?').join(',')})`,
+            [studentId, ...toDelete]
+          );
+        }
+
+        const toInsert = targetGroupIds.filter(id => !currIds.includes(id));
+        for (const gid of toInsert) {
+          const nextPayDate = computeNextPaymentDate(targetEnrollmentDate, targetSubscriptionPlan, targetPaymentStatus);
+          await connection.execute(
+            `INSERT IGNORE INTO student_groups (student_id, group_id, payment_status, subscription_plan, next_payment_date)
+             VALUES (?, ?, ?, ?, ?)`,
+            [studentId, gid, targetPaymentStatus === 'paid' ? 'paid' : 'not_paid', targetSubscriptionPlan || null, nextPayDate]
+          );
         }
       }
 
       await connection.commit();
 
       const rows = await query(SELECT_STUDENT + ' WHERE students.id = ? LIMIT 1', [studentId]);
+      await attachStudentGroupDetails(rows, student.school_id);
       res.json({ data: rows[0] });
     } catch (error) {
       await connection.rollback();

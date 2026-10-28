@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <!-- Anti-FOUC & Preloader -->
@@ -171,7 +171,7 @@
             <div class="col-md-6"><div class="form-group" style="margin-bottom:8px;">
               <label data-i18n="New Password">New Password</label>
               <div class="input-group">
-                <input type="password" name="new_password" id="teacher-new-password" class="form-control" autocomplete="new-password" placeholder="••••••••">
+                <input type="password" name="new_password" id="teacher-new-password" class="form-control" autocomplete="new-password" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢">
                 <span class="input-group-btn">
                   <button type="button" class="btn btn-default" style="height:34px;border-radius:0 8px 8px 0;border:1.5px solid #e5e7eb;border-left:none;background:#f9fafb;padding:0 10px;" onclick="(function(){var i=document.getElementById('teacher-new-password');i.type=i.type==='password'?'text':'password';})()">
                     <i class="fa fa-eye"></i>
@@ -186,7 +186,7 @@
             <div class="col-md-6"><div class="form-group" style="margin-bottom:8px;">
               <label data-i18n="Confirm Password">Confirm Password</label>
               <div class="input-group">
-                <input type="password" name="confirm_password" id="teacher-confirm-password" class="form-control" autocomplete="new-password" placeholder="••••••••">
+                <input type="password" name="confirm_password" id="teacher-confirm-password" class="form-control" autocomplete="new-password" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢">
                 <span class="input-group-btn">
                   <button type="button" class="btn btn-default" style="height:34px;border-radius:0 8px 8px 0;border:1.5px solid #e5e7eb;border-left:none;background:#f9fafb;padding:0 10px;" onclick="(function(){var i=document.getElementById('teacher-confirm-password');i.type=i.type==='password'?'text':'password';})()">
                     <i class="fa fa-eye"></i>
@@ -238,9 +238,9 @@
             var _t=function(k){return (window.AppI18n&&window.AppI18n.t)?window.AppI18n.t(k):k;};
             if(!confPwd.value){matchLbl.textContent='';return;}
             if(newPwd.value===confPwd.value){
-              matchLbl.textContent='✓ '+_t('Passwords match');matchLbl.style.color='#16a34a';
+              matchLbl.textContent='âœ“ '+_t('Passwords match');matchLbl.style.color='#16a34a';
             } else {
-              matchLbl.textContent='✗ '+_t('Passwords do not match');matchLbl.style.color='#ef4444';
+              matchLbl.textContent='âœ— '+_t('Passwords do not match');matchLbl.style.color='#ef4444';
             }
           }
         })();
@@ -272,6 +272,28 @@
         </div></div>
       </div>
 
+      
+      <!-- Quran Memorization Access - shown only for teachers -->
+      <div id="quran-access-group" class="quran-access-block" style="background:linear-gradient(135deg,rgba(16,185,129,0.06) 0%,rgba(5,150,105,0.1) 100%);border:1.5px solid rgba(16,185,129,0.3);border-radius:12px;padding:16px 20px;margin-bottom:24px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+          <div>
+            <div style="font-weight:700;font-size:15px;color:#065f46;display:flex;align-items:center;gap:8px;">
+              <i class="fa fa-book" style="color:#10b981;font-size:18px;"></i>
+              <span data-i18n="Quran Memorization Access">Quran Memorization Access</span>
+            </div>
+            <div style="font-size:12.5px;color:#047857;margin-top:2px;" data-i18n="Enable or disable Quran memorization system access for this teacher">
+              Enable or disable Quran memorization system access for this teacher
+            </div>
+          </div>
+          <div style="min-width:180px;">
+            <select name="has_quran_access" class="form-control" style="border-color:#10b981;font-weight:600;">
+              <option value="0" data-i18n="Disabled (No Quran Access)">Disabled (No Quran Access)</option>
+              <option value="1" data-i18n="Enabled (Has Quran Access)">Enabled (Has Quran Access)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
       <div class="sec-title"><i class="fa fa-money"></i> <span data-i18n="Financial & Payment">Financial & Payment</span></div>
       <div class="row">
         <div class="col-md-4"><div class="form-group">
@@ -291,7 +313,7 @@
         </div></div>
         <div class="col-md-4"><div class="form-group">
           <label data-i18n="CCP / RIB">CCP / RIB</label>
-          <input type="text" name="ccp_rib" class="form-control" placeholder="00000000 Clé 00 / RIB">
+          <input type="text" name="ccp_rib" class="form-control" placeholder="00000000 ClÃ© 00 / RIB">
         </div></div>
       </div>
 
@@ -326,6 +348,22 @@
         </div>
       </div>
 
+      <div class="sec-title"><i class="fa fa-folder-open"></i> <span data-i18n="Administrative File">Administrative File</span></div>
+      <div class="form-group">
+        <label><span data-i18n="Scanned Paper / Documents">Scanned Paper / Documents</span> <small class="text-muted">(PDF, JPG, PNG)</small></label>
+        <input type="hidden" name="administrative_file" id="teacher-admin-file-path">
+        <div class="input-group">
+          <input type="text" id="teacher-admin-file-display" class="form-control" placeholder="No file selected..." data-i18n-ph="No file selected..." readonly style="background:#f9fafb;cursor:pointer;" onclick="document.getElementById('teacher-admin-file-input').click()">
+          <span class="input-group-btn">
+            <label class="btn btn-default" title="Upload Document" data-i18n-title="Upload Document" style="margin:0;border-left:none;">
+              <i class="fa fa-upload" id="icon-upload-prof-doc-edit"></i> <span data-i18n="Upload File">Upload</span>
+              <input type="file" id="teacher-admin-file-input" accept=".pdf,image/*,.doc,.docx" style="display:none;" onchange="handleAdminFileUpload(this, 'teacher-admin-file-path', 'teacher-admin-file-display', 'teacher-admin-file-preview', 'icon-upload-prof-doc-edit')">
+            </label>
+          </span>
+        </div>
+        <div id="teacher-admin-file-preview" style="display:none;"></div>
+      </div>
+
       <div style="margin-top:18px; display:flex; align-items:center; gap:10px;">
         <button type="submit" class="btn-submit"><i class="fa fa-save"></i> <span data-i18n="Update" id="update-btn-text">Update</span></button>
         <a href="all-professors.html" class="btn-back"><i class="fa fa-arrow-left"></i> <span data-i18n="Back">Back</span></a>
@@ -339,17 +377,19 @@
 <script src="js/vendor/jquery-1.12.4.min.js"></script>
 <script src="js/bootstrap.min.js"></script>
 <script src="js/components.js"></script>
-<script src="js/backend.js?v=6"></script>
+<script src="js/backend.js?v=20"></script>
 <script>
 (function(){
   var sel = document.getElementById('staff-type-select');
   var jobGrp = document.getElementById('job-title-group');
   var specGrp = document.getElementById('speciality-group');
+  var quranGrp = document.getElementById('quran-access-group');
   if (!sel) return;
   function toggle() {
     var isEmp = sel.value === 'employee';
     jobGrp.style.display = isEmp ? '' : 'none';
     if (specGrp) specGrp.style.display = isEmp ? 'none' : '';
+    if (quranGrp) quranGrp.style.display = isEmp ? 'none' : '';
   }
   sel.addEventListener('change', toggle);
   // Wait for backend.js to fill the form, then toggle

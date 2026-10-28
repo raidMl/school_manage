@@ -31,8 +31,11 @@ const publicLandingRoutes = require('./publicLanding.routes');
 const inquiriesRoutes = require('./inquiries.routes');
 const nfcRoutes = require('./nfc.routes');
 const inventoryRoutes = require('./inventory.routes');
+const uploadRoutes = require('./upload.routes');
 
 const router = express.Router();
+
+router.use('/upload', uploadRoutes);
 
 router.use('/public', publicLandingRoutes);
 router.use('/inquiries', inquiriesRoutes);

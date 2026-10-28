@@ -177,6 +177,18 @@
                             </div>
                             <div class="quick-action-arrow"><i class="fa fa-arrow-right"></i></div>
                         </a>
+
+                        <!-- Quran Memorization — shown only if teacher has_quran_access -->
+                        <a href="teacher-quran.html" class="quick-action-card" id="quran-quick-action" style="display:none; border: 1px solid rgba(16,185,129,0.25); background: linear-gradient(135deg, rgba(16,185,129,0.04) 0%, rgba(5,150,105,0.08) 100%);">
+                            <div class="quick-action-left">
+                                <div class="quick-action-icon" style="background: rgba(16,185,129,0.15); color: #10b981;"><i class="fa fa-book"></i></div>
+                                <div class="quick-action-text">
+                                    <h4 data-i18n="Quran Memorization">حفظ القرآن الكريم</h4>
+                                    <p data-i18n="Track student Quran progress & memorization levels">تتبع تقدم الطلاب في حفظ القرآن الكريم</p>
+                                </div>
+                            </div>
+                            <div class="quick-action-arrow"><i class="fa fa-arrow-right" style="color:#10b981;"></i></div>
+                        </a>
                     </div>
                 </div>
 
@@ -229,9 +241,9 @@
 
     <script src="js/vendor/jquery-1.12.4.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
-    <script src="js/i18n.js"></script>
-    <script src="js/components.js"></script>
-    <script src="js/backend.js"></script>
+    <script src="js/i18n.js?v=20261028_101"></script>
+    <script src="js/components.js?v=20261028_101"></script>
+    <script src="js/backend.js?v=20261028_101"></script>
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -253,6 +265,14 @@
                     document.getElementById('stat-teacher-groups').textContent = (res.groups && res.groups.length) ? res.groups.length : '0';
                     document.getElementById('stat-hire-date').textContent = p.hire_date ? new Date(p.hire_date).toLocaleDateString() : '—';
 
+                    // Show Quran quick-action if teacher has access or teaches Quran
+                    var quranCard = document.getElementById('quran-quick-action');
+                    var teachesQuran = (res.formations || []).some(function(f){ return /قرآن|قران|quran|حفظ/i.test(f.title||'') || /quran/i.test(f.type||''); }) ||
+                                       (res.groups || []).some(function(g){ return /قرآن|قران|quran|حفظ/i.test(g.formation_title||'') || /قرآن|قران|quran|حفظ/i.test(g.name||''); });
+                    if (quranCard && (p.has_quran_access == 1 || p.has_quran_access === true || teachesQuran)) {
+                        quranCard.style.display = '';
+                    }
+
                     var fContainer = document.getElementById('teacher-formations-container');
                     if ((!res.formations || !res.formations.length) && (!res.groups || !res.groups.length)) {
                         fContainer.innerHTML = `
@@ -270,8 +290,13 @@
                     if (res.formations && res.formations.length) {
                         html += res.formations.map(function(f) {
                             var matchingGroups = (res.groups || []).filter(function(g) { return g.formation_title === f.title; });
+                            var isQuranFormation = /قرآن|قران|quran|حفظ/i.test(f.title || '') || /quran/i.test(f.type || '');
+                            var hasAccess = (p.has_quran_access == 1 || p.has_quran_access === true || isQuranFormation);
                             var groupsHtml = matchingGroups.map(function(g) {
-                                return '<a href="attendance.html?group_id=' + g.id + '" class="portal-chip portal-chip-primary" style="margin: 2px 4px 2px 0; text-decoration:none; cursor:pointer;" title="' + (window.AppI18n ? window.AppI18n.t('Mark Attendance') : 'Mark Attendance') + '"><i class="fa fa-users"></i> ' + g.name + '</a>';
+                                var quranChip = hasAccess
+                                    ? '<a href="teacher-quran.html?group_id=' + g.id + '" class="portal-chip" style="margin: 2px 4px 2px 0; text-decoration:none; cursor:pointer; background:rgba(16,185,129,0.12); color:#065f46; border:1px solid rgba(16,185,129,0.3); font-weight:600;" title="' + (window.AppI18n ? window.AppI18n.t('Quran Memorization') : 'حفظ القرآن') + '"><i class="fa fa-book" style="color:#10b981;"></i> ' + g.name + ' (' + (window.AppI18n ? window.AppI18n.t('Quran') : 'قرآن') + ')</a>'
+                                    : '';
+                                return '<a href="attendance.html?group_id=' + g.id + '" class="portal-chip portal-chip-primary" style="margin: 2px 4px 2px 0; text-decoration:none; cursor:pointer;" title="' + (window.AppI18n ? window.AppI18n.t('Mark Attendance') : 'Mark Attendance') + '"><i class="fa fa-users"></i> ' + g.name + '</a>' + quranChip;
                             }).join('');
 
                             return `

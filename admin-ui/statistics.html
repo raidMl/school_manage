@@ -277,6 +277,576 @@
       from { opacity: 0; transform: translateY(14px); }
       to   { opacity: 1; transform: translateY(0); }
     }
+
+    /* ── Unified Detailed Breakdown Section ── */
+    .bd-panel {
+      margin-top: 28px;
+      background: #fff;
+      border-radius: var(--card-radius);
+      box-shadow: 0 6px 28px rgba(30,41,90,.07);
+      border: 1px solid rgba(79,110,255,.09);
+      overflow: hidden;
+      transition: box-shadow .25s ease;
+      animation: fadeUp .5s ease both;
+    }
+    .bd-panel:hover {
+      box-shadow: 0 10px 36px rgba(30,41,90,.11);
+    }
+    .bd-head {
+      padding: 20px 24px 18px;
+      border-bottom: 1px solid #f1f5f9;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      background: linear-gradient(180deg, #ffffff 0%, #fafbfc 100%);
+    }
+    .bd-head-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .bd-head-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 13px;
+      background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 19px;
+      box-shadow: 0 4px 14px rgba(245,158,11,.3);
+      flex-shrink: 0;
+    }
+    .bd-head-text h2 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -.2px;
+    }
+    .bd-head-text p {
+      margin: 3px 0 0;
+      font-size: 12.5px;
+      color: #64748b;
+    }
+    .bd-date-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .bd-presets {
+      display: flex;
+      gap: 5px;
+      margin-inline-end: 6px;
+    }
+    .bd-preset-btn {
+      background: #f1f5f9;
+      color: #475569;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .bd-preset-btn:hover {
+      background: #e2e8f0;
+      color: var(--text);
+    }
+    .bd-preset-btn.active {
+      background: #e0e7ff;
+      border-color: #c7d2fe;
+      color: #3730a3;
+    }
+    .bd-date-input-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #f8fafc;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 4px 10px;
+      height: 38px;
+    }
+    .bd-date-input-wrap label {
+      margin: 0;
+      font-size: 12px;
+      font-weight: 700;
+      color: #64748b;
+    }
+    .bd-date-input {
+      border: none;
+      background: transparent;
+      font-size: 12.5px;
+      color: #1e293b;
+      outline: none;
+      font-family: inherit;
+    }
+    .bd-btn-apply {
+      background: linear-gradient(135deg, #4f6eff 0%, #6366f1 100%);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 0 16px;
+      height: 38px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 3px 10px rgba(79,110,255,.25);
+      transition: transform .15s, box-shadow .15s;
+    }
+    .bd-btn-apply:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 5px 14px rgba(79,110,255,.35);
+    }
+    .bd-btn-reset {
+      background: #fff;
+      color: #64748b;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 0 13px;
+      height: 38px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all .2s;
+    }
+    .bd-btn-reset:hover {
+      background: #f8fafc;
+      color: #0f172a;
+      border-color: #cbd5e1;
+    }
+
+    /* Selector Bar */
+    .bd-selector-bar {
+      padding: 16px 24px;
+      background: #f8fafc;
+      border-bottom: 1px solid #edf2f7;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+    .bd-tabs-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .bd-stat-tab {
+      background: #fff;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 11px;
+      padding: 8px 15px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #475569;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all .2s cubic-bezier(.4,0,.2,1);
+      box-shadow: 0 1px 3px rgba(0,0,0,.03);
+    }
+    .bd-stat-tab i {
+      font-size: 14px;
+      color: #94a3b8;
+      transition: color .2s;
+    }
+    .bd-stat-tab .tab-badge {
+      background: #f1f5f9;
+      color: #64748b;
+      border-radius: 20px;
+      padding: 2px 7px;
+      font-size: 11px;
+      font-weight: 800;
+      transition: all .2s;
+    }
+    .bd-stat-tab:hover {
+      border-color: #cbd5e1;
+      color: #0f172a;
+      background: #ffffff;
+      transform: translateY(-1px);
+    }
+    .bd-stat-tab.active {
+      background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+      border-color: #1e293b;
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(30,41,59,.25);
+    }
+    .bd-stat-tab.active i {
+      color: #fff !important;
+    }
+    .bd-stat-tab.active .tab-badge {
+      background: rgba(255,255,255,.2);
+      color: #fff;
+    }
+    .bd-stat-tab[data-stat="teacher"].active {
+      background: linear-gradient(135deg, #4f6eff 0%, #3b82f6 100%);
+      border-color: #4f6eff;
+      box-shadow: 0 4px 14px rgba(79,110,255,.3);
+    }
+    .bd-stat-tab[data-stat="formation-revenue"].active {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      border-color: #f59e0b;
+      box-shadow: 0 4px 14px rgba(245,158,11,.3);
+    }
+    .bd-stat-tab[data-stat="formation-subscriptions"].active {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      border-color: #10b981;
+      box-shadow: 0 4px 14px rgba(16,185,129,.3);
+    }
+    .bd-stat-tab[data-stat="group-revenue"].active {
+      background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+      border-color: #0284c7;
+      box-shadow: 0 4px 14px rgba(2,132,199,.3);
+    }
+    .bd-stat-tab[data-stat="group-students"].active {
+      background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+      border-color: #8b5cf6;
+      box-shadow: 0 4px 14px rgba(139,92,246,.3);
+    }
+
+    /* Mobile / Direct Dropdown */
+    .bd-select-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .bd-select-label {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #64748b;
+      white-space: nowrap;
+    }
+    .bd-stat-select {
+      height: 38px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 6px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+      background: #fff;
+      cursor: pointer;
+      outline: none;
+      min-width: 210px;
+      transition: border-color .2s;
+    }
+    .bd-stat-select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(79,110,255,.12);
+    }
+
+    /* Mini KPI Grid */
+    .bd-kpis-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      padding: 18px 24px 8px;
+    }
+    @media (max-width: 991px) { .bd-kpis-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 520px) { .bd-kpis-grid { grid-template-columns: 1fr; } }
+    .bd-kpi-item {
+      background: #f8fafc;
+      border: 1px solid #edf2f7;
+      border-radius: 14px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      transition: transform .2s, background .2s, box-shadow .2s;
+    }
+    .bd-kpi-item:hover {
+      background: #fff;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,.05);
+    }
+    .bd-kpi-item-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: #fff;
+      flex-shrink: 0;
+      box-shadow: 0 3px 10px rgba(0,0,0,.08);
+    }
+    .bd-kpi-item-data {
+      flex: 1;
+      min-width: 0;
+    }
+    .bd-kpi-item-val {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.2;
+      letter-spacing: -.3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-variant-numeric: tabular-nums;
+    }
+    .bd-kpi-item-lbl {
+      font-size: 11.5px;
+      color: #64748b;
+      font-weight: 700;
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Table Toolbar */
+    .bd-table-toolbar {
+      padding: 14px 24px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .bd-search-box {
+      position: relative;
+      flex: 1;
+      max-width: 320px;
+      min-width: 220px;
+    }
+    .bd-search-box input {
+      width: 100%;
+      height: 38px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 6px 36px;
+      font-size: 13px;
+      outline: none;
+      background: #f8fafc;
+      transition: all .2s;
+    }
+    .bd-search-box input:focus {
+      border-color: var(--accent);
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(79,110,255,.1);
+    }
+    .bd-search-icon {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      left: 12px;
+      color: #94a3b8;
+      font-size: 13px;
+      pointer-events: none;
+    }
+    [dir="rtl"] .bd-search-icon {
+      left: auto;
+      right: 12px;
+    }
+    .bd-search-clear {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      right: 10px;
+      background: none;
+      border: none;
+      color: #94a3b8;
+      cursor: pointer;
+      font-size: 13px;
+      display: none;
+      padding: 4px;
+    }
+    [dir="rtl"] .bd-search-clear {
+      right: auto;
+      left: 10px;
+    }
+    .bd-search-clear:hover { color: #475569; }
+
+    .bd-table-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .bd-btn-action {
+      background: #fff;
+      color: #475569;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 9px;
+      padding: 6px 13px;
+      font-size: 12.5px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all .2s;
+    }
+    .bd-btn-action:hover {
+      background: #f8fafc;
+      color: var(--text);
+      border-color: #cbd5e1;
+    }
+    .bd-count-badge {
+      font-size: 12px;
+      font-weight: 700;
+      color: #475569;
+      background: #f1f5f9;
+      padding: 6px 14px;
+      border-radius: 20px;
+      border: 1px solid #e2e8f0;
+    }
+
+    /* The Unified Table */
+    .bd-table-wrap {
+      padding: 0 24px 24px;
+      overflow-x: auto;
+    }
+    .bd-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      font-size: 13px;
+      margin-bottom: 0;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .bd-table thead th {
+      background: #f8fafc;
+      color: #475569;
+      font-weight: 800;
+      font-size: 12.5px;
+      padding: 13px 16px;
+      border-bottom: 2px solid #e2e8f0;
+      border-top: none;
+      white-space: nowrap;
+      user-select: none;
+    }
+    .bd-table thead th.sortable {
+      cursor: pointer;
+      transition: color .15s, background .15s;
+    }
+    .bd-table thead th.sortable:hover {
+      background: #edf2f7;
+      color: #0f172a;
+    }
+    .bd-table thead th.sortable .sort-icon {
+      margin-inline-start: 6px;
+      opacity: .35;
+      font-size: 11px;
+    }
+    .bd-table thead th.sorted .sort-icon {
+      opacity: 1;
+      color: var(--accent);
+    }
+    .bd-table tbody tr {
+      transition: background .15s ease;
+    }
+    .bd-table tbody tr:hover {
+      background: #f8fafc;
+    }
+    .bd-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+    .bd-table tbody td {
+      padding: 13px 16px;
+      border-bottom: 1px solid #f1f5f9;
+      vertical-align: middle;
+      color: var(--text);
+    }
+
+    /* Rank badges */
+    .rank-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .rank-1 { background: #fef3c7; color: #b45309; border: 1.5px solid #fde68a; box-shadow: 0 2px 6px rgba(245,158,11,.15); }
+    .rank-2 { background: #f1f5f9; color: #475569; border: 1.5px solid #e2e8f0; }
+    .rank-3 { background: #ffedd5; color: #c2410c; border: 1.5px solid #fed7aa; }
+    .rank-other { background: #f8fafc; color: #94a3b8; font-weight: 700; }
+
+    /* Progress & Metric styling */
+    .bd-share-bar-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 140px;
+    }
+    .bd-share-bar {
+      flex: 1;
+      height: 8px;
+      background: #f1f5f9;
+      border-radius: 6px;
+      overflow: hidden;
+      position: relative;
+    }
+    .bd-share-fill {
+      height: 100%;
+      border-radius: 6px;
+      transition: width .4s ease;
+    }
+    .bd-share-pct {
+      font-size: 11.5px;
+      font-weight: 800;
+      color: #64748b;
+      min-width: 40px;
+      text-align: end;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .badge-std-count {
+      background: #e0e7ff;
+      color: #3730a3;
+      border-radius: 20px;
+      padding: 3px 10px;
+      font-weight: 700;
+      font-size: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .revenue-pill {
+      font-weight: 800;
+      font-size: 13.5px;
+      color: #059669;
+      font-variant-numeric: tabular-nums;
+    }
+    .entity-primary-name {
+      font-weight: 700;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .entity-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 9px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 13px;
+    }
+    #quick-action-bar { display: none !important; }
     </style>
 </head>
 <body data-page="statistics">
@@ -438,6 +1008,129 @@
                     </div>
                 </div>
             </div>
+
+            <!-- ══════════════════════════════════════════════════════════════════ -->
+            <!-- DETAILED BREAKDOWN & ANALYSIS — UNIFIED SELECTABLE TABLE         -->
+            <!-- ══════════════════════════════════════════════════════════════════ -->
+            <div class="bd-panel" id="unified-breakdown-section">
+              <!-- Header -->
+              <div class="bd-head">
+                <div class="bd-head-title-wrap">
+                  <div class="bd-head-icon"><i class="fa fa-sliders"></i></div>
+                  <div class="bd-head-text">
+                    <h2 data-i18n="Detailed Breakdown & Analysis">تفاصيل وتحليل مفصّل</h2>
+                    <p data-i18n="Comprehensive performance & revenue breakdowns with customizable filters">تحليل تفصيلي للإيرادات، الدورات، الاشتراكات والأفواج مع خيارات تصفية متقدمة</p>
+                  </div>
+                </div>
+
+                <!-- Date Controls -->
+                <div class="bd-date-controls">
+                  <!-- Quick Presets -->
+                  <div class="bd-presets">
+                    <button type="button" class="bd-preset-btn active" data-preset="all" onclick="window.applyBdPreset('all')">الكل</button>
+                    <button type="button" class="bd-preset-btn" data-preset="month" onclick="window.applyBdPreset('month')">هذا الشهر</button>
+                    <button type="button" class="bd-preset-btn" data-preset="year" onclick="window.applyBdPreset('year')">هذا العام</button>
+                  </div>
+                  <!-- Date Inputs -->
+                  <div class="bd-date-input-wrap">
+                    <label for="bd-from" data-i18n="From">من</label>
+                    <input type="date" id="bd-from" class="bd-date-input">
+                  </div>
+                  <div class="bd-date-input-wrap">
+                    <label for="bd-to" data-i18n="To">إلى</label>
+                    <input type="date" id="bd-to" class="bd-date-input">
+                  </div>
+                  <button id="bd-apply" type="button" class="bd-btn-apply" onclick="window.loadBreakdown()">
+                    <i class="fa fa-search"></i> <span data-i18n="Apply">تطبيق</span>
+                  </button>
+                  <button id="bd-reset" type="button" class="bd-btn-reset" onclick="window.resetBreakdown()">
+                    <i class="fa fa-refresh"></i> <span data-i18n="Reset">إعادة تعيين</span>
+                  </button>
+                </div>
+              </div>
+
+              <div id="bd-period-badge" style="display:none;margin:14px 24px 0;padding:6px 16px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:20px;font-size:12.5px;font-weight:700;color:#166534;width:fit-content;"></div>
+              <div id="bd-status" style="display:none;padding:26px;text-align:center;color:#64748b;"><i class="fa fa-spinner fa-spin fa-2x"></i><div style="margin-top:8px;font-weight:700;" data-i18n="Loading...">جاري التحميل...</div></div>
+
+              <!-- Selection Bar: Tabs + Dropdown -->
+              <div class="bd-selector-bar">
+                <div class="bd-tabs-wrap" id="bd-tabs-wrap">
+                  <button type="button" class="bd-stat-tab active" data-stat="teacher" onclick="window.switchBreakdownStat('teacher')">
+                    <i class="fa fa-user-tie"></i>
+                    <span data-i18n="Revenue by Teacher">الإيرادات حسب الأستاذ</span>
+                    <span class="tab-badge" id="badge-count-teacher">0</span>
+                  </button>
+                  <button type="button" class="bd-stat-tab" data-stat="formation-revenue" onclick="window.switchBreakdownStat('formation-revenue')">
+                    <i class="fa fa-book"></i>
+                    <span data-i18n="Revenue by Course">الإيرادات حسب الدورة</span>
+                    <span class="tab-badge" id="badge-count-formation-rev">0</span>
+                  </button>
+                  <button type="button" class="bd-stat-tab" data-stat="formation-subscriptions" onclick="window.switchBreakdownStat('formation-subscriptions')">
+                    <i class="fa fa-user-plus"></i>
+                    <span data-i18n="Subscriptions by Course">الاشتراكات حسب الدورة</span>
+                    <span class="tab-badge" id="badge-count-formation-sub">0</span>
+                  </button>
+                  <button type="button" class="bd-stat-tab" data-stat="group-revenue" onclick="window.switchBreakdownStat('group-revenue')">
+                    <i class="fa fa-money"></i>
+                    <span data-i18n="Revenue by Group">الإيرادات حسب الفوج</span>
+                    <span class="tab-badge" id="badge-count-group-rev">0</span>
+                  </button>
+                  <button type="button" class="bd-stat-tab" data-stat="group-students" onclick="window.switchBreakdownStat('group-students')">
+                    <i class="fa fa-users"></i>
+                    <span data-i18n="Students by Group">عدد الطلاب حسب الفوج</span>
+                    <span class="tab-badge" id="badge-count-group-std">0</span>
+                  </button>
+                </div>
+
+                <!-- Dropdown for direct selection -->
+                <div class="bd-select-wrap">
+                  <label for="bd-stat-select" class="bd-select-label" data-i18n="Select Statistic">اختر الإحصائية:</label>
+                  <select id="bd-stat-select" class="bd-stat-select" onchange="window.switchBreakdownStat(this.value)">
+                    <option value="teacher">الإيرادات حسب الأستاذ</option>
+                    <option value="formation-revenue">الإيرادات حسب الدورة</option>
+                    <option value="formation-subscriptions">الاشتراكات حسب الدورة</option>
+                    <option value="group-revenue">الإيرادات حسب الفوج</option>
+                    <option value="group-students">عدد الطلاب حسب الفوج</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Dynamic Mini KPI Summary Strip -->
+              <div class="bd-kpis-grid" id="bd-kpi-strip">
+                <!-- Injected dynamically based on active selection -->
+              </div>
+
+              <!-- Table Toolbar: Search + Actions -->
+              <div class="bd-table-toolbar">
+                <div class="bd-search-box">
+                  <i class="fa fa-search bd-search-icon"></i>
+                  <input type="text" id="bd-search-input" placeholder="بحث في النتائج..." oninput="window.filterBreakdownTable(this.value)">
+                  <button type="button" class="bd-search-clear" id="bd-search-clear" onclick="window.clearBreakdownSearch()"><i class="fa fa-times"></i></button>
+                </div>
+
+                <div class="bd-table-actions">
+                  <span class="bd-count-badge" id="bd-row-count">0 صفوف</span>
+                  <button type="button" class="bd-btn-action" onclick="window.exportBreakdownCSV()">
+                    <i class="fa fa-download text-success"></i> <span data-i18n="Export CSV">تصدير CSV</span>
+                  </button>
+                  <button type="button" class="bd-btn-action" onclick="window.printBreakdownTable()">
+                    <i class="fa fa-print text-primary"></i> <span data-i18n="Print">طباعة</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- The Unified Table Container -->
+              <div class="bd-table-wrap">
+                <table class="table bd-table" id="unified-breakdown-table" data-no-table-features="true">
+                  <thead id="bd-thead">
+                    <!-- Dynamic Headers with Sorting -->
+                  </thead>
+                  <tbody id="bd-tbody">
+                    <!-- Dynamic Data Rows -->
+                  </tbody>
+                </table>
+              </div>
+            </div><!-- end unified breakdown panel -->
 
             <div id="footer-placeholder"></div>
         </div>
@@ -891,17 +1584,625 @@
         } else { noData('load-revenue'); }
       }
 
+      // ── Unified Breakdown Controller ─────────────────────────────────────
+      var currentBreakdownData = {
+        revenuePerTeacher: [],
+        revenuePerFormation: [],
+        subscriptionsPerFormation: [],
+        revenuePerGroup: [],
+        studentsPerGroup: []
+      };
+      var activeStat = 'teacher';
+      var searchQuery = '';
+      var sortCol = null;
+      var sortDir = 'desc';
+
+      function fmtMoney(v) {
+        var num = Number(v || 0);
+        return num.toLocaleString() + (isRtl ? ' د.ج' : ' DA');
+      }
+
+      function escapeHtml(str) {
+        if (!str && str !== 0) return '';
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      window.switchBreakdownStat = function(statKey) {
+        if (!statKey) return;
+        activeStat = statKey;
+
+        // Sync tabs
+        var tabs = document.querySelectorAll('.bd-stat-tab');
+        tabs.forEach(function(btn) {
+          if (btn.getAttribute('data-stat') === statKey) btn.classList.add('active');
+          else btn.classList.remove('active');
+        });
+
+        // Sync select dropdown
+        var sel = document.getElementById('bd-stat-select');
+        if (sel && sel.value !== statKey) sel.value = statKey;
+
+        // Reset search and sort
+        searchQuery = '';
+        var sInput = document.getElementById('bd-search-input');
+        if (sInput) sInput.value = '';
+        var sClear = document.getElementById('bd-search-clear');
+        if (sClear) sClear.style.display = 'none';
+
+        sortCol = null;
+        sortDir = 'desc';
+
+        renderActiveBreakdown();
+      };
+
+      window.applyBdPreset = function(preset) {
+        var fromEl = document.getElementById('bd-from');
+        var toEl   = document.getElementById('bd-to');
+        var btns   = document.querySelectorAll('.bd-preset-btn');
+        btns.forEach(function(b) {
+          if (b.getAttribute('data-preset') === preset) b.classList.add('active');
+          else b.classList.remove('active');
+        });
+
+        var now = new Date();
+        if (preset === 'all') {
+          if (fromEl) fromEl.value = '';
+          if (toEl) toEl.value = '';
+        } else if (preset === 'month') {
+          var y = now.getFullYear();
+          var m = String(now.getMonth() + 1).padStart(2, '0');
+          var lastDay = new Date(y, now.getMonth() + 1, 0).getDate();
+          if (fromEl) fromEl.value = y + '-' + m + '-01';
+          if (toEl) toEl.value = y + '-' + m + '-' + String(lastDay).padStart(2, '0');
+        } else if (preset === 'year') {
+          var yr = now.getFullYear();
+          if (fromEl) fromEl.value = yr + '-01-01';
+          if (toEl) toEl.value = yr + '-12-31';
+        }
+        window.loadBreakdown();
+      };
+
+      window.filterBreakdownTable = function(val) {
+        searchQuery = (val || '').trim().toLowerCase();
+        var sClear = document.getElementById('bd-search-clear');
+        if (sClear) sClear.style.display = searchQuery ? 'block' : 'none';
+        renderTableRowsOnly();
+      };
+
+      window.clearBreakdownSearch = function() {
+        var sInput = document.getElementById('bd-search-input');
+        if (sInput) sInput.value = '';
+        window.filterBreakdownTable('');
+      };
+
+      window.sortBreakdownBy = function(col) {
+        if (sortCol === col) {
+          sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+        } else {
+          sortCol = col;
+          sortDir = 'desc';
+        }
+        renderActiveBreakdown();
+      };
+
+      function getRawDataset(key) {
+        if (key === 'teacher') return currentBreakdownData.revenuePerTeacher || [];
+        if (key === 'formation-revenue') return currentBreakdownData.revenuePerFormation || [];
+        if (key === 'formation-subscriptions') return currentBreakdownData.subscriptionsPerFormation || [];
+        if (key === 'group-revenue') return currentBreakdownData.revenuePerGroup || [];
+        if (key === 'group-students') return currentBreakdownData.studentsPerGroup || [];
+        return [];
+      }
+
+      function getActiveStatTitle(key) {
+        if (key === 'teacher') return isRtl ? 'الإيرادات حسب الأستاذ' : 'Revenue by Teacher';
+        if (key === 'formation-revenue') return isRtl ? 'الإيرادات حسب الدورة' : 'Revenue by Course';
+        if (key === 'formation-subscriptions') return isRtl ? 'الاشتراكات حسب الدورة' : 'Subscriptions by Course';
+        if (key === 'group-revenue') return isRtl ? 'الإيرادات حسب الفوج' : 'Revenue by Group';
+        if (key === 'group-students') return isRtl ? 'عدد الطلاب حسب الفوج' : 'Students by Group';
+        return '';
+      }
+
+      function renderMiniKpis(key, rows) {
+        var strip = document.getElementById('bd-kpi-strip');
+        if (!strip) return;
+
+        var cards = [];
+
+        if (key === 'teacher') {
+          var totalRev = rows.reduce(function(a, r){ return a + Number(r.total_revenue || 0); }, 0);
+          var totalStd = rows.reduce(function(a, r){ return a + Number(r.student_count || 0); }, 0);
+          var topTeacher = rows.length ? rows.reduce(function(max, r){ return Number(r.total_revenue || 0) > Number(max.total_revenue || 0) ? r : max; }, rows[0]) : null;
+
+          cards = [
+            { icon: 'fa fa-money', grad: 'linear-gradient(135deg,#10b981,#059669)', val: fmtMoney(totalRev), lbl: isRtl ? 'إجمالي المداخيل' : 'Total Revenue' },
+            { icon: 'fa fa-user-tie', grad: 'linear-gradient(135deg,#4f6eff,#3b82f6)', val: rows.length, lbl: isRtl ? 'عدد الأساتذة' : 'Total Teachers' },
+            { icon: 'fa fa-graduation-cap', grad: 'linear-gradient(135deg,#8b5cf6,#7c3aed)', val: totalStd, lbl: isRtl ? 'إجمالي الطلاب' : 'Total Students' },
+            { icon: 'fa fa-trophy', grad: 'linear-gradient(135deg,#f59e0b,#d97706)', val: topTeacher ? (topTeacher.teacher_name || '—') : '—', lbl: isRtl ? 'الأعلى إيراداً' : 'Top Earner' }
+          ];
+        } else if (key === 'formation-revenue') {
+          var totalRevF = rows.reduce(function(a, r){ return a + Number(r.total_revenue || 0); }, 0);
+          var totalStdF = rows.reduce(function(a, r){ return a + Number(r.student_count || 0); }, 0);
+          var topF = rows.length ? rows.reduce(function(max, r){ return Number(r.total_revenue || 0) > Number(max.total_revenue || 0) ? r : max; }, rows[0]) : null;
+
+          cards = [
+            { icon: 'fa fa-money', grad: 'linear-gradient(135deg,#10b981,#059669)', val: fmtMoney(totalRevF), lbl: isRtl ? 'إجمالي المداخيل' : 'Total Revenue' },
+            { icon: 'fa fa-book', grad: 'linear-gradient(135deg,#f59e0b,#d97706)', val: rows.length, lbl: isRtl ? 'عدد الدورات' : 'Formations Count' },
+            { icon: 'fa fa-users', grad: 'linear-gradient(135deg,#4f6eff,#3b82f6)', val: totalStdF, lbl: isRtl ? 'إجمالي الطلاب' : 'Total Students' },
+            { icon: 'fa fa-star', grad: 'linear-gradient(135deg,#ec4899,#db2777)', val: topF ? (topF.title || '—') : '—', lbl: isRtl ? 'الدورة الأكثر دخلاً' : 'Top Course' }
+          ];
+        } else if (key === 'formation-subscriptions') {
+          var totalSub = rows.reduce(function(a, r){ return a + Number(r.student_count || 0); }, 0);
+          var avgSub = rows.length ? (totalSub / rows.length).toFixed(1) : 0;
+          var topSubF = rows.length ? rows.reduce(function(max, r){ return Number(r.student_count || 0) > Number(max.student_count || 0) ? r : max; }, rows[0]) : null;
+
+          cards = [
+            { icon: 'fa fa-user-plus', grad: 'linear-gradient(135deg,#10b981,#059669)', val: totalSub, lbl: isRtl ? 'إجمالي الاشتراكات' : 'Total Subscriptions' },
+            { icon: 'fa fa-book', grad: 'linear-gradient(135deg,#f59e0b,#d97706)', val: rows.length, lbl: isRtl ? 'عدد الدورات' : 'Formations Count' },
+            { icon: 'fa fa-line-chart', grad: 'linear-gradient(135deg,#0284c7,#0369a1)', val: avgSub, lbl: isRtl ? 'متوسط الطلاب لكل دورة' : 'Avg per Course' },
+            { icon: 'fa fa-fire', grad: 'linear-gradient(135deg,#ef4444,#dc2626)', val: topSubF ? (topSubF.title || '—') : '—', lbl: isRtl ? 'الدورة الأكثر إقبالاً' : 'Most Popular' }
+          ];
+        } else if (key === 'group-revenue') {
+          var totalRevG = rows.reduce(function(a, r){ return a + Number(r.total_revenue || 0); }, 0);
+          var totalStdG = rows.reduce(function(a, r){ return a + Number(r.student_count || 0); }, 0);
+          var topG = rows.length ? rows.reduce(function(max, r){ return Number(r.total_revenue || 0) > Number(max.total_revenue || 0) ? r : max; }, rows[0]) : null;
+
+          cards = [
+            { icon: 'fa fa-money', grad: 'linear-gradient(135deg,#0284c7,#0369a1)', val: fmtMoney(totalRevG), lbl: isRtl ? 'إجمالي مداخيل الأفواج' : 'Total Groups Revenue' },
+            { icon: 'fa fa-sitemap', grad: 'linear-gradient(135deg,#8b5cf6,#7c3aed)', val: rows.length, lbl: isRtl ? 'عدد الأفواج' : 'Groups Count' },
+            { icon: 'fa fa-graduation-cap', grad: 'linear-gradient(135deg,#10b981,#059669)', val: totalStdG, lbl: isRtl ? 'إجمالي الطلاب' : 'Total Students' },
+            { icon: 'fa fa-trophy', grad: 'linear-gradient(135deg,#f59e0b,#d97706)', val: topG ? (topG.group_name || '—') : '—', lbl: isRtl ? 'الفوج الأعلى دخلاً' : 'Top Group' }
+          ];
+        } else if (key === 'group-students') {
+          var totalStdAll = rows.reduce(function(a, r){ return a + Number(r.student_count || 0); }, 0);
+          var avgGroupSize = rows.length ? (totalStdAll / rows.length).toFixed(1) : 0;
+          var largestG = rows.length ? rows.reduce(function(max, r){ return Number(r.student_count || 0) > Number(max.student_count || 0) ? r : max; }, rows[0]) : null;
+
+          cards = [
+            { icon: 'fa fa-users', grad: 'linear-gradient(135deg,#8b5cf6,#7c3aed)', val: totalStdAll, lbl: isRtl ? 'إجمالي الطلاب بالأفواج' : 'Total Students' },
+            { icon: 'fa fa-sitemap', grad: 'linear-gradient(135deg,#4f6eff,#3b82f6)', val: rows.length, lbl: isRtl ? 'عدد الأفواج' : 'Groups Count' },
+            { icon: 'fa fa-pie-chart', grad: 'linear-gradient(135deg,#10b981,#059669)', val: avgGroupSize, lbl: isRtl ? 'متوسط حجم الفوج' : 'Avg Group Size' },
+            { icon: 'fa fa-star', grad: 'linear-gradient(135deg,#f59e0b,#d97706)', val: largestG ? (largestG.group_name || '—') : '—', lbl: isRtl ? 'أكبر فوج' : 'Largest Group' }
+          ];
+        }
+
+        strip.innerHTML = cards.map(function(c) {
+          return '<div class="bd-kpi-item">' +
+            '<div class="bd-kpi-item-icon" style="background:' + c.grad + '"><i class="' + c.icon + '"></i></div>' +
+            '<div class="bd-kpi-item-data">' +
+              '<div class="bd-kpi-item-val" title="' + escapeHtml(c.val) + '">' + escapeHtml(c.val) + '</div>' +
+              '<div class="bd-kpi-item-lbl">' + escapeHtml(c.lbl) + '</div>' +
+            '</div>' +
+          '</div>';
+        }).join('');
+      }
+
+      function getColumnsConfig(key) {
+        if (key === 'teacher') {
+          return [
+            { key: '_rank', label: '#', sortable: false, width: '60px', align: 'center' },
+            { key: 'teacher_name', label: isRtl ? 'الأستاذ' : 'Teacher', sortable: true },
+            { key: 'employee_number', label: isRtl ? 'رقم الموظف' : 'Employee ID', sortable: true },
+            { key: 'student_count', label: isRtl ? 'عدد الطلاب' : 'Students', sortable: true, align: 'center' },
+            { key: 'total_revenue', label: isRtl ? 'إجمالي الإيرادات' : 'Revenue', sortable: true },
+            { key: '_share', label: isRtl ? 'نسبة الإيراد' : 'Share', sortable: false, width: '180px' }
+          ];
+        }
+        if (key === 'formation-revenue') {
+          return [
+            { key: '_rank', label: '#', sortable: false, width: '60px', align: 'center' },
+            { key: 'title', label: isRtl ? 'الدورة' : 'Formation', sortable: true },
+            { key: 'price', label: isRtl ? 'سعر الدورة' : 'Price', sortable: true },
+            { key: 'student_count', label: isRtl ? 'عدد الطلاب' : 'Students', sortable: true, align: 'center' },
+            { key: 'total_revenue', label: isRtl ? 'إجمالي الإيرادات' : 'Revenue', sortable: true },
+            { key: '_share', label: isRtl ? 'نسبة الإيراد' : 'Share', sortable: false, width: '180px' }
+          ];
+        }
+        if (key === 'formation-subscriptions') {
+          return [
+            { key: '_rank', label: '#', sortable: false, width: '60px', align: 'center' },
+            { key: 'title', label: isRtl ? 'الدورة' : 'Formation', sortable: true },
+            { key: 'price', label: isRtl ? 'سعر الدورة' : 'Price', sortable: true },
+            { key: 'student_count', label: isRtl ? 'عدد الطلاب المسجلين' : 'Enrolled Students', sortable: true, align: 'center' },
+            { key: '_share', label: isRtl ? 'نسبة الإقبال' : 'Share', sortable: false, width: '180px' }
+          ];
+        }
+        if (key === 'group-revenue') {
+          return [
+            { key: '_rank', label: '#', sortable: false, width: '60px', align: 'center' },
+            { key: 'group_name', label: isRtl ? 'الفوج' : 'Group', sortable: true },
+            { key: 'formation_title', label: isRtl ? 'الدورة' : 'Formation', sortable: true },
+            { key: 'student_count', label: isRtl ? 'عدد الطلاب' : 'Students', sortable: true, align: 'center' },
+            { key: 'total_revenue', label: isRtl ? 'إجمالي الإيرادات' : 'Revenue', sortable: true },
+            { key: '_share', label: isRtl ? 'نسبة الإيراد' : 'Share', sortable: false, width: '180px' }
+          ];
+        }
+        if (key === 'group-students') {
+          return [
+            { key: '_rank', label: '#', sortable: false, width: '60px', align: 'center' },
+            { key: 'group_name', label: isRtl ? 'الفوج' : 'Group', sortable: true },
+            { key: 'formation_title', label: isRtl ? 'الدورة' : 'Formation', sortable: true },
+            { key: 'teacher_name', label: isRtl ? 'الأستاذ' : 'Teacher', sortable: true },
+            { key: 'student_count', label: isRtl ? 'عدد الطلاب' : 'Students', sortable: true, align: 'center' },
+            { key: '_share', label: isRtl ? 'نسبة الطلاب' : 'Share', sortable: false, width: '180px' }
+          ];
+        }
+        return [];
+      }
+
+      function filterAndSortRows(rawRows) {
+        var rows = rawRows.slice();
+
+        // 1. Text filter
+        if (searchQuery) {
+          rows = rows.filter(function(r) {
+            var haystack = [
+              r.teacher_name, r.employee_number, r.title, r.name,
+              r.group_name, r.formation_title, String(r.student_count || ''),
+              String(r.total_revenue || ''), String(r.price || '')
+            ].join(' ').toLowerCase();
+            return haystack.indexOf(searchQuery) !== -1;
+          });
+        }
+
+        // 2. Sort
+        if (sortCol) {
+          rows.sort(function(a, b) {
+            var va = a[sortCol];
+            var vb = b[sortCol];
+            if (va === undefined || va === null) va = '';
+            if (vb === undefined || vb === null) vb = '';
+
+            var numA = Number(va);
+            var numB = Number(vb);
+            var isNumeric = !isNaN(numA) && !isNaN(numB) && va !== '' && vb !== '';
+
+            var cmp = 0;
+            if (isNumeric) {
+              cmp = numA - numB;
+            } else {
+              cmp = String(va).localeCompare(String(vb), isRtl ? 'ar' : 'en');
+            }
+            return sortDir === 'asc' ? cmp : -cmp;
+          });
+        }
+
+        return rows;
+      }
+
+      function renderActiveBreakdown() {
+        var raw = getRawDataset(activeStat);
+        renderMiniKpis(activeStat, raw);
+
+        // Render Thead
+        var thead = document.getElementById('bd-thead');
+        var cols = getColumnsConfig(activeStat);
+        if (thead) {
+          var thHtml = '<tr>' + cols.map(function(c) {
+            var alignStyle = c.align ? 'text-align:' + c.align + ';' : '';
+            var widthStyle = c.width ? 'width:' + c.width + ';' : '';
+            if (c.sortable) {
+              var isSorted = sortCol === c.key;
+              var iconClass = isSorted ? (sortDir === 'asc' ? 'fa fa-sort-asc' : 'fa fa-sort-desc') : 'fa fa-sort';
+              return '<th class="sortable' + (isSorted ? ' sorted' : '') + '" style="' + alignStyle + widthStyle + '" onclick="window.sortBreakdownBy(\'' + c.key + '\')">' +
+                escapeHtml(c.label) + ' <i class="' + iconClass + ' sort-icon"></i>' +
+              '</th>';
+            }
+            return '<th style="' + alignStyle + widthStyle + '">' + escapeHtml(c.label) + '</th>';
+          }).join('') + '</tr>';
+          thead.innerHTML = thHtml;
+        }
+
+        renderTableRowsOnly();
+      }
+
+      function renderTableRowsOnly() {
+        var raw = getRawDataset(activeStat);
+        var filtered = filterAndSortRows(raw);
+        var cols = getColumnsConfig(activeStat);
+        var tbody = document.getElementById('bd-tbody');
+        var countBadge = document.getElementById('bd-row-count');
+
+        if (countBadge) {
+          if (searchQuery) {
+            countBadge.innerHTML = isRtl
+              ? ('عرض <strong>' + filtered.length + '</strong> من <strong>' + raw.length + '</strong>')
+              : ('Showing <strong>' + filtered.length + '</strong> of <strong>' + raw.length + '</strong>');
+          } else {
+            countBadge.innerHTML = '<strong>' + filtered.length + '</strong> ' + (isRtl ? 'صفوف' : 'rows');
+          }
+        }
+
+        if (!tbody) return;
+
+        if (!filtered.length) {
+          tbody.innerHTML = '<tr><td colspan="' + cols.length + '" class="text-center text-muted" style="padding:36px 20px;">' +
+            '<i class="fa fa-folder-open-o" style="font-size:32px;color:#cbd5e1;display:block;margin-bottom:10px;"></i>' +
+            '<span style="font-weight:600;font-size:14px;">' + (searchQuery ? (isRtl ? 'لا توجد نتائج مطابقة للبحث' : 'No records match your search') : (isRtl ? 'لا توجد بيانات متاحة' : 'No data available')) + '</span>' +
+          '</td></tr>';
+          return;
+        }
+
+        // Calculate max / total for share percentage bars
+        var maxRev = raw.reduce(function(m, r){ return Math.max(m, Number(r.total_revenue || 0)); }, 0);
+        var totalRev = raw.reduce(function(s, r){ return s + Number(r.total_revenue || 0); }, 0);
+        var maxStd = raw.reduce(function(m, r){ return Math.max(m, Number(r.student_count || 0)); }, 0);
+        var totalStd = raw.reduce(function(s, r){ return s + Number(r.student_count || 0); }, 0);
+
+        var rowsHtml = filtered.map(function(r, idx) {
+          var rankNum = idx + 1;
+          var rankBadgeClass = rankNum === 1 ? 'rank-1' : (rankNum === 2 ? 'rank-2' : (rankNum === 3 ? 'rank-3' : 'rank-other'));
+          var rankIcon = rankNum === 1 ? '🥇' : (rankNum === 2 ? '🥈' : (rankNum === 3 ? '🥉' : ('#' + rankNum)));
+
+          var trHtml = '<tr>';
+
+          if (activeStat === 'teacher') {
+            var rev = Number(r.total_revenue || 0);
+            var pct = totalRev > 0 ? ((rev / totalRev) * 100).toFixed(1) : '0';
+            var barPct = maxRev > 0 ? Math.min(100, Math.round((rev / maxRev) * 100)) : 0;
+
+            trHtml += '<td class="text-center"><span class="rank-badge ' + rankBadgeClass + '">' + rankIcon + '</span></td>';
+            trHtml += '<td><div class="entity-primary-name">' +
+              '<span class="entity-avatar" style="background:linear-gradient(135deg,#4f6eff,#3b82f6)"><i class="fa fa-user-tie"></i></span>' +
+              '<div><strong>' + escapeHtml(r.teacher_name || '—') + '</strong></div>' +
+            '</div></td>';
+            trHtml += '<td>' + (r.employee_number ? ('<span style="background:#f1f5f9;color:#475569;border-radius:6px;padding:3px 8px;font-weight:700;font-size:12px;"><i class="fa fa-id-card-o"></i> ' + escapeHtml(r.employee_number) + '</span>') : '<span style="color:#94a3b8;">—</span>') + '</td>';
+            trHtml += '<td class="text-center"><span class="badge-std-count"><i class="fa fa-user"></i> ' + Number(r.student_count || 0) + '</span></td>';
+            trHtml += '<td><span class="revenue-pill">' + fmtMoney(rev) + '</span></td>';
+            trHtml += '<td><div class="bd-share-bar-wrap">' +
+              '<div class="bd-share-bar"><div class="bd-share-fill" style="width:' + barPct + '%;background:linear-gradient(90deg,#4f6eff,#38bdf8);"></div></div>' +
+              '<span class="bd-share-pct">' + pct + '%</span>' +
+            '</div></td>';
+          }
+          else if (activeStat === 'formation-revenue') {
+            var revF = Number(r.total_revenue || 0);
+            var pctF = totalRev > 0 ? ((revF / totalRev) * 100).toFixed(1) : '0';
+            var barPctF = maxRev > 0 ? Math.min(100, Math.round((revF / maxRev) * 100)) : 0;
+
+            trHtml += '<td class="text-center"><span class="rank-badge ' + rankBadgeClass + '">' + rankIcon + '</span></td>';
+            trHtml += '<td><div class="entity-primary-name">' +
+              '<span class="entity-avatar" style="background:linear-gradient(135deg,#f59e0b,#d97706)"><i class="fa fa-book"></i></span>' +
+              '<div><strong>' + escapeHtml(r.title || '—') + '</strong></div>' +
+            '</div></td>';
+            trHtml += '<td>' + (r.price ? ('<span style="font-weight:700;color:#64748b;">' + fmtMoney(r.price) + '</span>') : '<span style="color:#94a3b8;">—</span>') + '</td>';
+            trHtml += '<td class="text-center"><span class="badge-std-count"><i class="fa fa-users"></i> ' + Number(r.student_count || 0) + '</span></td>';
+            trHtml += '<td><span class="revenue-pill">' + fmtMoney(revF) + '</span></td>';
+            trHtml += '<td><div class="bd-share-bar-wrap">' +
+              '<div class="bd-share-bar"><div class="bd-share-fill" style="width:' + barPctF + '%;background:linear-gradient(90deg,#f59e0b,#fbbf24);"></div></div>' +
+              '<span class="bd-share-pct">' + pctF + '%</span>' +
+            '</div></td>';
+          }
+          else if (activeStat === 'formation-subscriptions') {
+            var stdCount = Number(r.student_count || 0);
+            var pctSub = totalStd > 0 ? ((stdCount / totalStd) * 100).toFixed(1) : '0';
+            var barPctSub = maxStd > 0 ? Math.min(100, Math.round((stdCount / maxStd) * 100)) : 0;
+
+            trHtml += '<td class="text-center"><span class="rank-badge ' + rankBadgeClass + '">' + rankIcon + '</span></td>';
+            trHtml += '<td><div class="entity-primary-name">' +
+              '<span class="entity-avatar" style="background:linear-gradient(135deg,#10b981,#059669)"><i class="fa fa-book"></i></span>' +
+              '<div><strong>' + escapeHtml(r.title || '—') + '</strong></div>' +
+            '</div></td>';
+            trHtml += '<td>' + (r.price ? ('<span style="font-weight:700;color:#64748b;">' + fmtMoney(r.price) + '</span>') : '<span style="color:#94a3b8;">—</span>') + '</td>';
+            trHtml += '<td class="text-center"><span class="badge-std-count" style="background:#dcfce7;color:#15803d;"><i class="fa fa-user-plus"></i> ' + stdCount + ' ' + (isRtl ? 'طالب' : 'students') + '</span></td>';
+            trHtml += '<td><div class="bd-share-bar-wrap">' +
+              '<div class="bd-share-bar"><div class="bd-share-fill" style="width:' + barPctSub + '%;background:linear-gradient(90deg,#10b981,#34d399);"></div></div>' +
+              '<span class="bd-share-pct">' + pctSub + '%</span>' +
+            '</div></td>';
+          }
+          else if (activeStat === 'group-revenue') {
+            var revG = Number(r.total_revenue || 0);
+            var pctG = totalRev > 0 ? ((revG / totalRev) * 100).toFixed(1) : '0';
+            var barPctG = maxRev > 0 ? Math.min(100, Math.round((revG / maxRev) * 100)) : 0;
+
+            trHtml += '<td class="text-center"><span class="rank-badge ' + rankBadgeClass + '">' + rankIcon + '</span></td>';
+            trHtml += '<td><div class="entity-primary-name">' +
+              '<span class="entity-avatar" style="background:linear-gradient(135deg,#0284c7,#0369a1)"><i class="fa fa-sitemap"></i></span>' +
+              '<div><strong>' + escapeHtml(r.group_name || '—') + '</strong></div>' +
+            '</div></td>';
+            trHtml += '<td><span style="color:#475569;font-weight:600;">' + escapeHtml(r.formation_title || '—') + '</span></td>';
+            trHtml += '<td class="text-center"><span class="badge-std-count"><i class="fa fa-users"></i> ' + Number(r.student_count || 0) + '</span></td>';
+            trHtml += '<td><span class="revenue-pill">' + fmtMoney(revG) + '</span></td>';
+            trHtml += '<td><div class="bd-share-bar-wrap">' +
+              '<div class="bd-share-bar"><div class="bd-share-fill" style="width:' + barPctG + '%;background:linear-gradient(90deg,#0284c7,#38bdf8);"></div></div>' +
+              '<span class="bd-share-pct">' + pctG + '%</span>' +
+            '</div></td>';
+          }
+          else if (activeStat === 'group-students') {
+            var stdCountG = Number(r.student_count || 0);
+            var pctStdG = totalStd > 0 ? ((stdCountG / totalStd) * 100).toFixed(1) : '0';
+            var barPctStdG = maxStd > 0 ? Math.min(100, Math.round((stdCountG / maxStd) * 100)) : 0;
+
+            trHtml += '<td class="text-center"><span class="rank-badge ' + rankBadgeClass + '">' + rankIcon + '</span></td>';
+            trHtml += '<td><div class="entity-primary-name">' +
+              '<span class="entity-avatar" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed)"><i class="fa fa-sitemap"></i></span>' +
+              '<div><strong>' + escapeHtml(r.group_name || '—') + '</strong></div>' +
+            '</div></td>';
+            trHtml += '<td><span style="color:#475569;font-weight:600;">' + escapeHtml(r.formation_title || '—') + '</span></td>';
+            trHtml += '<td><span style="color:#0f172a;font-weight:600;"><i class="fa fa-user-tie" style="color:#94a3b8;margin-inline-end:5px;"></i>' + escapeHtml(r.teacher_name || '—') + '</span></td>';
+            trHtml += '<td class="text-center"><span class="badge-std-count" style="background:#f3e8ff;color:#7c3aed;"><i class="fa fa-users"></i> ' + stdCountG + ' ' + (isRtl ? 'طالب' : 'students') + '</span></td>';
+            trHtml += '<td><div class="bd-share-bar-wrap">' +
+              '<div class="bd-share-bar"><div class="bd-share-fill" style="width:' + barPctStdG + '%;background:linear-gradient(90deg,#8b5cf6,#a78bfa);"></div></div>' +
+              '<span class="bd-share-pct">' + pctStdG + '%</span>' +
+            '</div></td>';
+          }
+
+          trHtml += '</tr>';
+          return trHtml;
+        }).join('');
+
+        tbody.innerHTML = rowsHtml;
+      }
+
+      function updateTabBadges() {
+        var setBadge = function(id, count) {
+          var el = document.getElementById(id);
+          if (el) el.textContent = count || 0;
+        };
+        setBadge('badge-count-teacher', (currentBreakdownData.revenuePerTeacher || []).length);
+        setBadge('badge-count-formation-rev', (currentBreakdownData.revenuePerFormation || []).length);
+        setBadge('badge-count-formation-sub', (currentBreakdownData.subscriptionsPerFormation || []).length);
+        setBadge('badge-count-group-rev', (currentBreakdownData.revenuePerGroup || []).length);
+        setBadge('badge-count-group-std', (currentBreakdownData.studentsPerGroup || []).length);
+      }
+
+      function renderBreakdown(d) {
+        currentBreakdownData = {
+          revenuePerTeacher: d.revenuePerTeacher || [],
+          revenuePerFormation: d.revenuePerFormation || [],
+          subscriptionsPerFormation: d.subscriptionsPerFormation || [],
+          revenuePerGroup: d.revenuePerGroup || [],
+          studentsPerGroup: d.studentsPerGroup || []
+        };
+
+        updateTabBadges();
+        renderActiveBreakdown();
+
+        // Period badge
+        var badge = document.getElementById('bd-period-badge');
+        if (badge) {
+          if (d.period && (d.period.from || d.period.to)) {
+            var label = isRtl ? 'الفترة المحددة: ' : 'Selected Period: ';
+            badge.innerHTML = '<i class="fa fa-calendar-check-o"></i> ' + label + '<strong>' + (d.period.from || '…') + '</strong> ← <strong>' + (d.period.to || '…') + '</strong>';
+            badge.style.display = '';
+          } else {
+            badge.style.display = 'none';
+          }
+        }
+      }
+
+      window.loadBreakdown = function() {
+        var from = (document.getElementById('bd-from') || {}).value || '';
+        var to   = (document.getElementById('bd-to')   || {}).value || '';
+        var qs = (from ? '?from=' + encodeURIComponent(from) : '') + (to ? (from ? '&' : '?') + 'to=' + encodeURIComponent(to) : '');
+        var status = document.getElementById('bd-status');
+        if (status) { status.style.display = ''; }
+        doFetch('/api/dashboard/breakdown' + qs, function(err, data) {
+          if (status) status.style.display = 'none';
+          if (err || !data) { console.error('Breakdown error:', err); return; }
+          renderBreakdown(data);
+          if (window.AppI18n && typeof window.AppI18n.translateAll === 'function') {
+            var sec = document.getElementById('unified-breakdown-section');
+            if (sec) window.AppI18n.translateAll(sec);
+          }
+        });
+      };
+
+      window.resetBreakdown = function() {
+        var f = document.getElementById('bd-from'); if (f) f.value = '';
+        var t = document.getElementById('bd-to');   if (t) t.value = '';
+        var btns = document.querySelectorAll('.bd-preset-btn');
+        btns.forEach(function(b){
+          if (b.getAttribute('data-preset') === 'all') b.classList.add('active');
+          else b.classList.remove('active');
+        });
+        window.loadBreakdown();
+      };
+
+      window.exportBreakdownCSV = function() {
+        var raw = getRawDataset(activeStat);
+        var filtered = filterAndSortRows(raw);
+        if (!filtered.length) {
+          alert(isRtl ? 'لا توجد بيانات لتصديرها' : 'No data to export');
+          return;
+        }
+
+        var title = getActiveStatTitle(activeStat);
+        var csvRows = [];
+
+        if (activeStat === 'teacher') {
+          csvRows.push(['#', isRtl ? 'الأستاذ' : 'Teacher', isRtl ? 'رقم الموظف' : 'Employee ID', isRtl ? 'عدد الطلاب' : 'Students', isRtl ? 'إجمالي الإيرادات (د.ج)' : 'Revenue (DA)']);
+          filtered.forEach(function(r, i) {
+            csvRows.push([i + 1, r.teacher_name || '', r.employee_number || '', r.student_count || 0, r.total_revenue || 0]);
+          });
+        } else if (activeStat === 'formation-revenue') {
+          csvRows.push(['#', isRtl ? 'الدورة' : 'Formation', isRtl ? 'سعر الدورة (د.ج)' : 'Price (DA)', isRtl ? 'عدد الطلاب' : 'Students', isRtl ? 'إجمالي الإيرادات (د.ج)' : 'Revenue (DA)']);
+          filtered.forEach(function(r, i) {
+            csvRows.push([i + 1, r.title || '', r.price || 0, r.student_count || 0, r.total_revenue || 0]);
+          });
+        } else if (activeStat === 'formation-subscriptions') {
+          csvRows.push(['#', isRtl ? 'الدورة' : 'Formation', isRtl ? 'سعر الدورة (د.ج)' : 'Price (DA)', isRtl ? 'عدد الطلاب المسجلين' : 'Enrolled Students']);
+          filtered.forEach(function(r, i) {
+            csvRows.push([i + 1, r.title || '', r.price || 0, r.student_count || 0]);
+          });
+        } else if (activeStat === 'group-revenue') {
+          csvRows.push(['#', isRtl ? 'الفوج' : 'Group', isRtl ? 'الدورة' : 'Formation', isRtl ? 'عدد الطلاب' : 'Students', isRtl ? 'إجمالي الإيرادات (د.ج)' : 'Revenue (DA)']);
+          filtered.forEach(function(r, i) {
+            csvRows.push([i + 1, r.group_name || '', r.formation_title || '', r.student_count || 0, r.total_revenue || 0]);
+          });
+        } else if (activeStat === 'group-students') {
+          csvRows.push(['#', isRtl ? 'الفوج' : 'Group', isRtl ? 'الدورة' : 'Formation', isRtl ? 'الأستاذ' : 'Teacher', isRtl ? 'عدد الطلاب' : 'Students']);
+          filtered.forEach(function(r, i) {
+            csvRows.push([i + 1, r.group_name || '', r.formation_title || '', r.teacher_name || '', r.student_count || 0]);
+          });
+        }
+
+        var csvContent = '\uFEFF' + csvRows.map(function(row) {
+          return row.map(function(val) {
+            var s = String(val === null || val === undefined ? '' : val).replace(/"/g, '""');
+            return '"' + s + '"';
+          }).join(',');
+        }).join('\r\n');
+
+        var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        var nowStr = new Date().toISOString().slice(0, 10);
+        a.href = url;
+        a.download = title.replace(/\s+/g, '_') + '_' + nowStr + '.csv';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      };
+
+      window.printBreakdownTable = function() {
+        var raw = getRawDataset(activeStat);
+        var filtered = filterAndSortRows(raw);
+        var title = getActiveStatTitle(activeStat);
+        var tableHtml = document.getElementById('unified-breakdown-table').outerHTML;
+
+        var printWin = window.open('', '_blank', 'width=900,height=700');
+        printWin.document.write('<!DOCTYPE html><html dir="' + (isRtl ? 'rtl' : 'ltr') + '"><head><title>' + escapeHtml(title) + '</title>');
+        printWin.document.write('<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">');
+        printWin.document.write('<style>');
+        printWin.document.write('body { font-family: ' + (isRtl ? "'Cairo', sans-serif" : "'Inter', sans-serif") + '; padding: 24px; color: #1e293b; }');
+        printWin.document.write('h2 { margin-bottom: 6px; font-size: 20px; font-weight: 800; }');
+        printWin.document.write('.meta { color: #64748b; font-size: 13px; margin-bottom: 18px; }');
+        printWin.document.write('table { width: 100%; border-collapse: collapse; font-size: 13px; }');
+        printWin.document.write('th, td { border: 1px solid #cbd5e1; padding: 8px 12px; text-align: ' + (isRtl ? 'right' : 'left') + '; }');
+        printWin.document.write('th { background: #f1f5f9; font-weight: 700; }');
+        printWin.document.write('.rank-badge { font-weight: bold; }');
+        printWin.document.write('.bd-share-bar-wrap { font-weight: bold; }');
+        printWin.document.write('</style></head><body>');
+        printWin.document.write('<h2>' + escapeHtml(title) + '</h2>');
+        printWin.document.write('<div class="meta">' + (isRtl ? 'تاريخ الطباعة: ' : 'Printed at: ') + new Date().toLocaleString() + '</div>');
+        printWin.document.write(tableHtml);
+        printWin.document.write('</body></html>');
+        printWin.document.close();
+        printWin.focus();
+        setTimeout(function(){ printWin.print(); printWin.close(); }, 350);
+      };
+
       // Initial kickoff
       document.addEventListener('DOMContentLoaded', function () {
         if (window.AppI18n && typeof window.AppI18n.translateAll === 'function') {
           window.AppI18n.translateAll();
         }
         fetchStats();
+        window.loadBreakdown();
       });
 
       // Fallback trigger if DOMContentLoaded has already fired
       if (document.readyState === 'complete' || document.readyState === 'interactive') {
-        setTimeout(fetchStats, 50);
+        setTimeout(function() {
+          fetchStats();
+          if (typeof window.loadBreakdown === 'function') window.loadBreakdown();
+        }, 50);
       }
     })();
     </script>

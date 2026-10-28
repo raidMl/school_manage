@@ -15,6 +15,7 @@ const TABLE_SCHEMAS = {
       gender       ENUM('MALE','FEMALE') NULL,
       birth_date   DATE          NULL,
       photo        VARCHAR(255)  NULL DEFAULT '',
+      administrative_file VARCHAR(255) NULL,
       blood_type   ENUM('A+','A-','B+','B-','AB+','AB-','O+','O-') NULL,
       website      VARCHAR(255)  NULL,
       social_links TEXT          NULL,
@@ -394,7 +395,8 @@ const TABLE_COLUMNS = {
     gender: "ENUM('MALE','FEMALE') NULL AFTER role",
     birth_date: "DATE NULL AFTER gender",
     photo: "VARCHAR(255) NULL DEFAULT '' AFTER birth_date",
-    blood_type: "ENUM('A+','A-','B+','B-','AB+','AB-','O+','O-') NULL AFTER photo",
+    administrative_file: "VARCHAR(255) NULL AFTER photo",
+    blood_type: "ENUM('A+','A-','B+','B-','AB+','AB-','O+','O-') NULL AFTER administrative_file",
     website: "VARCHAR(255) NULL",
     social_links: "TEXT NULL",
     is_active: "TINYINT(1) NOT NULL DEFAULT 1"

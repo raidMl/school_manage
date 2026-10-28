@@ -12,7 +12,15 @@ async function getSchoolId(userId) {
      ORDER BY s.created_at DESC LIMIT 1`,
     [userId, userId]
   );
-  return rows[0] ? rows[0].id : null;
+  if (rows[0] && rows[0].id) return rows[0].id;
+
+  const tRows = await query('SELECT school_id FROM teachers WHERE user_id = ? LIMIT 1', [userId]);
+  if (tRows[0] && tRows[0].school_id) return tRows[0].school_id;
+
+  const sRows = await query('SELECT school_id FROM students WHERE user_id = ? LIMIT 1', [userId]);
+  if (sRows[0] && sRows[0].school_id) return sRows[0].school_id;
+
+  return null;
 }
 
 /* ── ensure table exists and schema is up to date (auto-migrate) ──────── */
@@ -105,8 +113,57 @@ async function ensureDefaultLevels(schoolId) {
   }
 }
 
+/* ── Authorization & Teacher Quran Access Middleware ──────────────────── */
+router.use(requireAuth);
+router.use(async (req, res, next) => {
+  try {
+    const schoolId = await getSchoolId(req.auth.userId);
+    if (!schoolId) return res.status(403).json({ message: 'School not found' });
+    req.schoolId = schoolId;
+
+    if (req.auth.role === 'teacher') {
+      const t = await query('SELECT id, has_quran_access FROM teachers WHERE user_id = ? LIMIT 1', [req.auth.userId]);
+      if (!t.length) {
+        return res.status(403).json({ message: 'Teacher not found', has_quran_access: false });
+      }
+      let hasAccess = Boolean(t[0].has_quran_access);
+      if (!hasAccess) {
+        const qf = await query(`
+          SELECT 1 FROM \`groups\` g
+          JOIN formations f ON g.formation_id = f.id
+          WHERE (g.teacher_id = ? OR f.teacher_id = ?)
+            AND (f.title LIKE '%قرآن%' OR f.title LIKE '%قران%' OR f.title LIKE '%حفظ%' OR f.type LIKE '%quran%')
+          LIMIT 1
+        `, [t[0].id, t[0].id]);
+        if (qf.length) hasAccess = true;
+      }
+      if (!hasAccess) {
+        return res.status(403).json({
+          message: 'Teacher does not have Quran memorization access enabled.',
+          has_quran_access: false
+        });
+      }
+      req.teacherId = t[0].id;
+    }
+    next();
+  } catch (err) {
+    next(err);
+  }
+});
+
+/* GET /api/quran/check-access ────────────────────────────────────────── */
+router.get('/check-access', (req, res) => {
+  res.json({
+    allowed: true,
+    has_quran_access: true,
+    role: req.auth.role,
+    teacher_id: req.teacherId || null,
+    school_id: req.schoolId
+  });
+});
+
 /* GET /api/quran ─────────────────────────────────────────────────────── */
-router.get('/', requireAuth, async (req, res, next) => {
+router.get('/', async (req, res, next) => {
   try {
     const schoolId = await getSchoolId(req.auth.userId);
     if (!schoolId) return res.status(403).json({ message: 'School not found' });
@@ -145,6 +202,10 @@ router.get('/', requireAuth, async (req, res, next) => {
       sql += ` AND (u.first_name LIKE ? OR u.last_name LIKE ? OR CONCAT(u.first_name,' ',u.last_name) LIKE ? OR s.registration_number LIKE ?)`;
       const like = `%${search}%`;
       params.push(like, like, like, like);
+    }
+    if (req.auth.role === 'teacher' && req.teacherId) {
+      sql += ' AND (g.teacher_id = ? OR f.teacher_id = ? OR fg.teacher_id = ?)';
+      params.push(req.teacherId, req.teacherId, req.teacherId);
     }
     sql += ' ORDER BY qm.session_date DESC, qm.id DESC';
 
@@ -425,6 +486,10 @@ router.get('/summary', requireAuth, async (req, res, next) => {
     if (formation_id) { sql += ' AND (qm.formation_id = ? OR fg.id = ?)';             params.push(formation_id, formation_id); }
     sql += ' GROUP BY qm.student_id ORDER BY total_sessions DESC, last_session DESC';
 
+    if (req.auth.role === 'teacher' && req.teacherId) {
+      sql += ' AND (g.teacher_id = ? OR f.teacher_id = ?)';
+      params.push(req.teacherId, req.teacherId);
+    }
     const rows = await query(sql, params);
     res.json({ summary: rows });
   } catch (err) { next(err); }
@@ -479,6 +544,10 @@ router.get('/groups', requireAuth, async (req, res, next) => {
     `;
     const params = [schoolId];
     if (formation_id) { sql += ' AND g.formation_id = ?'; params.push(formation_id); }
+    if (req.auth.role === 'teacher' && req.teacherId) {
+      sql += ' AND (g.teacher_id = ? OR f.teacher_id = ?)';
+      params.push(req.teacherId, req.teacherId);
+    }
     sql += ' GROUP BY g.id ORDER BY g.name';
 
     const rows = await query(sql, params);
@@ -518,6 +587,15 @@ router.get('/students', requireAuth, async (req, res, next) => {
     }
     if (formation_id) { sql += ' AND s.formation_id = ?'; params.push(formation_id); }
     if (group_id)     { sql += ' AND sg.group_id = ?';    params.push(group_id); }
+    if (req.auth.role === 'teacher' && req.teacherId) {
+      sql += ` AND s.id IN (
+        SELECT sg2.student_id FROM student_groups sg2
+        JOIN \`groups\` g2 ON sg2.group_id = g2.id
+        LEFT JOIN formations f2 ON g2.formation_id = f2.id
+        WHERE (g2.teacher_id = ? OR f2.teacher_id = ?)
+      )`;
+      params.push(req.teacherId, req.teacherId);
+    }
     sql += ' GROUP BY s.id ORDER BY u.last_name, u.first_name';
 
     const rows = await query(sql, params);

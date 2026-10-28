@@ -44,9 +44,14 @@ router.get(
 
     const rows = await query(
       `SELECT ph.*,
-         u.first_name AS recorded_by_name, u.last_name AS recorded_by_last
+         u.first_name AS recorded_by_name, u.last_name AS recorded_by_last,
+         g.name AS group_name,
+         COALESCE(f.title, f_direct.title) AS formation_title
        FROM payment_history ph
        LEFT JOIN users u ON u.id = ph.recorded_by_user_id
+       LEFT JOIN \`groups\` g ON g.id = ph.group_id
+       LEFT JOIN formations f ON f.id = g.formation_id
+       LEFT JOIN formations f_direct ON f_direct.id = ph.formation_id
        WHERE ph.student_id = ?
        ORDER BY ph.payment_date DESC, ph.created_at DESC`,
       [studentId]
@@ -72,6 +77,8 @@ router.post(
       update_status = true,
       subscription_plan: subscriptionPlan = null,
       promo_code: promoCode = null,
+      group_id: groupId = null,
+      formation_id: formationId = null,
     } = req.body;
 
     if (amount === undefined || amount === null || amount === '' || isNaN(Number(amount)) || Number(amount) < 0) {
@@ -95,17 +102,25 @@ router.post(
     if (!stuCheck.length) throw new HttpError(404, 'Student not found');
     const student = stuCheck[0];
 
+    // Resolve target formation id if group_id is given
+    let targetFormationId = formationId;
+    if (groupId && !targetFormationId) {
+      const gRow = await query('SELECT formation_id FROM `groups` WHERE id = ?', [groupId]);
+      if (gRow.length && gRow[0].formation_id) targetFormationId = gRow[0].formation_id;
+    }
+    if (!targetFormationId) targetFormationId = student.formation_id || null;
+
     // Resolve promo discount
     let discountPercent = 0;
     let promoId = null;
     if (promoCode) {
       const codeClean = String(promoCode).trim();
       let promoRows = [];
-      if (student.formation_id) {
+      if (targetFormationId) {
         promoRows = await query(
           `SELECT pc.id, pc.discount_percent FROM promo_codes pc
            WHERE pc.code = ? AND pc.formation_id = ? AND pc.is_active = 1 LIMIT 1`,
-          [codeClean, student.formation_id]
+          [codeClean, targetFormationId]
         );
       }
       if (!promoRows.length) {
@@ -138,11 +153,13 @@ router.post(
       // Insert payment record
       const [result] = await connection.execute(
         `INSERT INTO payment_history
-           (student_id, school_id, amount, payment_date, payment_method,
+           (student_id, group_id, formation_id, school_id, amount, payment_date, payment_method,
             notes, recorded_by_user_id, subscription_plan, promo_code_id, discount_percent)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           studentId,
+          groupId ? Number(groupId) : null,
+          targetFormationId ? Number(targetFormationId) : null,
           schoolId,
           Number(amount),
           paymentDate || new Date().toISOString().slice(0, 10),
@@ -157,16 +174,80 @@ router.post(
 
       // Update student status
       if (update_status) {
-        // Next payment date: from today if subscription, else null
         const baseDate = paymentDate || new Date().toISOString().slice(0, 10);
         const nextDate = calcNextPaymentDate(baseDate, effectivePlan);
 
-        // If a specific plan was chosen, also update subscription_plan on student
-        const planToSave = subscriptionPlan || null;
+        // Update student_groups if group_id is specified
+        if (groupId) {
+          await connection.execute(
+            `UPDATE student_groups
+             SET payment_status = 'paid',
+                 subscription_plan = COALESCE(?, subscription_plan),
+                 next_payment_date = ?,
+                 last_payment_date = ?
+             WHERE student_id = ? AND group_id = ?`,
+            [subscriptionPlan || null, nextDate, baseDate, studentId, groupId]
+          );
+        } else {
+          // If no group_id specified, check how many groups the student belongs to
+          const [stGroups] = await connection.execute(
+            'SELECT id, group_id FROM student_groups WHERE student_id = ?',
+            [studentId]
+          );
+          if (stGroups.length === 1) {
+            await connection.execute(
+              `UPDATE student_groups
+               SET payment_status = 'paid',
+                   subscription_plan = COALESCE(?, subscription_plan),
+                   next_payment_date = ?,
+                   last_payment_date = ?
+               WHERE student_id = ?`,
+              [subscriptionPlan || null, nextDate, baseDate, studentId]
+            );
+          } else if (stGroups.length > 1) {
+            // Mark the first unpaid group as paid
+            const [firstUnpaid] = await connection.execute(
+              `SELECT group_id FROM student_groups WHERE student_id = ? AND payment_status IN ('not_paid', 'unpaid') LIMIT 1`,
+              [studentId]
+            );
+            if (firstUnpaid.length > 0) {
+              await connection.execute(
+                `UPDATE student_groups
+                 SET payment_status = 'paid',
+                     subscription_plan = COALESCE(?, subscription_plan),
+                     next_payment_date = ?,
+                     last_payment_date = ?
+                 WHERE student_id = ? AND group_id = ?`,
+                [subscriptionPlan || null, nextDate, baseDate, studentId, firstUnpaid[0].group_id]
+              );
+            }
+          }
+        }
 
-        const updateFields = [`payment_status = 'paid'`, `next_payment_date = ?`];
-        const updateValues = [nextDate];
-        if (planToSave) { updateFields.push('subscription_plan = ?'); updateValues.push(planToSave); }
+        // Calculate and synchronize student overall payment_status & next_payment_date
+        const [allGroups] = await connection.execute(
+          'SELECT payment_status, next_payment_date FROM student_groups WHERE student_id = ?',
+          [studentId]
+        );
+
+        let overallStatus = 'paid';
+        let overallNextDate = nextDate;
+
+        if (allGroups.length > 0) {
+          const allPaid = allGroups.every(g => g.payment_status === 'paid');
+          const somePaid = allGroups.some(g => g.payment_status === 'paid');
+          overallStatus = allPaid ? 'paid' : (somePaid ? 'partial' : 'not_paid');
+
+          const dates = allGroups.map(g => g.next_payment_date).filter(Boolean).sort();
+          overallNextDate = dates[0] || null;
+        }
+
+        const updateFields = [`payment_status = ?`, `next_payment_date = ?`];
+        const updateValues = [overallStatus, overallNextDate];
+        if (subscriptionPlan) {
+          updateFields.push('subscription_plan = ?');
+          updateValues.push(subscriptionPlan);
+        }
         updateValues.push(studentId);
 
         await connection.execute(
@@ -178,9 +259,14 @@ router.post(
       await connection.commit();
 
       const [newRow] = await connection.execute(
-        `SELECT ph.*, u.first_name AS recorded_by_name, u.last_name AS recorded_by_last
+        `SELECT ph.*, u.first_name AS recorded_by_name, u.last_name AS recorded_by_last,
+                g.name AS group_name,
+                COALESCE(f.title, f_direct.title) AS formation_title
          FROM payment_history ph
          LEFT JOIN users u ON u.id = ph.recorded_by_user_id
+         LEFT JOIN \`groups\` g ON g.id = ph.group_id
+         LEFT JOIN formations f ON f.id = g.formation_id
+         LEFT JOIN formations f_direct ON f_direct.id = ph.formation_id
          WHERE ph.id = ?`,
         [result.insertId]
       );
@@ -301,12 +387,16 @@ router.get(
          u.first_name, u.last_name, u.photo, u.gender,
          st.registration_number,
          st.id AS student_id,
-         f.title AS formation_title,
+         g.name AS group_name,
+         COALESCE(ph_f.title, g_f.title, f.title) AS formation_title,
          pc.code AS promo_code_label,
          rec.first_name AS recorded_by_name, rec.last_name AS recorded_by_last
        FROM payment_history ph
        INNER JOIN students st  ON st.id  = ph.student_id
        INNER JOIN users u      ON u.id   = st.user_id
+       LEFT  JOIN \`groups\` g  ON g.id   = ph.group_id
+       LEFT  JOIN formations g_f ON g_f.id = g.formation_id
+       LEFT  JOIN formations ph_f ON ph_f.id = ph.formation_id
        LEFT  JOIN formations f ON f.id   = st.formation_id
        LEFT  JOIN promo_codes pc ON pc.id = ph.promo_code_id
        LEFT  JOIN users rec    ON rec.id = ph.recorded_by_user_id
@@ -317,6 +407,47 @@ router.get(
 
     const total = rows.reduce((sum, r) => sum + Number(r.amount || 0), 0);
     res.json({ data: rows, total });
+  })
+);
+
+// ─── PUT  /student/:studentId/group/:groupId  —  update group status directly ──
+router.put(
+  '/student/:studentId/group/:groupId',
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    const schoolId = await getSchoolId(req.auth.userId);
+    const { studentId, groupId } = req.params;
+    const { payment_status, subscription_plan, next_payment_date } = req.body;
+
+    const stuCheck = await query(
+      'SELECT id FROM students WHERE id = ? AND school_id = ? LIMIT 1',
+      [studentId, schoolId]
+    );
+    if (!stuCheck.length) throw new HttpError(404, 'Student not found');
+
+    const updates = [];
+    const params = [];
+    if (payment_status !== undefined) { updates.push('payment_status = ?'); params.push(payment_status); }
+    if (subscription_plan !== undefined) { updates.push('subscription_plan = ?'); params.push(subscription_plan); }
+    if (next_payment_date !== undefined) { updates.push('next_payment_date = ?'); params.push(next_payment_date || null); }
+
+    if (updates.length > 0) {
+      params.push(studentId, groupId);
+      await query(`UPDATE student_groups SET ${updates.join(', ')} WHERE student_id = ? AND group_id = ?`, params);
+    }
+
+    // Sync overall student status
+    const allGroups = await query('SELECT payment_status, next_payment_date FROM student_groups WHERE student_id = ?', [studentId]);
+    if (allGroups.length > 0) {
+      const allPaid = allGroups.every(g => g.payment_status === 'paid');
+      const somePaid = allGroups.some(g => g.payment_status === 'paid');
+      const overallStatus = allPaid ? 'paid' : (somePaid ? 'partial' : 'not_paid');
+      const dates = allGroups.map(g => g.next_payment_date).filter(Boolean).sort();
+      const overallNextDate = dates[0] || null;
+      await query('UPDATE students SET payment_status = ?, next_payment_date = ? WHERE id = ?', [overallStatus, overallNextDate, studentId]);
+    }
+
+    res.json({ success: true, message: 'Group payment status updated successfully' });
   })
 );
 

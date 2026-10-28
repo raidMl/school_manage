@@ -3547,7 +3547,49 @@
         });
 
         // ── Initialization ───────────────────────────────────────────────────
+        
+        // ── Teacher Quran Access Guard ────────────────────────────────────────
+        function checkTeacherAccess() {
+            var token = getToken();
+            if (!token) return;
+            try {
+                var payload = JSON.parse(atob(token.split('.')[1]));
+                if (payload && payload.role === 'teacher') {
+                    // Show a convenient button to return to Teacher Space
+                    var topBar = document.querySelector('.top-nav-actions, .header-right, .topbar, .user-nav');
+                    var returnLink = document.createElement('a');
+                    returnLink.href = '../client_ui/teacher-space.html';
+                    returnLink.className = 'btn btn-sm btn-outline-primary';
+                    returnLink.style.cssText = 'margin-inline-end:10px;font-weight:600;display:inline-flex;align-items:center;gap:6px;background:#f0fdf4;color:#166534;border:1px solid #bbf7d0;border-radius:8px;padding:6px 12px;';
+                    returnLink.innerHTML = '<i class="fa fa-arrow-left"></i> <span data-i18n="Back to Teacher Space">' + t('Back to Teacher Space', 'العودة إلى فضاء الأستاذ') + '</span>';
+                    var navContainer = document.querySelector('.brand-wrapper') || document.querySelector('.page-header') || document.querySelector('.main-content');
+                    if (navContainer) {
+                        navContainer.insertBefore(returnLink, navContainer.firstChild);
+                    }
+
+                    // Verify backend access
+                    request('/api/quran/check-access').catch(function(err) {
+                        if (err && (err.status === 403 || (err.message && err.message.indexOf('Quran') !== -1))) {
+                            document.body.innerHTML = '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#f8fafc;font-family:inherit;padding:20px;">' +
+                                '<div style="max-width:520px;width:100%;background:#ffffff;border:1px solid #e2e8f0;border-radius:18px;padding:36px;box-shadow:0 10px 25px rgba(0,0,0,0.06);text-align:center;">' +
+                                    '<div style="width:64px;height:64px;border-radius:50%;background:#fef2f2;color:#ef4444;display:inline-flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:18px;"><i class="fa fa-lock"></i></div>' +
+                                    '<h2 style="font-size:20px;font-weight:700;color:#0f172a;margin-bottom:10px;" data-i18n="Access Restricted: Quran Memorization">' + t('Access Restricted: Quran Memorization', 'الوصول مقيد: قسم تحفيظ القرآن') + '</h2>' +
+                                    '<p style="color:#64748b;font-size:14px;line-height:1.6;margin-bottom:24px;" data-i18n="You do not have permission to access the Quran Memorization section. Please contact administration to grant you access.">' +
+                                        t('You do not have permission to access the Quran Memorization section. Please contact administration to grant you access.', 'ليس لديك صلاحية للوصول إلى قسم تحفيظ القرآن الكريم. يرجى التواصل مع إدارة المدرسة لتفعيل الصلاحية لك.') +
+                                    '</p>' +
+                                    '<a href="../client_ui/teacher-space.html" class="btn btn-primary" style="background:#10b981;border-color:#10b981;font-weight:600;padding:10px 24px;border-radius:10px;">' +
+                                        '<i class="fa fa-home"></i> ' + t('Back to Teacher Space', 'العودة إلى فضاء الأستاذ') +
+                                    '</a>' +
+                                '</div>' +
+                            '</div>';
+                        }
+                    });
+                }
+            } catch (e) { /* ignore parse error */ }
+        }
+
         function init() {
+            checkTeacherAccess();
             if (!getToken()) {
                 showStatus(t('Notice: No login token found. Please <a href="login.html" style="text-decoration:underline;font-weight:700">log in</a> first to view and manage school data.', 'تنبيه: لم يتم العثور على رمز تسجيل الدخول. يرجى <a href="login.html" style="text-decoration:underline;font-weight:700">تسجيل الدخول</a> أولاً لعرض وتعديل بيانات المدرسة.'), 'warning');
             }
@@ -3564,7 +3606,38 @@
             loadGroups();
             loadCycles();
             loadAllStudents();
-            loadRecords();
+            // Check URL for group_id or formation_id pre-selection
+            var urlParams = new URLSearchParams(window.location.search);
+            var urlGroupId = urlParams.get('group_id');
+            var urlFormationId = urlParams.get('formation_id');
+
+            if (urlGroupId) {
+                var trySetGroup = setInterval(function() {
+                    var fg = document.getElementById('filter-group');
+                    if (fg && fg.options && fg.options.length > 1) {
+                        fg.value = urlGroupId;
+                        var bg = document.getElementById('bulk-group');
+                        if (bg) bg.value = urlGroupId;
+                        var ag = document.getElementById('add-group');
+                        if (ag) ag.value = urlGroupId;
+                        loadRecords();
+                        clearInterval(trySetGroup);
+                    }
+                }, 150);
+                setTimeout(function() { clearInterval(trySetGroup); }, 4000);
+            } else if (urlFormationId) {
+                var trySetForm = setInterval(function() {
+                    var ff = document.getElementById('filter-formation');
+                    if (ff && ff.options && ff.options.length > 1) {
+                        ff.value = urlFormationId;
+                        loadRecords();
+                        clearInterval(trySetForm);
+                    }
+                }, 150);
+                setTimeout(function() { clearInterval(trySetForm); }, 4000);
+            } else {
+                loadRecords();
+            }
 
             if (window.AppI18n && typeof window.AppI18n.translateAll === 'function') {
                 window.AppI18n.translateAll(document.body);

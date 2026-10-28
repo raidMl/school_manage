@@ -249,4 +249,158 @@ router.get('/statistics', requireAuth, asyncHandler(async (req, res) => {
   });
 }));
 
-module.exports = router;
+// ── Breakdown Statistics (per teacher, formation, group, with period filter) ──
+router.get('/breakdown', requireAuth, asyncHandler(async (req, res) => {
+  try {
+    const school = await getSchoolForUser(req.auth.userId);
+    if (!school) throw new HttpError(409, 'School setup required');
+    const sid = school.id;
+
+    const dateFrom = req.query.from || null;
+    const dateTo   = req.query.to   || null;
+
+    // Build date condition for payment_history
+    let phDateCond = '';
+    const phDateParams = [];
+    if (dateFrom) { phDateCond += ' AND ph.payment_date >= ?'; phDateParams.push(dateFrom); }
+    if (dateTo)   { phDateCond += ' AND ph.payment_date <= ?'; phDateParams.push(dateTo); }
+
+    // Build date condition for enrollment
+    let enrDateCond = '';
+    const enrDateParams = [];
+    if (dateFrom) { enrDateCond += ' AND COALESCE(s.enrollment_date, s.created_at) >= ?'; enrDateParams.push(dateFrom); }
+    if (dateTo)   { enrDateCond += ' AND COALESCE(s.enrollment_date, s.created_at) <= ?'; enrDateParams.push(dateTo); }
+
+    const [
+      revenuePerTeacher,
+      revenuePerFormation,
+      subscriptionsPerFormation,
+      studentsPerGroup,
+      revenuePerGroup
+    ] = await Promise.all([
+      // 1. Revenue per teacher
+      query(
+        `SELECT t.id,
+                CONCAT(COALESCE(u.first_name, ''), ' ', COALESCE(u.last_name, '')) AS teacher_name,
+                t.employee_number,
+                COALESCE(rev.total_revenue, 0) AS total_revenue,
+                COALESCE(st.student_count, 0) AS student_count
+         FROM teachers t
+         INNER JOIN users u ON u.id = t.user_id
+         LEFT JOIN (
+           SELECT g.teacher_id, COALESCE(SUM(ph.amount), 0) AS total_revenue
+           FROM \`groups\` g
+           INNER JOIN payment_history ph ON (ph.group_id = g.id OR (ph.formation_id = g.formation_id AND ph.group_id IS NULL))
+           WHERE g.teacher_id IS NOT NULL ${phDateCond}
+           GROUP BY g.teacher_id
+         ) rev ON rev.teacher_id = t.id
+         LEFT JOIN (
+           SELECT g.teacher_id, COUNT(DISTINCT sg.student_id) AS student_count
+           FROM \`groups\` g
+           INNER JOIN student_groups sg ON sg.group_id = g.id
+           WHERE g.teacher_id IS NOT NULL
+           GROUP BY g.teacher_id
+         ) st ON st.teacher_id = t.id
+         WHERE t.school_id = ?
+         ORDER BY total_revenue DESC, student_count DESC
+         LIMIT 100`,
+        [...phDateParams, sid]
+      ),
+      // 2. Revenue per formation
+      query(
+        `SELECT f.id, f.title, f.price,
+                COALESCE(p.total_revenue, 0) AS total_revenue,
+                COALESCE(st.student_count, 0) AS student_count
+         FROM formations f
+         LEFT JOIN (
+           SELECT COALESCE(ph.formation_id, g.formation_id) AS fid,
+                  COALESCE(SUM(ph.amount), 0) AS total_revenue
+           FROM payment_history ph
+           LEFT JOIN \`groups\` g ON g.id = ph.group_id
+           WHERE ph.school_id = ? ${phDateCond}
+           GROUP BY fid
+         ) p ON p.fid = f.id
+         LEFT JOIN (
+           SELECT f2.id AS fid, COUNT(DISTINCT s.id) AS student_count
+           FROM formations f2
+           LEFT JOIN students s ON s.formation_id = f2.id
+           WHERE f2.school_id = ?
+           GROUP BY f2.id
+         ) st ON st.fid = f.id
+         WHERE f.school_id = ?
+         ORDER BY total_revenue DESC, student_count DESC
+         LIMIT 100`,
+        [sid, ...phDateParams, sid, sid]
+      ),
+      // 3. Subscriptions (enrolled students) per formation
+      query(
+        `SELECT f.id, f.title, f.price,
+                COUNT(DISTINCT s.id) AS student_count
+         FROM formations f
+         LEFT JOIN students s ON s.formation_id = f.id ${enrDateCond}
+         WHERE f.school_id = ?
+         GROUP BY f.id, f.title, f.price
+         ORDER BY student_count DESC
+         LIMIT 100`,
+        [...enrDateParams, sid]
+      ),
+      // 4. Students per group
+      query(
+        `SELECT g.id, g.name AS group_name, f.title AS formation_title,
+                CONCAT(COALESCE(u.first_name, ''), ' ', COALESCE(u.last_name, '')) AS teacher_name,
+                COALESCE(cnt.student_count, 0) AS student_count
+         FROM \`groups\` g
+         INNER JOIN formations f ON f.id = g.formation_id
+         LEFT JOIN teachers t ON t.id = g.teacher_id
+         LEFT JOIN users u ON u.id = t.user_id
+         LEFT JOIN (
+           SELECT sg.group_id, COUNT(DISTINCT sg.student_id) AS student_count
+           FROM student_groups sg
+           GROUP BY sg.group_id
+         ) cnt ON cnt.group_id = g.id
+         WHERE f.school_id = ?
+         ORDER BY student_count DESC
+         LIMIT 100`,
+        [sid]
+      ),
+      // 5. Revenue per group
+      query(
+        `SELECT g.id, g.name AS group_name, f.title AS formation_title,
+                COALESCE(p.total_revenue, 0) AS total_revenue,
+                COALESCE(cnt.student_count, 0) AS student_count
+         FROM \`groups\` g
+         INNER JOIN formations f ON f.id = g.formation_id
+         LEFT JOIN (
+           SELECT ph.group_id, COALESCE(SUM(ph.amount), 0) AS total_revenue
+           FROM payment_history ph
+           WHERE ph.group_id IS NOT NULL ${phDateCond}
+           GROUP BY ph.group_id
+         ) p ON p.group_id = g.id
+         LEFT JOIN (
+           SELECT sg.group_id, COUNT(DISTINCT sg.student_id) AS student_count
+           FROM student_groups sg
+           GROUP BY sg.group_id
+         ) cnt ON cnt.group_id = g.id
+         WHERE f.school_id = ?
+         ORDER BY total_revenue DESC, student_count DESC
+         LIMIT 100`,
+        [...phDateParams, sid]
+      )
+    ]);
+
+    res.json({
+      period: { from: dateFrom, to: dateTo },
+      revenuePerTeacher,
+      revenuePerFormation,
+      subscriptionsPerFormation,
+      studentsPerGroup,
+      revenuePerGroup
+    });
+  } catch (err) {
+    console.error('Breakdown route error:', err);
+    throw err;
+  }
+}));
+
+module.exports = router;
+

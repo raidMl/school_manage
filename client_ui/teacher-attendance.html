@@ -176,7 +176,9 @@
                     var badgeClass = isPresent ? 'portal-badge-present' : 'portal-badge-absent';
                     var rawStatus = isPresent ? 'PRESENT' : 'ABSENT';
                     var statusLabel = window.AppI18n ? window.AppI18n.t(rawStatus) : rawStatus;
-                    var d = a.date ? new Date(a.date).toLocaleDateString(undefined, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' }) : '—';
+                    var isAr = window.AppI18n && window.AppI18n.getLang() === 'ar';
+                    var dateLocale = isAr ? 'ar-DZ' : undefined;
+                    var d = a.date ? new Date(a.date + 'T00:00:00').toLocaleDateString(dateLocale, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : '—';
                     var rawTimeStr = a.scan_time ? a.scan_time : (isPresent ? 'Logged' : 'Not recorded');
                     var timeStr = window.AppI18n ? window.AppI18n.t(rawTimeStr) : rawTimeStr;
 

@@ -9,3 +9,7 @@ node_modules/
 
 # Agent / AI rules (added by Eevee Tokens Visualizer)
 .eevee/
+
+# Uploaded administrative files
+backend/uploads/administrative_files/*
+!backend/uploads/administrative_files/.gitkeep

@@ -352,6 +352,18 @@
                         </div>
                     </div>
 
+                    <!-- Enrolled Groups & Formations Breakdown -->
+                    <div id="sp-groups-section" style="margin-bottom: 30px;">
+                        <h4 class="section-title-h4">
+                            <i class="fa fa-cubes"></i>
+                            <span data-i18n="Enrolled Formations & Groups">Enrolled Formations & Groups</span>
+                            <span id="sp-groups-count-badge" class="badge" style="background:#6366f1;color:#fff;margin-inline-start:8px;font-size:12px;vertical-align:middle;display:none;"></span>
+                        </h4>
+                        <div id="sp-groups-container">
+                            <div class="text-muted" style="font-size:13px;padding:8px 0;"><i class="fa fa-spinner fa-spin"></i> Loading groups...</div>
+                        </div>
+                    </div>
+
                     <h4 class="section-title-h4">
                         <i class="fa fa-phone"></i>
                         <span data-i18n="Parent / Guardian Contact">Parent / Guardian Contact</span>
@@ -393,10 +405,21 @@
                         <i class="fa fa-heartbeat"></i>
                         <span data-i18n="Health Status">Health Status</span>
                     </h4>
-                    <div class="detail-grid theme-rose">
+                    <div class="detail-grid theme-rose" style="margin-bottom:30px;">
                         <div class="detail-item full-width">
                             <label data-i18n="Health Status">Health Status</label>
                             <div class="val" id="sp-health-notes">-</div>
+                        </div>
+                    </div>
+
+                    <!-- Administrative File / الملف الإداري -->
+                    <h4 class="section-title-h4">
+                        <i class="fa fa-folder-open"></i>
+                        <span data-i18n="Administrative File">Administrative File</span>
+                    </h4>
+                    <div id="sp-admin-file-container" style="margin-bottom:20px;">
+                        <div class="text-center" style="padding:16px; color:#9ca3af;">
+                            <i class="fa fa-spinner fa-spin"></i> <span data-i18n="Loading...">Loading...</span>
                         </div>
                     </div>
                 </div>
@@ -408,7 +431,7 @@
     <script src="js/vendor/jquery-1.12.4.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/components.js"></script>
-    <script src="js/backend.js?v=3"></script>
+    <script src="js/backend.js?v=20"></script>
 </body>
 
 </html>

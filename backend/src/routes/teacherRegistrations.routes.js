@@ -14,6 +14,7 @@ const SELECT_TEACHER = `
     teachers.school_id,
     teachers.staff_type,
     teachers.job_title,
+    teachers.has_quran_access,
     teachers.employee_number,
     COALESCE(teachers.phone, users.phone) AS phone,
     teachers.specialization,
@@ -32,6 +33,7 @@ const SELECT_TEACHER = `
     users.gender,
     users.birth_date,
     users.photo,
+    users.administrative_file,
     users.blood_type,
     users.is_active,
     users.role,
@@ -144,10 +146,12 @@ router.post(
       gender = null,
       birth_date: birthDate = null,
       photo = null,
+      administrative_file: administrativeFile = null,
       blood_type: bloodType = null,
       employee_number: employeeNumber,
       staff_type: staffType = 'teacher',
       job_title: jobTitle = null,
+      has_quran_access = 0,
       speciality = null,
       diploma = null,
       national_id: nationalId = null,
@@ -189,17 +193,18 @@ router.post(
       const validStaffType = staffType === 'employee' ? 'employee' : 'teacher';
       const userRole = validStaffType === 'employee' ? 'employee' : 'teacher';
       const finalPhoto = (photo === null || photo === undefined) ? '' : photo;
+      const validQuranAccess = (has_quran_access === 1 || has_quran_access === true || has_quran_access === '1' || has_quran_access === 'true') ? 1 : 0;
       const [userResult] = await connection.execute(
-        `INSERT INTO users (first_name, last_name, email, phone, password, role, gender, birth_date, photo, blood_type)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [firstName, lastName, email, phone || null, hashedPassword, userRole, gender, birthDate, finalPhoto, bloodType]
+        `INSERT INTO users (first_name, last_name, email, phone, password, role, gender, birth_date, photo, administrative_file, blood_type)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [firstName, lastName, email, phone || null, hashedPassword, userRole, gender, birthDate, finalPhoto, administrativeFile || null, bloodType]
       );
       const userId = userResult.insertId;
 
       await connection.execute(
-        `INSERT INTO teachers (user_id, school_id, staff_type, job_title, employee_number, phone, speciality, diploma, national_id, social_security_number, hire_date, rfid_tag)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [userId, schoolId, validStaffType, jobTitle, employeeNumber, phone || null, speciality, diploma, nationalId, socialSecurityNumber, hireDate, rfidTag || null]
+        `INSERT INTO teachers (user_id, school_id, staff_type, job_title, has_quran_access, employee_number, phone, speciality, diploma, national_id, social_security_number, hire_date, rfid_tag)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [userId, schoolId, validStaffType, jobTitle, validQuranAccess, employeeNumber, phone || null, speciality, diploma, nationalId, socialSecurityNumber, hireDate, rfidTag || null]
       );
 
       // Link user to school_users for permission/count queries
@@ -290,6 +295,7 @@ router.put(
       if (gender !== undefined)    { userUpdates.push('gender = ?');     userValues.push(gender); }
       if (birthDate !== undefined) { userUpdates.push('birth_date = ?'); userValues.push(birthDate); }
       if (photo !== undefined)     { userUpdates.push('photo = ?');      userValues.push(photo); }
+      if (req.body.administrative_file !== undefined) { userUpdates.push('administrative_file = ?'); userValues.push(req.body.administrative_file || null); }
       if (req.body.blood_type !== undefined) { userUpdates.push('blood_type = ?'); userValues.push(req.body.blood_type || null); }
       if (req.body.is_active !== undefined) { userUpdates.push('is_active = ?'); userValues.push(req.body.is_active ? 1 : 0); }
       if (newPassword && newPassword.trim().length >= 6) {
@@ -319,6 +325,11 @@ router.put(
       if (ccpRib !== undefined)         { tUpdates.push('ccp_rib = ?');          tValues.push(ccpRib || null); }
       if (preferredPayMethod !== undefined) { tUpdates.push('preferred_pay_method = ?'); tValues.push(preferredPayMethod || null); }
       if (rfidTag !== undefined)        { tUpdates.push('rfid_tag = ?');         tValues.push(rfidTag || null); }
+      if (req.body.has_quran_access !== undefined) {
+        const hqa = (req.body.has_quran_access === 1 || req.body.has_quran_access === true || req.body.has_quran_access === '1' || req.body.has_quran_access === 'true') ? 1 : 0;
+        tUpdates.push('has_quran_access = ?');
+        tValues.push(hqa);
+      }
 
       if (tUpdates.length) {
         tValues.push(teacherId);
@@ -335,6 +346,27 @@ router.put(
     } finally {
       connection.release();
     }
+  })
+);
+
+// PUT toggle Quran access for a teacher
+router.put(
+  '/:id/toggle-quran',
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    const teacherId = req.params.id;
+    const existing = await query('SELECT id, has_quran_access FROM teachers WHERE id = ? LIMIT 1', [teacherId]);
+    if (!existing.length) throw new HttpError(404, 'Teacher not found');
+
+    let newStatus;
+    if (req.body.has_quran_access !== undefined) {
+      newStatus = (req.body.has_quran_access === 1 || req.body.has_quran_access === true || req.body.has_quran_access === '1' || req.body.has_quran_access === 'true') ? 1 : 0;
+    } else {
+      newStatus = existing[0].has_quran_access ? 0 : 1;
+    }
+
+    await query('UPDATE teachers SET has_quran_access = ? WHERE id = ?', [newStatus, teacherId]);
+    res.json({ success: true, teacher_id: Number(teacherId), has_quran_access: newStatus });
   })
 );
 

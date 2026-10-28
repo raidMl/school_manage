@@ -2,6 +2,23 @@ window.AppI18n = {
 
   // ── Translation Dictionary ────────────────────────────────────────────────
   dict: {
+    // ── Quran Memorization Access & Features ──
+    "Quran Memorization Access": "صلاحية تحفيظ القرآن الكريم",
+    "Grant access to the Quran memorization module": "منح صلاحية الوصول إلى قسم تحفيظ القرآن الكريم",
+    "Grant access to Quran memorization module": "منح صلاحية الوصول إلى قسم تحفيظ القرآن الكريم",
+    "Quran access disabled": "تم تعطيل صلاحية القرآن للأستاذ",
+    "Quran access enabled": "تم تفعيل صلاحية القرآن للأستاذ",
+    "Disable Quran Access": "تعطيل صلاحية القرآن",
+    "Enable Quran Access": "تفعيل صلاحية القرآن",
+    "Enabled (Has Quran Access)": "مفعل (لديه صلاحية تحفيظ القرآن)",
+    "Disabled (No Quran Access)": "معطل (بدون صلاحية تحفيظ القرآن)",
+    "Quran Memorization": "تحفيظ القرآن الكريم",
+    "Quran Department": "قسم القرآن الكريم",
+    "Authorized Instructor": "أستاذ معتمد",
+    "Back to Teacher Space": "العودة إلى فضاء الأستاذ",
+    "Access Restricted: Quran Memorization": "الوصول مقيد: قسم تحفيظ القرآن",
+    "You do not have permission to access the Quran Memorization section. Please contact administration to grant you access.": "ليس لديك صلاحية للوصول إلى قسم تحفيظ القرآن الكريم. يرجى التواصل مع إدارة المدرسة لتفعيل الصلاحية لك.",
+
     // ── Sidebar Nav ──
     "Dashboard": "لوحة القيادة",
     "School Admin": "إدارة المدرسة",
@@ -41,6 +58,22 @@ window.AppI18n = {
     "View Group": "عرض الفوج",
     "Salaries & Payments": "رواتب الأساتذة والموظفين",
     "Teacher Payments": "رواتب الأساتذة والموظفين",
+    "Detailed Breakdown": "تفاصيل وتحليل مفصّل",
+    "Detailed Breakdown & Analysis": "تفاصيل وتحليل مفصّل",
+    "Revenue by Teacher": "الإيرادات حسب الأستاذ",
+    "Revenue per Teacher": "الإيرادات حسب الأستاذ",
+    "Revenue by Course": "الإيرادات حسب الدورة",
+    "Revenue per Formation": "الإيرادات حسب الدورة",
+    "Subscriptions by Course": "الاشتراكات حسب الدورة",
+    "Subscriptions per Formation": "الاشتراكات حسب الدورة",
+    "Revenue by Group": "الإيرادات حسب الفوج",
+    "Revenue per Group": "الإيرادات حسب الفوج",
+    "Students by Group": "عدد الطلاب حسب الفوج",
+    "Students per Group": "عدد الطلاب حسب الفوج",
+    "Select Statistic": "اختر نوع الإحصائية",
+    "Search in results...": "بحث في النتائج...",
+    "Export CSV": "تصدير CSV",
+    "Share": "النسبة",
     "Finance": "المالية",
     "Students": "الطلاب",
     "All Students": "جميع الطلاب",
@@ -218,6 +251,27 @@ window.AppI18n = {
     "Good Condition": "حالة جيدة",
     "Need Attention": "تحتاج إلى اهتمام",
 
+    // ── Administrative File / Dossier Administratif ──
+    "Administrative File": "الملف الإداري",
+    "Administrative Document": "الوثيقة الإدارية",
+    "Scanned Paper / Documents": "الأوراق الممسوحة ضوئياً / الوثائق",
+    "Scanned Papers": "الأوراق الممسوحة ضوئياً",
+    "Upload Administrative File": "رفع الملف الإداري",
+    "Upload Scanned Document": "رفع وثيقة ممسوحة ضوئياً",
+    "View Administrative File": "عرض الملف الإداري",
+    "View File": "عرض الملف",
+    "Download File": "تحميل الملف",
+    "No administrative file uploaded": "لم يتم رفع أي ملف إداري",
+    "No administrative file uploaded yet": "لم يتم رفع أي ملف إداري بعد",
+    "Administrative file uploaded successfully": "تم رفع الملف الإداري بنجاح",
+    "Administrative file removed successfully": "تم حذف الملف الإداري بنجاح",
+    "Replace File": "استبدال الملف",
+    "Delete File": "حذف الملف",
+    "Are you sure you want to remove the administrative file?": "هل أنت متأكد من رغبتك في حذف هذا الملف الإداري؟",
+    "Administrative file available": "الملف الإداري متوفر",
+    "Administrative file missing": "الملف الإداري غير متوفر",
+    "Administrative Dossier": "الملف الإداري",
+
     // ── Treasury ──
     "Treasury Management": "إدارة الخزينة",
     "Income": "مداخيل",
@@ -281,6 +335,31 @@ window.AppI18n = {
     "Revenue by Formation": "المداخيل حسب الدورة",
     "Revenue by Formation (DA)": "المداخيل حسب الدورة (د.ج)",
     "No data available": "لا توجد بيانات متاحة",
+
+    // ── Groups & Inquiries ──
+    "Manage and organize all school class groups": "إدارة وتنظيم جميع أفواج وصفوف المدرسة",
+    "inquiry_search_placeholder": "البحث بالاسم، الهاتف أو البرنامج...",
+    "Search by name, phone or program...": "البحث بالاسم، الهاتف أو البرنامج...",
+
+    // ── Payments & Subscriptions ──
+    "Student Accounts": "حسابات الطلاب",
+    "Student Payments": "حسابات الطلاب",
+    "Students Payment Overview": "نظرة عامة على مدفوعات الطلاب",
+    "Track payment and subscription status per student": "متابعة حالة الدفع والاشتراك لكل طالب",
+    "Track payment and subscription status per st": "متابعة حالة الدفع والاشتراك لكل طالب",
+    "Search and filter all payment transactions": "البحث وتصفية جميع معاملات الدفع",
+
+    // ── Detailed Breakdown Statistics ──
+    "Detailed Breakdown": "تفاصيل وتحليل مفصّل",
+    "Revenue per Teacher": "الإيرادات حسب الأستاذ",
+    "Revenue per Formation": "الإيرادات حسب الدورة",
+    "Subscriptions per Formation": "الاشتراكات حسب الدورة",
+    "Students per Group": "عدد الطلاب حسب الفوج",
+    "Revenue per Group": "الإيرادات حسب الفوج",
+    "From": "من",
+    "To": "إلى",
+    "Apply": "تطبيق",
+    "Reset": "إعادة ضبط",
     "Settings": "الإعدادات",
 
     "School Settings": "إعدادات المدرسة",
@@ -370,6 +449,14 @@ window.AppI18n = {
     "Print Receipt": "طباعة الوصل",
     "Payment updated successfully": "تم تحديث الدفعة بنجاح",
     "Payment Method": "طريقة الدفع",
+    // ── Payments page missing keys ──
+    "Payments Dashboard": "لوحة المدفوعات والاشتراكات",
+    "Student Payments": "حسابات الطلاب",
+    "Students Payment Overview": "نظرة عامة على مدفوعات الطلاب",
+    "Track payment and subscription status per student": "تتبع حالة الدفع والاشتراك لكل طالب",
+    "Search and filter all payment transactions": "البحث والتصفية في جميع المعاملات المالية",
+    // ── All-Groups page missing keys ──
+    "Manage and organize all school class groups": "إدارة وتنظيم جميع أفواج وأقسام المدرسة",
     "Student": "الطالب",
     "Amount": "المبلغ",
     "Parent": "الولي",
@@ -1603,7 +1690,64 @@ window.AppI18n = {
     "September": "سبتمبر",
     "October": "أكتوبر",
     "November": "نوفمبر",
-    "December": "ديسمبر"
+    "December": "ديسمبر",
+
+    // ── Multi-Group Payment & Profile ──
+    "Partial": "جزئي",
+    "Groups": "الأفواج",
+    "Enrolled Formations & Groups": "التكوينات والأفواج المسجلة",
+    "No groups assigned yet.": "لا توجد أفواج مسندة بعد.",
+    "Assign Groups": "إسناد الأفواج",
+    "Pay this Group": "دفع هذا الفوج",
+    "Record Payment": "تسجيل دفعة",
+    "Teacher": "الأستاذ",
+    "Price": "السعر",
+    "Next Payment": "الدفعة القادمة",
+    "Next": "القادم",
+    "Formations": "التكوينات",
+    "Group": "الفوج",
+    "Group Name": "اسم الفوج",
+    "Formation Title": "عنوان التكوين",
+    "Payment Status": "حالة الدفع",
+    "Subscription Plan": "خطة الاشتراك",
+    "View Details": "عرض التفاصيل",
+    "No records found": "لم يتم العثور على سجلات",
+    "Select group for payment": "اختر الفوج للدفع",
+    "All groups paid": "جميع الأفواج مدفوعة",
+    "Some groups unpaid": "بعض الأفواج غير مدفوعة",
+    "Overdue": "متأخر",
+    "Urgent": "عاجل",
+    "Warning": "تنبيه",
+    "days overdue": "يوم متأخر",
+    "days remaining": "يوم متبقي",
+    "Payment due soon": "موعد الدفع قريب",
+    "Payment overdue": "الدفع متأخر",
+    "Manage and organize all school class groups": "إدارة وتنظيم جميع أفواج المدرسة",
+    "Search and filter all payment transactions": "البحث وتصفية جميع معاملات الدفع",
+    "Student Accounts": "حسابات الطلاب",
+    "Students Payment Overview": "نظرة عامة على مدفوعات الطلاب",
+    "Track payment and subscription status per student": "تتبع حالة الدفع والاشتراك لكل طالب",
+    "inquiry_search_placeholder": "بحث بالاسم، رقم الهاتف أو التكوين المطلوب...",
+    "Select Group / Formation to Pay": "اختر الفوج / التكوين المراد دفعه",
+    "Select Group / Formation to Pay (الفوج / التكوين المراد دفعه)": "اختر الفوج / التكوين المراد دفعه",
+    "This student is not assigned to any group yet.": "هذا الطالب غير مسجل في أي فوج حالياً.",
+    "This student is not assigned to any group yet. (هذا الطالب غير مسجل في أي فوج حالياً)": "هذا الطالب غير مسجل في أي فوج حالياً.",
+    "Assign Groups": "تعيين فوج",
+    "Next Due": "الاستحقاق القادم",
+    "Group / Formation": "الفوج / التكوين",
+    "Payment History —": "سجل المدفوعات —",
+    "Plan/Type": "الخطة / النوع",
+    "Method": "طريقة الدفع",
+    "Recorded By": "مسجل بواسطة",
+    "Amount": "المبلغ",
+    "Date": "التاريخ",
+    "Notes": "ملاحظات",
+    "Edit": "تعديل",
+    "Delete": "حذف",
+    "Print Receipt": "طباعة الإيصال",
+    "No payment records yet.": "لا توجد سجلات دفع بعد.",
+    "Select a student above": "اختر طالب من الأعلى",
+    "Total": "المجموع"
   },
 
   // ── Translate single key helper ───────────────────────────────────────────
@@ -1807,7 +1951,8 @@ window.AppI18n = {
       }
 
       // Translate placeholder attribute
-      const dPh = node.getAttribute('data-i18n-ph') || node.getAttribute('data-i18n-placeholder');
+      const isInputLike = node.tagName === 'INPUT' || node.tagName === 'TEXTAREA';
+      const dPh = node.getAttribute('data-i18n-ph') || node.getAttribute('data-i18n-placeholder') || (isInputLike ? node.getAttribute('data-i18n') : null);
       if (dPh && this.dict[dPh]) {
         node.setAttribute('placeholder', this.dict[dPh]);
       } else {

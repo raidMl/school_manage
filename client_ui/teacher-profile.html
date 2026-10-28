@@ -194,6 +194,15 @@
                                 <span class="text-muted" data-i18n="Faculty Status:">Faculty Status:</span>
                                 <span class="portal-badge portal-badge-present"><span class="portal-dot"></span> <span data-i18n="Active Faculty">Active Faculty</span></span>
                             </div>
+                            <div style="padding: 12px 0; border-top: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;" id="acad-quran-wrap">
+                                <span class="text-muted" data-i18n="Quran Access:">Quran Access:</span>
+                                <span id="acad-quran-badge" class="portal-badge" style="background:#f3f4f6; color:#6b7280;"><i class="fa fa-book"></i> <span data-i18n="Checking...">Checking...</span></span>
+                            </div>
+                            <div id="acad-quran-action-wrap" style="display:none; margin-top: 10px;">
+                                <a href="teacher-quran.html" class="portal-btn portal-btn-secondary" style="width:100%; text-align:center; display:flex; align-items:center; justify-content:center; gap:8px; background:rgba(16,185,129,0.08); color:#065f46; border:1px solid rgba(16,185,129,0.25); font-weight:600; padding:8px 14px; border-radius:10px; text-decoration:none;">
+                                    <i class="fa fa-book" style="color:#10b981;"></i> <span data-i18n="Quran Memorization">Quran Memorization</span>
+                                </a>
+                            </div>
                         </div>
 
                         <div style="margin-top: 24px; padding: 16px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0; font-size: 12.5px; color: #64748b;" data-i18n="Changes to your official employee identifier, contract status, or primary department must be authorized through the administration office.">
@@ -211,9 +220,9 @@
 
     <script src="js/vendor/jquery-1.12.4.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
-    <script src="js/i18n.js"></script>
-    <script src="js/components.js"></script>
-    <script src="js/backend.js"></script>
+    <script src="js/i18n.js?v=20261028_101"></script>
+    <script src="js/components.js?v=20261028_101"></script>
+    <script src="js/backend.js?v=20261028_101"></script>
     
     <script>
         function togglePass(inputId, btn) {
@@ -260,6 +269,26 @@
                     document.getElementById('acad-spec').textContent = p.speciality || 'General';
                     document.getElementById('acad-emp').textContent = p.employee_number || '—';
                     document.getElementById('acad-hire').textContent = p.hire_date ? new Date(p.hire_date).toLocaleDateString() : '—';
+
+                    // Quran Memorization status
+                    var hasQuran = Boolean(res.has_quran_access || (p && (p.has_quran_access == 1 || p.has_quran_access === true)));
+                    var quranBadge = document.getElementById('acad-quran-badge');
+                    var quranAction = document.getElementById('acad-quran-action-wrap');
+                    if (quranBadge) {
+                        if (hasQuran) {
+                            quranBadge.className = 'portal-badge portal-badge-present';
+                            quranBadge.style.background = '#d1fae5';
+                            quranBadge.style.color = '#065f46';
+                            quranBadge.innerHTML = '<i class="fa fa-check-circle" style="color:#10b981;"></i> <span data-i18n="Active">' + (window.AppI18n ? window.AppI18n.t('Active') : 'Active') + '</span>';
+                            if (quranAction) quranAction.style.display = 'block';
+                        } else {
+                            quranBadge.className = 'portal-badge';
+                            quranBadge.style.background = '#f3f4f6';
+                            quranBadge.style.color = '#6b7280';
+                            quranBadge.innerHTML = '<span data-i18n="Not Assigned">' + (window.AppI18n ? window.AppI18n.t('Not Assigned') : 'Not Assigned') + '</span>';
+                            if (quranAction) quranAction.style.display = 'none';
+                        }
+                    }
                 }).catch(function(err) {
                     console.error(err);
                 });

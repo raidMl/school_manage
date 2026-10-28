@@ -395,10 +395,90 @@
             padding: 6px 12px;
             transition: border-color 0.15s ease, box-shadow 0.15s ease;
         }
-        .promo-notes-row #pay-notes:focus {
-            border-color: #3b82f6;
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+        /* ── Graphic Chart Save Payment & Action Buttons ─────── */
+        #btn-save-payment,
+        .btn-save-payment-graphic {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 40%, #4338ca 100%) !important;
+            color: #ffffff !important;
+            border: 1px solid rgba(255, 255, 255, 0.15) !important;
+            border-radius: 12px !important;
+            padding: 12px 28px !important;
+            font-size: 14.5px !important;
+            font-weight: 700 !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 10px !important;
+            box-shadow: 0 8px 24px -4px rgba(49, 46, 129, 0.45) !important;
+            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            cursor: pointer !important;
+            text-decoration: none !important;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #btn-save-payment::before,
+        .btn-save-payment-graphic::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+
+        #btn-save-payment:hover::before,
+        .btn-save-payment-graphic:hover::before {
+            left: 100%;
+        }
+
+        #btn-save-payment:hover,
+        .btn-save-payment-graphic:hover {
+            background: linear-gradient(135deg, #312e81 0%, #4338ca 50%, #4f46e5 100%) !important;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px -4px rgba(67, 56, 202, 0.55) !important;
+            color: #ffffff !important;
+        }
+
+        #btn-save-payment:active,
+        .btn-save-payment-graphic:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 14px -2px rgba(49, 46, 129, 0.4) !important;
+        }
+
+        #btn-save-payment:disabled,
+        .btn-save-payment-graphic:disabled {
+            opacity: 0.7 !important;
+            cursor: not-allowed !important;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        #btn-clear-student,
+        .btn-clear-student-graphic {
+            background: #ffffff !important;
+            color: #475569 !important;
+            border: 1.5px solid #e2e8f0 !important;
+            border-radius: 12px !important;
+            padding: 11px 22px !important;
+            font-size: 14px !important;
+            font-weight: 600 !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 8px !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+            transition: all 0.2s ease !important;
+            cursor: pointer !important;
+            text-decoration: none !important;
+        }
+
+        #btn-clear-student:hover,
+        .btn-clear-student-graphic:hover {
+            background: #f8fafc !important;
+            color: #0f172a !important;
+            border-color: #cbd5e1 !important;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
         }
     </style>
 
@@ -438,7 +518,7 @@
                             <div class="hero-badges-row">
                                 <span class="hero-pill">
                                     <i class="fa fa-money"></i>
-                                    <span data-i18n="Student Payments">Student Accounts</span>
+                                    <span data-i18n="Student Accounts">Student Accounts</span>
                                 </span>
                             </div>
                         </div>
@@ -543,6 +623,43 @@
                         <input type="hidden" id="payment-formation-type" value="">
                         <input type="hidden" id="payment-selected-plan" value="">
 
+                        <!-- Multi-group / Formation Selector -->
+                        <div id="pay-group-select-wrap" style="display:none;margin-bottom:18px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:14px;padding:16px;">
+                            <label style="font-weight:700;color:#0f172a;font-size:13.5px;display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;">
+                                <span style="display:inline-flex;align-items:center;gap:8px;">
+                                    <i class="fa fa-cubes" style="color:#6366f1;font-size:16px;"></i>
+                                    <span data-i18n="Select Group / Formation to Pay">Select Group / Formation to Pay (الفوج / التكوين المراد دفعه)</span>
+                                </span>
+                                <span id="pay-groups-count-pill" class="badge" style="background:#6366f1;color:#fff;font-size:11px;padding:3px 8px;border-radius:12px;"></span>
+                            </label>
+                            
+                            <select id="pay-selected-group" class="form-control" style="height:44px;border-radius:10px;border:1.5px solid #cbd5e1;font-weight:600;background:#ffffff;font-size:14px;color:#1e293b;box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+                            </select>
+
+                            <!-- Selected Group Live Details Card -->
+                            <div id="pay-selected-group-card" style="margin-top:12px;padding:12px 14px;background:#ffffff;border:1px solid #e2e8f0;border-radius:10px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;font-size:12.5px;">
+                                <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                                    <div id="pay-group-card-title" style="font-weight:700;color:#1e293b;font-size:13.5px;">—</div>
+                                    <span id="pay-group-card-status" class="badge-unpaid" style="font-size:11px;padding:3px 10px;border-radius:12px;">Unpaid</span>
+                                </div>
+                                <div style="display:flex;align-items:center;gap:16px;color:#64748b;font-size:12px;">
+                                    <div id="pay-group-card-teacher"><i class="fa fa-user-circle-o"></i> <span>—</span></div>
+                                    <div id="pay-group-card-nextpay"><i class="fa fa-calendar"></i> <span>—</span></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- No Groups Notice (if student has 0 groups) -->
+                        <div id="pay-no-groups-notice" style="display:none;margin-bottom:18px;background:#fffbeb;border:1px dashed #f59e0b;border-radius:12px;padding:14px 18px;color:#92400e;font-size:13px;align-items:center;justify-content:space-between;gap:12px;">
+                            <div>
+                                <i class="fa fa-exclamation-triangle" style="margin-inline-end:6px;"></i>
+                                <span data-i18n="This student is not assigned to any group yet.">This student is not assigned to any group yet. (هذا الطالب غير مسجل في أي فوج حالياً)</span>
+                            </div>
+                            <a id="pay-assign-group-link" href="#" class="btn btn-xs btn-warning" style="font-weight:600;border-radius:6px;">
+                                <span data-i18n="Assign Groups">Assign Groups (تعيين فوج) &rarr;</span>
+                            </a>
+                        </div>
+
                         <!-- formation / subscription price display -->
                         <div id="formation-price-banner">
                             <!-- filled dynamically -->
@@ -611,12 +728,14 @@
 
                         <div id="payment-entry-status" class="alert" style="display:none"></div>
 
-                        <button type="submit" class="btn btn-primary" id="btn-save-payment">
-                            <i class="fa fa-save"></i> Save Payment &amp; Mark as Paid
-                        </button>
-                        <button type="button" id="btn-clear-student" class="btn btn-default" style="margin-left:8px">
-                            <i class="fa fa-times"></i> Clear
-                        </button>
+                        <div class="pay-form-actions" style="display:flex;align-items:center;gap:12px;margin-top:22px;flex-wrap:wrap;">
+                            <button type="submit" class="btn btn-primary" id="btn-save-payment">
+                                <i class="fa fa-save"></i> <span data-i18n="Save Payment & Mark as Paid">حفظ الدفعة وتحديد كمدفوع</span>
+                            </button>
+                            <button type="button" id="btn-clear-student" class="btn btn-default">
+                                <i class="fa fa-times"></i> <span data-i18n="Clear">مسح</span>
+                            </button>
+                        </div>
                     </form>
 
                     <!-- per-student history -->
@@ -633,6 +752,7 @@
                             <table class="table history-table" id="student-history-table">
                                 <thead><tr>
                                     <th width="40" class="text-center">#</th>
+                                    <th data-i18n="Group / Formation">Group / Formation</th>
                                     <th data-i18n="Amount">Amount</th>
                                     <th data-i18n="Date">Date</th>
                                     <th data-i18n="Plan/Type">Plan/Type</th>
@@ -641,7 +761,7 @@
                                     <th data-i18n="Recorded By">Recorded By</th>
                                     <th width="60" class="text-center" data-i18n="Actions">Actions</th>
                                 </tr></thead>
-                                <tbody><tr><td colspan="8" class="text-center text-muted" style="padding:28px;">Select a student above</td></tr></tbody>
+                                <tbody><tr><td colspan="9" class="text-center text-muted" style="padding:28px;">Select a student above</td></tr></tbody>
                             </table>
                         </div>
                     </div>
@@ -875,6 +995,6 @@
     <script src="js/components.js"></script>
     <script src="js/backend.js?v=4"></script>
     <script src="js/vendor/qrcode.min.js"></script>
-    <script src="js/payments-page.js?v=7"></script>
+    <script src="js/payments-page.js?v=22"></script>
 </body>
 </html>

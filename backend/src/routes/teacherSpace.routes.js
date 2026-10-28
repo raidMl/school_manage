@@ -13,8 +13,8 @@ router.get('/me', asyncHandler(async (req, res) => {
 
   // Get teacher info
   const teacherInfo = await query(`
-    SELECT t.id as teacher_id, t.employee_number, t.speciality, t.hire_date,
-           u.first_name, u.last_name, u.email, u.phone, u.photo, u.gender
+    SELECT t.id as teacher_id, t.employee_number, t.speciality, t.hire_date, t.has_quran_access,
+           u.first_name, u.last_name, u.email, u.phone, u.photo, u.gender, u.administrative_file
     FROM teachers t
     JOIN users u ON t.user_id = u.id
     WHERE u.id = ?
@@ -37,8 +37,17 @@ router.get('/me', asyncHandler(async (req, res) => {
     WHERE g.teacher_id = ? OR f.teacher_id = ?
   `, [teacherInfo[0].teacher_id, teacherInfo[0].teacher_id]);
 
+  const prof = teacherInfo[0];
+  const hasQuranFormation = (formations || []).some(f => /قرآن|قران|quran|حفظ/i.test(f.title || '') || /quran/i.test(f.type || '')) ||
+                            (groups || []).some(g => /قرآن|قران|quran|حفظ/i.test(g.formation_title || '') || /قرآن|قران|quran|حفظ/i.test(g.name || ''));
+  const hasQuranAccess = Boolean(prof.has_quran_access) || hasQuranFormation;
+
   res.json({
-    profile: teacherInfo[0],
+    profile: {
+      ...prof,
+      has_quran_access: hasQuranAccess ? 1 : 0
+    },
+    has_quran_access: hasQuranAccess,
     formations: formations,
     groups: groups
   });

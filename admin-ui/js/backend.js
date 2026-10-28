@@ -574,6 +574,396 @@
   }
   window.handleCloudinaryUpload = handleCloudinaryUpload;
 
+  // ── Administrative File Management ──────────────────────────────────────────
+  function uploadAdministrativeFile(file) {
+    return new Promise(function(resolve, reject) {
+      if (!file) return reject(new Error(t('No file provided.')));
+      var fd = new FormData();
+      fd.append('file', file);
+      var token = (typeof getToken === 'function' ? getToken() : null) || localStorage.getItem('token') || localStorage.getItem('school_system_token') || sessionStorage.getItem('token') || '';
+      var xhr = new XMLHttpRequest();
+      var targetUrl = (typeof base === 'function' ? base() : '') + '/api/upload/administrative-file';
+      xhr.open('POST', targetUrl, true);
+      if (token) xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+      xhr.onload = function() {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          try {
+            var data = JSON.parse(xhr.responseText);
+            resolve(data);
+          } catch(e) {
+            reject(new Error(t('Invalid server response.')));
+          }
+        } else {
+          var msg = t('Upload failed.');
+          try {
+            var parsed = JSON.parse(xhr.responseText);
+            msg = parsed.message || parsed.error || msg;
+          } catch(e) {
+            if (xhr.status === 404) msg = 'Upload endpoint not reachable (404). Ensure backend server is running.';
+            else if (xhr.status === 413) msg = 'File size is too large (max 25MB).';
+          }
+          reject(new Error(msg));
+        }
+      };
+      xhr.onerror = function() { reject(new Error(t('Network error during upload.'))); };
+      xhr.send(fd);
+    });
+  }
+  // Helper to ensure URL points to backend server origin
+  function toAbsoluteUrl(url) {
+    if (!url) return '';
+    if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('blob:') || url.startsWith('data:')) {
+      return url;
+    }
+    var b = (typeof base === 'function') ? base() : '';
+    if (!b) return url;
+    return b.replace(/\/+$/, '') + '/' + url.replace(/^\/+/, '');
+  }
+  window.toAbsoluteUrl = toAbsoluteUrl;
+
+  // Reliable cross-origin downloader (saves as true PDF / image, avoids .txt fallback)
+  function downloadAdminFile(fileUrl, preferredName) {
+    if (!fileUrl) return;
+    var absUrl = toAbsoluteUrl(fileUrl);
+    var cleanUrl = fileUrl.split('?')[0];
+    var ext = (cleanUrl.split('.').pop() || 'pdf').toLowerCase();
+    var baseName = (preferredName || cleanUrl.split('/').pop() || 'administrative_document')
+      .replace(/[\\/:*?"<>|]/g, '_')
+      .trim();
+    if (!baseName.toLowerCase().endsWith('.' + ext)) {
+      baseName += '.' + ext;
+    }
+
+    // Modern fetch + blob download (creates same-origin object URL so browser NEVER blocks or saves as .txt)
+    fetch(absUrl)
+      .then(function(res) {
+        if (!res.ok) throw new Error('Download failed: ' + res.status);
+        return res.blob();
+      })
+      .then(function(blob) {
+        var mime = blob.type;
+        if (!mime || mime === 'text/html' || mime === 'text/plain') {
+          if (ext === 'pdf') mime = 'application/pdf';
+          else if (['jpg', 'jpeg'].indexOf(ext) !== -1) mime = 'image/jpeg';
+          else if (ext === 'png') mime = 'image/png';
+          else if (ext === 'webp') mime = 'image/webp';
+        }
+        var typedBlob = (blob.type === mime) ? blob : new Blob([blob], { type: mime });
+        var blobUrl = window.URL.createObjectURL(typedBlob);
+        var a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = blobUrl;
+        a.download = baseName;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(function() {
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(blobUrl);
+        }, 500);
+      })
+      .catch(function(err) {
+        console.warn('Direct blob download failed, falling back to server download endpoint:', err);
+        var fallbackUrl = toAbsoluteUrl('/api/upload/download?file=' + encodeURIComponent(fileUrl) + '&name=' + encodeURIComponent(baseName));
+        var a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = fallbackUrl;
+        a.setAttribute('download', baseName);
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(function() { document.body.removeChild(a); }, 500);
+      });
+  }
+  window.downloadAdminFile = downloadAdminFile;
+
+  function renderAdminFilePreviewBox(containerId, fileUrl, fileName, hiddenInputId, displayInputId) {
+    var container = document.getElementById(containerId);
+    if (!container) return;
+    if (!fileUrl) {
+      container.style.display = 'none';
+      container.innerHTML = '';
+      return;
+    }
+    var ext = (fileUrl.split('.').pop() || '').toLowerCase().split('?')[0];
+    var isPdf = ext === 'pdf';
+    var isImg = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp'].indexOf(ext) !== -1;
+    var iconClass = isPdf ? 'fa-file-pdf-o' : (isImg ? 'fa-file-image-o' : 'fa-file-text-o');
+    var iconColor = isPdf ? '#ef4444' : (isImg ? '#0ea5e9' : '#6366f1');
+    var displayName = fileName || fileUrl.split('/').pop() || t('Administrative File');
+
+    container.style.display = 'block';
+    container.innerHTML = 
+      '<div class="admin-doc-preview-card" style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:12px;margin-top:10px;">' +
+        '<div style="display:flex;align-items:center;gap:12px;min-width:0;flex:1;">' +
+          '<div style="width:40px;height:40px;border-radius:10px;background:#fff;border:1px solid #e2e8f0;display:flex;align-items:center;justify-content:center;flex-shrink:0;">' +
+            '<i class="fa ' + iconClass + '" style="font-size:22px;color:' + iconColor + ';"></i>' +
+          '</div>' +
+          '<div style="min-width:0;flex:1;">' +
+            '<div style="font-weight:600;font-size:13.5px;color:#1e293b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(displayName) + '</div>' +
+            '<div style="font-size:11.5px;color:#10b981;font-weight:500;"><i class="fa fa-check-circle"></i> ' + t('Administrative file available') + '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">' +
+          '<button type="button" class="btn btn-sm btn-info" onclick="window.viewAdminDocument(\'' + esc(fileUrl) + '\', \'' + esc(displayName) + '\')" title="' + t('View File') + '" style="border-radius:8px;padding:5px 10px;">' +
+            '<i class="fa fa-eye"></i> ' + t('View File') +
+          '</button>' +
+          '<button type="button" class="btn btn-sm btn-default" onclick="window.downloadAdminFile(\'' + esc(fileUrl) + '\', \'' + esc(displayName) + '\')" title="' + t('Download File') + '" style="border-radius:8px;padding:5px 10px;">' +
+            '<i class="fa fa-download"></i>' +
+          '</button>' +
+          '<button type="button" class="btn btn-sm btn-danger" onclick="window.clearAdminFileFormSelection(\'' + (hiddenInputId || '') + '\', \'' + (displayInputId || '') + '\', \'' + containerId + '\')" title="' + t('Delete File') + '" style="border-radius:8px;padding:5px 10px;">' +
+            '<i class="fa fa-trash"></i>' +
+          '</button>' +
+        '</div>' +
+      '</div>';
+  }
+  window.renderAdminFilePreviewBox = renderAdminFilePreviewBox;
+
+  function clearAdminFileFormSelection(hiddenInputId, displayInputId, containerId) {
+    if (hiddenInputId) {
+      var h = document.getElementById(hiddenInputId);
+      if (h) h.value = '';
+    }
+    if (displayInputId) {
+      var d = document.getElementById(displayInputId);
+      if (d) d.value = '';
+    }
+    if (containerId) {
+      var c = document.getElementById(containerId);
+      if (c) { c.style.display = 'none'; c.innerHTML = ''; }
+    }
+  }
+  window.clearAdminFileFormSelection = clearAdminFileFormSelection;
+
+  function handleAdminFileUpload(fileInput, hiddenInputId, displayInputId, previewContainerId, iconId) {
+    var file = fileInput.files && fileInput.files[0];
+    if (!file) return;
+
+    var icon = iconId ? document.getElementById(iconId) : null;
+    var origIconClass = icon ? icon.className : 'fa fa-upload';
+    if (icon) icon.className = 'fa fa-spinner fa-spin';
+
+    uploadAdministrativeFile(file).then(function(resp) {
+      if (hiddenInputId) {
+        var h = document.getElementById(hiddenInputId);
+        if (h) {
+          h.value = resp.file_url;
+          h.dispatchEvent(new Event('input', { bubbles: true }));
+          h.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      }
+      if (displayInputId) {
+        var d = document.getElementById(displayInputId);
+        if (d) d.value = resp.filename || file.name;
+      }
+      if (previewContainerId) {
+        renderAdminFilePreviewBox(previewContainerId, resp.file_url, resp.filename || file.name, hiddenInputId, displayInputId);
+      }
+      if (icon) { icon.className = 'fa fa-check text-success'; }
+      setTimeout(function() { if (icon) icon.className = origIconClass; }, 2000);
+    }).catch(function(err) {
+      alert(err.message || 'Upload failed');
+      if (icon) icon.className = origIconClass;
+    });
+    fileInput.value = '';
+  }
+  window.handleAdminFileUpload = handleAdminFileUpload;
+
+  // Global Document Viewer Modal
+  function viewAdminDocument(fileUrl, title) {
+    if (!fileUrl) return;
+    var safeTitle = title || fileUrl.split('/').pop() || t('Administrative File');
+    var viewUrl = toAbsoluteUrl('/api/upload/view?file=' + encodeURIComponent(fileUrl));
+
+    var modalId = 'admin-doc-viewer-modal';
+    var modal = document.getElementById(modalId);
+    if (!modal) {
+      var modalHtml = 
+        '<div id="' + modalId + '" class="modal fade" tabindex="-1" role="dialog" style="z-index:10999;">' +
+          '<div class="modal-dialog modal-lg" role="document" style="max-width:920px;width:95%;margin:30px auto;">' +
+            '<div class="modal-content" style="border-radius:16px;overflow:hidden;border:none;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);">' +
+              '<div class="modal-header" style="background:linear-gradient(135deg, #1e293b, #0f172a);color:#fff;padding:16px 22px;display:flex;align-items:center;justify-content:space-between;border:none;">' +
+                '<div style="display:flex;align-items:center;gap:10px;">' +
+                  '<i class="fa fa-folder-open" style="color:#38bdf8;font-size:18px;"></i>' +
+                  '<h4 class="modal-title" id="adv-doc-modal-title" style="margin:0;font-size:16px;font-weight:700;color:#fff;">' + t('Administrative File') + '</h4>' +
+                '</div>' +
+                '<div style="display:flex;align-items:center;gap:10px;">' +
+                  '<a id="adv-doc-open-newtab" href="#" target="_blank" class="btn btn-sm" style="background:rgba(255,255,255,0.15);color:#fff;border-radius:8px;" title="' + t('Open in new tab') + '"><i class="fa fa-external-link"></i></a>' +
+                  '<button type="button" id="adv-doc-download" class="btn btn-sm" style="background:rgba(255,255,255,0.15);color:#fff;border-radius:8px;" title="' + t('Download File') + '"><i class="fa fa-download"></i></button>' +
+                  '<button type="button" class="close" data-dismiss="modal" style="color:#fff;opacity:0.85;font-size:24px;margin:0;padding:0;background:none;border:none;">&times;</button>' +
+                '</div>' +
+              '</div>' +
+              '<div class="modal-body" id="adv-doc-modal-body" style="padding:16px;background:#f1f5f9;min-height:480px;display:flex;align-items:center;justify-content:center;">' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+      var div = document.createElement('div');
+      div.innerHTML = modalHtml;
+      document.body.appendChild(div.firstElementChild);
+      modal = document.getElementById(modalId);
+    }
+
+    var titleEl = document.getElementById('adv-doc-modal-title');
+    if (titleEl) titleEl.textContent = (t('Administrative File') + (safeTitle ? ' — ' + safeTitle : ''));
+
+    var openBtn = document.getElementById('adv-doc-open-newtab');
+    if (openBtn) openBtn.href = viewUrl;
+
+    var dlBtn = document.getElementById('adv-doc-download');
+    if (dlBtn) {
+      dlBtn.onclick = function (e) {
+        e.preventDefault();
+        window.downloadAdminFile(fileUrl, safeTitle);
+      };
+    }
+
+    var bodyEl = document.getElementById('adv-doc-modal-body');
+    if (bodyEl) {
+      var cleanUrl = fileUrl.split('?')[0];
+      var ext = (cleanUrl.split('.').pop() || '').toLowerCase();
+      if (ext === 'pdf') {
+        bodyEl.innerHTML = '<iframe src="' + esc(viewUrl) + '#toolbar=1&navpanes=0" style="width:100%;height:75vh;border:none;border-radius:10px;background:#fff;box-shadow:0 4px 12px rgba(0,0,0,0.06);"></iframe>';
+      } else if (['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp'].indexOf(ext) !== -1) {
+        bodyEl.innerHTML = '<div style="width:100%;text-align:center;max-height:75vh;overflow:auto;padding:10px;">' +
+          '<img src="' + esc(viewUrl) + '" alt="Scanned Document" style="max-width:100%;max-height:70vh;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,0.12);object-fit:contain;">' +
+        '</div>';
+      } else {
+        bodyEl.innerHTML = '<div style="text-align:center;padding:40px 20px;">' +
+          '<i class="fa fa-file-text-o" style="font-size:64px;color:#6366f1;margin-bottom:16px;"></i>' +
+          '<h4 style="font-weight:700;color:#1e293b;">' + esc(safeTitle || t('Document File')) + '</h4>' +
+          '<p class="text-muted" style="margin-bottom:20px;">' + t('This file format can be downloaded and opened directly.') + '</p>' +
+          '<button type="button" class="btn btn-primary" onclick="window.downloadAdminFile(\'' + esc(fileUrl) + '\', \'' + esc(safeTitle) + '\')" style="padding:10px 24px;border-radius:8px;"><i class="fa fa-download"></i> ' + t('Download File') + '</button>' +
+        '</div>';
+      }
+    }
+
+    if (window.$ && $.fn && $.fn.modal) {
+      $(modal).modal('show');
+    } else {
+      window.open(viewUrl, '_blank');
+    }
+  }
+  window.viewAdminDocument = viewAdminDocument;
+
+  // In-place Profile Upload and Delete
+  function inPlaceUploadAdminFile(fileInput, userId, onDone) {
+    var file = fileInput.files && fileInput.files[0];
+    if (!file || !userId) return;
+
+    var fd = new FormData();
+    fd.append('file', file);
+    var token = localStorage.getItem('token') || localStorage.getItem('school_system_token') || sessionStorage.getItem('token') || '';
+
+    var labelEl = fileInput.closest ? fileInput.closest('label') : fileInput.parentElement;
+    var origLabelHtml = labelEl ? labelEl.innerHTML : '';
+    if (labelEl) {
+      labelEl.innerHTML = '<i class="fa fa-spinner fa-spin"></i> ' + (window.AppI18n ? window.AppI18n.t('Uploading...') : 'Uploading...');
+    }
+
+    var xhr = new XMLHttpRequest();
+    var targetUrl = (typeof base === 'function' ? base() : '') + '/api/upload/user-administrative-file/' + encodeURIComponent(userId);
+    xhr.open('POST', targetUrl, true);
+    if (token) xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+    xhr.onload = function() {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        if (typeof onDone === 'function') {
+          onDone();
+        } else if (typeof onDone === 'string' && typeof window[onDone] === 'function') {
+          window[onDone]();
+        } else {
+          location.reload();
+        }
+      } else {
+        if (labelEl) labelEl.innerHTML = origLabelHtml;
+        var msg = t('Upload failed.');
+        try { msg = JSON.parse(xhr.responseText).message || msg; } catch(e){}
+        alert(msg);
+      }
+    };
+    xhr.onerror = function() {
+      if (labelEl) labelEl.innerHTML = origLabelHtml;
+      alert(t('Network error during upload.'));
+    };
+    xhr.send(fd);
+    fileInput.value = '';
+  }
+  window.inPlaceUploadAdminFile = inPlaceUploadAdminFile;
+
+  function inPlaceDeleteAdminFile(userId, onDone) {
+    if (!userId) return;
+    if (!confirm(t('Are you sure you want to remove the administrative file?'))) return;
+
+    request('/api/upload/user-administrative-file/' + encodeURIComponent(userId), {
+      method: 'DELETE'
+    }).then(function() {
+      if (typeof onDone === 'function') {
+        onDone();
+      } else if (typeof onDone === 'string' && typeof window[onDone] === 'function') {
+        window[onDone]();
+      } else {
+        location.reload();
+      }
+    }).catch(function(err) {
+      alert(err.message || t('Error removing file'));
+    });
+  }
+  window.inPlaceDeleteAdminFile = inPlaceDeleteAdminFile;
+
+  function renderProfileAdminFile(containerEl, fileUrl, userId, userName, onDone) {
+    if (!containerEl) return;
+    var html = '';
+    var onDoneName = (onDone === loadTeacherProfile) ? 'loadTeacherProfile' : ((onDone === loadStudentProfile) ? 'loadStudentProfile' : (typeof onDone === 'string' ? onDone : 'null'));
+    if (fileUrl) {
+      var ext = (fileUrl.split('.').pop() || '').toLowerCase();
+      var isPdf = ext === 'pdf';
+      var isImg = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp'].indexOf(ext) !== -1;
+      var iconClass = isPdf ? 'fa-file-pdf-o' : (isImg ? 'fa-file-image-o' : 'fa-file-text-o');
+      var iconColor = isPdf ? '#ef4444' : (isImg ? '#0284c7' : '#6366f1');
+
+      html = 
+        '<div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:20px;box-shadow:0 4px 14px rgba(0,0,0,0.03);display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px;">' +
+          '<div style="display:flex;align-items:center;gap:14px;min-width:220px;">' +
+            '<div style="width:48px;height:48px;border-radius:12px;background:#f8fafc;border:1px solid #e2e8f0;display:flex;align-items:center;justify-content:center;flex-shrink:0;">' +
+              '<i class="fa ' + iconClass + '" style="font-size:26px;color:' + iconColor + ';"></i>' +
+            '</div>' +
+            '<div>' +
+              '<div style="font-size:15px;font-weight:700;color:#0f172a;">' + t('Administrative File') + '</div>' +
+              '<div style="font-size:12.5px;color:#10b981;font-weight:600;display:flex;align-items:center;gap:5px;margin-top:2px;">' +
+                '<i class="fa fa-check-circle"></i> ' + t('Administrative file available') +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+          '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">' +
+            '<button type="button" class="btn btn-primary" onclick="window.viewAdminDocument(this.getAttribute(\'data-file\'), this.getAttribute(\'data-name\'))" data-file="' + esc(fileUrl) + '" data-name="' + esc(userName || '') + '" style="background:linear-gradient(135deg,#3b82f6,#2563eb);border:none;border-radius:10px;padding:8px 16px;font-weight:600;">' +
+              '<i class="fa fa-eye"></i> ' + t('View File') +
+            '</button>' +
+            '<button type="button" class="btn btn-default" onclick="window.downloadAdminFile(this.getAttribute(\'data-file\'), this.getAttribute(\'data-name\'))" data-file="' + esc(fileUrl) + '" data-name="' + esc(userName || '') + '" style="border-radius:10px;padding:8px 16px;font-weight:600;border:1.5px solid #e2e8f0;">' +
+              '<i class="fa fa-download"></i> ' + t('Download File') +
+            '</button>' +
+            '<label class="btn btn-warning" style="margin:0;border-radius:10px;padding:8px 16px;font-weight:600;background:#f59e0b;border-color:#f59e0b;color:#fff;cursor:pointer;">' +
+              '<i class="fa fa-refresh"></i> ' + t('Replace File') +
+              '<input type="file" accept=".pdf,image/*,.doc,.docx" style="display:none;" onchange="window.inPlaceUploadAdminFile(this, ' + userId + ', \'' + onDoneName + '\')">' +
+            '</label>' +
+            '<button type="button" class="btn btn-danger" onclick="window.inPlaceDeleteAdminFile(' + userId + ', \'' + onDoneName + '\')" style="border-radius:10px;padding:8px 16px;font-weight:600;background:#ef4444;border-color:#ef4444;">' +
+              '<i class="fa fa-trash"></i> ' + t('Delete File') +
+            '</button>' +
+          '</div>' +
+        '</div>';
+    } else {
+      html = 
+        '<div style="background:#fff;border:1.5px dashed #cbd5e1;border-radius:14px;padding:24px;text-align:center;">' +
+          '<i class="fa fa-folder-open-o" style="font-size:38px;color:#94a3b8;margin-bottom:10px;display:block;"></i>' +
+          '<div style="font-size:14.5px;font-weight:600;color:#64748b;margin-bottom:12px;">' + t('No administrative file uploaded yet') + '</div>' +
+          '<label class="btn btn-success" style="margin:0;border-radius:10px;padding:8px 20px;font-weight:600;background:linear-gradient(135deg,#11998e,#38ef7d);border:none;box-shadow:0 4px 12px rgba(17,153,142,0.25);cursor:pointer;">' +
+            '<i class="fa fa-upload"></i> ' + t('Upload Administrative File') +
+            '<input type="file" accept=".pdf,image/*,.doc,.docx" style="display:none;" onchange="window.inPlaceUploadAdminFile(this, ' + userId + ', \'' + onDoneName + '\')">' +
+          '</label>' +
+        '</div>';
+    }
+    containerEl.innerHTML = html;
+    if (window.AppI18n && window.AppI18n.translateAll) window.AppI18n.translateAll(containerEl);
+  }
+  window.renderProfileAdminFile = renderProfileAdminFile;
+
   function esc(v) {
     return String(v == null ? '' : v)
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -781,6 +1171,34 @@
             alert(err.message || 'Failed to delete teacher');
           });
       }
+    });
+  };
+
+  
+  /* ── Quran Access Quick-Toggle (all-professors table) ── */
+  window.toggleTeacherQuran = function (id, btnEl) {
+    if (!id || !btnEl) return;
+    var current = btnEl.getAttribute('data-quran') === '1';
+    var nextVal = current ? 0 : 1;
+    btnEl.disabled = true;
+    request('/api/teacher-registrations/' + id + '/toggle-quran', {
+      method: 'PUT',
+      body: JSON.stringify({ has_quran_access: nextVal })
+    }).then(function (res) {
+      btnEl.disabled = false;
+      var active = res && (res.has_quran_access === 1 || res.has_quran_access === true);
+      btnEl.setAttribute('data-quran', active ? '1' : '0');
+      btnEl.title = active ? (t('Disable Quran Access') || 'Disable Quran Access') : (t('Enable Quran Access') || 'Enable Quran Access');
+      btnEl.style.background = active ? '#d1fae5' : '#f3f4f6';
+      btnEl.style.color = active ? '#065f46' : '#6b7280';
+      btnEl.style.border = active ? '1px solid #6ee7b7' : '1px solid #e5e7eb';
+      var msg = active ? (t('Quran access enabled') || 'Quran access enabled') : (t('Quran access disabled') || 'Quran access disabled');
+      if (typeof showAlert === 'function') {
+        showAlert('#backend-form-status', msg, 'success');
+      }
+    }).catch(function (err) {
+      btnEl.disabled = false;
+      alert((err && err.message) || 'Error toggling Quran access');
     });
   };
 
@@ -1517,11 +1935,20 @@
     var groupId = groupSel ? groupSel.value : '';
 
     var filtered = _allStudentsCache.filter(function (s) {
-      if (formationId && String(s.formation_id) !== String(formationId)) {
-        return false;
+      if (formationId) {
+        var fIds = (s.formation_ids ? String(s.formation_ids).split(',') : []).concat(s.formation_id ? [String(s.formation_id)] : []);
+        if (s.groups && s.groups.length > 0) {
+          s.groups.forEach(function (g) { if (g.formation_id) fIds.push(String(g.formation_id)); });
+        }
+        if (fIds.indexOf(String(formationId)) === -1) {
+          return false;
+        }
       }
       if (groupId) {
-        var gIds = s.group_ids ? String(s.group_ids).split(',') : [];
+        var gIds = (s.group_ids ? String(s.group_ids).split(',') : []);
+        if (s.groups && s.groups.length > 0) {
+          s.groups.forEach(function (g) { if (g.group_id) gIds.push(String(g.group_id)); });
+        }
         if (gIds.indexOf(String(groupId)) === -1) {
           return false;
         }
@@ -1530,10 +1957,16 @@
         var fullName = [s.first_name, s.last_name].filter(Boolean).join(' ').toLowerCase();
         var reg = (s.registration_number || '').toLowerCase();
         var email = (s.email || '').toLowerCase();
-        var formTitle = (s.formation_title || '').toLowerCase();
+        var formTitle = [s.formation_title, s.formation_titles].filter(Boolean).join(' ').toLowerCase();
         var grpNames = (s.group_names || '').toLowerCase();
-        var phone = (s.parent_phone || '').toLowerCase();
-        var parentName = (s.parent_name || '').toLowerCase();
+        if (s.groups && s.groups.length > 0) {
+          s.groups.forEach(function (g) {
+            if (g.formation_title) formTitle += ' ' + g.formation_title.toLowerCase();
+            if (g.group_name) grpNames += ' ' + g.group_name.toLowerCase();
+          });
+        }
+        var phone = [s.parent_phone, s.parent_phone2, s.phone].filter(Boolean).join(' ').toLowerCase();
+        var parentName = [s.parent_name, s.guardian_name].filter(Boolean).join(' ').toLowerCase();
 
         var match = fullName.indexOf(query) !== -1 ||
                     reg.indexOf(query) !== -1 ||
@@ -1560,12 +1993,50 @@
     renderStudentRows(filtered);
   }
 
+  function formatStudentPaymentDisplay(r) {
+    if (r.groups && r.groups.length > 1) {
+      var pills = r.groups.map(function (g) {
+        var isPaid = g.payment_status === 'paid';
+        var bg = isPaid ? '#dcfce7' : '#fee2e2';
+        var color = isPaid ? '#15803d' : '#b91c1c';
+        var border = isPaid ? '#bbf7d0' : '#fecaca';
+        var icon = isPaid ? 'fa-check-circle' : 'fa-times-circle';
+        var nextDate = g.next_payment_date ? ' <span style="font-size:10px;opacity:0.85;">(' + g.next_payment_date + ')</span>' : '';
+        return '<div style="margin:2px 0;">' +
+          '<span style="background:' + bg + ';color:' + color + ';border:1px solid ' + border + ';padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600;display:inline-flex;align-items:center;gap:4px;" title="' + esc(g.formation_title || g.group_name) + '">' +
+            '<i class="fa ' + icon + '"></i> <strong>' + esc(g.group_name) + '</strong>: ' + (isPaid ? t('Paid') : t('Unpaid')) + nextDate +
+          '</span></div>';
+      }).join('');
+      return '<div style="display:flex;flex-direction:column;align-items:flex-start;">' + pills + '</div>';
+    } else if (r.groups && r.groups.length === 1) {
+      var g = r.groups[0];
+      var isPaid = g.payment_status === 'paid';
+      var badge = isPaid
+        ? '<span class="label label-success" data-i18n="Paid">' + t('Paid') + '</span>'
+        : '<span class="label label-danger" data-i18n="Unpaid">' + t('Unpaid') + '</span>';
+      var nextDate = g.next_payment_date ? '<div style="font-size:11px;color:#64748b;margin-top:2px;">' + t('Next') + ': ' + g.next_payment_date + '</div>' : '';
+      return badge + nextDate;
+    } else {
+      var isPaid = r.payment_status === 'paid';
+      var isPartial = r.payment_status === 'partial';
+      var badge = isPaid
+        ? '<span class="label label-success" data-i18n="Paid">' + t('Paid') + '</span>'
+        : (isPartial
+            ? '<span class="label label-warning" style="background:#fef3c7;color:#d97706;border:1px solid #fde68a;">' + (t('Partial') || 'Partial') + '</span>'
+            : '<span class="label label-danger" data-i18n="Unpaid">' + t('Unpaid') + '</span>');
+      var nextDate = r.next_payment_date ? '<div style="font-size:11px;color:#64748b;margin-top:2px;">' + t('Next') + ': ' + formatGmtPlusOneDate(r.next_payment_date) + '</div>' : '';
+      return badge + nextDate;
+    }
+  }
+
   function formatPaymentStatus(status) {
     var isPaid = status === 'paid';
-    var label = isPaid ? t('Paid') : t('Unpaid');
+    var label = isPaid ? t('Paid') : (status === 'partial' ? (t('Partial') || 'Partial') : t('Unpaid'));
     return isPaid
       ? '<span class="label label-success" data-i18n="Paid">' + label + '</span>'
-      : '<span class="label label-danger" data-i18n="Unpaid">' + label + '</span>';
+      : (status === 'partial'
+          ? '<span class="label label-warning" style="background:#fef3c7;color:#d97706;border:1px solid #fde68a;">' + label + '</span>'
+          : '<span class="label label-danger" data-i18n="Unpaid">' + label + '</span>');
   }
 
   function renderStudentRows(rows) {
@@ -1576,22 +2047,53 @@
       var chk = '<input type="checkbox" class="row-checkbox" value="' + r.id + '" data-type="student" data-name="' + esc(fullName) + '" data-reg="' + esc(r.registration_number) + '" data-photo="' + esc(avatarUrl(r.photo, fullName, 'student', r.gender)) + '" data-formation="' + esc(r.formation_title || '') + '" data-rfid="' + esc(r.rfid_tag || '') + '">';
       var name = esc(fullName);
       var img = '<img src="' + esc(avatarUrl(r.photo, fullName, 'student', r.gender)) + '" style="width:36px;height:36px;border-radius:50%;object-fit:cover" onerror="this.src=\'https://ui-avatars.com/api/?name=S&background=27ae60&color=fff&size=36\'">';
-      var payStatus = formatPaymentStatus(r.payment_status);
+      var payStatus = formatStudentPaymentDisplay(r);
       var statusBadge = r.is_active
         ? '<span class="label label-success" data-i18n="Active">' + t('Active') + '</span>'
         : '<span class="label label-danger" data-i18n="Inactive">' + t('Inactive') + '</span>';
       
-      var formationBadge = r.formation_title
-        ? '<span class="label label-primary" style="font-size:11px;font-weight:600;display:inline-block;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle;" title="' + esc(r.formation_title) + '">' + esc(r.formation_title) + '</span>'
-        : '<span class="text-muted">-</span>';
+      // Formations column (shows count if multiple + formation badges)
+      var formationBadges = '';
+      if (r.formations_count && r.formations_count > 1) {
+        formationBadges += '<span class="badge" style="background:linear-gradient(135deg,#4338ca,#6366f1);color:#fff;font-size:10px;padding:3px 7px;border-radius:12px;margin-bottom:4px;display:inline-block;"><i class="fa fa-cubes"></i> ' + r.formations_count + ' ' + (t('Formations') || 'Formations') + '</span><br>';
+      }
+      if (r.groups && r.groups.length > 0) {
+        var seenFTitles = {};
+        formationBadges += r.groups.map(function(g) {
+          var ft = g.formation_title;
+          if (!ft || seenFTitles[ft]) return '';
+          seenFTitles[ft] = true;
+          return '<span class="label label-primary" style="font-size:10.5px;font-weight:600;display:inline-block;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:1px 0;" title="' + esc(ft) + '">' + esc(ft) + '</span>';
+        }).filter(Boolean).join('<br>');
+      } else if (r.formation_title) {
+        formationBadges += '<span class="label label-primary" style="font-size:11px;font-weight:600;display:inline-block;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle;" title="' + esc(r.formation_title) + '">' + esc(r.formation_title) + '</span>';
+      } else {
+        formationBadges = '<span class="text-muted">-</span>';
+      }
 
-      var groupBadge = r.group_names
-        ? '<span class="label label-info" style="font-size:11px;font-weight:600;display:inline-block;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle;" title="' + esc(r.group_names) + '">' + esc(r.group_names) + '</span>'
-        : '<span class="text-muted">-</span>';
+      // Groups column (shows all groups student belongs to)
+      var groupBadges = '';
+      if (r.groups && r.groups.length > 1) {
+        groupBadges = r.groups.map(function(g) {
+          return '<span class="label label-info" style="font-size:10.5px;font-weight:600;display:inline-block;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:1px 0;" title="' + esc(g.group_name) + '">' + esc(g.group_name) + '</span>';
+        }).join('<br>');
+      } else if (r.group_names) {
+        groupBadges = '<span class="label label-info" style="font-size:11px;font-weight:600;display:inline-block;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle;" title="' + esc(r.group_names) + '">' + esc(r.group_names) + '</span>';
+      } else {
+        groupBadges = '<span class="text-muted">-</span>';
+      }
 
-      return '<tr><td>' + chk + '</td><td>' + img + '</td><td>' + esc(r.registration_number) + '</td><td>' + name + '</td><td>' + formationBadge + '</td><td>' + groupBadge + '</td><td>' + statusBadge + '</td><td>' + esc(formatGmtPlusOneDate(r.enrollment_date)) + '</td><td>' + payStatus + '</td>' +
+      var adminDocBtn = r.administrative_file
+        ? ' <button type="button" class="btn btn-xs btn-primary" onclick="window.viewAdminDocument(this.getAttribute(\'data-file\'), this.getAttribute(\'data-name\'))" data-file="' + esc(r.administrative_file) + '" data-name="' + esc([r.first_name, r.last_name].filter(Boolean).join(' ')) + '" title="' + t('View Administrative File') + '" style="background:#0284c7;border-color:#0284c7;"><i class="fa fa-folder-open"></i></button>'
+        : '';
+
+      var payBtn = '<a href="payments.html?student_id=' + r.id + '" class="btn btn-xs btn-warning" title="' + (t('Record Payment') || 'Record Payment') + '" style="background:#f59e0b;border-color:#f59e0b;color:#fff;"><i class="fa fa-money"></i></a> ';
+
+      return '<tr><td>' + chk + '</td><td>' + img + '</td><td>' + esc(r.registration_number) + '</td><td>' + name + '</td><td>' + formationBadges + '</td><td>' + groupBadges + '</td><td>' + statusBadge + '</td><td>' + esc(formatGmtPlusOneDate(r.enrollment_date)) + '</td><td>' + payStatus + '</td>' +
         '<td><a href="student-profile.html?id=' + r.id + '" class="btn btn-xs btn-success" title="' + t('View Details') + '"><i class="fa fa-eye"></i></a> ' +
         '<a href="edit-student.html?id=' + r.id + '" class="btn btn-xs btn-info" title="' + t('Edit') + '"><i class="fa fa-pencil"></i></a> ' +
+        payBtn +
+        adminDocBtn + ' ' +
         '<button type="button" class="btn btn-xs btn-danger" onclick="window.deleteStudent(' + r.id + ', this, event)" data-del-student="' + r.id + '" title="' + t('Delete') + '"><i class="fa fa-trash"></i></button></td></tr>';
     }).join('');
     if (window.AppI18n && window.AppI18n.translateAll) {
@@ -2084,6 +2586,7 @@
             payment_status: fd.get('payment_status') || 'not_paid',
             subscription_plan: fd.get('subscription_plan') || null,
             promo_code: fd.get('promo_code') || null,
+            administrative_file: fd.get('administrative_file') || null,
             rfid_tag: fd.get('rfid_tag') || window.__newStudentRegNum || null,
           })
         }).then(function (resp) {
@@ -2109,6 +2612,7 @@
           }
         }).then(function () {
           form.reset();
+          clearAdminFileFormSelection('student-admin-file-path', 'student-admin-file-display', 'student-admin-file-preview');
           if (dupState) {
             dupState.hasDuplicate = false;
             dupState.confirmed = false;
@@ -2145,7 +2649,7 @@
         'formation_id', 'registration_number', 'parent_name', 'parent_phone', 'parent_phone2',
         'guardian_name', 'guardian_relationship', 'guardian_id_number', 'parent_id_number',
         'health_notes', 'parents_status', 'enrollment_date', 'payment_status', 'subscription_plan',
-        'promo_code', 'discount_percent', 'next_payment_date', 'rfid_tag'
+        'promo_code', 'discount_percent', 'next_payment_date', 'rfid_tag', 'administrative_file'
       ];
       fields.forEach(function (f) {
         var el = form.querySelector('[name="' + f + '"]');
@@ -2157,6 +2661,11 @@
           }
         }
       });
+      if (s.administrative_file) {
+        var aDisplay = document.getElementById('student-admin-file-display');
+        if (aDisplay) aDisplay.value = s.administrative_file.split('/').pop();
+        renderAdminFilePreviewBox('student-admin-file-preview', s.administrative_file, s.administrative_file.split('/').pop(), 'student-admin-file-path', 'student-admin-file-display');
+      }
       // Auto-fill rfid_tag with registration_number if the student has no tag set
       var rfidEl = form.querySelector('[name="rfid_tag"]');
       if (rfidEl && !rfidEl.value && s.registration_number) {
@@ -2240,7 +2749,7 @@
         'formation_id', 'registration_number', 'parent_name', 'parent_phone', 'parent_phone2',
         'guardian_name', 'guardian_relationship', 'guardian_id_number', 'parent_id_number',
         'health_notes', 'parents_status', 'enrollment_date', 'payment_status', 'subscription_plan',
-        'promo_code', 'discount_percent', 'next_payment_date', 'rfid_tag'
+        'promo_code', 'discount_percent', 'next_payment_date', 'rfid_tag', 'administrative_file'
       ];
       fields.forEach(function (f) {
         var v = fd.get(f); if (v !== null) payload[f] = v || null;
@@ -2353,9 +2862,19 @@
         : '<span class="label" style="background:#dbeafe;color:#1e40af;border:1px solid #93c5fd;">' + t('Teacher') + '</span>';
       var specOrJob = isEmployee ? esc(r.job_title || '-') : esc(r.speciality || '-');
       var phone = esc(r.phone || '-');
+      var adminDocBtn = r.administrative_file
+        ? ' <button type="button" class="btn btn-xs btn-primary" onclick="window.viewAdminDocument(this.getAttribute(\'data-file\'), this.getAttribute(\'data-name\'))" data-file="' + esc(r.administrative_file) + '" data-name="' + esc([r.first_name, r.last_name].filter(Boolean).join(' ')) + '" title="' + t('View Administrative File') + '" style="background:#0284c7;border-color:#0284c7;"><i class="fa fa-folder-open"></i></button>'
+        : '';
+
+      var hasQuranAccess = r.has_quran_access == 1;
+      var isEmployee = r.staff_type === 'employee';
+      var quranBtn = !isEmployee
+        ? ' <button type="button" class="btn btn-xs" onclick="window.toggleTeacherQuran(' + r.id + ', this)" data-teacher-id="' + r.id + '" data-quran="' + (hasQuranAccess ? '1' : '0') + '" title="' + (hasQuranAccess ? t('Disable Quran Access') : t('Enable Quran Access')) + '" style="' + (hasQuranAccess ? 'background:#d1fae5;color:#065f46;border:1px solid #6ee7b7;' : 'background:#f3f4f6;color:#6b7280;border:1px solid #e5e7eb;') + 'border-radius:6px;"><i class="fa fa-book"></i></button>'
+        : '';
       return '<tr><td>' + chk + '</td><td>' + img + '</td><td>' + esc(r.employee_number) + '</td><td>' + name + '</td><td>' + typeBadge + '</td><td>' + phone + '</td><td>' + esc(r.email) + '</td><td>' + statusBadge + '</td><td>' + specOrJob + '</td><td>' + esc(fmtDate(r.hire_date)) + '</td>' +
         '<td><a href="professor-profile.html?id=' + r.id + '" class="btn btn-xs btn-success" title="' + t('View Details') + '"><i class="fa fa-eye"></i></a> ' +
-        '<a href="edit-professor.html?id=' + r.id + '" class="btn btn-xs btn-info" title="' + t('Edit') + '"><i class="fa fa-pencil"></i></a> ' +
+        '<a href="edit-professor.html?id=' + r.id + '" class="btn btn-xs btn-info" title="' + t('Edit') + '"><i class="fa fa-pencil"></i></a>' +
+        adminDocBtn + quranBtn + ' ' +
         '<button type="button" class="btn btn-xs btn-danger" onclick="window.deleteTeacher(' + r.id + ', this, event)" data-del-teacher="' + r.id + '" title="' + t('Delete') + '"><i class="fa fa-trash"></i></button></td></tr>';
     }).join('');
     if (window.AppI18n && window.AppI18n.translateAll) {
@@ -2594,10 +3113,12 @@
             blood_type: fd.get('blood_type') || null,
             staff_type: fd.get('staff_type') || 'teacher',
             job_title: fd.get('job_title') || null,
+            has_quran_access: (fd.get('has_quran_access') === '1' ? 1 : 0),
             employee_number: (function() { var en = Math.floor(1000000000 + Math.random() * 9000000000).toString(); window.__newTeacherEmpNum = en; return en; })(), speciality: fd.get('speciality') || null,
             diploma: fd.get('diploma') || null, hire_date: fd.get('hire_date') || null,
             national_id: fd.get('national_id') || null,
             social_security_number: fd.get('social_security_number') || null,
+            administrative_file: fd.get('administrative_file') || null,
             rfid_tag: fd.get('rfid_tag') || window.__newTeacherEmpNum || null,
           })
         }).then(function (resp) {
@@ -2607,6 +3128,7 @@
             : t('Teacher created successfully');
           showAlert('#backend-form-status', successMsg, isDuplicate ? 'warning' : 'success');
           form.reset();
+          clearAdminFileFormSelection('teacher-admin-file-path', 'teacher-admin-file-display', 'teacher-admin-file-preview');
           if (dupState) {
             dupState.hasDuplicate = false;
             dupState.confirmed = false;
@@ -2628,7 +3150,7 @@
       var fields = [
         'first_name', 'last_name', 'email', 'phone', 'gender', 'birth_date', 'photo', 'blood_type',
         'employee_number', 'speciality', 'diploma', 'hire_date', 'national_id', 'social_security_number',
-        'monthly_salary', 'ccp_rib', 'preferred_pay_method', 'rfid_tag', 'staff_type', 'job_title'
+        'monthly_salary', 'ccp_rib', 'preferred_pay_method', 'rfid_tag', 'staff_type', 'job_title', 'administrative_file'
       ];
       fields.forEach(function (f) {
         var el = form.querySelector('[name="' + f + '"]');
@@ -2640,6 +3162,11 @@
           }
         }
       });
+      if (tc.administrative_file) {
+        var tDisplay = document.getElementById('teacher-admin-file-display');
+        if (tDisplay) tDisplay.value = tc.administrative_file.split('/').pop();
+        renderAdminFilePreviewBox('teacher-admin-file-preview', tc.administrative_file, tc.administrative_file.split('/').pop(), 'teacher-admin-file-path', 'teacher-admin-file-display');
+      }
       // Auto-fill rfid_tag with employee_number if the teacher has no tag set
       var tRfidEl = form.querySelector('[name="rfid_tag"]');
       if (tRfidEl && !tRfidEl.value && tc.employee_number) {
@@ -2651,10 +3178,23 @@
       if (bloodTypeEl && tc.blood_type) bloodTypeEl.value = tc.blood_type;
       var payMethodEl = form.querySelector('[name="preferred_pay_method"]');
       if (payMethodEl && tc.preferred_pay_method) payMethodEl.value = tc.preferred_pay_method;
+      // Set Quran access
+      var quranEl = form.querySelector('[name="has_quran_access"]');
+      if (quranEl) quranEl.value = tc.has_quran_access ? '1' : '0';
+      // Hide Quran block for employees
+      var quranGrp = document.getElementById('quran-access-group');
       var staffTypeEl = form.querySelector('[name="staff_type"]');
       if (staffTypeEl) {
         if (tc.staff_type) staffTypeEl.value = tc.staff_type;
         staffTypeEl.dispatchEvent(new Event('change'));
+      }
+      // Sync quran-access-group visibility with staff_type
+      if (quranGrp && staffTypeEl) {
+        function syncQuranGroup() {
+          quranGrp.style.display = staffTypeEl.value === 'employee' ? 'none' : '';
+        }
+        syncQuranGroup();
+        staffTypeEl.addEventListener('change', syncQuranGroup);
       }
       var preview = document.getElementById('teacher-photo-preview');
       if (preview) preview.src = avatarUrl(tc.photo, [tc.first_name, tc.last_name].join(' '), 'teacher', tc.gender);
@@ -2670,7 +3210,7 @@
       var fields = [
         'first_name', 'last_name', 'email', 'phone', 'gender', 'birth_date', 'photo', 'blood_type',
         'employee_number', 'speciality', 'diploma', 'hire_date', 'national_id', 'social_security_number',
-        'monthly_salary', 'ccp_rib', 'preferred_pay_method', 'rfid_tag', 'staff_type', 'job_title'
+        'monthly_salary', 'ccp_rib', 'preferred_pay_method', 'rfid_tag', 'staff_type', 'job_title', 'administrative_file'
       ];
       fields.forEach(function (f) {
         var v = fd.get(f); if (v !== null) payload[f] = v || null;
@@ -2678,6 +3218,8 @@
       if (payload.speciality) payload.specialization = payload.speciality;
       var isActive = fd.get('is_active');
       if (isActive !== null) payload.is_active = isActive === '1' ? 1 : 0;
+      var quranAccess = fd.get('has_quran_access');
+      if (quranAccess !== null) payload.has_quran_access = quranAccess === '1' ? 1 : 0;
 
       // Handle password change — only send if provided and matching
       var newPwd = (fd.get('new_password') || '').trim();
@@ -4383,13 +4925,69 @@
       document.getElementById('sp-blood-type').textContent = tc.blood_type || '-';
       
       document.getElementById('sp-enrollment-date').textContent = fmtDate(tc.enrollment_date);
-      document.getElementById('sp-formation').textContent = tc.formation_title || '-';
+      if (tc.formations_count && tc.formations_count > 1) {
+        document.getElementById('sp-formation').textContent = (tc.formation_titles || tc.formation_title || '-') + ' (' + tc.formations_count + ' ' + (t('Formations') || 'Formations') + ')';
+      } else {
+        document.getElementById('sp-formation').textContent = tc.formation_titles || tc.formation_title || '-';
+      }
       document.getElementById('sp-subscription-plan').textContent = formatSubscriptionPlan(tc.subscription_plan);
       document.getElementById('sp-payment-status').innerHTML = formatPaymentStatus(tc.payment_status);
       document.getElementById('sp-next-payment-date').textContent = fmtDate(tc.next_payment_date);
       document.getElementById('sp-status').innerHTML = tc.is_active ? '<span class="label label-success">' + t('Active') + '</span>' : '<span class="label label-danger">' + t('Inactive') + '</span>';
       var spRfid = document.getElementById('sp-rfid-tag');
       if (spRfid) spRfid.textContent = tc.rfid_tag || '-';
+
+      // Render Enrolled Formations & Groups Breakdown
+      var spGroupsCont = document.getElementById('sp-groups-container');
+      var spGroupsBadge = document.getElementById('sp-groups-count-badge');
+      if (spGroupsCont) {
+        var grps = tc.groups || [];
+        if (spGroupsBadge) {
+          if (grps.length > 0) {
+            spGroupsBadge.textContent = grps.length + ' ' + (t('Groups') || 'Groups');
+            spGroupsBadge.style.display = 'inline-block';
+          } else {
+            spGroupsBadge.style.display = 'none';
+          }
+        }
+        if (!grps.length) {
+          spGroupsCont.innerHTML = '<div style="background:#f8fafc;border:1px dashed #cbd5e1;border-radius:12px;padding:20px;text-align:center;color:#64748b;">' +
+            '<i class="fa fa-info-circle" style="font-size:18px;margin-bottom:6px;display:block;"></i>' +
+            (t('No groups assigned yet.') || 'No groups assigned yet.') +
+            ' <a href="edit-student.html?id=' + tc.id + '" style="font-weight:600;color:#2563eb;margin-inline-start:6px;">' + (t('Assign Groups') || 'Assign Groups') + ' &rarr;</a>' +
+            '</div>';
+        } else {
+          var cardsHtml = grps.map(function(g) {
+            var isPaid = g.payment_status === 'paid';
+            var statusPill = isPaid
+              ? '<span class="label label-success" style="font-size:12px;padding:4px 10px;border-radius:14px;"><i class="fa fa-check-circle"></i> ' + t('Paid') + '</span>'
+              : '<span class="label label-danger" style="font-size:12px;padding:4px 10px;border-radius:14px;"><i class="fa fa-times-circle"></i> ' + t('Unpaid') + '</span>';
+            var priceStr = g.price ? Number(g.price).toLocaleString() + ' DZD' : '-';
+            var nextPayStr = g.next_payment_date ? fmtDate(g.next_payment_date) : '-';
+            var teacherStr = g.teacher_name || '-';
+            return '<div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:14px;padding:18px 22px;box-shadow:0 2px 6px rgba(0,0,0,0.03);display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px;">' +
+              '<div style="min-width:200px;flex:1;">' +
+                '<div style="font-size:16px;font-weight:700;color:#0f172a;display:flex;align-items:center;gap:8px;">' +
+                  '<i class="fa fa-folder-open-o" style="color:#6366f1;"></i> ' + esc(g.formation_title || 'Formation') +
+                  ' <span class="label label-info" style="font-size:11px;font-weight:600;padding:3px 8px;border-radius:12px;">' + esc(g.group_name) + '</span>' +
+                '</div>' +
+                '<div style="display:flex;flex-wrap:wrap;gap:18px;margin-top:8px;font-size:12.5px;color:#64748b;">' +
+                  '<div><i class="fa fa-user-circle-o" style="color:#94a3b8;"></i> <strong style="color:#475569;">' + (t('Teacher') || 'Teacher') + ':</strong> ' + esc(teacherStr) + '</div>' +
+                  '<div><i class="fa fa-tag" style="color:#94a3b8;"></i> <strong style="color:#475569;">' + (t('Price') || 'Price') + ':</strong> ' + priceStr + '</div>' +
+                  '<div><i class="fa fa-calendar" style="color:#94a3b8;"></i> <strong style="color:#475569;">' + (t('Next Payment') || 'Next Payment') + ':</strong> ' + nextPayStr + '</div>' +
+                '</div>' +
+              '</div>' +
+              '<div style="display:flex;align-items:center;gap:12px;">' +
+                statusPill +
+                '<a href="payments.html?student_id=' + tc.id + '&group_id=' + g.group_id + '" class="btn btn-sm btn-warning" style="background:#f59e0b;border-color:#f59e0b;color:#fff;font-weight:600;border-radius:8px;padding:6px 14px;display:inline-flex;align-items:center;gap:6px;">' +
+                  '<i class="fa fa-money"></i> <span>' + (t('Pay this Group') || 'Pay this Group') + '</span>' +
+                '</a>' +
+              '</div>' +
+            '</div>';
+          }).join('');
+          spGroupsCont.innerHTML = '<div style="display:flex;flex-direction:column;gap:12px;">' + cardsHtml + '</div>';
+        }
+      }
 
       document.getElementById('sp-parent-name').textContent = tc.parent_name || '-';
       
@@ -4428,11 +5026,19 @@
       // Wire hero edit link
       var spEditLink = document.getElementById('sp-edit-link');
       if (spEditLink) spEditLink.href = 'edit-student.html?id=' + tc.id;
+
+      // Render Administrative File (الملف الإداري)
+      var spAdminFileCont = document.getElementById('sp-admin-file-container');
+      if (spAdminFileCont) {
+        var stuFullName = [tc.first_name, tc.last_name].filter(Boolean).join(' ');
+        renderProfileAdminFile(spAdminFileCont, tc.administrative_file, tc.user_id, stuFullName, loadStudentProfile);
+      }
       
       // Trigger i18n translation for dynamically injected strings
       if (window.AppI18n) window.AppI18n.translateAll(document.body);
     }).catch(function (err) { showAlert(cont, err.message); });
   }
+  window.loadStudentProfile = loadStudentProfile;
 
   function loadTeacherProfile() {
     var cont = document.querySelector('#tp-container'); if (!cont) return;
@@ -4589,10 +5195,18 @@
         });
       }
 
+      // Render Administrative File (الملف الإداري)
+      var tpAdminFileCont = document.getElementById('tp-admin-file-container');
+      if (tpAdminFileCont) {
+        var profFullName = [tc.first_name, tc.last_name].filter(Boolean).join(' ');
+        renderProfileAdminFile(tpAdminFileCont, tc.administrative_file, tc.user_id, profFullName, loadTeacherProfile);
+      }
+
       // Apply i18n translations (include hero card outside tp-content)
       if (window.AppI18n) window.AppI18n.translateAll(document.body);
     }).catch(function (err) { showAlert(cont, err.message); });
   }
+  window.loadTeacherProfile = loadTeacherProfile;
 
   function loadFormationProfile() {
     var cont = document.querySelector('#cp-container'); if (!cont) return;

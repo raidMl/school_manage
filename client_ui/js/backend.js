@@ -94,7 +94,13 @@
   }
   function setText(sel, val) { var e = document.querySelector(sel); if (e) e.textContent = val; }
   function redirect(url) { window.location.href = url; }
-  function getPage() { return (document.body && document.body.getAttribute('data-page')) || ''; }
+  function getPage() {
+    var p = (document.body && document.body.getAttribute('data-page')) || '';
+    if (p) return p;
+    var pathname = window.location.pathname || '';
+    var file = pathname.split('/').pop() || '';
+    return file.replace(/\.html.*$/, '');
+  }
   function isAuthPage() { var p = getPage(); return p === 'login'; }
   function showAlert(sel, msg, type) {
     var el = document.querySelector(sel); if (!el) return;
@@ -121,8 +127,8 @@
 
   // ── Auth ─────────────────────────────────────────────────────────────────────
   var ALLOWED_PAGES = {
-    'student': ['student-space', 'student-profile', 'student-attendance', 'student-payments'],
-    'teacher': ['teacher-space', 'attendance', 'teacher-profile', 'teacher-attendance', 'teacher-payments']
+    'student': ['student-space', 'student-profile', 'student-attendance', 'student-payments', 'student-schedule', 'student-register'],
+    'teacher': ['teacher-space', 'attendance', 'teacher-profile', 'teacher-attendance', 'teacher-payments', 'teacher-schedule', 'teacher-quran']
   };
 
   function ensureAuth() {
@@ -140,10 +146,23 @@
     request('/api/auth/me').then(function (ctx) {
       var role = ctx.user.role;
       var page = getPage();
-      var allowed = ALLOWED_PAGES[role];
+      var path = window.location.pathname || '';
+      var file = path.split('/').pop().replace(/\.html.*$/, '');
 
+      // Explicitly allow teacher-quran for teachers without bouncing
+      if (role === 'teacher' && (page === 'teacher-quran' || file === 'teacher-quran')) {
+        window._ctx = ctx;
+        populateAuthUI();
+        if (typeof window.onAuthReady === 'function') window.onAuthReady();
+        return;
+      }
+
+      var allowed = ALLOWED_PAGES[role];
       if (!allowed) { clearToken(); redirect('index.html'); return; }
-      if (allowed.indexOf(page) === -1) { redirect(allowed[0] + '.html'); return; }
+      if (allowed.indexOf(page) === -1 && allowed.indexOf(file) === -1) {
+        redirect(allowed[0] + '.html');
+        return;
+      }
 
       window._ctx = ctx;
       populateAuthUI();
@@ -313,6 +332,17 @@
 
     var sbAvatar = document.getElementById('sb-user-avatar');
     if (sbAvatar) sbAvatar.src = avatarUrl(ctx.user.photo, name, role, ctx.user.gender);
+
+    // Show Quran Memorization link only for teachers with has_quran_access
+    if (role === 'teacher') {
+      request('/api/teacher-space/me').then(function (res) {
+        var hasQuran = res && res.profile && (res.profile.has_quran_access == 1 || res.profile.has_quran_access === true);
+        var quranItems = document.querySelectorAll('#app-sidebar [data-quran-only="true"]');
+        quranItems.forEach(function (el) {
+          el.style.display = hasQuran ? '' : 'none';
+        });
+      }).catch(function () { /* silently fail — quran item stays hidden */ });
+    }
   }
 
   function bindLogout() {

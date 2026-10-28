@@ -80,6 +80,7 @@ async function bootstrapDatabase() {
       // Make school_id nullable if it exists as NOT NULL
       await safeAlter(connection, `ALTER TABLE teachers MODIFY COLUMN school_id BIGINT UNSIGNED NULL`);
       await safeAlter(connection, `ALTER TABLE teachers ADD COLUMN school_id BIGINT UNSIGNED NULL AFTER user_id`);
+      await safeAlter(connection, `ALTER TABLE teachers ADD COLUMN has_quran_access TINYINT(1) NOT NULL DEFAULT 0 AFTER staff_type`);
 
       // formations table additions
       await safeAlter(connection, `ALTER TABLE formations ADD COLUMN image VARCHAR(255) NULL AFTER description`);
@@ -142,6 +143,16 @@ async function bootstrapDatabase() {
       await safeAlter(connection, `ALTER TABLE payment_history ADD COLUMN subscription_plan VARCHAR(20) NULL AFTER notes`);
       await safeAlter(connection, `ALTER TABLE payment_history ADD COLUMN promo_code_id BIGINT UNSIGNED NULL AFTER subscription_plan`);
       await safeAlter(connection, `ALTER TABLE payment_history ADD COLUMN discount_percent DECIMAL(5,2) DEFAULT 0 AFTER promo_code_id`);
+      await safeAlter(connection, `ALTER TABLE payment_history ADD COLUMN group_id BIGINT UNSIGNED NULL AFTER student_id`);
+      await safeAlter(connection, `ALTER TABLE payment_history ADD COLUMN formation_id BIGINT UNSIGNED NULL AFTER group_id`);
+
+      // student_groups per-group payment tracking
+      await safeAlter(connection, `ALTER TABLE student_groups ADD COLUMN payment_status VARCHAR(20) NOT NULL DEFAULT 'unpaid'`);
+      await safeAlter(connection, `ALTER TABLE student_groups ADD COLUMN subscription_plan VARCHAR(20) NULL`);
+      await safeAlter(connection, `ALTER TABLE student_groups ADD COLUMN next_payment_date DATE NULL`);
+      await safeAlter(connection, `ALTER TABLE student_groups ADD COLUMN last_payment_date DATE NULL`);
+      await safeAlter(connection, `ALTER TABLE student_groups ADD COLUMN discount_percent DECIMAL(5,2) DEFAULT 0`);
+      await safeAlter(connection, `ALTER TABLE student_groups ADD COLUMN promo_code_id BIGINT UNSIGNED NULL`);
 
       // contact_infos social media columns
       await safeAlter(connection, `ALTER TABLE contact_infos ADD COLUMN fb VARCHAR(255) NULL`);
